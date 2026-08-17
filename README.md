@@ -1,7 +1,7 @@
-- 👋 Hi, I’m @YAMIR-1138
-- 👀 I’m interested in genetics and bioinformatics
-- 🌱 I’m currently working on my PhD
-- 😄 Pronouns: He/Him/They
+-  Hey! I’m @YAMIR-1138
+-  I’m interested in genetics and bioinformatics
+-  I’m currently working on my PhD
+-  Pronouns: He/Him/They
 
 ### Projects
 
