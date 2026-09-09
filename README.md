@@ -9,5 +9,5 @@
 - [GPCompaRe](https://tggr-lab.github.io/gpcompreports/)
 - [GeNest](https://yamir-1138.github.io/genest-website/)
 - [Sourdough Calculator](https://yamir-1138.github.io/dough_formulator/)
-- [BenchNate](https://yamir-1138.github.io/benchmate/)
+- [BenchMate](https://yamir-1138.github.io/benchmate/)
 
