@@ -5,6 +5,7 @@
 
 ### Projects
 
+- [Pellaeon](tggr-lab.github.io/pellaeon/)
 - [ΣpinZero](https://yamir-1138.github.io/SpinZero/)
 - [GPCompaRe](https://tggr-lab.github.io/gpcompreports/)
 - [GeNest](https://yamir-1138.github.io/genest-website/)
