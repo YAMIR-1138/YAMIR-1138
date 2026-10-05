@@ -1,0 +1,2930 @@
+<!doctype html>
+<!--
+  YAM AMIR · YAMIR-1138 · landing page
+  One file, no build step. Open it in a browser, or serve it from GitHub Pages.
+
+  HOW TO EDIT
+    A project        find its <li class="card"> below and change the text and links.
+    Hide a project   add the word hidden to its <li>. Show it again by removing the word.
+    Add a project    copy a card. Give it data-project, data-dir and data-site.
+                     For an icon, use one of: kite gpcr rotor nest co2 wheat.
+    About and links  edit the <dl class="kv"> and the <ul class="profile">.
+    The terminal     lives at the bottom, closed. / or ~ opens it.
+    Boot log         the BOOT list in the first script.
+    Shell commands   the COMMANDS object in the first script. help lists the public ones.
+    Sound            off unless a visitor types: sound on. The noises are in Sfx, first script.
+    Your details     also in the ld+json block in the head, which search engines read.
+    The cat          her outlines are in CATDATA. Her behaviour is the last script.
+                     Add ?debug=cat to the address to speed her up and get window.Camille.
+
+  ALSO IN THIS FOLDER
+    404.html   shown by GitHub Pages for a missing page
+    og.png     the picture a shared link shows
+-->
+<html lang="en" data-theme="amber">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yam Amir · YAMIR-1138</title>
+<meta name="description" content="Yam Amir (YAMIR-1138). Geneticist and PhD student in Tel Aviv: how GPCRs switch on, how genes nest inside other genes, what rare variants do in the clinic. Pellaeon, GPCompaRe and other things built along the way.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Yam Amir · YAMIR-1138">
+<meta property="og:description" content="Genetics · structural bioinformatics · genomics. PhD student, Tel Aviv.">
+<meta property="og:url" content="https://yamir-1138.github.io/YAMIR-1138/">
+<meta property="og:image" content="https://yamir-1138.github.io/YAMIR-1138/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Yam Amir, callsign YAMIR-1138, in amber phosphor on a dark screen, with a cat sitting on the name.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="author" content="Yam Amir">
+<link rel="canonical" href="https://yamir-1138.github.io/YAMIR-1138/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Yam Amir",
+  "alternateName": "YAMIR-1138",
+  "url": "https://yamir-1138.github.io/YAMIR-1138/",
+  "jobTitle": "PhD student",
+  "affiliation": [
+    { "@type": "Organization", "name": "Tel Aviv University" },
+    { "@type": "Organization", "name": "Tel Aviv Sourasky Medical Center" }
+  ],
+  "memberOf": { "@type": "Organization", "name": "TGGR Lab", "url": "https://github.com/tggr-lab" },
+  "knowsAbout": ["Genetics", "Clinical genomics", "Structural bioinformatics", "G protein-coupled receptors", "Nested genes"],
+  "sameAs": [
+    "https://github.com/YAMIR-1138",
+    "https://orcid.org/0000-0002-4900-6345",
+    "https://www.researchgate.net/profile/Yam-Amir",
+    "https://il.linkedin.com/in/yam-amir-640823191"
+  ]
+}
+</script>
+<meta name="theme-color" content="#060402">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23060402'/%3E%3Cpath d='M6 7l6 6h8l6-6v14a6 6 0 0 1-6 6h-8a6 6 0 0 1-6-6z' fill='%23ffb000'/%3E%3Ccircle cx='12' cy='19' r='2.2' fill='%23060402'/%3E%3Ccircle cx='20' cy='19' r='2.2' fill='%23060402'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>
+  document.documentElement.classList.add('js');
+  // the saved phosphor is set before anything is painted, so nobody sees the wrong colour first
+  try { if (JSON.parse(localStorage.getItem('phosphor-v2')) === 'green') document.documentElement.dataset.theme = 'green'; } catch (e) {}
+</script>
+<style>
+  /* ============================================================
+     TOKENS. Amber is the default phosphor, green is the alternate.
+     ============================================================ */
+  :root {
+    --bg: #060402;
+    --bg-2: #140e06;
+    --fg: #ffb000;
+    --hi: #ffe2a6;
+    --dim: #d69a1a;
+    --faint: #5e4100;
+    --line: #5c4210;
+    --edge: #8f6a1c;        /* the border of anything you can press */
+    --warn: #ff6a3d;
+    --fur: #0c0802;
+    --eye: #e9ffb3;            /* eyeshine, the way a cat looks back at a torch */
+    --glow-rgb: 255, 176, 0;
+    --glow: 0 0 5px rgba(var(--glow-rgb), .5), 0 0 16px rgba(var(--glow-rgb), .16);
+    --glow-hi: 0 0 6px rgba(var(--glow-rgb), .8), 0 0 22px rgba(var(--glow-rgb), .3);
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --display: "VT323", var(--mono);
+  }
+  :root[data-theme="green"] {
+    --bg: #030604;
+    --bg-2: #0a130c;
+    --fg: #3dff7a;
+    --hi: #d2ffe1;
+    --dim: #3cc46e;
+    --faint: #135a2e;
+    --line: #1c5230;
+    --edge: #2a7d48;
+    --warn: #ffb000;
+    --fur: #020a05;
+    --eye: #f1ffd9;
+    --glow-rgb: 61, 255, 122;
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--bg); scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    position: relative;
+    background: radial-gradient(ellipse at 50% 30%, var(--bg-2) 0%, var(--bg) 70%) fixed;
+    color: var(--fg);
+    font-family: var(--mono);
+    font-size: 15px;
+    line-height: 1.6;
+    text-shadow: var(--glow);
+    overflow-x: hidden;
+  }
+
+  /* ---- CRT: scanlines, vignette, flicker, slow scan bar */
+  .crt, .crt::before, .crt::after { position: fixed; inset: 0; pointer-events: none; }
+  .crt { z-index: 50; }
+  .crt::before {
+    content: "";
+    background: repeating-linear-gradient(to bottom,
+      rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.2) 3px, rgba(0,0,0,.2) 4px);
+  }
+  .crt::after {
+    content: "";
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 58%, rgba(0,0,0,.5) 100%);
+  }
+  .crt i {
+    position: absolute; left: 0; right: 0; top: -20%; height: 18%;
+    background: linear-gradient(to bottom, rgba(var(--glow-rgb),0), rgba(var(--glow-rgb),.05), rgba(var(--glow-rgb),0));
+    animation: scanbar 9s linear infinite;
+  }
+  .crt b {
+    position: absolute; inset: 0; background: rgba(255,255,255,.014);
+    animation: flicker 5s infinite steps(1);
+  }
+  @keyframes scanbar { to { transform: translateY(700%); } }
+  @keyframes flicker {
+    0%,100% { opacity: .6 } 7% { opacity: .2 } 8% { opacity: .9 } 9% { opacity: .3 }
+    45% { opacity: .7 } 46% { opacity: .1 } 47% { opacity: .8 }
+    83% { opacity: .5 } 84% { opacity: 1 } 85% { opacity: .4 }
+  }
+  @keyframes poweron {
+    0% { transform: scaleY(.004) scaleX(.6); filter: brightness(6); opacity: 0; }
+    35% { transform: scaleY(.004) scaleX(1); filter: brightness(6); opacity: 1; }
+    100% { transform: none; filter: none; opacity: 1; }
+  }
+  .still .crt i, .still .crt b, .still .blink { animation: none; }
+  .js .screen { animation: poweron .5s cubic-bezier(.2,.8,.2,1) both; transform-origin: 50% 30vh; }
+
+  a { color: var(--hi); text-shadow: var(--glow-hi); text-decoration: none; border-bottom: 1px dashed var(--dim); }
+  a:hover { background: var(--fg); color: var(--bg); text-shadow: none; border-bottom-color: transparent; }
+  a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--hi); outline-offset: 2px; }
+  ::selection { background: var(--fg); color: var(--bg); text-shadow: none; }
+  b, strong { font-weight: 600; }
+
+  .skip { position: absolute; left: -9999px; top: 0; z-index: 60; background: var(--fg); color: var(--bg); padding: 6px 12px; text-shadow: none; border: 0; }
+  .skip:focus { left: 16px; top: 8px; }
+
+  .screen { max-width: 1040px; margin: 0 auto; padding: 20px 16px 72px; }
+
+  /* ---- status bar */
+  .bar {
+    display: flex; flex-wrap: wrap; gap: 6px 20px; align-items: baseline; justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px; margin-bottom: 20px;
+    font-size: 12.5px; color: var(--dim); letter-spacing: .5px;
+  }
+  .bar .id b { color: var(--fg); }
+  .bar nav { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+  .bar nav a { color: var(--fg); text-shadow: var(--glow); border: 0; }
+  .bar nav a:hover { color: var(--bg); }
+  .btn {
+    font: inherit; background: none; border: 1px solid var(--edge); color: var(--fg);
+    padding: 1px 8px; cursor: pointer; text-shadow: var(--glow); border-radius: 0;
+  }
+  .btn:hover { background: var(--fg); color: var(--bg); text-shadow: none; }
+  .btn:disabled { color: var(--dim); border-style: dashed; cursor: default; background: none; text-shadow: none; }
+
+  /* ---- boot log */
+  #boot { color: var(--dim); white-space: pre-wrap; margin: 0 0 22px; font: inherit; font-size: 13.5px; line-height: 1.5; transition: opacity .7s, max-height .5s .4s, margin .5s .4s; max-height: 160px; overflow: hidden; }
+  #boot.done { opacity: 0; max-height: 0; margin: 0; }   /* the boot lines go once the page is up. They are in the terminal again, at the bottom */
+  #boot .ok { color: var(--fg); }
+  #boot .hd { color: var(--hi); text-shadow: var(--glow-hi); }
+  html:not(.js) #boot, html:not(.js) #helix, html:not(.js) #term, html:not(.js) .bar .btn { display: none; }
+  .blink { animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0 } }
+  .js main.booting { visibility: hidden; }
+
+  /* the one block cursor Camille hunts */
+  #cursor { display: inline-block; color: var(--hi); text-shadow: var(--glow-hi); margin-left: 3px; }
+  #cursor.caught { animation: none; opacity: .35; }
+
+  /* ---- hero */
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px 36px; align-items: center; margin-bottom: 44px; }
+  .callsign { margin: 0; font-size: 13px; letter-spacing: 3px; color: var(--dim); }
+  .callsign a { color: var(--fg); letter-spacing: 2px; border: 0; }
+  h1 {
+    font-family: var(--display); font-weight: 400;
+    font-size: clamp(68px, 15vw, 148px); line-height: .82; margin: 2px 0 14px -3px;
+    letter-spacing: 2px; color: var(--hi); text-shadow: var(--glow-hi);
+  }
+  .role { margin: 0 0 4px; font-size: 15px; color: var(--hi); }
+  .role .sep, .where .sep { color: var(--dim); }
+  .where { margin: 0 0 12px; font-size: 14px; }
+  .tagline { margin: 0 0 16px; color: var(--dim); max-width: 58ch; }
+  .profile { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 10px; font-size: 13.5px; }
+  .profile li[hidden] { display: none; }
+  .profile a { display: inline-block; border: 1px solid var(--edge); padding: 3px 10px; }
+  .profile a::before { content: "[ "; color: var(--dim); }
+  .profile a::after { content: " ]"; color: var(--dim); }
+  .profile a:hover::before, .profile a:hover::after { color: var(--bg); }
+
+  /* ---- text art: the helix */
+  .art {
+    font-family: var(--mono); font-size: 13px; line-height: 1.2; letter-spacing: 0;
+    margin: 0; white-space: pre; color: var(--faint); user-select: none; overflow: hidden;
+  }
+  .art b { color: var(--fg); font-weight: 400; }
+  .art i { color: var(--dim); font-style: normal; }
+  #helix { line-height: 1.05; letter-spacing: 1px; padding-right: 8px; }
+
+  /* ---- the receptor in the hero: a wire model of PAR2, turning */
+  .par2 { margin: 0; display: flex; flex-direction: column; align-items: center; }
+  .par2 canvas { display: block; width: 236px; height: 272px; }
+  html:not(.js) .par2 { display: none; }
+
+  /* ---- between sections, a sequencing trace runs past */
+  .divider { margin: 6px 0 34px; }
+  .divider canvas { display: block; width: 100%; height: 34px; }
+  html:not(.js) .divider { display: none; }
+
+  /* ---- chromosome 5 along the top, with the scroll position on it */
+  #ideo { position: fixed; left: 0; top: 0; width: 100%; height: 7px; z-index: 40; display: block; }
+  html:not(.js) #ideo { display: none; }
+  body { padding-top: 7px; }
+
+  /* ---- pixel art: icons and the cat */
+  .px { display: block; image-rendering: crisp-edges; image-rendering: pixelated; filter: drop-shadow(0 0 3px rgba(var(--glow-rgb), .4)); }
+  .cap { margin: 8px 0 0; font-size: 11px; letter-spacing: 1px; color: var(--dim); white-space: nowrap; }
+  html:not(.js) .emblem, html:not(.js) .ribo { display: none; }
+  html:not(.js) .card--featured { grid-template-columns: minmax(0, 1fr); }
+  canvas.px:focus-visible { outline: 2px solid var(--hi); outline-offset: 4px; }
+
+  /* ---- sections */
+  section { margin: 0 0 46px; scroll-margin-top: 16px; }
+  h2 { font-family: var(--display); font-weight: 400; font-size: 32px; line-height: 1.1; margin: 0 0 16px; letter-spacing: 1px; }
+  h2 .ps { color: var(--dim); }
+  .out { color: var(--dim); font-size: 13px; margin: 0 0 16px; }
+  /* a heading being typed: letters wait hidden, the block marks the next one */
+  h2 .ch { visibility: hidden; }
+  h2 .ch.on { visibility: visible; }
+  h2 .ch.at { visibility: visible; background: var(--hi); color: transparent; text-shadow: none; box-shadow: 0 0 10px rgba(var(--glow-rgb), .7); }
+  section > :not(h2) { transition: opacity .45s ease-out; }
+  section.pending > :not(h2) { opacity: 0; }
+
+  /* ---- about: the facts, with the receptor beside them */
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px 40px; align-items: center; }
+
+  /* ---- translation, in about */
+  .ribo { margin: 26px 0 0; }
+  .mrna { display: flex; flex-wrap: wrap; gap: 4px 3px; align-items: center; font-size: 13px; letter-spacing: 1px; }
+  .mrna::before { content: "5'"; color: var(--dim); margin-right: 6px; }
+  .mrna::after { content: "3'"; color: var(--dim); margin-left: 6px; }
+  .mrna span { padding: 3px 5px; border: 1px solid transparent; border-radius: 12px; }
+  .mrna span.done { color: var(--faint); text-shadow: none; }
+  .mrna span.cur { color: var(--bg); background: var(--fg); text-shadow: none; border-color: var(--hi); box-shadow: 0 0 12px rgba(var(--glow-rgb), .5); }
+  .chain { display: flex; flex-wrap: wrap; align-items: center; margin: 12px 0 0; min-height: 30px; }
+  .chain b {
+    width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--fg); display: none;
+    align-items: center; justify-content: center; font-size: 13px; font-weight: 600; background: var(--bg); position: relative; margin-right: 10px;
+  }
+  .chain b.on { display: inline-flex; }
+  .chain b.on + b.on::before { content: ""; position: absolute; right: 100%; top: 50%; width: 10px; border-top: 1px solid var(--dim); }
+  .chain b.hi { color: var(--bg); background: var(--hi); border-color: var(--hi); text-shadow: none; box-shadow: 0 0 10px rgba(var(--glow-rgb), .5); }
+  .chain b.cut { opacity: .25; border-style: dashed; }
+
+  /* ---- cards */
+  .grid { display: grid; gap: 14px; list-style: none; margin: 0; padding: 0; }
+  .grid--featured { grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); }
+  .grid--tools { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+  .card {
+    position: relative; border: 1px solid var(--line); background: rgba(0,0,0,.3);
+    padding: 14px 16px 14px; transition: border-color .15s, box-shadow .15s; min-width: 0;
+  }
+  .card:hover, .card:focus-within { border-color: var(--fg); box-shadow: 0 0 18px rgba(var(--glow-rgb), .13), inset 0 0 0 1px var(--faint); }
+  .card .path { margin: 0 0 6px; font-size: 11px; letter-spacing: 1.5px; color: var(--dim); display: flex; flex-wrap: wrap; gap: 0 14px; justify-content: space-between; text-transform: uppercase; }
+  .card .path .gh { color: var(--fg); letter-spacing: .5px; white-space: nowrap; }
+  .card h3 { font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1; margin: 0 0 6px; color: var(--hi); text-shadow: var(--glow-hi); }
+  .card p { margin: 0 0 10px; font-size: 13.5px; }
+  .card .quip { color: var(--dim); font-size: 12.5px; }
+  .card .facts { list-style: none; margin: 0 0 12px; padding: 0; font-size: 12.5px; color: var(--dim); }
+  .card .facts li::before { content: "+ "; color: var(--fg); }
+  .card .links { margin: 0; font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .card .links a::before { content: "["; } .card .links a::after { content: "]"; }
+  .card .links a { border: 0; }
+  .card .links a.primary::before { content: "[ > "; } .card .links a.primary::after { content: " ]"; }
+  .card--featured { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 4px 20px; align-items: start; padding: 18px; }
+  .card--featured h3 { font-size: 42px; }
+  .card .emblem { margin: 0; display: flex; flex-direction: column; align-items: center; }
+  .card--tool .emblem { align-items: flex-start; min-height: 104px; justify-content: center; margin-bottom: 10px; }
+  .px.toy { cursor: pointer; }
+  .card--empty { border-style: dashed; color: var(--dim); display: flex; flex-direction: column; justify-content: center; min-height: 140px; }
+  .card--empty p { margin: 0; white-space: pre-wrap; }
+  .card[hidden] { display: none; }
+
+  /* ---- key/value */
+  .kv { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 16px; }
+  .kv dt { color: var(--dim); }
+  .kv dt::after { content: ":"; }
+  .kv dd { margin: 0; }
+
+  /* ---- the terminal. Closed until someone opens it. */
+  #term { margin: 56px 0 0; border: 1px solid var(--line); background: rgba(0,0,0,.3); }
+  #term summary { list-style: none; cursor: pointer; padding: 8px 14px; color: var(--dim); font-size: 12.5px; letter-spacing: 1px; display: flex; gap: 12px; align-items: baseline; }
+  #term summary::-webkit-details-marker { display: none; }
+  #term summary b { color: var(--fg); font-weight: 400; }
+  #term summary:hover { color: var(--fg); }
+  #term summary .hint { margin-left: auto; font-size: 11px; color: var(--faint); }
+  #term[open] summary .hint { visibility: hidden; }
+  @media (pointer: coarse) { #term summary .hint { display: none; } }
+  #term summary:focus-visible { outline: 2px solid var(--hi); outline-offset: -3px; }
+  #term[open] summary { border-bottom: 1px solid var(--line); }
+  #term .body { padding: 12px 14px 14px; }
+  #term .out { margin-bottom: 10px; }
+  #log { white-space: pre-wrap; margin: 0 0 6px; word-break: break-word; font: inherit; }
+  #log .in { color: var(--dim); }
+  #log .err { color: var(--warn); }
+  #log .mu { color: var(--hi); text-shadow: var(--glow-hi); letter-spacing: 1.5px; }
+  #log .mu.in { color: var(--dim); text-shadow: none; }
+  .prompt { display: flex; gap: 8px; align-items: baseline; position: relative; }
+  .prompt label { color: var(--dim); white-space: nowrap; }
+  .prompt input {
+    flex: 1; min-width: 0; font: inherit; color: var(--fg); background: none; border: 0;
+    outline: none; text-shadow: var(--glow); caret-color: var(--fg); padding: 0;
+  }
+  /* the prompt shows where you are typing with a line of its own, in place of the browser's ring */
+  .prompt:focus-within { box-shadow: 0 5px 0 -3px var(--hi); }
+  .prompt:focus-within label { color: var(--hi); text-shadow: var(--glow-hi); }
+  @media (pointer: coarse) { .prompt label, .prompt input { font-size: 16px; } }   /* below 16px, phones zoom in on focus */
+
+  footer {
+    border-top: 1px solid var(--line); padding-top: 14px; margin-top: 32px;
+    color: var(--dim); font-size: 12px;
+    display: flex; flex-wrap: wrap; gap: 6px 24px; justify-content: space-between;
+  }
+
+  /* ============================================================
+     CAMILLE
+     ============================================================ */
+  #cat-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 20; }
+  #camille {
+    position: absolute; left: 0; top: 0; pointer-events: none;
+    will-change: transform; user-select: none; -webkit-user-select: none;
+    transition: transform 95ms linear, opacity .3s ease;       /* she glides between steps, and fades at the edge of the stage */
+  }
+  #camille.snap { transition: none; }
+  #camille.hiss canvas.cat { filter: drop-shadow(0 0 5px var(--warn)); }
+  #camille canvas { display: block; }
+  #camille canvas.ghost { position: absolute; left: 0; top: 0; visibility: hidden; }
+  #camille.flip canvas { transform: scaleX(-1); }
+  #camille.up canvas { transform: rotate(-90deg); }          /* going straight up something */
+  html.cat-hover, html.cat-hover * { cursor: pointer !important; }
+
+  /* ---- the tracker: a map of the page in the margin, with a contact where the cat is */
+  #tracker {
+    position: fixed; right: max(10px, calc((100vw - 1040px) / 2 - 112px)); bottom: 16px; z-index: 30;
+    width: 94px; padding: 5px 6px 6px; display: none; cursor: pointer; text-align: left;
+    background: rgba(0,0,0,.6); border: 1px solid var(--edge); border-radius: 0;
+    color: var(--dim); font: 9.5px/1.4 var(--mono); letter-spacing: .6px; text-shadow: none;
+  }
+  @media (min-width: 1270px) { #tracker.on { display: block; } }
+  #tracker:hover { border-color: var(--fg); }
+  #tracker span { display: block; white-space: pre; }
+  #tracker .t { color: var(--fg); border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+  #tracker .r { min-height: 2.8em; margin-top: 3px; }
+  #tracker.contact .r { color: var(--hi); text-shadow: var(--glow-hi); }
+  #tracker canvas { display: block; }
+  #camille .say {
+    position: absolute; left: 50%; top: 0; transform: translate(-50%, -100%);
+    white-space: nowrap; font-size: 11.5px; color: var(--hi); text-shadow: var(--glow-hi);
+    background: var(--bg); border: 1px solid var(--line); padding: 0 6px; line-height: 1.5;
+    opacity: 0; transition: opacity .15s;
+  }
+  #camille .say.on { opacity: 1; }
+  .batt { display: inline-block; vertical-align: -1px; width: 26px; height: 10px; border: 1px solid var(--fg); position: relative; margin-right: 8px; }
+  .batt::after { content: ""; position: absolute; right: -4px; top: 2px; width: 2px; height: 4px; background: var(--fg); }
+  .batt i { display: block; height: 100%; background: var(--hi); box-shadow: 0 0 6px rgba(var(--glow-rgb), .6); }
+  #log canvas { margin: 4px 0; display: block; }
+  #log .fetch { display: flex; flex-wrap: wrap; gap: 4px 22px; align-items: center; margin: 6px 0 10px; white-space: normal; }
+  #log .fetch > span { display: flex; flex-direction: column; min-width: 0; }
+  #log .fetch b { color: var(--hi); font-weight: 600; }
+  #log .swatch { display: flex; flex-direction: row !important; gap: 0; margin-top: 8px; }
+  #log .swatch i { width: 26px; height: 14px; display: block; }
+  @keyframes degauss {
+    0% { transform: none; filter: none; }
+    8% { transform: translate(3px, -2px) skewX(1.2deg) scale(1.012); filter: hue-rotate(25deg) brightness(1.6) blur(.6px); }
+    20% { transform: translate(-4px, 2px) skewX(-1.6deg) scale(.992); filter: hue-rotate(-30deg) brightness(1.3) blur(.4px); }
+    36% { transform: translate(2px, 1px) skewX(.8deg) scale(1.006); filter: hue-rotate(14deg) brightness(1.15); }
+    55% { transform: translate(-1.5px, -1px) skewX(-.4deg); filter: hue-rotate(-6deg); }
+    75% { transform: translate(.6px, 0); filter: none; }
+    100% { transform: none; filter: none; }
+  }
+  /* the picture shakes inside the tube, and the tube clips it, so the page never grows wider */
+  .screen.degauss { overflow: hidden; }
+  .js .screen.degauss > * { animation: degauss 1.3s cubic-bezier(.2, .7, .3, 1) both; }
+  .fallen { display: inline-block; transition: transform .7s cubic-bezier(.5,0,1,.6), opacity .7s; }
+  .fallen.go { transform: translateY(60px) rotate(70deg); opacity: 0; }
+
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: minmax(0, 1fr); }
+    #helix { justify-self: center; }
+    .split .par2 { justify-self: center; }
+    .split { grid-template-columns: minmax(0, 1fr); }
+    .card--featured { grid-template-columns: minmax(0, 1fr); }
+    .bar { font-size: 11.5px; }
+    h2 { font-size: 28px; }
+  }
+
+  @media print {
+    html, body { background: #fff !important; color: #000 !important; text-shadow: none !important; font-size: 11pt; }
+    .crt, #cat-layer, #tracker, #boot, .bar nav, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
+    * { text-shadow: none !important; box-shadow: none !important; animation: none !important; color: #000 !important; }
+    .screen { max-width: none; padding: 0; animation: none !important; }
+    .js main.booting { visibility: visible; }
+    section.pending > :not(h2) { opacity: 1 !important; } h2 .ch { visibility: visible !important; background: none !important; }
+    h1 { font-size: 40pt; margin: 0 0 6pt; } h2 { font-size: 16pt; margin-top: 14pt; } .card h3 { font-size: 14pt; }
+    h2 .ps { display: none; }
+    .hero, .split, .card--featured { display: block; }
+    .card { border: 0; border-top: 1pt solid #999; background: none; padding: 6pt 0; break-inside: avoid; }
+    .grid { display: block; }
+    a { border: 0; }
+    a[href^="http"]::after { content: " <" attr(href) ">"; font-size: 8.5pt; word-break: break-all; }
+    .profile a::before, .card .links a::before { content: none; }
+    .profile a { border: 0; padding: 0; }
+    .profile, .card .links { display: block; } .profile li { display: block; }
+    footer { border-top: 1pt solid #999; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .crt i, .crt b, .blink, .js .screen { animation: none; }
+    .js main.booting { visibility: visible; }
+    .fallen, #camille { transition: none; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#work">Skip to projects</a>
+<div class="crt" aria-hidden="true"><i></i><b></b></div>
+<canvas id="ideo" aria-hidden="true" title="Chromosome 5, standing in for a scroll bar. PAR2 lives on it, at 5q13.3."></canvas>
+
+<div class="screen">
+  <header class="bar">
+    <span class="id"><b>YAM AMIR</b> // TGGR LAB</span>
+    <nav aria-label="Sections">
+      <a href="#work">work</a>
+      <a href="#side">side quests</a>
+      <a href="#about">about</a>
+      <button id="motion" class="btn" type="button" aria-pressed="true" title="Stop or start all animation">motion: on</button>
+      <button id="theme" class="btn" type="button" title="Switch phosphor colour">phosphor: amber</button>
+    </nav>
+  </header>
+
+  <pre id="boot" aria-hidden="true"></pre>
+
+  <main id="main">
+    <div class="hero">
+      <div>
+        <p class="callsign"><a href="https://github.com/YAMIR-1138" rel="me">YAMIR-1138</a></p>
+        <h1 id="name">YAM AMIR</h1>
+        <p class="role">Genetics <span class="sep">·</span> structural bioinformatics <span class="sep">·</span> genomics</p>
+        <p class="where">PhD student <span class="sep">·</span> <a href="https://github.com/tggr-lab">TGGR Lab</a> <span class="sep">·</span> Tel Aviv</p>
+        <p class="tagline">I work on how proteins and genomes are put together: how a receptor switches on, how one gene can sit inside another, and what rare variants do in the clinic. The things below were built along the way.<span class="cur-slot"></span></p>
+        <ul class="profile" aria-label="Profiles">
+          <li><a href="https://github.com/YAMIR-1138" rel="me">GitHub</a></li>
+          <li><a href="https://orcid.org/0000-0002-4900-6345" rel="me">ORCID</a></li>
+          <!-- Google Scholar: paste the profile address and remove the word hidden -->
+          <li hidden><a href="https://scholar.google.com/citations?user=" rel="me">Scholar</a></li>
+          <li><a href="https://www.researchgate.net/profile/Yam-Amir" rel="me">ResearchGate</a></li>
+          <li><a href="https://il.linkedin.com/in/yam-amir-640823191" rel="me">LinkedIn</a></li>
+        </ul>
+      </div>
+
+      <pre class="art" id="helix" aria-hidden="true"></pre>
+    </div>
+
+    <div class="divider" aria-hidden="true"><canvas></canvas></div>
+
+    <section id="work" aria-label="Selected projects">
+      <h2 id="h-work" aria-label="Selected projects"><span class="ps">&gt;</span> SELECTED PROJECTS<span class="cur-slot"></span></h2>
+      <ul class="grid grid--featured">
+        <li class="card card--featured" data-project="Pellaeon" data-dir="work" data-site="https://tggr-lab.github.io/pellaeon/">
+          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="kite" data-scale="2" data-play="hover"></canvas></figure>
+          <div>
+            <p class="path">ChimeraX plugin</p>
+            <h3>Pellaeon</h3>
+            <p>Talk to UCSF ChimeraX in plain English. A chat panel inside ChimeraX that turns what you type into commands, and shows you every command it ran.</p>
+            <ul class="facts">
+              <li>on the ChimeraX Toolshed</li>
+              <li>local or cloud models</li>
+              <li>asks before anything destructive</li>
+            </ul>
+            <p class="links"><a class="primary" href="https://tggr-lab.github.io/pellaeon/">open site</a><a href="https://github.com/tggr-lab/pellaeon">repo</a></p>
+          </div>
+        </li>
+        <li class="card card--featured" data-project="GPCompaRe" data-dir="work" data-site="https://tggr-lab.github.io/GPCompaRe/">
+          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="gpcr" data-scale="2" data-cap="#gpcr-cap" data-still="50"></canvas><figcaption class="cap" id="gpcr-cap">INACTIVE</figcaption></figure>
+          <div>
+            <p class="path">Database</p>
+            <h3>GPCompaRe</h3>
+            <p>A database of what changes when a receptor switches on. Residue contacts compared between active and inactive states, receptor by receptor.</p>
+            <ul class="facts">
+              <li>283 human Class A GPCRs</li>
+              <li>active and inactive conformations</li>
+              <li>residue-residue contact analysis</li>
+            </ul>
+            <p class="links"><a class="primary" href="https://tggr-lab.github.io/GPCompaRe/">open site</a><a href="https://github.com/tggr-lab/GPCompaRe">repo</a></p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <div class="divider" aria-hidden="true"><canvas></canvas></div>
+
+    <section id="side" aria-label="Side quests">
+      <h2 id="h-side" aria-label="Side quests"><span class="ps">&gt;</span> SIDE QUESTS<span class="cur-slot"></span></h2>
+      <ul class="grid grid--tools">
+        <li class="card card--tool" data-project="ΣpinZero" data-alias="spinzero" data-dir="side" data-site="https://yamir-1138.github.io/SpinZero/">
+          <figure class="emblem"><canvas class="px" data-icon="rotor" data-scale="2" data-cap="#rotor-cap" role="button" tabindex="0" aria-describedby="rotor-cap" aria-label="Centrifuge rotor. Press Enter to load the next slot, Backspace to unload one."></canvas><figcaption class="cap" id="rotor-cap" aria-live="polite">3 tubes · Σ = 0 · click a slot</figcaption></figure>
+          <p class="path">Web app</p>
+          <h3>ΣpinZero</h3>
+          <p>Balances centrifuge rotors with number theory and roots of unity.</p>
+          <p class="quip">Σspin = 0, or it wobbles.</p>
+          <p class="links"><a class="primary" href="https://yamir-1138.github.io/SpinZero/">open app</a><a href="https://github.com/YAMIR-1138/SpinZero">repo</a></p>
+        </li>
+        <li class="card card--tool" data-project="GeNest" data-dir="side" data-site="https://yamir-1138.github.io/genest-website/">
+          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="nest" data-scale="2" data-cap="#nest-cap" data-still="56"></canvas><figcaption class="cap" id="nest-cap">HOST GENE</figcaption></figure>
+          <p class="path">Pipeline · reports</p>
+          <h3>GeNest</h3>
+          <p>Finds nested genes: genes that live inside other genes, across whole genomes.</p>
+          <p class="quip">A gene within a gene. We need to go deeper.</p>
+          <p class="links"><a class="primary" href="https://yamir-1138.github.io/genest-website/">open reports</a><a href="https://github.com/YAMIR-1138/genest-website">repo</a></p>
+        </li>
+        <li class="card card--tool" data-project="CO₂ Monitor" data-alias="co2" data-dir="side" data-site="https://tggr-lab.github.io/incubator-co2-monitor/">
+          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="co2" data-scale="2"></canvas></figure>
+          <p class="path">Hardware · ESP32</p>
+          <h3>CO₂ Monitor</h3>
+          <p>A DIY CO₂ and temperature monitor for cell culture incubators, built on an ESP32.</p>
+          <p class="quip">Full build guide, with ten days of real data.</p>
+          <p class="links"><a class="primary" href="https://tggr-lab.github.io/incubator-co2-monitor/">open guide</a><a href="https://github.com/tggr-lab/incubator-co2-monitor">repo</a></p>
+        </li>
+        <!-- Switched off for now. Remove the `hidden` attribute to show a card. -->
+        <li class="card card--tool" hidden data-dir="side" data-site="https://yamir-1138.github.io/benchmate/">
+          <p class="path">Web app</p>
+          <h3>BenchMate</h3>
+          <p>Offline bench tools for molecular biology, as an installable web app.</p>
+          <p class="links"><a class="primary" href="https://yamir-1138.github.io/benchmate/">open app</a><a href="https://github.com/YAMIR-1138/benchmate">repo</a></p>
+        </li>
+        <li class="card card--tool" hidden data-dir="side" data-site="https://yamir-1138.github.io/dnatools/">
+          <p class="path">Web app</p>
+          <h3>DNA Utilities</h3>
+          <p>Quick sequence chores in the browser.</p>
+          <p class="links"><a class="primary" href="https://yamir-1138.github.io/dnatools/">open app</a><a href="https://github.com/YAMIR-1138/dnatools">repo</a></p>
+        </li>
+        <li class="card card--tool" data-project="DOUGH_FORMULATOR" data-alias="dough" data-dir="side" data-site="https://yamir-1138.github.io/dough_formulator/">
+          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="wheat" data-scale="2"></canvas></figure>
+          <p class="path">Web app</p>
+          <h3>DOUGH_FORMULATOR</h3>
+          <p>A retro sourdough calculator built on true baker's percentages.</p>
+          <p class="quip">Calculate. Ferment. Ascend.</p>
+          <p class="links"><a class="primary" href="https://yamir-1138.github.io/dough_formulator/">open app</a><a href="https://github.com/YAMIR-1138/dough_formulator">repo</a></p>
+        </li>
+        <li class="card card--empty" aria-label="Empty slot">
+          <p>next strange thing ..... [ <span id="slot">pending</span> ]</p>
+        </li>
+      </ul>
+    </section>
+
+    <div class="divider" aria-hidden="true"><canvas></canvas></div>
+
+    <section id="about" aria-label="About">
+      <h2 id="h-about" aria-label="About"><span class="ps">&gt;</span> ABOUT<span class="cur-slot"></span></h2>
+      <div class="split">
+      <dl class="kv">
+        <dt>role</dt><dd>PhD student at the TGGR Lab (Translational Genetics and Genomics Research), Tel Aviv Sourasky Medical Center &amp; Tel Aviv University</dd>
+        <dt>work</dt><dd>GPCR activation and protein structure, nested genes, clinical genomics, the odd piece of lab hardware</dd>
+        <dt>papers</dt><dd>13 publications, 2020 to 2025, listed on <a href="https://orcid.org/0000-0002-4900-6345">ORCID</a></dd>
+        <dt>toolkit</dt><dd>Linux · R · Arduino and ESP32 · Claude Code · GraphPad Prism</dd>
+        <dt>find me</dt><dd><a href="https://github.com/YAMIR-1138">GitHub</a> · <a href="https://orcid.org/0000-0002-4900-6345">ORCID</a> · <a href="https://www.researchgate.net/profile/Yam-Amir">ResearchGate</a> · <a href="https://il.linkedin.com/in/yam-amir-640823191">LinkedIn</a> · <a href="https://github.com/tggr-lab">TGGR Lab</a></dd>
+      </dl>
+      <figure class="par2" aria-hidden="true"><canvas id="par2"></canvas><figcaption class="cap">PAR2 · ALPHAFOLD MODEL · Cα TRACE</figcaption></figure>
+      </div>
+      <figure class="ribo" aria-hidden="true">
+        <div class="mrna" id="mrna"></div>
+        <div class="chain" id="chain"></div>
+        <figcaption class="cap" id="ribo-cap">&nbsp;</figcaption>
+      </figure>
+    </section>
+
+    <details id="term">
+      <summary><b>&gt;_</b> terminal <span class="hint">press / to open</span></summary>
+      <div class="body">
+        <p class="out" id="sh-hint">type <b>help</b> and press enter. <b>exit</b> closes it.</p>
+        <pre id="log" aria-live="polite"></pre>
+        <form class="prompt" id="form" autocomplete="off">
+          <label for="cmd">yam@tggr:~$</label>
+          <input id="cmd" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" aria-describedby="sh-hint">
+        </form>
+      </div>
+    </details>
+  </main>
+
+  <footer id="footer">
+    <span>© <span id="year">2026</span> Yam Amir · YAMIR-1138</span>
+    <span><a href="https://github.com/YAMIR-1138/YAMIR-1138">source</a></span>
+  </footer>
+</div>
+
+<div id="cat-layer" aria-hidden="true"></div>
+
+<!-- ==================================================================
+     CORE: helpers, theme, clock, boot log, animation scheduler, shell
+     ================================================================== -->
+<script>
+(function () {
+  'use strict';
+  const params = new URLSearchParams(location.search);
+  const T = window.TGGR = {
+    reduceMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+    debug: params.get('debug') || '',
+    speed: +params.get('speed') || 0,
+    ready: [],
+  };
+  const $ = T.$ = (s, r) => (r || document).querySelector(s);
+  const $$ = T.$$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  T.esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  T.rand = (a, b) => a + Math.random() * (b - a);
+  T.pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  // look a word up in a table without finding what every object is born with, such as constructor
+  const own = T.own = (o, k) => (Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined);
+  T.store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  };
+
+  $('#year').textContent = new Date().getFullYear();
+
+  // ---- phosphor theme. Amber unless the visitor chose otherwise.
+  const themeBtn = $('#theme');
+  T.setTheme = function (t, save) {
+    t = t === 'green' ? 'green' : 'amber';
+    document.documentElement.dataset.theme = t;
+    themeBtn.textContent = 'phosphor: ' + t;
+    if (T.themeChanged) T.themeChanged();
+    if (save) T.store.set('phosphor-v2', t);
+    return t;
+  };
+  T.toggleTheme = () => T.setTheme(document.documentElement.dataset.theme === 'amber' ? 'green' : 'amber', true);
+  T.setTheme(T.store.get('phosphor-v2', 'amber'));
+  T.degauss = function () {
+    if (!T.motion) return;
+    const el = $('.screen'); el.classList.remove('degauss'); void el.offsetWidth; el.classList.add('degauss');
+    setTimeout(() => el.classList.remove('degauss'), 1400);
+    if (T.startle) T.startle();
+    T.sfx('thunk');
+  };
+  themeBtn.addEventListener('click', () => { T.toggleTheme(); T.degauss(); });
+
+  // ---- sound. Silent unless the visitor asks: sound on. Every noise is made here, there are no files.
+  const Sfx = (function () {
+    let ctx = null, grain = null, on = T.store.get('sound', false) === true;
+    function make() {
+      if (ctx) return true;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return false;
+      ctx = new AC(); grain = hiss(ctx);
+      return true;
+    }
+    function hiss(c) {
+      const b = c.createBuffer(1, c.sampleRate, c.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      return b;
+    }
+    // two building blocks: a burst of filtered noise, and a tone that slides
+    function noise(c, n, t, dur, type, freq, q, vol, attack) {
+      const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      src.buffer = n; src.loop = true; f.type = type; f.frequency.value = freq; f.Q.value = q;
+      g.gain.setValueAtTime(attack ? .0001 : vol, t);
+      if (attack) g.gain.exponentialRampToValueAtTime(vol, t + attack);
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      src.connect(f); f.connect(g); g.connect(c.destination);
+      src.start(t, Math.random() * .5); src.stop(t + dur + .03);
+    }
+    function tone(c, t, dur, shape, f0, f1, vol, attack) {
+      const o = c.createOscillator(), g = c.createGain();
+      o.type = shape; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+      g.gain.setValueAtTime(attack ? .0001 : vol, t);
+      if (attack) g.gain.exponentialRampToValueAtTime(vol, t + attack);
+      g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g); g.connect(c.destination);
+      o.start(t); o.stop(t + dur + .03);
+      return g;
+    }
+    const S = {
+      key(c, n, t) { noise(c, n, t, .035, 'bandpass', 1900 + Math.random() * 1500, 1.2, .12); tone(c, t, .03, 'square', 150, 80, .03); },
+      enter(c, n, t) { noise(c, n, t, .07, 'bandpass', 900, .9, .1); tone(c, t, .09, 'square', 110, 50, .05); },
+      tick(c, n, t) { noise(c, n, t, .02, 'bandpass', 3200 + Math.random() * 800, 2, .09); },
+      thunk(c, n, t) {
+        tone(c, t, .7, 'sine', 120, 34, .3); noise(c, n, t, .25, 'lowpass', 300, .7, .2);
+        tone(c, t + .04, 1.1, 'sawtooth', 100, 100, .035, .05);        // the hum of the coil settling
+      },
+      purr(c, n, t) {
+        // a low rumble that comes and goes about twenty-five times a second, breathing in and out
+        for (let i = 0; i < 3; i++) {
+          const t0 = t + i * .75, o = c.createOscillator(), lfo = c.createOscillator(), depth = c.createGain(), g = c.createGain(), f = c.createBiquadFilter();
+          o.type = 'sawtooth'; o.frequency.value = i % 2 ? 46 : 52;
+          lfo.type = 'square'; lfo.frequency.value = 25; depth.gain.value = .5;
+          f.type = 'lowpass'; f.frequency.value = 260;
+          g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(.09, t0 + .2); g.gain.exponentialRampToValueAtTime(.0001, t0 + .7);
+          const am = c.createGain(); am.gain.value = .5; lfo.connect(depth); depth.connect(am.gain);
+          o.connect(f); f.connect(am); am.connect(g); g.connect(c.destination);
+          o.start(t0); lfo.start(t0); o.stop(t0 + .75); lfo.stop(t0 + .75);
+        }
+      },
+      hiss(c, n, t) { noise(c, n, t, .8, 'highpass', 3800, .5, .11, .06); },
+      ping(c, n, t) { tone(c, t, .5, 'sine', 1320, 1300, .06, .004); tone(c, t + .09, .4, 'sine', 1980, 1960, .02, .004); },
+      mrrp(c, n, t) { tone(c, t, .16, 'triangle', 480, 820, .05, .02); tone(c, t, .16, 'sine', 960, 1640, .015, .02); },
+    };
+    return {
+      names: Object.keys(S),
+      get on() { return on; },
+      set(v) { on = !!v && make(); T.store.set('sound', on); return on; },
+      play(name) {
+        if (!on || !S[name]) return;
+        try { if (!make()) return; if (ctx.state === 'suspended') ctx.resume(); S[name](ctx, grain, ctx.currentTime + .005); } catch (e) {}
+      },
+      // for tests: the samples a noise would make, without playing it
+      render(name, seconds) {
+        const c = new OfflineAudioContext(1, Math.round(44100 * seconds), 44100);
+        S[name](c, hiss(c), .01);
+        return c.startRendering().then((b) => b.getChannelData(0));
+      },
+    };
+  })();
+  T.sfx = Sfx.play;
+  if (T.debug) T.Sfx = Sfx;
+
+  // ---- motion switch. Stops every animation, the cat included.
+  const motionBtn = $('#motion');
+  T.motion = !T.reduceMotion;
+  T.setMotion = function (on) {
+    const was = T.motion;
+    T.motion = !!on && !T.reduceMotion;
+    document.documentElement.classList.toggle('still', !T.motion);
+    motionBtn.textContent = 'motion: ' + (T.motion ? 'on' : 'off');
+    motionBtn.setAttribute('aria-pressed', String(T.motion));
+    if (was !== T.motion) { if (T.motion && T.Anim) T.Anim.wake(); if (T.onMotion) T.onMotion(T.motion); }
+  };
+  T.setMotion(T.motion);
+  motionBtn.addEventListener('click', () => T.setMotion(!T.motion));
+  if (T.reduceMotion) { motionBtn.disabled = true; motionBtn.title = 'Your system asks for reduced motion, so animation stays off'; }
+
+  // ---- text grid. Classes: 0 faint, 1 dim <i>, 2 normal <b>
+  const TAG = ['', 'i', 'b'];
+  function Grid(w, h) { this.w = w; this.h = h; this.clear(); }
+  Grid.prototype.clear = function () { this.c = new Array(this.w * this.h).fill(' '); this.k = new Array(this.w * this.h).fill(0); return this; };
+  Grid.prototype.put = function (x, y, ch, k) {
+    x = Math.round(x); y = Math.round(y);
+    if (x < 0 || y < 0 || x >= this.w || y >= this.h) return this;
+    this.c[y * this.w + x] = ch; this.k[y * this.w + x] = k || 0; return this;
+  };
+  Grid.prototype.html = function () {
+    let out = '';
+    for (let y = 0; y < this.h; y++) {
+      let run = '', rk = 0;
+      const flush = () => { if (run) out += rk ? '<' + TAG[rk] + '>' + T.esc(run) + '</' + TAG[rk] + '>' : T.esc(run); run = ''; };
+      for (let x = 0; x < this.w; x++) {
+        const i = y * this.w + x, k = this.c[i] === ' ' ? rk : this.k[i];
+        if (k !== rk) { flush(); rk = k; }
+        run += this.c[i];
+      }
+      flush(); out += '\n';
+    }
+    return out;
+  };
+  T.Grid = Grid;
+
+  // ---- one scheduler for every animation on the page
+  const Anim = T.Anim = (function () {
+    const items = [];
+    let last = 0, running = false;
+    const io = 'IntersectionObserver' in window
+      ? new IntersectionObserver((es) => es.forEach((e) => { const it = items.find((i) => i.el === e.target); if (it) it.visible = e.isIntersecting; }), { rootMargin: '60px' })
+      : null;
+    function loop(now) {
+      if (!T.motion) { running = false; return; }        // nothing to draw: the loop rests until motion comes back
+      const dt = Math.min(now - last, 200); last = now;
+      for (const it of items) {
+        if (!it.on || !it.visible) continue;
+        it.acc += dt;
+        if (it.acc >= it.step) {
+          it.acc %= it.step; it.t++;
+          try { it.fn(it.t, it); } catch (e) { console.error(e); it.on = false; }   // one broken animation must not stop the rest
+        }
+      }
+      requestAnimationFrame(loop);
+    }
+    const wake = () => { if (!running && T.motion) { running = true; last = performance.now(); requestAnimationFrame(loop); } };
+    return {
+      items, wake,
+      add(el, fn, fps, on) {
+        const it = { el, fn, step: 1000 / fps, acc: 0, t: 0, visible: true, on: on !== false && !T.reduceMotion };
+        items.push(it);
+        if (io && el) io.observe(el);
+        fn(0, it);
+        wake();
+        return it;
+      },
+    };
+  })();
+
+  // ---- boot log
+  const BOOT = [
+    ['TGGR-LINK TERMINAL · INTERFACE 1138', 'hd'],
+    ['continuity .......... [ LEGENDS ]', 'ok'],
+    ['balancing rotor ..... [ Σspin = 0 ]', 'ok'],
+    ['CO₂ display ......... [ suspicious ]', 'ok'],
+    ['meter ............... [ 7/8 ]', 'ok'],
+    ['crew ................ [ 1 human · 1 cat ]', 'ok'],
+  ];
+  const bootEl = $('#boot'), main = $('#main');
+  let booted = false;
+  function finishBoot() {
+    if (booted) return; booted = true;
+    bootEl.innerHTML = BOOT.map((l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>').join('\n');
+    main.classList.remove('booting');
+    // the boot lines have done their job: they fade, and the terminal shows them again when it is opened
+    setTimeout(() => bootEl.classList.add('done'), T.reduceMotion || T.debug ? 0 : 1600);
+    T.booted = true;
+    T.ready.splice(0).forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
+  }
+  T.onReady = (fn) => { if (T.booted) fn(); else T.ready.push(fn); };
+  if (T.reduceMotion || T.debug) {
+    setTimeout(finishBoot, 0);
+  } else {
+    main.classList.add('booting');
+    const skip = () => finishBoot();
+    document.addEventListener('keydown', skip, { once: true });
+    document.addEventListener('pointerdown', skip, { once: true });
+    let li = 0, ci = 0;
+    (function type() {
+      if (booted) return;
+      if (li >= BOOT.length) { setTimeout(finishBoot, 250); return; }
+      const [text, cls] = BOOT[li];
+      ci = Math.min(text.length, ci + 2);
+      bootEl.innerHTML = BOOT.slice(0, li).map((l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>\n').join('') +
+        '<span class="' + cls + '">' + T.esc(text.slice(0, ci)) + '</span><span class="blink">█</span>';
+      if (ci >= text.length) { li++; ci = 0; setTimeout(type, 110); } else setTimeout(type, 16);
+    })();
+  }
+
+  // ---- shell
+  const log = $('#log'), form = $('#form'), input = $('#cmd'), term = $('#term');
+  // the terminal is a drawer at the bottom of the page. The first time it opens, the boot lines come back
+  let termUsed = false;
+  T.openTerm = function (focus) {
+    if (!term.open) term.open = true;
+    if (!termUsed) { termUsed = true; BOOT.forEach((l) => print(l[0], l[1] === 'hd' ? 'mu' : 'in')); print(''); }
+    if (focus !== false) { input.focus({ preventScroll: true }); input.scrollIntoView({ block: 'center', behavior: T.motion ? 'smooth' : 'auto' }); }
+  };
+  term.addEventListener('toggle', () => { if (term.open) T.openTerm(false); });
+  T.closeTerm = function () { term.open = false; input.blur(); };
+  const print = T.print = function (text, cls) {
+    const s = document.createElement('span');
+    if (cls) s.className = cls;
+    s.textContent = text + '\n';
+    log.appendChild(s);
+    return s;
+  };
+  const projects = () => $$('[data-project]').filter((el) => !el.hidden).map((el) => ({
+    name: el.dataset.project, alias: el.dataset.alias || '', dir: el.dataset.dir, site: el.dataset.site,
+    desc: ($('p:not(.path)', el) || {}).textContent || '', text: el.textContent,
+  }));
+  const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const CODON = {};
+  (function () {
+    const b = 'UCAG', aa = 'FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG';
+    let n = 0;
+    for (const x of b) for (const y of b) for (const z of b) CODON[x + y + z] = aa[n++];
+  })();
+  T.CODON = CODON;
+
+  const FILES = {
+    'about.txt': () => $$('.kv dt').map((dt) => dt.textContent.padEnd(10) + dt.nextElementSibling.textContent.replace(/\s+/g, ' ').trim()).join('\n'),
+    'contact.txt': () => 'github.com/YAMIR-1138\norcid.org/0000-0002-4900-6345\nresearchgate.net/profile/Yam-Amir\nil.linkedin.com/in/yam-amir-640823191\ngithub.com/tggr-lab',
+  };
+  T.FILES = FILES;
+
+  const COMMANDS = T.COMMANDS = {
+    help() {
+      // the short list. The longer one turns up for people who keep typing
+      print('ls         the projects on this page');
+      print('open       open one of them. open pellaeon');
+      print('whoami     who runs this');
+      print('theme      amber or green phosphor');
+      print('motion     stop or start the animation');
+      print('sound      off unless you turn it on');
+      print('clear      wipe the screen · exit closes the terminal');
+      if (HIST.length >= 4) {
+        print('');
+        print('since you are still here:');
+        print('cat        the ship has a cat. also: pet · feed · pspsps');
+        print('mother     ask the ship. mother where is the cat');
+        print('neofetch · fortune · grep <word> · man <command>');
+      }
+      if (HIST.length >= 10) print('and further down: finger · termlink · degauss · tracker · transcribe · translate · revcomp · gc · zoomies');
+    },
+    ls() { projects().forEach((p) => print((p.dir + '/').padEnd(8) + p.name)); },
+    whoami() { print('Yam Amir · YAMIR-1138 · PhD student, Tel Aviv · genetics, structural bioinformatics, genomics'); },
+    cat(arg) {
+      if (!arg) { (COMMANDS.camille || (() => print('cat: missing file operand', 'err')))(); return; }
+      const f = own(FILES, arg.toLowerCase());
+      if (f) print(f()); else print('cat: ' + arg + ': no such file. try: cat about.txt', 'err');
+    },
+    open(arg) {
+      const n = norm(arg || '');
+      const p = n && projects().find((q) => norm(q.name).startsWith(n) || (q.alias && q.alias.startsWith(n)));
+      if (!p) { print('open: unknown project. try: ls', 'err'); return; }
+      print('opening ' + p.name + ' ...');
+      window.open(p.site, '_blank', 'noopener');
+    },
+    theme(arg) {
+      const t = arg === 'green' || arg === 'amber' ? T.setTheme(arg, true) : T.toggleTheme();
+      print('phosphor set to ' + t);
+    },
+    transcribe(arg) {
+      if (!arg || /[^ACGTacgt]/.test(arg)) { print('transcribe: give me a DNA string (A/C/G/T)', 'err'); return; }
+      print('mRNA: ' + arg.toUpperCase().replace(/T/g, 'U'));
+    },
+    translate(arg) {
+      if (!arg || /[^ACGTUacgtu]/.test(arg)) { print('translate: give me a DNA or RNA string', 'err'); return; }
+      const rna = arg.toUpperCase().replace(/T/g, 'U');
+      let out = '';
+      for (let i = 0; i + 3 <= rna.length; i += 3) out += CODON[rna.slice(i, i + 3)];
+      print('protein: ' + (out || '(too short)'));
+    },
+    clear() { log.textContent = ''; },
+    credits() {
+      print('cat silhouettes, all public domain or CC0:');
+      print('  Openclipart · "Nine Cats Silhouettes" and four single poses');
+      print('  PhyloPic · Kawinwit Kittipalawattanapol, Margot Michaud');
+      print('  NIH BioArt · House Cat Silhouette');
+      print('type: VT323 and IBM Plex Mono');
+    },
+    sudo() { print('nice try. permission denied.', 'err'); },
+    exit() { print('closing. the cat stays.'); setTimeout(T.closeTerm, 500); },
+    neofetch() {
+      const box = document.createElement('span'); box.className = 'fetch';
+      if (window.CAT) {
+        const k = Math.min(3, window.devicePixelRatio || 1) * 1.1, pic = document.createElement('canvas'), cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim();
+        pic.setAttribute('aria-hidden', 'true');
+        pic.width = Math.round(CAT.BW * k); pic.height = Math.round(CAT.BH * k); pic.style.width = CAT.BW * 1.1 + 'px';
+        CAT.draw(pic.getContext('2d'), 'SIT_LOOK', k, { line: v('--fg'), body: v('--fur'), eye: v('--eye'), dark: v('--bg'), warn: v('--warn') });
+        box.appendChild(pic);
+      }
+      const cat = T.catStatus ? T.catStatus() : null, up = Math.round((performance.now() - T.t0) / 1000);
+      const rows = [
+        ['', 'yam@tggr'], ['', '--------'],
+        ['OS', 'TGGR-LINK 1138'], ['Host', 'Tel Aviv Sourasky Medical Center & Tel Aviv University'],
+        ['Kernel', 'genetics and bioinformatics'], ['Uptime', (up >= 60 ? Math.floor(up / 60) + ' min ' : '') + up % 60 + ' s on this page'],
+        ['Packages', projects().length + ' (projects)'], ['Shell', 'sh, ' + Object.keys(COMMANDS).length + ' commands'],
+        ['Display', window.innerWidth + 'x' + window.innerHeight + ' @ ' + (window.devicePixelRatio || 1) + 'x'],
+        ['Phosphor', document.documentElement.dataset.theme], ['Font', 'VT323, IBM Plex Mono'],
+        ['Cat', cat ? cat : 'Camille'],
+      ];
+      const info = document.createElement('span');
+      rows.forEach((r) => { const l = document.createElement('span'); if (r[0]) { const b = document.createElement('b'); b.textContent = r[0]; l.appendChild(b); l.appendChild(document.createTextNode(': ' + r[1])); } else l.textContent = r[1]; info.appendChild(l); });
+      const sw = document.createElement('span'); sw.className = 'swatch';
+      ['--faint', '--dim', '--fg', '--hi', '--warn'].forEach((n) => { const i = document.createElement('i'); i.style.background = 'var(' + n + ')'; sw.appendChild(i); });
+      info.appendChild(sw); box.appendChild(info); log.appendChild(box);
+    },
+    cd(arg) {
+      const n = norm((arg || '').replace(/^~\/?/, ''));
+      if (!n) { window.scrollTo({ top: 0, behavior: T.motion ? 'smooth' : 'auto' }); return; }
+      const sec = $$('main section[id]').find((x) => x.id.startsWith(n) || x.getAttribute('aria-label').toLowerCase().replace(/\s/g, '').startsWith(n));
+      if (!sec) { print('cd: ' + arg + ': no such section. try: ' + $$('main section[id]').map((x) => x.id).join(' '), 'err'); return; }
+      sec.scrollIntoView({ behavior: T.motion ? 'smooth' : 'auto', block: 'start' });
+    },
+    pwd() {
+      const mid = window.innerHeight / 2, here = $$('main section[id]').filter((x) => x.getBoundingClientRect().top < mid).pop();
+      print('/home/yam' + (here ? '/' + here.id : ''));
+    },
+    grep(arg) {
+      const n = (arg || '').toLowerCase().trim();
+      if (!n) { print('grep: give me a word', 'err'); return; }
+      const hits = projects().filter((q) => q.text.toLowerCase().indexOf(n) >= 0);
+      if (!hits.length) { print('grep: nothing matches ' + arg); return; }
+      hits.forEach((q) => print((q.dir + '/' + q.name).padEnd(24) + q.desc.replace(/\s+/g, ' ').slice(0, 80)));
+    },
+    revcomp(arg) {
+      if (!arg || /[^ACGTacgt]/.test(arg)) { print('revcomp: give me a DNA string (A/C/G/T)', 'err'); return; }
+      const c = { A: 'T', C: 'G', G: 'C', T: 'A' };
+      print("5'-" + arg.toUpperCase().split('').reverse().map((x) => c[x]).join('') + "-3'");
+    },
+    gc(arg) {
+      if (!arg || /[^ACGTUacgtu]/.test(arg)) { print('gc: give me a DNA or RNA string', 'err'); return; }
+      const u = arg.toUpperCase(), g = (u.match(/[GC]/g) || []).length;
+      print('length ' + u.length + ' · GC ' + (g / u.length * 100).toFixed(1) + ' %');
+    },
+    date() { const d = new Date(); print(d.toString()); },
+    uptime() { const up = Math.round((performance.now() - T.t0) / 1000); print('up ' + Math.floor(up / 60) + ' min ' + up % 60 + ' s · 1 user · 1 cat'); },
+    history() { HIST.forEach((h, i) => print(String(i + 1).padStart(3) + '  ' + h)); },
+    echo(arg) { print(arg || ''); },
+    motion(arg) { T.setMotion(arg === 'on' ? true : arg === 'off' ? false : !T.motion); print('motion ' + (T.motion ? 'on' : 'off')); },
+    degauss() {
+      if (!T.motion) { print('degauss: motion is off.', 'err'); return; }
+      T.degauss(); print('thunk.');
+    },
+    reboot() { print('rebooting ...'); setTimeout(() => location.reload(), 600); },
+    man(arg) {
+      const M = {
+        ls: 'list the projects on this page', open: 'open a project in a new tab. open pellaeon', cat: 'print a file. with no file, reports on the ship\'s cat', exit: 'close the terminal',
+        cd: 'scroll to a section. cd side', grep: 'search the projects. grep gpcr', neofetch: 'system summary, with cat',
+        transcribe: 'DNA to mRNA', translate: 'DNA or RNA to protein, reading frame 1', revcomp: 'reverse complement of a DNA string', gc: 'length and GC content',
+        theme: 'switch the phosphor. theme green', motion: 'stop or start all animation', degauss: 'clear the magnetic build-up on the tube', reboot: 'start again',
+        keys: 'turn the / and ~ shortcuts off or on. keys off', mother: 'ask the ship. mother where is the cat', tracker: 'the motion tracker in the margin, on wide screens. tracker off', sound: 'key clicks and tube noises. off unless you ask. sound on',
+        pet: 'pet the cat', feed: 'feed the cat', pspsps: 'call the cat. she may come', zoomies: 'you will regret this', shoo: 'ask the cat to leave',
+      };
+      const k = (arg || '').toLowerCase();
+      if (!k) { print('man: which command? try: man cat'); return; }
+      const m = own(M, k);
+      print(m ? k + ' - ' + m : 'man: no entry for ' + k, m ? '' : 'err');
+    },
+  };
+  COMMANDS.fastfetch = COMMANDS.neofetch;
+  let slashKey = T.store.get('keys', true) !== false;
+  COMMANDS.keys = function (arg) {
+    if (arg === 'on' || arg === 'off') { slashKey = arg === 'on'; T.store.set('keys', slashKey); }
+    print('the / and ~ shortcuts are ' + (slashKey ? 'on' : 'off'));
+  };
+  COMMANDS.sound = function (arg) {
+    if (arg === 'on' || arg === 'off' || !arg) {
+      const want = arg ? arg === 'on' : !Sfx.on, got = Sfx.set(want);
+      if (want && !got) { print('sound: this browser cannot make any.', 'err'); return; }
+      if (got) T.sfx('enter');
+    }
+    print('sound ' + (Sfx.on ? 'on. keys click, the tube thunks, the cat purrs.' : 'off'));
+  };
+  const PUBLIC = Object.keys(COMMANDS).concat(['mother', 'tracker', 'pet', 'feed', 'pspsps', 'zoomies', 'shoo']);   // what tab will complete
+
+  // ---- unlisted commands. help does not mention these.
+  // lines typed out one character at a time, the way the ship's computer answers
+  let typing = Promise.resolve();
+  const typeOut = T.typeOut = (lines, cls) => {
+    const spans = lines.map(() => print('', cls));
+    spans.forEach((x) => { x.textContent = ''; });
+    typing = typing.then(() => new Promise((done) => {
+      if (!T.motion) { lines.forEach((l, i) => { spans[i].textContent = l + '\n'; }); done(); return; }
+      log.setAttribute('aria-busy', 'true');       // a screen reader hears the finished lines, not every keystroke
+      let li = 0, ci = 0;
+      const step = () => {
+        if (li >= lines.length) { log.removeAttribute('aria-busy'); done(); return; }
+        ci = Math.min(lines[li].length, ci + 2); T.sfx('tick');
+        spans[li].textContent = lines[li].slice(0, ci) + '\n';
+        if (ci >= lines[li].length) { li++; ci = 0; setTimeout(step, 150); } else setTimeout(step, 18);
+      };
+      step();
+    }));
+    return typing;
+  };
+  const SHRUG = ['UNABLE TO CLARIFY', 'AVAILABLE DATA INSUFFICIENT', 'DOES NOT COMPUTE'];
+  COMMANDS.mother = function (arg) {
+    const q = (arg || '').toLowerCase();
+    if (!q) { typeOut(['INTERFACE 1138 READY FOR INQUIRY'], 'mu'); return; }
+    typeOut(['> ' + arg.toUpperCase().replace(/\s*\?*$/, ' ?')], 'mu in');
+    const proj = projects().find((x) => q.indexOf(norm(x.name).slice(0, 5)) >= 0 || (x.alias && q.indexOf(x.alias) >= 0));
+    let a;
+    if (/937|special order|priority/.test(q)) a = ['SPECIAL ORDER 1138', 'SCIENCE OFFICER EYES ONLY', 'PRIORITY ONE', 'INSURE RETURN OF SOURDOUGH STARTER FOR ANALYSIS', 'ALL OTHER CONSIDERATIONS SECONDARY', 'CREW EXPENDABLE', 'CAT NOT EXPENDABLE'];
+    else if (/cat|camille/.test(q)) a = ['CREW MEMBER: CAMILLE', 'RANK: CAT', 'STATUS: ' + (T.catStatus ? T.catStatus().split(' · ')[1] : 'unknown').toUpperCase(), 'NOT EXPENDABLE'];
+    else if (proj) a = [proj.name.toUpperCase(), proj.desc.replace(/\s+/g, ' ').trim().toUpperCase()];
+    else if (/who|yam|you|crew/.test(q)) a = ['YAM AMIR', 'CALLSIGN YAMIR-1138', 'PHD STUDENT. GENETICS AND BIOINFORMATICS', 'TGGR LAB. TEL AVIV'];
+    else if (/story/.test(q)) a = ['NOSTROMO REROUTED TO NEW CO-ORDINATES', 'THIS IS NOT THAT SHIP', 'THIS IS A LANDING PAGE'];
+    else if (/chance|odds/.test(q)) a = ['DOES NOT COMPUTE'];
+    else a = [SHRUG[Math.floor(Math.random() * SHRUG.length)]];
+    typeOut(a, 'mu');
+  };
+  COMMANDS.muthur = COMMANDS.inquiry = COMMANDS.mother;
+  COMMANDS.termlink = COMMANDS.robco = function () {
+    typeOut(['WELCOME TO TGGR INDUSTRIES (TM) TERMLINK', '> LOGON YAMIR-1138', 'ENTER PASSWORD NOW', '> **********', 'ACCESS GRANTED', 'THERE IS NOTHING TO HACK. THE PROJECTS ARE PUBLIC. TRY: ls'], 'mu');
+  };
+  const FORTUNES = [
+    'A balanced rotor is a quiet rotor.', 'All models are wrong. Some fold.', 'Every gene is nested in something.',
+    'It was the buffer. It is always the buffer.', 'Check the CO₂ before you blame the cells.', 'Sequence twice. Publish once.',
+    'There is no such thing as a quick PCR.', 'Feed the starter. Feed the cat. Then the cells.', 'Hydration is a ratio, not a feeling.',
+    'The cat is not a valid control.', 'Label the tube now. You will not remember.', 'n = 1 is an anecdote. n = 3 is a figure.',
+    'The receptor was active the whole time. You were looking at the wrong state.', 'A plume tail is not a phenotype you can publish.',
+  ];
+  let lastFortune = -1;
+  COMMANDS.fortune = function () { let i; do i = Math.floor(Math.random() * FORTUNES.length); while (i === lastFortune); lastFortune = i; print(FORTUNES[i]); };
+  COMMANDS.finger = function () {
+    const d = new Date(Date.now() - (performance.now() - T.t0));
+    print('Login: yam                 Name: Yam Amir');
+    print('Directory: /home/yam       Shell: /bin/sh');
+    print('Office: TGGR Lab, Tel Aviv Sourasky Medical Center & Tel Aviv University');
+    print('On since ' + d.toTimeString().slice(0, 5) + ' on tty1');
+    print('Plan:');
+    print('  finish the PhD. ship the tools. feed the cat.');
+  };
+  COMMANDS.vim = COMMANDS.vi = function () { print('you are in vim. to leave, close the tab. it is the only way.', 'err'); };
+  COMMANDS.rm = function () { print('rm: refusing. the cat is sitting on it.', 'err'); };
+  COMMANDS.make = function (arg) { print(/bread|dough|loaf/.test(arg || '') ? 'make: see side/DOUGH_FORMULATOR' : 'make: nothing to be done. it is one html file.'); };
+  T.t0 = performance.now();
+  const HIST = []; let hi = 0, draft = '';
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const raw = input.value.trim();
+    input.value = '';
+    if (!raw) return;
+    if (HIST[HIST.length - 1] !== raw) HIST.push(raw);
+    if (HIST.length > 50) HIST.shift();
+    hi = HIST.length;
+    print('yam@tggr:~$ ' + raw, 'in');
+    T.sfx('enter');
+    const parts = raw.split(/\s+/);
+    const fn = own(COMMANDS, parts[0].toLowerCase());
+    if (T.catNudge) T.catNudge();
+    if (typeof fn === 'function') fn(parts.slice(1).join(' ')); else print(parts[0] + ': command not found. try: help', 'err');
+    input.scrollIntoView({ block: 'nearest' });
+  });
+
+  // ---- history with the arrow keys, completion with tab
+  const complete = (text) => {
+    const parts = text.split(/\s+/), last = parts[parts.length - 1].toLowerCase();
+    let pool;
+    if (parts.length === 1) pool = PUBLIC.filter((k) => own(COMMANDS, k));
+    else if (parts[0] === 'cat') pool = Object.keys(FILES).filter((f) => f[0] !== '~');
+    else if (parts[0] === 'open') pool = projects().map((q) => q.alias || norm(q.name));
+    else if (parts[0] === 'cd') pool = $$('main section[id]').map((x) => x.id);
+    else if (parts[0] === 'theme') pool = ['amber', 'green'];
+    else if (parts[0] === 'motion') pool = ['on', 'off'];
+    else if (parts[0] === 'man') pool = PUBLIC.filter((k) => own(COMMANDS, k));
+    else if (parts[0] === 'keys' || parts[0] === 'sound') pool = ['on', 'off'];
+    else return null;
+    const m = pool.filter((x) => x.toLowerCase().startsWith(last)).sort();
+    if (!m.length) return null;
+    if (m.length > 1) {
+      let k = last.length; while (m.every((x) => x[k] && x[k] === m[0][k])) k++;
+      if (k === last.length) { print(m.join('  '), 'in'); return text; }
+      parts[parts.length - 1] = m[0].slice(0, k); return parts.join(' ');
+    }
+    parts[parts.length - 1] = m[0]; return parts.join(' ') + ' ';
+  };
+  let stuck = null;
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      if (!HIST.length) return;
+      e.preventDefault();
+      if (hi === HIST.length) draft = input.value;
+      hi = Math.max(0, Math.min(HIST.length, hi + (e.key === 'ArrowUp' ? -1 : 1)));
+      input.value = hi === HIST.length ? draft : HIST[hi];
+      requestAnimationFrame(() => input.setSelectionRange(input.value.length, input.value.length));
+    } else if (e.key === 'Tab' && !e.shiftKey && input.value.trim()) {
+      // a second tab with nothing more to complete moves on, so the prompt never holds the keyboard
+      if (stuck === input.value) { stuck = null; return; }
+      const c = complete(input.value);
+      if (c !== null) { e.preventDefault(); stuck = c === input.value ? c : null; input.value = c; }
+    } else if (e.key === 'Escape') T.closeTerm();
+    if (e.key !== 'Tab') stuck = null;
+    if (e.key.length === 1 || e.key === 'Backspace') T.sfx('key');
+  });
+  // "/" reaches the prompt from anywhere on the page
+  document.addEventListener('keydown', (e) => {
+    if ((e.key !== '/' && e.key !== '~') || !slashKey || e.ctrlKey || e.metaKey || e.altKey) return;
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    e.preventDefault(); T.openTerm();
+  });
+})();
+</script>
+
+<!-- ==================================================================
+     ART: a small pixel-art engine and the project icons
+     ================================================================== -->
+<script>
+/* Pixel art engine and the project icons. */
+(function (root) {
+  'use strict';
+  const K = 1, FAINT = 2, DIM = 3, FG = 4, HI = 5, WARN = 6;
+
+  function Px(w, h) { this.w = w; this.h = h; this.d = new Uint8Array(w * h); }
+  const P = Px.prototype;
+  P.clear = function () { this.d.fill(0); return this; };
+  P.get = function (x, y) { return x < 0 || y < 0 || x >= this.w || y >= this.h ? 0 : this.d[y * this.w + x]; };
+  P.set = function (x, y, c) { x = Math.round(x); y = Math.round(y); if (x >= 0 && y >= 0 && x < this.w && y < this.h) this.d[y * this.w + x] = c; return this; };
+  P.fill = function (pred, c, only, box) {
+    const x0 = box ? Math.max(0, Math.floor(box[0])) : 0, y0 = box ? Math.max(0, Math.floor(box[1])) : 0;
+    const x1 = box ? Math.min(this.w, Math.ceil(box[2]) + 1) : this.w, y1 = box ? Math.min(this.h, Math.ceil(box[3]) + 1) : this.h;
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
+      const i = y * this.w + x;
+      if (only !== undefined && (Array.isArray(only) ? only.indexOf(this.d[i]) < 0 : this.d[i] !== only)) continue;
+      if (pred(x + .5, y + .5)) this.d[i] = c;
+    }
+    return this;
+  };
+  P.ell = function (cx, cy, rx, ry, c, only) { return this.fill((x, y) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1, c, only, [cx - rx, cy - ry, cx + rx, cy + ry]); };
+  P.disc = function (cx, cy, r, c, only) { return this.ell(cx, cy, r, r, c, only); };
+  P.ring = function (cx, cy, r0, r1, c, only) { return this.fill((x, y) => { const r = Math.hypot(x - cx, y - cy); return r >= r0 && r <= r1; }, c, only, [cx - r1, cy - r1, cx + r1, cy + r1]); };
+  P.rect = function (x0, y0, w, h, c, only) { return this.fill((x, y) => x >= x0 && x < x0 + w && y >= y0 && y < y0 + h, c, only, [x0, y0, x0 + w, y0 + h]); };
+  const bound = (pts, r) => [Math.min(...pts.map((q) => q[0])) - r, Math.min(...pts.map((q) => q[1])) - r, Math.max(...pts.map((q) => q[0])) + r, Math.max(...pts.map((q) => q[1])) + r];
+  P.poly = function (pts, c, only) {
+    return this.fill((x, y) => {
+      let inside = false;
+      for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+        const a = pts[i], b = pts[j];
+        if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) inside = !inside;
+      }
+      return inside;
+    }, c, only, bound(pts, 1));
+  };
+  const segDist = (x, y, x0, y0, x1, y1) => {
+    const dx = x1 - x0, dy = y1 - y0, l = dx * dx + dy * dy;
+    const t = l ? Math.max(0, Math.min(1, ((x - x0) * dx + (y - y0) * dy) / l)) : 0;
+    return [Math.hypot(x - x0 - t * dx, y - y0 - t * dy), t];
+  };
+  P.line = function (x0, y0, x1, y1, c, r, only) { r = r || .6; return this.fill((x, y) => segDist(x, y, x0, y0, x1, y1)[0] <= r, c, only, bound([[x0, y0], [x1, y1]], r + 1)); };
+  // a thick path whose radius runs from r0 at the start to r1 at the end
+  P.path = function (pts, c, r0, r1, only) {
+    if (r1 === undefined) r1 = r0;
+    const n = pts.length - 1;
+    return this.fill((x, y) => {
+      for (let i = 0; i < n; i++) {
+        const s = segDist(x, y, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1]);
+        if (s[0] <= r0 + (r1 - r0) * (i + s[1]) / n) return true;
+      }
+      return false;
+    }, c, only, bound(pts, Math.max(r0, r1) + 1));
+  };
+  P.outline = function (c, body) {
+    const hit = [];
+    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
+      if (this.d[y * this.w + x]) continue;
+      if (body.indexOf(this.get(x - 1, y)) >= 0 || body.indexOf(this.get(x + 1, y)) >= 0 || body.indexOf(this.get(x, y - 1)) >= 0 || body.indexOf(this.get(x, y + 1)) >= 0) hit.push(y * this.w + x);
+    }
+    hit.forEach((i) => { this.d[i] = c; });
+    return this;
+  };
+  P.stamp = function (rows, x0, y0, map) {
+    rows.forEach((r, j) => Array.from(r).forEach((ch, i) => { if (map[ch] !== undefined) this.set(x0 + i, y0 + j, map[ch]); }));
+    return this;
+  };
+  P.image = function (pal) {
+    const img = new ImageData(this.w, this.h);
+    for (let i = 0; i < this.d.length; i++) {
+      const c = pal[this.d[i]];
+      if (!c) continue;
+      img.data[i * 4] = c[0]; img.data[i * 4 + 1] = c[1]; img.data[i * 4 + 2] = c[2]; img.data[i * 4 + 3] = 255;
+    }
+    return img;
+  };
+
+  // ============================================================ ICONS
+  const ICON = {
+    // Pellaeon: the project's own mark, a pale kite on a disc that darkens towards the top.
+    // Drawn in phosphor. While the card is pointed at, its true colours come down over it.
+    kite: { w: 64, h: 64, fps: 14, frames: 1e9,
+      lit(t) { return Math.max(0, Math.min(1, t / 14)); },
+      same(t) { return Math.min(t, 14); },           // once the colour is down, every frame is the same picture
+      draw(p) {
+        const c = 32, R = 30.6, KITE = [[0, -.78], [.603, -.495], [0, .822], [-.603, -.495]].map((q) => [c + q[0] * R, c + q[1] * R]);
+        p.fill((x, y) => Math.hypot(x - c, y - c) <= R, FG, undefined, [c - R, c - R, c + R, c + R]);
+        // the shadow the kite throws along its two long edges, widest near the point
+        const edge = (x, y, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], k = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / (dx * dx + dy * dy))); return [Math.hypot(x - a[0] - k * dx, y - a[1] - k * dy), k]; };
+        [[3.4, FAINT], [1.7, DIM]].forEach((band) => p.fill((x, y) => {
+          const l = edge(x, y, KITE[3], KITE[2]), r = edge(x, y, KITE[1], KITE[2]), e = l[0] < r[0] ? l : r;
+          return e[0] < band[0] * (.25 + .75 * e[1]);
+        }, band[1], [FG, FAINT]));
+        p.poly(KITE, HI);
+      },
+      // painted by hand, not from the palette: the disc is a true gradient, as it is in the mark
+      image(p, t, pal) {
+        const img = new ImageData(p.w, p.h), wipe = Math.round(this.lit(t) * p.h), mix = (a, b, k) => a.map((v, i) => Math.round(v + (b[i] - v) * k));
+        const dark = mix(pal[FAINT], pal[FG], .42);
+        for (let y = 0; y < p.h; y++) {
+          const real = y < wipe, k = Math.max(0, Math.min(1, (y - 1.4) / 61));
+          const disc = real ? mix([118, 26, 27], [232, 44, 44], k) : mix(dark, pal[FG], k), kite = real ? [238, 234, 227] : pal[HI];
+          for (let x = 0; x < p.w; x++) {
+            const i = y * p.w + x, v = p.d[i];
+            if (!v) continue;
+            const c = y === wipe && wipe > 0 && wipe < p.h ? pal[HI] : v === HI ? kite : v === FG ? disc : mix(disc, [0, 0, 0], v === DIM ? .42 : .2);
+            img.data[i * 4] = c[0]; img.data[i * 4 + 1] = c[1]; img.data[i * 4 + 2] = c[2]; img.data[i * 4 + 3] = 255;
+          }
+        }
+        return img;
+      } },
+    // ΣpinZero: a rotor seen from above, three tubes 120° apart
+    rotor: { w: 48, h: 48, fps: 12, frames: 72, interactive: true,
+      tubes: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+      // how far off balance she is: the length of the sum of the loaded slots, 0 when balanced
+      sum() { let x = 0, y = 0; this.tubes.forEach((v, i) => { if (v) { x += Math.cos(i * Math.PI / 6); y += Math.sin(i * Math.PI / 6); } }); return Math.hypot(x, y); },
+      slot(px, py, t) {
+        const a0 = t / 72 * Math.PI * 2, r = Math.hypot(px - 24, py - 24);
+        if (r < 10 || r > 21) return -1;
+        const a = Math.atan2(py - 24, px - 24) - a0;
+        return ((Math.round(a / (Math.PI / 6)) % 12) + 12) % 12;
+      },
+      state() { const n = this.tubes.filter(Boolean).length, off = this.sum() > 1e-6; return n + (n === 1 ? ' tube' : ' tubes') + ' · ' + (n === 0 ? 'empty' : off ? 'UNBALANCED' : 'Σ = 0') + (this.touched ? '' : ' · click a slot'); },
+      draw(p, t) {
+        const sum = this.sum(), off = sum > 1e-6 ? Math.min(1, sum / 2) : 0, a0 = t / 72 * Math.PI * 2;
+        const c = 24, cx = c + Math.cos(a0 * 3) * off * 1.6, cy = c + Math.sin(a0 * 3) * off * 1.6;
+        p.ring(cx, cy, 20.4, 21.9, off ? WARN : FG).disc(cx, cy, 19.9, FAINT).ring(cx, cy, 8.2, 9, DIM);
+        for (let i = 0; i < 12; i++) {
+          const a = a0 + i * Math.PI / 6, x = cx + Math.cos(a) * 14.6, y = cy + Math.sin(a) * 14.6, tube = this.tubes[i];
+          p.disc(x, y, 3.2, tube ? HI : K).ring(x, y, 2.5, 3.5, tube ? HI : DIM);
+        }
+        for (let i = 0; i < 3; i++) { const a = a0 + i * Math.PI * 2 / 3; p.line(cx, cy, cx + Math.cos(a) * 8, cy + Math.sin(a) * 8, DIM, .7); }
+        p.disc(cx, cy, 3.2, FG).disc(cx, cy, 1.2, K);
+      } },
+    // DOUGH_FORMULATOR: where the bread starts. Three ears of wheat, moving in a little wind.
+    wheat: { w: 60, h: 60, fps: 7, frames: 28, draw(p, t) {
+      const by = 57;
+      const ear = (bx, lean, L, body, ph, n) => {
+        const th = lean + Math.sin((t / 28 + ph) * Math.PI * 2) * .06;
+        // the stalk bends more the higher it goes
+        const at = (k) => [bx + Math.sin(th * k * 1.4) * L * k, by - Math.cos(th * k * 1.4) * L * k];
+        const way = (k) => { const a = at(k - .02), b = at(k + .02), l = Math.hypot(b[0] - a[0], b[1] - a[1]); return [(b[0] - a[0]) / l, (b[1] - a[1]) / l]; };
+        const turn = (d, a) => [d[0] * Math.cos(a) - d[1] * Math.sin(a), d[0] * Math.sin(a) + d[1] * Math.cos(a)];
+        const plus = (o, d, l) => [o[0] + d[0] * l, o[1] + d[1] * l];
+        const k0 = 1 - n * 5.2 / L, stalk = [];
+        for (let k = 0; k <= k0 + .02; k += .05) stalk.push(at(k));
+        p.path(stalk, DIM, .8, .6);
+        // a leaf, low on the stalk
+        const l0 = at(.16), side = lean < 0 ? -1 : 1;
+        p.path([l0, [l0[0] + side * 3, l0[1] - 7], [l0[0] + side * 7, l0[1] - 11], [l0[0] + side * 12, l0[1] - 11]], DIM, 1, .3);
+        // the awns first, so the grains sit in front of them
+        for (let i = 0; i < n; i++) {
+          const k = k0 + i * 5.2 / L, o = at(k), d = way(k);
+          [-1, 1].forEach((sd) => { const tip = plus(o, turn(d, sd * .72), 6.6); p.path([tip, plus(tip, turn(d, sd * .22), 9 - i * .6)], DIM, .3); });
+        }
+        // the grains, in pairs up the head, the upper ones over the lower
+        for (let i = 0; i < n; i++) {
+          const k = k0 + i * 5.2 / L, o = at(k), d = way(k);
+          [-1, 1].forEach((sd) => {
+            const g = turn(d, sd * .72), a = plus(o, g, 1.5), tip = plus(o, g, 6.6);
+            p.path([a, tip], K, 2.9, 1.7).path([a, tip], body, 2, .9);
+          });
+        }
+        const o = at(1 - 1.5 / L), d = way(.97), tip = plus(o, d, 6);
+        p.path([tip, plus(tip, d, 8)], DIM, .3);
+        p.path([o, tip], K, 2.9, 1.7).path([o, tip], body, 2, .9);
+      };
+      ear(19, -.25, 39, FG, .2, 4);
+      ear(41, .25, 37, FG, .1, 4);
+      ear(30, .02, 50, HI, 0, 5);
+      p.rect(9, by + 1, 42, 1, DIM);
+    } },
+    // GeNest: a gene, the gene inside its intron, and the gene inside that one's intron.
+    // Drawn the way a genome browser draws them: boxes for exons, a line for introns, chevrons for the strand.
+    nest: { w: 64, h: 52, fps: 8, frames: 64,
+      depth(t) { return t < 18 ? 1 : t < 36 ? 2 : 3; },
+      state(t) { return t >= 52 ? 'WE NEED TO GO DEEPER' : ['', 'HOST GENE · + STRAND', 'NESTED IN INTRON 1 · − STRAND', 'NESTED AGAIN · + STRAND'][this.depth(t)]; },
+      draw(p, t) {
+        const depth = this.depth(t), hold = t >= 52;
+        const gene = (y, x0, x1, exons, dir, on, now) => {
+          const line = on ? (now ? FG : DIM) : FAINT, box = on ? (now ? HI : FG) : FAINT;
+          p.rect(x0, y + 3, x1 - x0, 1, line);
+          for (let x = x0 + 3; x < x1 - 2; x += 5) { p.set(x, y + 3, line).set(x - dir, y + 2, line).set(x - dir, y + 4, line); }   // which way it reads
+          exons.forEach((e) => p.rect(e[0], y, e[1], 7, box));
+        };
+        // from an intron down to what lives in it
+        const zoom = (y0, a, b, y1, c, d, on) => {
+          for (let i = 0; i <= 8; i++) { const k = i / 8, y = y0 + (y1 - y0) * k; if (i % 2 === 0 || on) { p.set(a + (c - a) * k, y, on ? DIM : FAINT).set(b + (d - b) * k, y, on ? DIM : FAINT); } }
+        };
+        gene(2, 1, 63, [[3, 7], [44, 6], [55, 6]], 1, true, depth === 1 || hold);
+        zoom(10, 13, 41, 19, 4, 60, depth >= 2);
+        gene(21, 4, 60, [[47, 8], [8, 6]], -1, depth >= 2, depth === 2 || hold);
+        zoom(29, 17, 44, 38, 10, 54, depth >= 3);
+        gene(41, 10, 54, [[13, 8], [30, 5], [44, 7]], 1, depth >= 3, depth === 3 || hold);
+        // the reader, moving along whichever gene is being read
+        if (!hold) {
+          const k = (t - [0, 0, 18, 36][depth]) / (depth === 3 ? 16 : 18), row = [0, 2, 21, 41][depth], a = [0, 1, 60, 10][depth], b = [0, 63, 4, 54][depth];
+          const x = Math.round(a + (b - a) * Math.min(1, k));
+          p.rect(x, row - 2, 1, 11, HI);
+        }
+      } },
+    // CO2 monitor: the molecule, stretching
+    co2: { w: 64, h: 40, fps: 8, frames: 16, draw(p, t) {
+      const s = Math.round(Math.sin(t / 16 * Math.PI * 2) * 2), cy = 20, cx = 32;
+      const ox = [cx - 19 - s, cx + 19 + s];
+      ox.forEach((x) => { p.rect(Math.min(x, cx), cy - 3, Math.abs(x - cx), 2, DIM).rect(Math.min(x, cx), cy + 2, Math.abs(x - cx), 2, DIM); });
+      p.disc(cx, cy, 7, K).ring(cx, cy, 6, 7.4, FG);
+      p.stamp(['.##', '#..', '#..', '#..', '.##'], cx - 1, cy - 2, { '#': HI });
+      ox.forEach((x) => { p.disc(x, cy, 9.4, K).ring(x, cy, 8.2, 9.8, HI).stamp(['.#.', '#.#', '#.#', '#.#', '.#.'], x - 1, cy - 2, { '#': HI }); });
+    } },
+  };
+
+  // GPCompaRe: seven helices in a membrane, switching on
+  ICON.gpcr = { w: 66, h: 64, fps: 6, frames: 72, draw(p, t) {
+    const ramp = (a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+    const leaving = ramp(60, 70);
+    const lig = ramp(4, 18) - leaving, swing = ramp(20, 30) - leaving, dock = ramp(32, 42) - ramp(58, 68);
+    const X = [7, 15, 23, 31, 39, 47, 57], TOP = 17, BOT = 41;
+    for (let x = 0; x < 66; x += 3) {
+      p.disc(x + 1.5, TOP + 1.5, 1.3, DIM).disc(x + 1.5, BOT - 1.5, 1.3, DIM);
+      p.rect(x + 1, TOP + 4, 1, 7, FAINT).rect(x + 1, BOT - 11, 1, 7, FAINT);
+    }
+    const rod = (pts, c) => { p.path(pts, K, 3.1).path(pts, c, 2.1).path(pts.map((q) => [q[0] - .9, q[1]]), c === HI ? FG : HI, .4, .4, [c]); };
+    const foot6 = X[5] + 5.5 * Math.max(0, swing);
+    X.forEach((x, i) => { if (i !== 5) rod([[x, TOP - 2], [x, BOT + 2]], FG); });
+    rod([[X[5], TOP - 2], [X[5], 28], [foot6, BOT + 2]], swing > 0 ? HI : FG);
+    const loop = (a, b, y, up) => { const m = (a + b) / 2, d = up ? -1 : 1; p.path([[a, y], [a, y + d * 4], [m, y + d * 6.5], [b, y + d * 4], [b, y]], FG, .6); };
+    loop(X[1], X[2], TOP - 5, true); loop(X[3], X[4], TOP - 5, true); loop(X[5], X[6], TOP - 5, true);
+    loop(X[0], X[1], BOT + 5, false); loop(X[2], X[3], BOT + 5, false); loop(X[4], foot6, BOT + 5, false);
+    p.path([[X[0], TOP - 5], [X[0], TOP - 10], [X[0] - 6, TOP - 13]], FG, .6);
+    p.path([[X[6], BOT + 5], [X[6], BOT + 10], [X[6] + 7, BOT + 13]], FG, .6);
+    if (lig > 0) {
+      const lx = 63 - 20 * lig, ly = 3 + 18 * lig * lig;
+      p.poly([[lx, ly - 3.6], [lx + 3.6, ly], [lx, ly + 3.6], [lx - 3.6, ly]], K).poly([[lx, ly - 2.6], [lx + 2.6, ly], [lx, ly + 2.6], [lx - 2.6, ly]], lig > .95 ? HI : WARN);
+    }
+    if (dock > 0) {
+      const gy = 66 - 17 * dock, c = dock > .95 ? HI : FG, gx = 46;
+      p.ell(gx, gy + 6.5, 9, 6, K).ell(gx + 10.5, gy + 9, 5.6, 4.6, K).ell(gx - 9, gy + 9.5, 4.6, 3.8, K);
+      p.ring(gx + 10.5, gy + 9, 3.4, 4.6, DIM).ring(gx - 9, gy + 9.5, 2.6, 3.8, DIM);
+      p.fill((x, y) => { const v = ((x - gx) / 8) ** 2 + ((y - gy - 6.5) / 5) ** 2; return v <= 1 && v > .58; }, c, undefined, [gx - 9, gy, gx + 9, gy + 13]);
+      p.path([[gx, gy + 2], [gx, gy - 4]], K, 2.5).path([[gx, gy + 2], [gx, gy - 4]], c, 1.5);
+    }
+  } };
+  ICON.gpcr.state = function (t) {
+    if (t >= 60) return 'RESETTING';
+    if (t >= 42) return 'ACTIVE · Gα BOUND';
+    if (t >= 30) return 'ACTIVE';
+    if (t >= 20) return 'TM6 SWINGS OUT';
+    if (t >= 18) return 'LIGAND BOUND';
+    return 'INACTIVE';
+  };
+
+  root.ART = { Px, ICON, K, FAINT, DIM, FG, HI, WARN };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+
+<!-- ==================================================================
+     SCENERY: the receptor, the helix, the icons, the dividers, the ideogram, translation
+     ================================================================== -->
+<script>
+(function () {
+  'use strict';
+  const T = window.TGGR, $ = T.$, $$ = T.$$, A = window.ART;
+
+  // ---- the page's colours, as a palette for the pixel art
+  const NAMES = [null, '--bg', '--faint', '--dim', '--fg', '--hi', '--warn'];
+  function palette() {
+    const cs = getComputedStyle(document.documentElement);
+    return NAMES.map((n) => {
+      if (!n) return null;
+      const v = cs.getPropertyValue(n).trim().replace('#', '');
+      const h = v.length === 3 ? v.replace(/./g, '$&$&') : v;
+      return [parseInt(h.slice(0, 2), 16) || 0, parseInt(h.slice(2, 4), 16) || 0, parseInt(h.slice(4, 6), 16) || 0];
+    });
+  }
+  let PAL = palette();
+  const themed = [];
+  T.onTheme = (fn) => themed.push(fn);
+  T.themeChanged = () => { PAL = palette(); themed.forEach((fn) => fn()); };
+  const still = (t, frame) => (T.reduceMotion ? frame : t);
+
+  // ---- the helix beside the name
+  const helix = $('#helix');
+  if (helix) {
+    const W = 22, H = 16, g = new T.Grid(W, H);
+    const PAIRS = ['AT', 'CG', 'TA', 'GC', 'AT', 'GC', 'CG', 'TA'];
+    // the cat climbs it: it turns slowly while she does, and the rungs under her paws light up
+    const hx = T.helix = { el: helix, W, H, slow: false, held: -1, ph: 0,
+      // where the first strand is on this row, in columns. Not rounded, so whoever follows it moves smoothly
+      col(y) { return (Math.sin(hx.ph + y * .5) + 1) / 2 * (W - 1); } };
+    T.Anim.add(helix, (t) => {
+      if (t) hx.ph += hx.slow ? .035 : .12;
+      g.clear();
+      for (let y = 0; y < H; y++) {
+        const a = hx.ph + y * 0.5, held = hx.held >= 0 && Math.abs(y - hx.held) <= 2;
+        const x1 = Math.round((Math.sin(a) + 1) / 2 * (W - 1)), x2 = Math.round((Math.sin(a + Math.PI) + 1) / 2 * (W - 1));
+        const front = Math.cos(a) >= 0;
+        for (let x = Math.min(x1, x2) + 1; x < Math.max(x1, x2); x++) g.put(x, y, (x - x1) % 2 ? '·' : '-', held ? 1 : 0);
+        const p = PAIRS[y % PAIRS.length];
+        g.put(x1, y, p[0], front || held ? 2 : 1); g.put(x2, y, p[1], front && !held ? 1 : 2);
+      }
+      helix.innerHTML = g.html();
+    }, 11);
+  }
+
+  // ---- project icons
+  $$('canvas[data-icon]').forEach((canvas) => {
+    const I = A.ICON[canvas.dataset.icon];
+    if (!I) return;
+    const scale = +canvas.dataset.scale || 2, always = canvas.dataset.play !== 'hover';
+    canvas.width = I.w; canvas.height = I.h;
+    canvas.style.width = I.w * scale + 'px'; canvas.style.height = I.h * scale + 'px';
+    const ctx = canvas.getContext('2d'), p = new A.Px(I.w, I.h), cap = canvas.dataset.cap ? $(canvas.dataset.cap) : null;
+    let cache = {}, cur = +canvas.dataset.still || 0;
+    const draw = (t) => {
+      cur = still(t, +canvas.dataset.still || 0) % I.frames;
+      const k = I.same ? I.same(cur) : cur;
+      if (!cache[k]) { p.clear(); I.draw(p, cur); cache[k] = I.image ? I.image(p, cur, PAL) : p.image(PAL); }
+      ctx.putImageData(cache[k], 0, 0);
+      if (cap && I.state) { const s = I.state(cur); if (cap.textContent !== s) cap.textContent = s; }
+    };
+    const it = T.Anim.add(canvas, draw, I.fps, always);
+    T.onTheme(() => { cache = {}; draw(cur); });
+    if (I.interactive) {
+      // she stops while you reach in, so the slots hold still
+      canvas.classList.add('toy');
+      canvas.addEventListener('pointerenter', () => { it.on = false; });
+      canvas.addEventListener('pointerleave', () => { it.on = T.motion && !T.reduceMotion; });
+      const flip = (i, v) => { I.tubes[i] = v === undefined ? (I.tubes[i] ? 0 : 1) : v; I.touched = true; cache = {}; draw(cur); };
+      canvas.addEventListener('click', (e) => {
+        if (!e.detail) return;                       // a click made with the keyboard is handled below
+        const r = canvas.getBoundingClientRect(), i = I.slot((e.clientX - r.left) / r.width * I.w, (e.clientY - r.top) / r.height * I.h, cur);
+        if (i >= 0) flip(i);
+      });
+      // by keyboard: Enter or Space loads the next empty slot, Backspace or Delete unloads the last loaded one
+      const mine = [];
+      canvas.addEventListener('focus', () => { it.on = false; });
+      canvas.addEventListener('blur', () => { it.on = T.motion && !T.reduceMotion; });
+      canvas.addEventListener('keydown', (e) => {
+        const load = e.key === 'Enter' || e.key === ' ', unload = e.key === 'Backspace' || e.key === 'Delete';
+        if (!load && !unload) return;
+        e.preventDefault();
+        let i = load ? I.tubes.indexOf(0) : -1;
+        if (load && i >= 0) mine.push(i);
+        while (unload && i < 0 && mine.length) { const k = mine.pop(); if (I.tubes[k]) i = k; }
+        if (unload && i < 0) i = I.tubes.lastIndexOf(1);
+        if (i >= 0) flip(i, load ? 1 : 0);
+      });
+      // the cat can reach in too
+      T.toy = { canvas, balanced: () => I.sum() < 1e-6, knock() { const on = I.tubes.map((v, i) => (v ? i : -1)).filter((i) => i >= 0); if (!on.length) return false; I.tubes[on[Math.floor(Math.random() * on.length)]] = 0; cache = {}; draw(cur); return true; } };
+    }
+    if (!always) {
+      const card = canvas.closest('.card') || canvas;
+      const on = () => { it.on = true; }, off = () => { it.on = false; it.t = 0; draw(0); };
+      card.addEventListener('pointerenter', on); card.addEventListener('pointerleave', off);
+      card.addEventListener('focusin', on); card.addEventListener('focusout', off);
+    }
+  });
+
+  // ---- PAR2, the receptor, as a wire model of its backbone. The Cα positions of the AlphaFold model of human
+  // F2RL1 (AF-P55085-F1), residues 59 to 377, the part the model is confident about. Units of 0.2 Å.
+  const par2 = $('#par2');
+  if (par2) {
+    const RAW = [10,-163,14,7,-167,-5,3,-153,-18,-3,-156,-36,8,-156,-52,2,-138,-57,5,-131,-39,23,-140,-40,26,-132,-57,21,-114,-51,32,-116,-35,47,-122,-46,42,-110,-61,50,-94,-67,34,-85,-62,38,-87,-43,58,-89,-44,61,-74,-57,46,-63,-60,41,-60,-41,58,-57,-34,62,-44,-49,45,-35,-44,49,-35,-25,67,-29,-29,60,-14,-39,48,-11,-24,62,-12,-11,74,-1,-21,60,12,-25,49,11,-10,62,11,4,71,28,-1,55,37,-7,44,33,8,60,36,19,61,53,12,42,56,13,42,51,31,57,63,35,49,78,26,32,75,35,39,73,52,54,85,52,52,98,37,33,101,37,30,116,49,11,115,48,3,98,54,-13,98,44,-23,81,43,-17,76,26,1,77,32,-3,65,46,-12,53,34,3,54,22,16,51,36,6,36,42,5,29,24,24,31,22,26,23,39,15,8,34,25,6,17,42,7,26,36,-7,39,31,-18,24,46,-15,12,59,-18,26,55,-36,25,56,-38,6,74,-44,6,68,-60,15,54,-62,3,66,-59,-12,78,-72,-5,64,-84,-2,59,-83,-20,77,-84,-27,80,-100,-16,66,-109,-26,53,-104,-13,62,-112,1,59,-103,18,74,-105,29,70,-91,42,58,-101,53,39,-99,57,40,-83,67,48,-72,53,36,-79,40,21,-73,51,29,-56,53,33,-55,34,14,-60,30,7,-49,44,16,-33,37,13,-38,19,-7,-39,21,-6,-26,35,2,-13,23,-10,-17,9,-26,-13,20,-17,1,29,-13,9,12,-32,8,6,-38,16,23,-25,30,23,-29,34,4,-47,34,8,-44,46,22,-33,57,11,-47,57,-3,-61,62,9,-49,75,17,-45,82,0,-64,84,-4,-67,92,13,-53,105,10,-60,110,-6,-78,112,1,-73,121,17,-57,132,14,-60,142,31,-56,128,43,-47,129,60,-32,118,56,-28,112,74,-44,104,79,-44,95,62,-26,88,65,-31,80,82,-46,71,73,-34,65,60,-22,58,74,-37,49,82,-42,42,65,-24,36,61,-23,28,79,-40,19,75,-33,13,58,-18,6,67,-28,-3,80,-40,-9,67,-26,-16,56,-17,-24,71,-34,-32,76,-38,-39,58,-20,-45,55,-19,-55,72,-24,-72,62,-9,-69,51,3,-69,66,-5,-84,76,-10,-96,62,4,-108,56,10,-101,39,24,-113,35,22,-130,27,36,-143,22,33,-151,5,43,-168,5,42,-170,-14,50,-153,-18,61,-153,-2,55,-135,2,47,-126,16,34,-113,9,29,-97,18,10,-94,16,10,-101,-3,3,-118,3,-9,-120,18,-19,-135,24,-36,-138,14,-46,-137,30,-39,-120,35,-41,-113,17,-59,-119,15,-66,-114,32,-57,-100,41,-46,-91,28,-60,-89,15,-72,-81,28,-58,-71,34,-52,-64,17,-70,-61,11,-73,-51,27,-58,-40,24,-62,-38,5,-80,-32,10,-76,-21,26,-58,-15,22,-57,-15,3,-75,-12,-5,-81,0,8,-66,11,7,-66,10,-12,-84,16,-12,-80,31,0,-65,35,-11,-75,34,-27,-89,45,-20,-76,58,-13,-69,59,-31,-86,61,-40,-90,75,-28,-72,83,-31,-74,82,-50,-92,90,-50,-86,104,-39,-69,108,-48,-80,109,-64,-92,123,-56,-78,134,-49,-74,151,-59,-57,151,-69,-42,160,-62,-25,154,-67,-21,148,-49,-37,139,-49,-33,130,-65,-16,124,-58,-25,117,-42,-38,109,-53,-24,100,-64,-15,94,-48,-32,88,-41,-35,78,-57,-18,71,-57,-20,65,-39,-37,57,-44,-29,48,-58,-15,42,-47,-26,35,-34,-38,27,-46,-23,18,-54,-18,11,-37,-36,5,-34,-38,-2,-52,-20,-10,-54,-14,-13,-36,-29,-16,-25,-44,-22,-35,-36,-37,-44,-27,-43,-28,-43,-43,-17,-54,-50,-30,-43,-64,-36,-39,-68,-17,-58,-70,-13,-61,-80,-30,-45,-91,-26,-52,-96,-9,-70,-97,-15,-64,-110,-29,-55,-120,-16,-70,-120,-5,-83,-124,-19,-73,-135,-31,-58,-142,-20,-46,-133,-32,-41,-116,-39,-36,-113,-57,-33,-94,-54,-19,-96,-42,-5,-90,-54,-16,-74,-58,-19,-71,-39,0,-71,-35,4,-60,-49,-10,-48,-44,-4,-49,-25,14,-45,-31,8,-30,-42,-2,-24,-27,15,-20,-18,19,-7,-32,7,4,-22,23,9,-11,31,15,-27,16,25,-33,13,34,-16,27,47,-19,16,53,-33,2,55,-21,14,65,-9,20,76,-24,3,81,-29,-4,84,-11,11,91,-2,21,107,-7,34,103,6,37,86,-1,37,92,-19,51,105,-15,62,93,-6,59,79,-20,64,93,-33,80,97,-24,85,79,-21,82,76,-40,93,91,-44,107,84,-32,105,101,-23,113,100,-5,102,106,9,116,119,11,113,126,-6,94,126,-3,96,136,13,108,149,4,95,151,-10,81,154,3,92,167,12,96,176,-5,78,176,-9,73,183,8,87,196,6,80,201,-11];
+    const N = RAW.length / 3, X = new Float32Array(N), Y = new Float32Array(N), Z = new Float32Array(N);
+    for (let i = 0; i < N; i++) { X[i] = RAW[i * 3] * .2; Y[i] = RAW[i * 3 + 1] * .2; Z[i] = RAW[i * 3 + 2] * .2; }
+    const CW = 236, CH = 272, g = par2.getContext('2d');
+    let dpr = 0, ink = null;
+    const inkOf = () => { const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(); return { faint: v('--faint'), dim: v('--dim'), fg: v('--fg'), hi: v('--hi'), glow: v('--glow-rgb') }; };
+    T.onTheme(() => { ink = null; });
+    const draw = (t) => {
+      const r = Math.min(3, window.devicePixelRatio || 1);
+      if (r !== dpr) { dpr = r; par2.width = CW * r; par2.height = CH * r; }
+      if (!ink) ink = inkOf();
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, CW, CH);
+      const a = still(t, 48) * .011, ca = Math.cos(a), sa = Math.sin(a), k = (CH - 28) / 76, cx = CW / 2, cy = CH / 2 + 2;
+      // the membrane, as two faint lines the bundle crosses
+      g.strokeStyle = ink.faint; g.lineWidth = 1; g.setLineDash([2, 4]);
+      [-15, 15].forEach((m) => { g.beginPath(); g.moveTo(14, cy + m * k); g.lineTo(CW - 14, cy + m * k); g.stroke(); });
+      g.setLineDash([]);
+      // the chain, nearer parts brighter and drawn last
+      const px = new Float32Array(N), py = new Float32Array(N), pz = new Float32Array(N);
+      for (let i = 0; i < N; i++) { const x = X[i] * ca + Z[i] * sa, z = -X[i] * sa + Z[i] * ca, f = 1 / (1 + z / 520); px[i] = cx + x * k * f; py[i] = cy + Y[i] * k * f; pz[i] = z; }
+      const order = Array.from({ length: N - 1 }, (_, i) => i).sort((i, j) => pz[j] - pz[i]);
+      g.lineCap = 'round'; g.lineJoin = 'round'; g.shadowColor = 'rgba(' + ink.glow + ',.55)';
+      order.forEach((i) => {
+        const d = Math.max(0, Math.min(1, (pz[i] + 22) / 44));           // 0 far, 1 near
+        g.strokeStyle = d < .35 ? ink.faint : d < .7 ? ink.dim : d < .9 ? ink.fg : ink.hi;
+        g.lineWidth = .8 + d * 1.1; g.shadowBlur = d > .7 ? 5 : 0;
+        g.beginPath(); g.moveTo(px[i], py[i]); g.lineTo(px[i + 1], py[i + 1]); g.stroke();
+      });
+      g.shadowBlur = 0;
+    };
+    T.Anim.add(par2, draw, 24);
+    T.onTheme(() => draw(0));
+  }
+
+  // ---- a sequencing trace runs past between the sections. Peaks only, no letters: it is a shape, not a read.
+  $$('.divider canvas').forEach((cv, n) => {
+    const g = cv.getContext('2d'), H = 34, S = 9;
+    let seed = 1234 + n * 977;
+    const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    const peaks = Array.from({ length: 400 }, (_, i) => ({ x: i * S + (rnd() - .5) * 3, c: Math.floor(rnd() * 4), h: .35 + rnd() * .65, w: 2.6 + rnd() * 1.2 }));
+    // each trace sampled once, one value per pixel around the whole loop
+    const span = peaks.length * S, prof = [0, 1, 2, 3].map(() => new Float32Array(span));
+    peaks.forEach((q) => { for (let d = -12; d <= 12; d++) { const i = ((Math.round(q.x) + d) % span + span) % span; prof[q.c][i] += q.h * Math.exp(-(d * d) / (2 * q.w * q.w)); } });
+    let W = 0, dpr = 0, ink = null, off = 0;
+    T.onTheme(() => { ink = null; });
+    const draw = (t) => {
+      const w = cv.parentNode.clientWidth, r = Math.min(3, window.devicePixelRatio || 1);
+      if (w !== W || r !== dpr) { W = w; dpr = r; cv.width = W * r; cv.height = H * r; }
+      if (!ink) { const cs = getComputedStyle(document.documentElement), v = (k) => cs.getPropertyValue(k).trim(); ink = [v('--hi'), v('--fg'), v('--dim'), v('--warn')]; }
+      off = still(t, 0) * .9;
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+      const x0 = Math.round(off) % span;
+      for (let c = 0; c < 4; c++) {
+        g.strokeStyle = ink[c]; g.lineWidth = 1; g.globalAlpha = c === 3 ? .55 : .8;
+        g.beginPath();
+        for (let x = 0; x <= W; x++) {
+          const Y = H - 2 - Math.min(1, prof[c][(x + x0) % span]) * (H - 6);
+          if (x === 0) g.moveTo(x, Y); else g.lineTo(x, Y);
+        }
+        g.stroke();
+      }
+      g.globalAlpha = 1;
+    };
+    T.Anim.add(cv, draw, 18);
+  });
+
+  // ---- chromosome 5 across the top of the window, standing in for a scroll bar. The bands are the real ones (hg38).
+  const ideo = $('#ideo');
+  if (ideo) {
+    const BANDS = [[0,44,"gneg"],[44,63,"gpos25"],[63,99,"gneg"],[99,150,"gpos50"],[150,184,"gneg"],[184,233,"gpos100"],[233,246,"gneg"],[246,289,"gpos100"],[289,338,"gneg"],[338,384,"gpos25"],[384,425,"gneg"],[425,461,"gpos50"],[461,488,"acen"],[488,514,"acen"],[514,596,"gneg"],[596,636,"gpos75"],[636,639,"gneg"],[639,674,"gpos75"],[674,691,"gneg"],[691,740,"gpos50"],[740,776,"gneg"],[776,821,"gpos50"],[821,835,"gneg"],[835,930,"gpos100"],[930,989,"gneg"],[989,1034,"gpos100"],[1034,1051,"gneg"],[1051,1102,"gpos100"],[1102,1122,"gneg"],[1122,1138,"gpos50"],[1138,1159,"gneg"],[1159,1221,"gpos100"],[1221,1279,"gneg"],[1279,1312,"gpos100"],[1312,1369,"gneg"],[1369,1401,"gpos25"],[1401,1451,"gneg"],[1451,1504,"gpos75"],[1504,1533,"gneg"],[1533,1563,"gpos50"],[1563,1605,"gneg"],[1605,1690,"gpos100"],[1690,1733,"gneg"],[1733,1771,"gpos25"],[1771,1815,"gneg"]], LEN = BANDS[BANDS.length - 1][1], H = 7;
+    const SHADE = { gneg: .14, gpos25: .3, gpos50: .48, gpos75: .66, gpos100: .85, gvar: .4, acen: 0, stalk: .3 };
+    const g = ideo.getContext('2d');
+    let W = 0, dpr = 0, ink = null, queued = false;
+    T.onTheme(() => { ink = null; draw(); });
+    function draw() {
+      queued = false;
+      const w = window.innerWidth, r = Math.min(3, window.devicePixelRatio || 1);
+      if (w !== W || r !== dpr) { W = w; dpr = r; ideo.width = W * r; ideo.height = H * r; }
+      if (!ink) { const cs = getComputedStyle(document.documentElement), v = (k) => cs.getPropertyValue(k).trim(); ink = { glow: v('--glow-rgb'), hi: v('--hi'), warn: v('--warn') }; }
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+      const sx = W / LEN;
+      BANDS.forEach((b) => {
+        const x = b[0] * sx, bw = Math.max(1, (b[1] - b[0]) * sx);
+        if (b[2] === 'acen') { g.fillStyle = ink.warn; g.globalAlpha = .55; g.fillRect(x, 2, bw, H - 4); g.globalAlpha = 1; return; }
+        g.fillStyle = 'rgba(' + ink.glow + ',' + SHADE[b[2]] + ')'; g.fillRect(x, 0, bw, H);
+      });
+      // where the reader is: the part of the page on the screen
+      const doc = document.documentElement, total = Math.max(1, doc.scrollHeight), top = window.pageYOffset / total * W, vis = Math.max(6, window.innerHeight / total * W);
+      g.strokeStyle = ink.hi; g.lineWidth = 1; g.shadowColor = ink.hi; g.shadowBlur = 4;
+      g.strokeRect(Math.round(top) + .5, .5, Math.round(vis) - 1, H - 1);
+      g.shadowBlur = 0;
+    }
+    const queue = () => { if (!queued) { queued = true; requestAnimationFrame(draw); } };
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', queue);
+    if ('ResizeObserver' in window) new ResizeObserver(queue).observe(document.body);
+    draw();
+  }
+
+  // ---- translation, in about. The ribosome reads one peptide after another: first the motifs every
+  // Class A GPCR carries, then, for whoever is still watching, words that happen to be spelt in amino acids.
+  const mrna = $('#mrna'), chain = $('#chain'), rcap = $('#ribo-cap');
+  if (mrna) {
+    const AA3 = { A: 'Ala', C: 'Cys', D: 'Asp', E: 'Glu', F: 'Phe', G: 'Gly', H: 'His', I: 'Ile', K: 'Lys', L: 'Leu', M: 'Met', N: 'Asn', P: 'Pro', Q: 'Gln', R: 'Arg', S: 'Ser', T: 'Thr', V: 'Val', W: 'Trp', Y: 'Tyr' };
+    const BACK = { A: 'GCU', C: 'UGU', D: 'GAC', E: 'GAA', F: 'UUC', G: 'GGU', H: 'CAU', I: 'AUU', K: 'AAA', L: 'CUG', M: 'AUG', N: 'AAC', P: 'CCU', Q: 'CAG', R: 'CGU', S: 'UCU', T: 'ACU', V: 'GUU', W: 'UGG', Y: 'UAC' };
+    const REPERTOIRE = [
+      ['DRY', 'DRY MOTIF · TM3 · CLASS A GPCRs'], ['NPIIY', 'NPxxY MOTIF · TM7 · CLASS A GPCRs'], ['CWLP', 'CWxP MOTIF · TM6 · CLASS A GPCRs'],
+      ['GENETICS', '8 AA · READS: GENETICS'], ['SCIENCE', '7 AA · READS: SCIENCE'], ['CAMILLE', '7 AA · THE CAT, IN AMINO ACIDS'],
+      ['WHISKERS', '8 AA · READS: WHISKERS'], ['ALIEN', '5 AA · IN SPACE NO ONE CAN HEAR YOU TRANSLATE'], ['FEEDTHECAT', '10 AA · A MESSAGE'],
+    ];
+    let which = -1, CODONS = [], aa = [], spans = [], beads = [], N = 0, STOP = 0, REL = 0, CUT = 0, HOLD = 0, PERIOD = 1, cap = '';
+    function load(i) {
+      which = i;
+      const word = REPERTOIRE[i][0]; cap = REPERTOIRE[i][1];
+      CODONS = ['AUG'].concat(Array.from(word).map((c) => BACK[c])).concat(['UAA']);
+      N = CODONS.length - 1; STOP = N; REL = N + 1; CUT = N + 2; HOLD = N + 3; PERIOD = N + 8;
+      aa = CODONS.map((c) => T.CODON[c]);
+      mrna.textContent = ''; chain.textContent = '';
+      spans = CODONS.map((c) => { const s = document.createElement('span'); s.textContent = c; mrna.appendChild(s); return s; });
+      beads = aa.slice(0, N).map((r) => { const b = document.createElement('b'); b.textContent = r; b.title = AA3[r]; chain.appendChild(b); return b; });
+    }
+    let t0 = 0;
+    const draw = (t) => {
+      if (T.reduceMotion) { if (which < 0) load(0); t = HOLD + 1; }
+      else if (which < 0 || t - t0 >= PERIOD) { t0 = t; load(which < 0 ? 0 : (which + 1) % REPERTOIRE.length); }
+      const k = (t - t0) % PERIOD;                       // reading, stop, release, cleave, then hold
+      spans.forEach((s, i) => { s.className = k <= STOP ? (i === k ? 'cur' : i < k ? 'done' : '') : 'done'; });
+      beads.forEach((b, i) => { b.className = (i <= Math.min(k, N - 1) ? 'on' : '') + (i === 0 && k >= CUT ? ' cut' : '') + (k >= HOLD && i > 0 ? ' hi' : ''); });
+      const c = k < STOP ? 'CODON ' + (k + 1) + '/' + CODONS.length + ' · ' + CODONS[k] + ' → ' + AA3[aa[k]]
+        : k === STOP ? 'UAA · STOP' : k === REL ? 'CHAIN RELEASED' : k === CUT ? 'INITIATOR MET CLEAVED' : cap;
+      if (rcap.textContent !== c) rcap.textContent = c;
+    };
+    T.Anim.add(mrna, draw, 1.1);
+  }
+
+  // ---- each section's heading is a command. It types itself when you reach it, then its output appears.
+  (function () {
+    if (T.reduceMotion || !('IntersectionObserver' in window)) return;
+    const heads = $$('main section > h2');
+    // whatever goes wrong in here, no section may be left invisible
+    const bail = (e) => { console.error(e); heads.forEach((h) => { h._done = true; h.parentNode.classList.remove('pending'); $$('.ch', h).forEach((c) => { c.className = 'ch on'; }); }); };
+    try {
+    heads.forEach((h) => {
+      // every character gets its own box, hidden but still taking its space, so nothing moves as she types
+      const chars = [];
+      (function wrap(node) {
+        Array.from(node.childNodes).forEach((n) => {
+          if (n.nodeType === 3) {
+            const f = document.createDocumentFragment();
+            Array.from(n.data).forEach((c) => { const sp = document.createElement('span'); sp.className = 'ch'; sp.textContent = c; chars.push(sp); f.appendChild(sp); });
+            n.parentNode.replaceChild(f, n);
+          } else if (n.nodeType === 1 && !n.classList.contains('ps') && !n.classList.contains('cur-slot')) wrap(n);
+        });
+      })(h);
+      h.parentNode.classList.add('pending');
+      h._chars = chars;
+    });
+    function finish(h) {
+      if (h._done) return; h._done = true;
+      h._chars.forEach((c) => { const p = c.parentNode; if (p) p.replaceChild(document.createTextNode(c.textContent), c); });
+      h.normalize(); $$('*', h).forEach((n) => n.normalize());
+      h.parentNode.classList.remove('pending');
+      const slot = $('.cur-slot', h), cur = $('#cursor');
+      // the cursor follows the last heading typed, unless the cat has it or is after it
+      if (slot && cur && !cur.classList.contains('caught') && cur.style.visibility !== 'hidden' && !(T.cursorBusy && T.cursorBusy())) slot.appendChild(cur);
+    }
+    function type(h) {
+      let i = 0;
+      (function step() {
+        if (h._done) return;
+        try {
+          if (!T.motion || i >= h._chars.length) { finish(h); return; }
+          if (i) h._chars[i - 1].className = 'ch on';
+          h._chars[i].className = 'ch at';
+          i++; setTimeout(step, 34 + Math.random() * 40);
+        } catch (e) { bail(e); }
+      })();
+    }
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target); type($('h2', e.target));
+    }), { rootMargin: '0px 0px -8% 0px' });
+    // wait for the power-on animation to finish: while the screen is squeezed flat, every section counts as in view
+    T.onReady(() => setTimeout(() => heads.forEach((h) => io.observe(h.parentNode)), 700));
+    window.addEventListener('beforeprint', () => heads.forEach(finish));
+    } catch (e) { bail(e); }
+  })();
+
+  // ---- live numbers from GitHub. One request per project, kept for half a day. Fails quietly.
+  (function () {
+    const cards = $$('.card[data-project]').filter((c) => !c.hidden).map((c) => {
+      const a = $$('a', c).find((x) => /github\.com\/[^/]+\/[^/]+/.test(x.href));
+      const m = a && a.href.match(/github\.com\/([^/]+)\/([^/#?]+)/);
+      return m ? { card: c, repo: m[1] + '/' + m[2], name: c.dataset.project } : null;
+    }).filter(Boolean);
+    const ago = (iso) => {
+      const s = (Date.now() - new Date(iso).getTime()) / 1000;
+      if (s < 3600) return Math.max(1, Math.round(s / 60)) + ' min ago';
+      if (s < 86400) return Math.round(s / 3600) + ' h ago';
+      if (s < 86400 * 60) return Math.round(s / 86400) + ' d ago';
+      if (s < 86400 * 730) return Math.round(s / 86400 / 30.4) + ' mo ago';
+      return Math.round(s / 86400 / 365) + ' y ago';
+    };
+    function show(data) {
+      let newest = null;
+      cards.forEach((c) => {
+        const d = T.own(data, c.repo); if (!d || typeof d.pushed !== 'string' || isNaN(Date.parse(d.pushed))) return;
+        let el = $('.gh', c.card);
+        if (!el) { el = document.createElement('span'); el.className = 'gh'; $('.path', c.card).appendChild(el); }
+        // an old push date flatters nobody, so only recent ones are shown
+        const recent = Date.now() - new Date(d.pushed).getTime() < 365 * 86400 * 1000;
+        el.textContent = [d.stars ? '★ ' + d.stars : '', recent ? 'pushed ' + ago(d.pushed) : ''].filter(Boolean).join(' · ');
+        if (!newest || d.pushed > newest.pushed) newest = { pushed: d.pushed, name: c.name };
+      });
+      const li = $('#lastpush');
+      if (newest && li) { li.children[1].textContent = newest.name + ', ' + ago(newest.pushed); li.hidden = false; }
+    }
+    const kept = T.store.get('gh-v1', null), saved = kept && typeof kept === 'object' && typeof kept.at === 'number' && kept.data && typeof kept.data === 'object' ? kept : null;
+    const fresh = saved && Date.now() - saved.at < 12 * 3600 * 1000;
+    if (saved) show(saved.data);
+    if (fresh || !window.fetch || !cards.length) return;
+    // one request per account, not one per project
+    const owners = Array.from(new Set(cards.map((c) => c.repo.split('/')[0].toLowerCase())));
+    Promise.all(owners.map((o) => fetch('https://api.github.com/users/' + o + '/repos?per_page=100&sort=pushed', { headers: { Accept: 'application/vnd.github+json' } })
+      .then((r) => (r.ok ? r.json() : [])).catch(() => [])))
+      .then((lists) => {
+        const all = {}; lists.forEach((l) => (Array.isArray(l) ? l : []).forEach((j) => { all[String(j.full_name).toLowerCase()] = { stars: j.stargazers_count, pushed: j.pushed_at }; }));
+        const data = Object.assign({}, saved ? saved.data : {});
+        cards.forEach((c) => { const d = all[c.repo.toLowerCase()]; if (d) data[c.repo] = d; });
+        if (Object.keys(data).length) { T.store.set('gh-v1', { at: Date.now(), data }); show(data); }
+      }).catch(() => {});
+  })();
+
+})();
+</script>
+
+<!-- ==================================================================
+     CAMILLE'S SHAPE: outlines traced from real house cats, and how the
+     screen draws them.
+     ================================================================== -->
+<script>
+/* Camille, drawn from life.
+   Each outline is a list of x, y pairs. x runs from her middle, y up from the ground, she faces right.
+   They are traced from public-domain and CC0 silhouettes of house cats:
+     sitting, lying, arched, paw raised, pouncing, sniffing   "Nine Cats Silhouettes", Openclipart 235610
+     sitting alert, looking away, stretching, leaping         Openclipart 169097, 85909, 280835, 286637
+     napping                                                  House Cat Silhouette, NIH BioArt 207
+     standing and walking                                     PhyloPic, Kawinwit Kittipalawattanapol, CC0
+     dashing                                                  PhyloPic, Margot Michaud, CC0
+   The walk is one silhouette with its own legs swung from their joints, so her body never changes. */
+window.CATDATA = {
+  SIT: [25.7,-74.1,26.1,-74.1,26.3,-73.5,26.9,-66.1,29.2,-61.3,29.4,-56.8,27.4,-53,25.6,-50.6,24.4,-43.2,22.1,-35.8,16.8,-26.1,15.9,-23.5,15.8,-21.9,16.5,-17.4,18.8,-10.3,19.7,-8.9,22.8,-6.6,23.9,-5.5,24.2,-4.2,23.7,-3.4,22.5,-2.7,20.6,-2.5,19,-3.1,17.5,-4.3,13.9,-10,8.8,-22.2,8.2,-22.9,7.3,-23.1,5.2,-22.3,3.9,-20.3,3,-16.8,3.6,-12.9,4.3,-10.8,8.2,-8.4,11,-5.2,11.4,-3.9,11.3,-3,10.3,-2,7,-0.2,3.8,-0.8,0.9,-3.3,-3.3,-4.9,-6.2,-6.9,-7.5,-7,-14.2,-5.9,-17.1,-6.6,-24.9,-6.8,-28.4,-6.5,-34.2,-7.2,-37.5,-7.8,-40.4,-9.1,-45.1,-12.6,-47.3,-15.8,-49,-21.3,-48.6,-27.1,-47.7,-29.3,-46.4,-30.9,-44.9,-31.8,-43.6,-31.4,-43.7,-30,-45.3,-24.5,-45.1,-22.6,-44.1,-19,-43.2,-17.4,-39.7,-14,-36.5,-12.4,-33.6,-11.7,-29.7,-11.5,-23.9,-12,-22.9,-12.5,-22.6,-13.9,-23.3,-21,-22.8,-25.8,-20.9,-32.6,-17.6,-39.3,-12.3,-44.7,-7.8,-47.6,-5.2,-48.6,6.1,-50.7,8.8,-52.3,9.3,-53.9,9.2,-58.1,7.5,-68,8.2,-69.8,9.3,-70.1,10.6,-69.8,14.8,-67.3,19.3,-67.8,20.6,-68.3,21.8,-69.4],
+  SIT4: [29.7,-73.8,30.5,-73.8,31.2,-73,31.5,-69.8,29.9,-62.5,29.1,-60.9,25.2,-46.4,25.4,-40,25,-37.5,23.1,-33.7,18.7,-28.1,15.4,-22.4,15.4,-13.1,15.7,-9.9,16.3,-8.4,20.1,-5.8,20.2,-4.7,19.6,-3.7,17.6,-3.1,15.4,-3.2,13,-3.8,11.5,-4.9,9.4,-9.9,7,-20.2,6,-12,4.8,-9.3,2.9,-6.5,3.8,-5.1,3.9,-4.1,3.1,-3,1.9,-2.5,-5.4,-1.7,-9.8,-2,-18,-1.4,-24.5,-0.2,-33.7,-0.1,-38.6,-0.6,-42.3,-1.6,-45.6,-3.1,-48.1,-5.1,-49.8,-7.8,-50.7,-11.1,-50.6,-14.5,-49.7,-17.6,-48.1,-20.5,-46.1,-22.6,-43.3,-24.4,-40.7,-25,-38.4,-24.6,-37.3,-23.4,-38.1,-22.7,-40.9,-22.4,-42.7,-21.7,-44.3,-20.3,-45.6,-18.3,-46.5,-15.3,-46.8,-12.4,-46.4,-10,-44.9,-7.7,-41.4,-5.6,-36.6,-4.7,-27.1,-4.6,-25.5,-5.1,-23.1,-6.5,-22.2,-7.8,-21.6,-11.8,-21.5,-16.2,-21.9,-23.8,-21.5,-26.5,-19.7,-31.9,-16.7,-36.7,-13.3,-40.6,-9.9,-43.4,-4.4,-46.1,2.5,-48.3,6.1,-49.9,7.7,-51,12.5,-55.9,12.8,-57.1,12.7,-60.1,10.1,-69.4,10,-71,10.5,-72.4,11.1,-72.6,11.9,-72.3,17.7,-67.3,22.7,-67.3,23.6,-67.9,28.4,-73],
+  LOAF: [32.5,-47.8,33.4,-47.7,33.9,-46.6,33.5,-41,32.1,-34.3,29.5,-28.6,28.1,-24,27.8,-15.5,28.8,-13.1,29.8,-12.1,35,-12.4,36.3,-11.3,38.1,-7.7,41.8,-6.6,44.2,-5.5,45.7,-3.5,45.6,-2.6,44.6,-1.7,38.9,-2.1,19.9,-0.1,14.2,-1.9,7.1,-1.1,-4.2,-1.7,-5.6,-1.5,-8.8,-0.2,-13.7,-0.8,-21.5,-0.2,-32.1,-4.3,-36.7,-7.6,-38.1,-7.3,-41.3,-5.4,-44.1,-4.4,-47.3,-3.9,-50.1,-4.4,-52.5,-6.1,-54.6,-9.2,-55.6,-12.7,-55.7,-14.5,-54.5,-19.8,-52.1,-23.6,-47.6,-27,-46,-27,-45.5,-26.7,-45.5,-25.5,-48.5,-22.3,-50.3,-19.4,-51.4,-16.3,-51.5,-14.1,-51.3,-12.4,-50.3,-10.6,-48.7,-9.1,-46.9,-8.6,-45.1,-9,-42.8,-11,-38.9,-16.8,-36.7,-18.9,-31.7,-22.1,-27.5,-23.9,-22.2,-25.3,-17.6,-26,-7.3,-26.7,2.5,-25.9,6.8,-26.6,8.6,-27.4,12.1,-29.7,14.6,-32.9,12.6,-43.5,12.6,-45.2,13.3,-46.5,14.9,-47,19.5,-44.6,26.2,-44.6,27.3,-44.8],
+  NAP: [32.7,-43.6,33.1,-43.1,33.1,-41,32.3,-33.3,31,-29.1,31.4,-23.6,30.9,-19.5,31.6,-19.2,34,-19.4,31.6,-19.1,30.6,-18.6,35,-18.2,31.2,-18.4,30.2,-18,37.8,-15.9,38.1,-15.7,38.1,-15.3,36.2,-15.7,28.9,-15.9,28.8,-15.7,29.4,-15.4,33.4,-14.4,28.4,-15.4,27.4,-14.5,26.2,-12.7,25.4,-9.9,25.5,-7.3,26.3,-6.7,30.4,-6,31.9,-5.2,32.5,-4.2,32.7,-3,32.1,-1.6,31.2,-0.9,26.5,-0.8,23.7,-1.1,16.9,-0.1,11.2,0,-30.4,-2.5,-33.6,-3.4,-36.8,-6.5,-38.1,-8.1,-38.5,-9.9,-38.2,-11.7,-35.9,-15.9,-34.8,-20,-33.7,-22.2,-29.8,-27.6,-21.9,-33.1,-16.6,-35.5,-16.1,-36,-13.8,-36.2,-12.8,-36.9,-11.5,-36.9,-10.9,-37.7,-9.8,-37.6,-7.5,-36.6,-7.4,-37.8,-6.8,-38.2,-5.5,-37,-4.2,-36.5,-3.6,-37,-3,-36.9,1.9,-32.6,3.7,-31.6,4.7,-31.4,5.2,-31.6,5.3,-32.5,5,-40,5.4,-41.8,6.1,-42.9,8,-42.5,9.4,-41.7,14.2,-37.3,19.3,-37.3,22.3,-36.7,23.3,-36.9,25.3,-38,30.2,-42.1],
+  ARCH: [-32.8,-74.6,-27.7,-73.6,-26,-72.2,-24.7,-70,-23.7,-66.5,-23.3,-62.4,-23.9,-56.4,-23.8,-50.7,-22.8,-46.9,-22,-46.2,-20.9,-46.9,-17.6,-50.3,-12.5,-54.1,-7.1,-56.6,-3,-57.6,3,-57.6,5.5,-57,10.3,-54.7,14.8,-51.5,15.3,-52.3,15,-56.1,15.3,-57.2,16.6,-56.9,20.7,-54.6,26.4,-53.6,28,-53.8,33.4,-57.3,34.3,-57.3,35,-56.7,35.3,-55.1,34.9,-52.3,33.3,-45.3,31.5,-40.2,28.2,-33.9,26.4,-31.4,23.6,-28.6,22,-27.7,19.2,-27.1,16.9,-26.1,15.5,-24.7,14.2,-22.5,12.9,-16.2,12.9,-12,13.7,-8.1,15.6,-6.8,16.4,-5.7,16.6,-4.5,16.1,-3.7,14.7,-3.2,12.8,-3.3,11.9,-3.7,10.5,-5.1,9.2,-7.9,8.3,-13.9,7.5,-15.9,6.9,-13.9,6.3,-6,6.5,-5.3,8.9,-3.1,9.1,-1.4,7.7,-0.4,6.2,-0.1,4,-0.4,2.9,-1.1,1.8,-3.8,0.9,-13.3,0.8,-19.3,1.2,-25.3,-1.2,-29.1,-2.1,-29.7,-2.5,-29.5,-4.7,-25.7,-10.2,-18.7,-10.7,-17.4,-9.6,-11.7,-8.6,-10.4,-5.8,-9,-5.5,-8.2,-5.8,-7.3,-6.5,-6.6,-8.1,-6.4,-10.3,-6.8,-11.4,-7.4,-15.9,-16.8,-16.1,-20.2,-16.5,-20.9,-17.1,-20.2,-17.5,-18.1,-17.5,-9.5,-16.8,-8.1,-14.4,-6.3,-14.3,-4.8,-15.7,-3.6,-17.6,-3.4,-19.5,-4,-21.1,-5.4,-25.7,-28.5,-25.7,-31.1,-24.5,-38.3,-27,-45.6,-28,-51.3,-28,-55.1,-27.1,-61.8,-27.2,-66.2,-28.3,-69.4,-30.6,-71.4,-32.2,-71.6,-34.7,-70.4,-35.7,-70.8,-35.9,-71.9,-35.4,-73.1,-34.7,-73.9],
+  SWAT: [6.6,-71.3,8.1,-70.9,12.3,-68,13.5,-68.7,14.5,-71.2,16,-68.6,20.4,-68.1,24.2,-66.7,26.1,-65.4,26.5,-64.1,26.2,-62.3,22.4,-55.7,22.2,-54.6,22.8,-46.9,21.2,-35,21.5,-32.9,22.9,-29.8,24.3,-28.2,33,-24.4,36.7,-21,38.4,-17.9,38.5,-15.4,38,-13.8,36.5,-13.2,34.8,-13.8,32.1,-18.8,30.5,-20.2,15.2,-23.9,14.3,-23.6,13.4,-21.7,12.1,-14.4,13.3,-10.6,16.2,-7.7,16.4,-7,15.9,-5.8,14.4,-5.1,12.7,-5.4,10,-8.1,8.2,-12.6,6.9,-20.6,6.2,-21.5,4.6,-20.9,3.4,-19.5,2.4,-13,1,-8.1,1.9,-7.1,6.4,-5.8,11.6,-4.8,13.6,-4,14.4,-3.1,14.4,-1.8,12.3,-0.2,6.4,-1.3,0.1,-1.5,-6.3,-3.4,-16.8,-1.9,-32.5,-0.7,-36,-0.8,-42.3,-1.9,-47.6,-4.4,-50.6,-7.4,-52,-9.5,-53.4,-12.6,-54.4,-16.5,-54.5,-18.6,-53.3,-22.4,-52.1,-24.1,-50.8,-24.9,-49.9,-24.8,-49.6,-24.1,-50.9,-18.2,-50.6,-14.7,-48.8,-11.2,-45.5,-8.2,-40.9,-6,-36.7,-5.3,-28,-6,-24.8,-6.8,-23.7,-7.5,-23.4,-9.1,-23.3,-18.9,-22.6,-22.4,-20.5,-28,-17.7,-32.9,-12.9,-38.2,-8.4,-41.9,-5.6,-43.6,3.2,-47.4,5,-48.5,6.8,-50.4,7.2,-51.8,6.9,-55.7,7.5,-62,6.1,-68.3,6.1,-70.4],
+  STALK: [-32.2,-76.4,-31,-76.3,-30.2,-74.7,-29,-70.2,-28.9,-67.1,-29.3,-64.8,-30.4,-61.9,-33.6,-56.3,-33.6,-53.1,-31.6,-49.4,-28.4,-46.5,-27.3,-47,-22.9,-51.6,-20.4,-53.3,-16.4,-55,-12.7,-55.9,-7,-56.2,-1.1,-55,3.5,-53.3,10.9,-49.5,12.1,-49.3,14.3,-52.3,19.1,-56.8,21.5,-60.2,22.8,-61.2,24.2,-60.9,27.1,-57.5,29.1,-56.8,31.9,-56.9,37.3,-59.3,38.4,-59.3,38.2,-58.5,35.7,-54.6,35,-52.6,36.2,-47.7,36.1,-45.2,35.3,-42.3,35.5,-40.3,35.1,-39,33.9,-37.9,31.9,-36.9,26.8,-37.7,25.8,-37.5,23.3,-33.2,20.2,-29.6,16.8,-26.8,11.7,-24.4,10.6,-23.2,11,-21,13,-17,21.4,-9.1,24.7,-5.1,25.5,-2.6,25.4,-1.7,24.5,-0.5,23.1,-0.1,21.1,-0.4,17.3,-3.4,14.9,-4.1,13.1,-5.2,11.9,-6.5,9.9,-9.8,3.8,-14,1.3,-16.2,-2.3,-22.7,-5.1,-26.4,-6.7,-27.8,-7.9,-27.7,-9.6,-26.8,-11.4,-25,-12,-23.9,-12,-18.2,-9.1,-13.6,-9.3,-12.6,-10.4,-11.8,-11.6,-11.5,-13,-12.1,-14.3,-13.4,-15.1,-15.1,-17,-27,-19.8,-25.4,-23.5,-25.2,-24.4,-24.8,-24.5,-21.3,-22.8,-17,-22.9,-15.9,-23.8,-14.7,-25.2,-14.3,-26.6,-14.5,-27.9,-15.6,-28.9,-18.2,-28.9,-27.6,-28.7,-29,-27.2,-31.3,-27.3,-32.4,-29.1,-36.1,-29.7,-40.6,-34.8,-46.3,-36.8,-50,-38.1,-54.3,-37.4,-58.2,-33,-65.9,-32.5,-68.8,-33.4,-74.2,-33,-75.6],
+  EAT: [-29,-69.6,-28.4,-69.6,-27.5,-68.6,-27,-65.8,-27.4,-62.9,-29.6,-56.9,-27.7,-54.7,-25.9,-53.6,-21.2,-57.1,-18.4,-58.2,-14.4,-58.9,-10.9,-58.9,5.2,-56.2,14.2,-57.3,19.2,-59.5,26.3,-64.9,28.1,-65.6,29.6,-65.7,31.3,-65.2,32.1,-64.3,32.5,-58.6,34.2,-56.5,37.8,-53.5,43.1,-52.4,44.6,-51.4,43.5,-50.2,36.1,-45.9,34.1,-42.9,32.1,-41.2,29.2,-39.9,26.7,-38.1,25.6,-37.9,22.5,-38.4,20.7,-39.1,17.7,-34.3,12.7,-30.1,9.9,-28.7,4.9,-27.4,3.3,-26.3,2.7,-24.3,2.9,-17.2,4.2,-13.2,6.9,-8.7,6.2,-7.6,3.3,-6.6,5.7,-3.6,5.6,-1.9,4.5,-0.9,0.9,-0.1,-0.8,-0.3,-1.8,-0.9,-4.3,-5,-6.5,-11.8,-10.4,-12.4,-11.4,-13.3,-13.3,-19,-15.9,-30.7,-16.8,-32.4,-17.7,-33.1,-19.4,-32.8,-21.9,-31.3,-23.9,-29.3,-25.4,-26.8,-26.1,-24.7,-26.2,-21.8,-25.2,-16.4,-25.2,-14.4,-26.2,-13.5,-27.7,-13.3,-29.4,-13.8,-30.2,-14.7,-30.5,-17.5,-29.4,-30.7,-29.8,-40.4,-28.5,-48.6,-29.2,-50.4,-33.5,-55.2,-33.7,-56.2,-30.2,-64,-29.7,-68.6],
+  STRETCH: [-17.2,-78.4,-10.8,-77.8,-5.9,-76.1,-5.3,-74.9,-5.6,-74.2,-6.6,-73.8,-13.9,-74.8,-17.1,-74.8,-19.3,-73.1,-21.6,-65.4,-23,-55,-22.9,-52.6,-21.6,-49.6,-13,-45.5,-7.9,-42,6,-29.9,8.5,-28.5,13.5,-26.7,15.2,-26.2,19.3,-27.1,21.2,-28.6,23.4,-29.1,26.7,-32.4,27.8,-32.3,30.1,-28,34.6,-24.5,35.5,-23.4,36.2,-21.5,36.1,-19.8,36.8,-17.8,36.2,-15.7,35.7,-15.1,34.2,-14.4,32.9,-14.4,32.8,-14,45.6,-9.4,51.9,-8.8,53.2,-8.3,54.2,-6.9,53.2,-4.6,55.6,-2.6,54.9,-0.4,50.5,0,46.7,-1.5,29.3,-4.8,17.4,-6,7.8,-6.1,-6.2,-9.3,-7.9,-8.5,-11.1,-8.2,-19.2,-12.1,-19.9,-11.6,-19.8,-10.5,-14.9,-5.8,-13.3,-5.1,-12.9,-2.8,-13.9,-1.9,-15.7,-1.6,-18.2,-2.6,-21.2,-4.8,-26.9,-13.4,-27.6,-17.5,-27.7,-21.8,-32.9,-31.1,-33.6,-35.2,-32.8,-40.1,-30.5,-46.5,-22.8,-74,-22.2,-75.1,-19.9,-77.5],
+  LEAP: [29.4,-77.1,31.2,-76.3,34.3,-72.2,40.2,-69,40.9,-68,41.4,-65.5,43.3,-63.1,42.9,-61.7,40.6,-59.9,39,-59.4,35.4,-59.3,32.9,-58,32.5,-56.9,34.7,-53.8,36.1,-53,37.6,-53,42.9,-54.1,50.6,-54.9,57.1,-57.5,59.4,-57.5,60.9,-55.8,60,-54.1,47.8,-50.9,44,-49.6,43.6,-49,51.7,-47.9,61.6,-48.5,63.6,-47.2,63.8,-45.7,63.1,-44.6,60.9,-43.6,49.2,-43.4,34.3,-41.3,30,-41.5,22.3,-43.7,18.9,-43.5,1.2,-36.8,-6.2,-35.4,-20.5,-33.7,-24.6,-31.5,-30.5,-27.4,-33.4,-26.1,-38.6,-25.5,-45.2,-25.7,-52.1,-17.3,-54.2,-16.1,-55.8,-17.1,-55.9,-18.7,-54.1,-21.7,-49.2,-28,-50.2,-28,-58.6,-24.1,-60.1,-23.9,-61,-24.5,-61.2,-25.7,-60.2,-27.4,-55.6,-29.5,-49,-34.2,-44.1,-36,-38.2,-43.6,-32.1,-47.8,-32.3,-50.6,-31.6,-57.9,-31.9,-60.8,-33,-62.6,-34.5,-62.9,-35.3,-62.5,-36.9,-60.1,-37.8,-56.3,-37.9,-49.1,-38.8,-47.5,-39.6,-47.5,-40.1,-48.1,-41.7,-52,-41.8,-56.7,-40.7,-60.8,-38.9,-63.8,-36.6,-65.6,-34.3,-66.6,-32,-67.1,-29.6,-66.5,-28.1,-65.1,-27,-62.9,-26.5,-60.3,-26.8,-51.1,-25.9,-50.3,-23.7,-50.5,-6.7,-54.3,9.8,-57.3,13,-60.7,20,-64.4,26.8,-70.8,28.3,-73],
+  BACK: [13.5,-88.6,14.3,-88.6,15,-87.8,15.4,-82.6,15.8,-81.3,19.8,-79.5,22.2,-76.8,24.4,-75.5,25.1,-74.2,24.8,-72.6,24,-71.1,22.8,-69.6,20.4,-67.9,19.5,-66.6,19.3,-64.2,20.2,-58,19.8,-51.7,18.1,-47.3,16.2,-44.9,13.9,-40.6,12.1,-35.2,12.3,-29.4,14.5,-18.5,15.2,-17.9,18.7,-17.3,19.3,-16.9,19.3,-16.1,18.2,-15,15.8,-14,8.8,-13,-8.8,-12.8,-17.2,-13.5,-18.4,-12.2,-18.3,-9.3,-16.7,-7,-14.5,-5.5,-10.5,-4.1,-6.4,-3.6,-2.2,-3.6,4.7,-4.6,7.2,-4.3,8.1,-3.6,7.4,-2.7,4.8,-1.6,-2.2,-0.2,-9.6,-0.2,-15.3,-1.3,-18.2,-2.6,-20.6,-4.4,-22.3,-7.1,-23.2,-10.4,-23,-14,-21.2,-18.9,-20.9,-20.8,-22.5,-35.8,-22.3,-40.9,-21.3,-45.1,-19.2,-49.9,-15.7,-54.1,-12.1,-56.9,-3.6,-62.7,0.3,-66.6,1.2,-68.5,2,-74.1,4.1,-78.2,5.5,-80,7.7,-81,9.6,-82.5,12.4,-87.7],
+  STAND: [-42.6,-62.2,-41.8,-62,-41.5,-61.4,-41.2,-56.4,-40,-51.4,-37.1,-46.4,-34.2,-43.4,-31.9,-41.6,-29.8,-40.4,-26.4,-39.3,-8.3,-41.9,-2.2,-42.4,7.2,-42.3,15.3,-41.4,16.5,-42.1,22.9,-49.3,25.6,-53.2,26.3,-53.2,27.8,-51.4,31.6,-56.5,32.4,-56.8,32.9,-55.3,32.5,-51.1,34.1,-50,35.7,-48.2,37.9,-44.1,38.9,-43,39,-42.1,37.3,-38.8,32.8,-36.5,31.2,-35.3,30.4,-34.2,29.3,-30.1,29.7,-25.3,28.5,-17.4,32.5,-10.9,34.1,-5.9,36.3,-3.2,36.1,-1,34.6,-0.2,31.3,-1.5,26.2,-10.3,24,-13.2,22.1,-15,20.8,-12.6,19.5,-6.1,20.2,-4.3,22.5,-2.8,23.1,-1.2,22.6,-0.4,21.3,0,19.1,-0.1,17.3,-0.7,16.1,-2,15.2,-4.4,13.5,-13.4,12.7,-16,11.2,-18.3,9.3,-18.6,-3.4,-18.5,-5.3,-18.1,-6.3,-17.5,-8.2,-12,-9.7,-9.2,-9.9,-7.7,-6.7,-4.4,-4.2,-3.7,-3.1,-2.9,-2.6,-1.2,-3.2,-0.3,-6.9,0,-9.5,-0.6,-15.6,-6.3,-19.8,-13.6,-21.5,-12.6,-25.3,-11.7,-26.6,-10.6,-27.3,-6.6,-25,-4.8,-24.7,-3.7,-25.3,-2.3,-26.9,-1.7,-28.9,-1.5,-31.5,-2.4,-32.3,-4.2,-32.2,-9.5,-31.1,-16.7,-29,-21.4,-28.3,-24.1,-29.4,-28,-28.9,-32.6,-32.8,-34.5,-36.8,-37.7,-43,-44.9,-44.9,-48.2,-46.1,-52.2,-46.4,-58.7,-45.3,-60.7],
+  DASH: [-51.8,-60.7,-50.2,-60,-46.6,-54.4,-43,-51.4,-39.7,-49.9,-36.3,-49.7,-33.5,-48.9,-26,-45,-23.1,-45.4,-19.9,-46.9,-17.4,-46.4,-6,-46,-0.7,-45.5,7,-43.1,10.2,-43,16.4,-41,23.6,-40.5,30.6,-42.7,32.1,-49.4,32.7,-49.2,34.4,-46.4,35.7,-48,36.7,-48.1,39.6,-42.6,44.4,-37.5,45.6,-31.1,44.2,-29.3,41.7,-28.5,40.4,-28.9,38.3,-30.4,35.2,-31.3,32,-31,31.4,-30.5,30.1,-26.7,29.9,-23.5,30.4,-21.7,31.2,-20.2,34,-18.4,44.2,-13.9,46.3,-12.5,51.9,-10.6,53.2,-9.5,53.3,-8.8,51.2,-6.8,47.7,-6.9,43.3,-9.3,40.8,-9.5,38.4,-10.8,26.4,-14.2,21.9,-16.3,21.7,-17.6,20.9,-18.3,20.1,-16.7,20.1,-15,24.6,-6.5,27.5,-3.4,30.8,-3,31.8,-2.2,32.4,-1.1,32.1,-0.5,30.7,0,25.4,-0.6,23.9,-1.6,22.6,-3.2,21.2,-3.3,19.6,-6.1,14.8,-11.7,10.4,-19.1,10.5,-22.1,7.9,-21.5,3.2,-22,-8.9,-24.8,-13,-26.6,-15.9,-26.9,-18.3,-25.6,-20.3,-22.8,-23.6,-21.3,-25.6,-20,-33,-17.6,-36,-17.2,-39.5,-15.4,-40.4,-14.3,-42.2,-9.7,-42.6,-6.8,-44,-3.5,-44.9,-2,-45.6,-1.7,-47.7,-4.4,-47.3,-6.8,-47.8,-8.5,-47.1,-10.2,-47.2,-11.7,-45.6,-19.3,-45.1,-24.1,-44.4,-25.2,-42.3,-25.8,-40.4,-26.9,-37.3,-30.5,-37.1,-32.4,-35.9,-33.2,-35.3,-34.6,-32.9,-37.8,-31.9,-40.6,-32.6,-42.2,-34.5,-43.9,-37.2,-44.3,-41.8,-46,-43.6,-47.1,-47.9,-51,-49.9,-53.7,-52.2,-58.8,-52.5,-60],
+  W0: [-43.3,-62,-42.3,-62,-41.6,-61.3,-41.1,-56.3,-40.1,-52,-39,-49.4,-37,-46.4,-34.1,-43.4,-31.3,-41.3,-28.3,-39.9,-26.1,-39.4,-8.7,-41.9,-1.2,-42.5,6.1,-42.4,13.3,-41.5,15.5,-41.6,16.8,-42.5,22.9,-49.4,25.3,-52.6,26.1,-52.9,27.5,-52,28.2,-52.1,31.3,-56,32.4,-56.3,32.8,-55.4,32.7,-51.4,36,-47.8,38.7,-43,38.9,-41.9,37.3,-38.9,32.5,-36.2,30.4,-33.9,29.4,-30.1,29.7,-25.4,29.1,-18.3,29.7,-16.8,34,-11.8,36.5,-7,38.7,-4.9,39.1,-3.5,38.7,-2.3,38,-1.7,36.7,-1.6,34.1,-2.4,27.4,-10.7,24.6,-13.3,22.5,-14.2,21.5,-12.8,20.5,-6.8,21.3,-4.8,24,-2.8,24.2,-1.4,23.4,-0.6,21.9,-0.2,18.7,-0.8,17.6,-1.7,16.4,-3.8,14.1,-12.6,11.8,-17.3,10,-18.4,4.1,-18.6,-4.2,-18.3,-5.7,-17.8,-6.5,-16.7,-6.7,-13.8,-7.8,-10.2,-7.8,-8.8,-7.1,-7.7,-4.7,-6,-0.6,-4.7,0.1,-3,-0.8,-1.9,-4.9,-1.1,-7.3,-1.9,-13.4,-6.1,-18.3,-12.6,-19.5,-13.4,-22.1,-12.3,-25.5,-11.7,-27.2,-10.3,-27.9,-6.9,-25.9,-4.2,-26.7,-2.3,-28.1,-1.7,-29.9,-1.7,-32.2,-2.5,-32.9,-3.3,-33.3,-4.7,-33.1,-9.3,-31.4,-16.7,-28.5,-23.4,-29.4,-27.5,-29.2,-32.2,-29.8,-33,-33.3,-34.8,-37.1,-37.9,-42.6,-44.3,-45,-48.4,-46.2,-52.5,-46.5,-58.3,-45.7,-60.2],
+  W1: [-43.3,-62,-42.3,-62,-41.6,-61.3,-41.1,-56.3,-40.1,-52,-39,-49.4,-37,-46.4,-34.1,-43.4,-31.3,-41.3,-28.3,-39.9,-26.1,-39.4,-8.7,-41.9,-1.2,-42.5,6.1,-42.4,13.3,-41.5,15.5,-41.6,16.8,-42.5,22.9,-49.4,25.3,-52.6,26.1,-52.9,27.5,-52,28.2,-52.1,31.3,-56,32.4,-56.3,32.8,-55.4,32.7,-51.4,36,-47.8,38.7,-43,38.9,-41.9,37.3,-38.9,32.5,-36.2,30.4,-33.9,29.4,-30.1,29.7,-25.4,28.9,-18.2,29.4,-16.8,33.5,-11.3,35.6,-6.8,37.8,-4.3,38.1,-3,37.8,-1.8,36.1,-1,33.1,-2,26.2,-11.3,24.5,-13.1,22.5,-14.3,21.7,-13.8,21.3,-12.8,20.2,-6.3,21,-4.6,23.5,-2.7,23.7,-1.2,23,-0.5,21.7,-0.1,19.7,-0.2,18.1,-0.8,16.9,-2,16,-4,13.9,-12.7,12.5,-16.2,11.1,-18,9.6,-18.5,-3.6,-18.4,-5.4,-17.9,-6.5,-16.8,-7.2,-12.8,-8.5,-9.6,-8.5,-8.4,-5.6,-5.5,-1.6,-4,-0.9,-2.4,-1.9,-1.3,-5.8,-0.7,-8.1,-1.4,-14.2,-6.2,-18.8,-12.8,-20.1,-13.6,-25.3,-13.6,-26.3,-13.2,-27.3,-11.6,-27.7,-9.4,-25.6,-6.8,-25.8,-5,-26.5,-4.3,-28,-3.8,-29.9,-3.8,-31.8,-4.5,-32.6,-5.4,-33,-6.7,-32.9,-10.6,-31.3,-18.8,-28.9,-24.6,-29.5,-28,-29.2,-32.3,-29.9,-33.1,-33.6,-35,-37.1,-37.9,-42.6,-44.3,-45,-48.4,-46.2,-52.5,-46.5,-58.3,-45.7,-60.2],
+  W2: [-43.3,-62,-42.3,-62,-41.6,-61.3,-41.1,-56.3,-40.1,-52,-39,-49.4,-37,-46.4,-34.1,-43.4,-31.3,-41.3,-28.3,-39.9,-26.1,-39.4,-8.7,-41.9,-1.2,-42.5,6.1,-42.4,13.3,-41.5,15.5,-41.6,16.8,-42.5,22.9,-49.4,25.3,-52.6,26.1,-52.9,27.5,-52,28.2,-52.1,31.3,-56,32.4,-56.3,32.8,-55.4,32.7,-51.4,35.8,-48.1,39,-42.2,38.4,-40.4,37.2,-38.7,33,-36.5,31.2,-35.1,30.3,-33.6,29.4,-30.1,29.8,-24.8,28.7,-17.1,32.1,-10.7,33.7,-5.5,35.4,-3,35.6,-1.8,35.2,-0.8,34.4,-0.1,33.1,0,30.3,-1.5,25.3,-10.9,23.3,-13.7,22.3,-14.3,21.5,-13.9,20.8,-12.7,19.4,-6.2,20,-4.4,22.4,-2.4,22.5,-1,21.8,-0.2,20.5,0.1,16.9,-0.8,15.7,-2.2,14.8,-4.6,12.8,-15.5,11.5,-17.6,9.9,-18.4,-3.6,-18.4,-5.4,-17.9,-6.3,-17.1,-9.9,-9.4,-10.3,-7.9,-9.7,-6.7,-7.9,-4.8,-3.9,-2.4,-3.5,-1,-4.6,0.1,-9,0.1,-10.5,-0.6,-16.1,-6.2,-19.4,-12.6,-20.7,-13.6,-25.5,-13.6,-26.6,-12.7,-26.8,-9.9,-24.6,-7.3,-24.6,-6.4,-25.3,-5.4,-27.7,-4.6,-29.7,-4.7,-30.9,-5.3,-32,-7.2,-32.1,-11.6,-31.1,-19.4,-29.1,-24.6,-29.5,-28,-29.2,-32.3,-29.9,-33.1,-33.6,-35,-37.1,-37.9,-42.6,-44.3,-45,-48.4,-46.2,-52.5,-46.5,-58.3,-45.7,-60.2],
+  W3: [-43.3,-62,-42.3,-62,-41.6,-61.3,-41.1,-56.3,-40.1,-52,-39,-49.4,-37,-46.4,-34.1,-43.4,-31.3,-41.3,-28.3,-39.9,-26.1,-39.4,-8.7,-41.9,-1.2,-42.5,6.1,-42.4,13.3,-41.5,15.5,-41.6,16.8,-42.5,22.9,-49.4,25.3,-52.6,26.1,-52.9,27.5,-52,28.2,-52.1,31.3,-56,32.4,-56.3,32.8,-55.4,32.7,-51.4,35.8,-48.1,39,-42.2,38.4,-40.4,37.2,-38.7,33,-36.5,31.2,-35.1,30.3,-33.6,29.4,-30.1,29.4,-28.1,30.3,-24.7,28.6,-17.7,30.1,-14.7,29.9,-12.5,30.8,-9,31.4,-5,32.9,-1.7,32.6,-0.6,31.7,0.1,29.7,0.1,27.7,-1.2,24.3,-10.5,22.9,-13.2,21.9,-14,21,-13.5,20.2,-12.3,18.5,-6.4,18.9,-4.4,21.2,-2.2,21.3,-0.8,20.5,0,19,0.2,15.7,-0.8,14.6,-2.3,13.9,-4.6,12.7,-15.6,11.4,-17.8,9.6,-18.5,-3.6,-18.4,-4.9,-18.1,-6.1,-17.3,-7.4,-14.5,-11.4,-9.1,-12.1,-7.6,-11.8,-6.5,-10.1,-4.1,-6.8,-1.6,-6.6,-0.7,-7.4,0,-11.4,0.2,-13.6,-0.7,-17.8,-6.2,-20.4,-12.8,-21.5,-13.6,-24.6,-13.5,-25.9,-12,-26,-9,-23.6,-6.5,-24.2,-4.6,-25.5,-3.8,-27.2,-3.5,-29.1,-3.7,-30.1,-4.3,-31.2,-6.5,-31.4,-14.9,-30.6,-19.1,-28.9,-24.3,-29.5,-27.9,-29.2,-32.3,-29.9,-33.1,-33.6,-35,-37.1,-37.9,-42.6,-44.3,-45,-48.4,-46.2,-52.5,-46.5,-58.3,-45.7,-60.2],
+  W4: [-43.3,-62,-42.3,-62,-41.6,-61.3,-41.1,-56.3,-40.1,-52,-39,-49.4,-37,-46.4,-34.1,-43.4,-31.3,-41.3,-28.3,-39.9,-26.1,-39.4,-8.7,-41.9,-1.2,-42.5,6.1,-42.4,13.3,-41.5,15.5,-41.6,16.8,-42.5,22.9,-49.4,25.3,-52.6,26.1,-52.9,27.5,-52,28.2,-52.1,31.3,-56,32.4,-56.3,32.8,-55.4,32.7,-51.4,35.8,-48.1,39,-42.1,38.2,-40,37.2,-38.7,33,-36.5,31.2,-35.1,30.3,-33.6,29.4,-30.1,29.5,-27.6,30.5,-24.4,28.6,-17.7,30.1,-14.5,29.4,-12.3,30.2,-8.8,30.5,-4.6,31.8,-1.7,31.6,-0.6,30.9,0,29.4,0.2,27.8,-0.1,26.6,-1.1,23.4,-11.3,22.5,-13.2,21.6,-13.8,20.1,-12.3,18.1,-6.3,18.5,-4.3,20.8,-1.9,20.8,-0.7,20,0,18.5,0.2,16.7,-0.1,15.2,-0.9,14.3,-2.1,13.4,-5,12.6,-15.8,11.4,-17.8,9.6,-18.5,-3.6,-18.4,-4.9,-18.1,-6.1,-17.3,-7.5,-14.3,-9.2,-12.9,-12.9,-7.5,-12.6,-6.3,-10.9,-3.6,-8,-1.4,-7.8,-0.8,-8.3,-0.1,-12.5,0.2,-14.6,-0.7,-18.5,-6.2,-20.5,-11.5,-21.6,-12.5,-24.4,-11.6,-25.7,-9.5,-25.7,-6.9,-23.2,-4.3,-23.6,-2.6,-26.1,-1.4,-28.2,-1.4,-29.6,-1.9,-30.4,-3,-30.9,-4.9,-30.9,-12.1,-31.4,-14.9,-31,-17,-28.8,-22.6,-29.5,-27.9,-29.2,-32.3,-29.9,-33.1,-33.6,-35,-37.1,-37.9,-42.6,-44.3,-45,-48.4,-46.2,-52.5,-46.5,-58.3,-45.7,-60.2],
+  W5: [-43.3,-62,-42.3,-62,-41.6,-61.3,-41.1,-56.3,-40.1,-52,-39,-49.4,-37,-46.4,-34.1,-43.4,-31.3,-41.3,-28.3,-39.9,-26.1,-39.4,-8.7,-41.9,-1.2,-42.5,6.1,-42.4,13.3,-41.5,15.5,-41.6,16.8,-42.5,22.9,-49.4,25.3,-52.6,26.1,-52.9,27.5,-52,28.2,-52.1,31.3,-56,32.4,-56.3,32.8,-55.4,32.7,-51.4,35.8,-48.1,39,-42.2,38.4,-40.4,37.2,-38.7,33,-36.5,31.2,-35.1,30.3,-33.6,29.4,-30.1,29.4,-28.9,30.3,-26.6,28.7,-17.6,30.4,-14.1,31.4,-7.2,32.8,-4.3,32.5,-2.3,31.5,-1.6,30.5,-1.6,28.9,-2.3,27.7,-3.4,24.5,-12.2,23.4,-13.7,22.3,-14.4,19.9,-12.8,18.5,-8.9,18.7,-6.9,21.2,-4.4,21.3,-2.9,19.5,-2,16.4,-2.6,15.1,-3.6,14.1,-5.7,12.9,-14.8,11.4,-17.8,9.9,-18.4,-0.2,-18.6,-3.6,-18.4,-5.7,-17.8,-6.5,-16.8,-7.5,-14.3,-10.1,-12.9,-12,-10.3,-11.9,-8.9,-10.2,-6.4,-6.6,-3.5,-6.3,-2.2,-7,-1.2,-10.3,-1.3,-12.8,-2.1,-17.7,-8.3,-19.6,-12.2,-20.6,-12.8,-24.2,-11.8,-25.8,-10.1,-26.1,-7,-23.7,-4.6,-23.6,-3.4,-24.1,-2.5,-26.6,-1.4,-28.3,-1.4,-30,-2,-30.9,-3.1,-31.2,-5.1,-31.4,-14.9,-31,-17,-28.7,-22.8,-29.5,-27.9,-29.2,-32.3,-29.9,-33.1,-33.6,-35,-37.1,-37.9,-42.6,-44.3,-45,-48.4,-46.2,-52.5,-46.5,-58.3,-45.7,-60.2],
+  W6: [-43.3,-62,-42.3,-62,-41.6,-61.3,-41.1,-56.3,-40.1,-52,-39,-49.4,-37,-46.4,-34.1,-43.4,-31.3,-41.3,-28.3,-39.9,-26.1,-39.4,-8.7,-41.9,-1.2,-42.5,6.1,-42.4,13.3,-41.5,15.5,-41.6,16.8,-42.5,22.9,-49.4,25.3,-52.6,26.1,-52.9,27.5,-52,28.2,-52.1,31.3,-56,32.4,-56.3,32.8,-55.4,32.7,-51.4,35.8,-48.1,39,-42.2,38.4,-40.4,37.2,-38.7,33,-36.5,31.2,-35.1,30.4,-33.9,29.5,-30.6,29.8,-27.6,29.1,-19.4,32,-14,33.7,-8.7,35.4,-6.1,35.6,-4.9,35.3,-4,34.5,-3.3,33.5,-3.1,30.8,-4.2,29.7,-5.6,26.1,-12.7,25.1,-13.5,22.2,-14.4,20.3,-12.9,19.3,-9.4,20,-7.5,22.4,-5.3,22.5,-4.2,21.8,-3.4,20.9,-3.1,17.7,-3.5,16.5,-4.2,15.6,-5.5,13.8,-12.9,12.3,-16.6,11.2,-18,9.6,-18.5,-0.2,-18.6,-3.6,-18.4,-5.7,-17.8,-6.5,-16.8,-7.5,-14.3,-9.3,-13.2,-10.2,-11.8,-10,-10.2,-8.2,-8.1,-4,-5.6,-3.5,-4.3,-4.2,-3.2,-8.3,-2.9,-10.4,-3.7,-15.8,-8.9,-18.3,-12.8,-19.5,-13.4,-24.8,-11.7,-26.4,-10.2,-26.9,-7,-24.6,-4.2,-25.3,-2.3,-26.2,-1.7,-28.1,-1.4,-30.9,-2.1,-32,-4.1,-32.1,-8.6,-31.2,-16.4,-28.6,-23,-29.4,-27.5,-29.2,-32.3,-29.9,-33.1,-33.6,-35,-37.1,-37.9,-42.6,-44.3,-45,-48.4,-46.2,-52.5,-46.5,-58.3,-45.7,-60.2],
+  W7: [-43.3,-62,-42.3,-62,-41.6,-61.3,-41.1,-56.3,-40.1,-52,-39,-49.4,-37,-46.4,-34.1,-43.4,-31.3,-41.3,-28.3,-39.9,-26.1,-39.4,-8.7,-41.9,-1.2,-42.5,6.1,-42.4,13.3,-41.5,15.5,-41.6,16.8,-42.5,22.9,-49.4,25.3,-52.6,26.1,-52.9,27.5,-52,28.2,-52.1,31.3,-56,32.4,-56.3,32.8,-55.4,32.7,-51.4,36,-47.8,38.7,-43,38.9,-41.9,37.2,-38.7,32.5,-36.2,30.5,-34.1,29.4,-30.1,29.7,-25.4,29.1,-20,29.5,-18.8,33.4,-13.7,35.7,-8.9,37.8,-6.5,38.1,-5.1,37.7,-3.9,36.1,-3.2,33.3,-4.1,26.6,-12.9,25.7,-13.5,22.2,-14.3,21,-13,20.3,-8.3,21.1,-6.7,23.5,-4.9,23.7,-3.5,22.2,-2.4,18.7,-2.7,17.5,-3.5,16.4,-5,14.3,-12.7,11.2,-18,9.6,-18.5,-0.2,-18.6,-3.6,-18.4,-5.8,-17.7,-6.7,-16.5,-8.6,-11.3,-8.2,-10,-6,-8,-4.6,-7.3,-2.3,-6.7,-1.4,-6,-0.9,-4.7,-1.7,-3.6,-5.6,-2.9,-7.9,-3.5,-13.5,-7.6,-17.6,-12.8,-19.2,-13.6,-21.9,-12.4,-25.3,-11.7,-27,-10.3,-27.7,-7.2,-25.6,-4.6,-25.6,-3.2,-26.2,-2.3,-27.5,-1.7,-29.5,-1.6,-31.8,-2.3,-32.6,-3.2,-33,-4.5,-32.9,-8.4,-31.3,-16.6,-28.6,-23.3,-29.4,-27.5,-29.2,-32.3,-29.9,-33.1,-33.6,-35,-37.1,-37.9,-42.6,-44.3,-45,-48.4,-46.2,-52.5,-46.5,-58.3,-45.7,-60.2],
+};
+(function (root) {
+  'use strict';
+  const D = root.CATDATA, BW = 150, BH = 100, GX = 75, GY = 97;
+  // Where her eyes are, on the poses where her head is turned toward you.
+  const EYES = {
+    SIT: [[16.5, -61.5], [24.5, -62]], LOAF: [[19.5, -39], [28.5, -39.5]],
+    ARCH: [[21.5, -48], [30, -48]], STALK: [[26, -52], [34, -53]], STAND: [[29.5, -46.5], [36, -46]],
+  };
+  const HEAD = { SIT: [20, -74], SIT4: [22, -76], LOAF: [24, -50], NAP: [22, -48], ARCH: [26, -60], SWAT: [16, -76], STALK: [30, -64], EAT: [34, -68], STRETCH: [32, -38], LEAP: [34, -80], BACK: [16, -90], STAND: [32, -60], DASH: [36, -54] };
+  // frame name: [outline, eyes, tweak]. She shows her eyes only when she stops and looks.
+  const F = {
+    SIT: ['SIT'], SIT_LOOK: ['SIT', 'open'], SIT_ALERT: ['SIT4'], STARE: ['SIT', 'wide'], PURR: ['SIT', 'happy'],
+    GROOM_A: ['SWAT'], GROOM_B: ['SIT'],
+    LOAF: ['LOAF'], LOAF_LOOK: ['LOAF', 'open'],
+    SLEEP_A: ['NAP'], SLEEP_B: ['NAP', null, { sy: 1.03 }],
+    STAND: ['STAND'], STAND_LOOK: ['STAND', 'open'],
+    RUN_0: ['STALK'], RUN_1: ['DASH'], RUN_2: ['LEAP'], RUN_3: ['DASH'],
+    STALK_A: ['STALK', 'open'], STALK_B: ['STALK', 'wide'], LEAP: ['LEAP'],
+    SWAT_A: ['SIT'], SWAT_B: ['SWAT'],
+    HISS_A: ['ARCH', 'angry'], HISS_B: ['ARCH', 'angry', { s: 1.06 }],
+    BACK: ['BACK'], STRETCH: ['STRETCH'], YAWN: ['STRETCH', null, { sy: 1.03 }], EAT_A: ['EAT'], EAT_B: ['EAT', null, { dy: 1.4 }],
+  };
+  for (let i = 0; i < 8; i++) F['W' + i] = ['W' + i];
+
+  const CORNER = {};
+  function trace(ctx, name) {
+    const p = D[name], n = p.length / 2;
+    if (!CORNER[name]) {
+      // mark the sharp corners, such as ear tips, so smoothing does not blunt them
+      const c = CORNER[name] = new Uint8Array(n);
+      for (let i = 0; i < n; i++) {
+        const a = ((i - 1 + n) % n) * 2, b = i * 2, d = ((i + 1) % n) * 2;
+        const ux = p[a] - p[b], uy = p[a + 1] - p[b + 1], vx = p[d] - p[b], vy = p[d + 1] - p[b + 1];
+        c[i] = (ux * vx + uy * vy) / ((Math.hypot(ux, uy) * Math.hypot(vx, vy)) || 1) > -.2 ? 1 : 0;
+      }
+    }
+    const c = CORNER[name], X = (i) => p[(i % n) * 2], Y = (i) => p[(i % n) * 2 + 1];
+    ctx.beginPath(); ctx.moveTo((X(0) + X(1)) / 2, (Y(0) + Y(1)) / 2);
+    for (let i = 1; i <= n; i++) {
+      const mx = (X(i) + X(i + 1)) / 2, my = (Y(i) + Y(i + 1)) / 2;
+      if (c[i % n]) { ctx.lineTo(X(i), Y(i)); ctx.lineTo(mx, my); } else ctx.quadraticCurveTo(X(i), Y(i), mx, my);
+    }
+    ctx.closePath();
+  }
+  // The way the tube would draw her: dark body, a bright edge that bleeds, raster lines inside.
+  // o.ghost draws only a faint afterimage.
+  function draw(ctx, frame, s, col, o) {
+    o = o || {};
+    const f = F[frame] || F.SIT, name = f[0], tw = f[2] || {}, px = Math.max(1, s / .75 * .5), H = ctx.canvas.height, W = ctx.canvas.width;
+    ctx.save();
+    ctx.translate(GX * s, (GY - (tw.dy ? -tw.dy : 0)) * s); ctx.scale(s * (tw.s || 1), s * (tw.s || 1) * (tw.sy || 1));
+    ctx.lineJoin = 'round';
+    if (o.ghost) {
+      ctx.globalAlpha = o.ghost; trace(ctx, name); ctx.fillStyle = col.line; ctx.fill();
+      ctx.restore(); return;
+    }
+    ctx.save(); ctx.shadowColor = col.line; ctx.shadowBlur = 5 * px; ctx.strokeStyle = col.line; ctx.lineWidth = 1.5 / s * px; trace(ctx, name); ctx.stroke(); ctx.restore();
+    trace(ctx, name); ctx.fillStyle = col.body; ctx.fill();
+    ctx.save(); trace(ctx, name); ctx.clip();
+    ctx.strokeStyle = col.line; ctx.globalAlpha = .2; ctx.lineWidth = 7 / s * px; trace(ctx, name); ctx.stroke();
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = .17; ctx.fillStyle = col.line;
+    const pitch = Math.max(2, Math.round(3 * px));
+    for (let y = 0; y < H; y += pitch) ctx.fillRect(0, y, W, Math.max(1, Math.round(px)));
+    ctx.restore();
+    trace(ctx, name); ctx.strokeStyle = col.line; ctx.lineWidth = 1.25 / s * px; ctx.stroke();
+    const eyes = f[1] && EYES[name];
+    if (eyes) {
+      // eyeshine: two discs that give back the light, the way a cat looks at you from the dark
+      const c = f[1] === 'angry' ? col.warn : col.eye;
+      ctx.fillStyle = c; ctx.strokeStyle = c; ctx.lineWidth = 1.1; ctx.lineCap = 'round';
+      eyes.forEach((e) => {
+        if (f[1] === 'happy') { ctx.shadowColor = c; ctx.shadowBlur = 6 * px; ctx.beginPath(); ctx.moveTo(e[0] - 2.4, e[1] + .8); ctx.quadraticCurveTo(e[0], e[1] - 2.2, e[0] + 2.4, e[1] + .8); ctx.stroke(); return; }
+        const r = f[1] === 'wide' ? 2.6 : 2.1;
+        ctx.shadowColor = c; ctx.shadowBlur = 14 * px; ctx.beginPath(); ctx.arc(e[0], e[1], r, 0, Math.PI * 2); ctx.fill(); ctx.fill();
+        ctx.shadowBlur = 4 * px; ctx.beginPath(); ctx.arc(e[0], e[1], r, 0, Math.PI * 2); ctx.fill();
+        ctx.save(); ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.globalAlpha = .85; ctx.beginPath(); ctx.arc(e[0] - r * .3, e[1] - r * .3, r * .38, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+      });
+    }
+    ctx.restore();
+  }
+  delete root.CATDATA;
+  root.CAT = {
+    BW, BH, GY, names: Object.keys(F), draw, has: (n) => !!F[n],
+    head: (n) => { const h = HEAD[(F[n] || F.SIT)[0]] || HEAD.STAND; return [GX + h[0], GY + h[1]]; },
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+
+<!-- ==================================================================
+     CAMILLE: the ship's cat. Dark long fur, chaotic, loves to climb,
+     sleeps to charge up for more zoomies.
+     ================================================================== -->
+<script>
+(function () {
+  'use strict';
+  const T = window.TGGR, $ = T.$, $$ = T.$$;
+  const layer = $('#cat-layer');
+  if (!layer) return;
+
+  const DEBUG = T.debug === 'cat';
+  const FAST = DEBUG ? (T.speed || 6) : 1;   // ?debug=cat runs her clock six times faster, &speed=1 keeps real time
+  const TICK = 90;                     // ms. She moves one character cell per tick.
+  const IDLE_NAP = 150;                // seconds without input before she sleeps on the prompt
+  const sec = (s) => Math.max(1, Math.round(s * 1000 / TICK / FAST));
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const now = () => performance.now();
+  const rand = T.rand, pick = T.pick;
+
+  // ------------------------------------------------------------ sprites
+  const A = window.CAT;
+  let unit = 0, dpr = 0, MASK = {};
+
+  // ------------------------------------------------------------ DOM
+  const el = document.createElement('div');
+  el.id = 'camille';
+  el.innerHTML = '<canvas class="ghost"></canvas><canvas class="ghost"></canvas><span class="say"></span><canvas class="cat"></canvas>';
+  el.style.visibility = 'hidden';
+  layer.appendChild(el);
+  const canvas = $('canvas.cat', el), ctx = canvas.getContext('2d'), bubble = $('.say', el);
+  const ghosts = $$('canvas.ghost', el).reverse(), trail = [];
+
+  const cursor = document.createElement('span');
+  cursor.id = 'cursor'; cursor.className = 'blink'; cursor.textContent = '█';
+  cursor.setAttribute('aria-hidden', 'true');
+  const slots = $$('.cur-slot');
+
+  // ------------------------------------------------------------ state
+  const raw = T.store.get('camille', {}), saved = raw && typeof raw === 'object' ? raw : {};
+  const C = {
+    x: 0, y: 0, face: 1, pose: '', ledge: null, u: 0,
+    onstage: false, mode: 'elsewhere', rest: false,
+    energy: clamp(typeof saved.energy === 'number' ? saved.energy : rand(55, 75), 0, 100),
+    annoy: Math.max(0, (saved.annoy || 0) - (Date.now() - (saved.at || 0)) / 15000),
+    pets: saved.pets | 0, fed: saved.fed | 0, fedAt: saved.fedAt || 0, caught: saved.caught | 0,
+    blocking: null, boxed: false, asleep: false, onPrompt: false, awayUntil: 0, clicks: 0,
+  };
+  let W = 112, H = 74, cw = 5.4, layerW = 0, SL = -120, SR = 2000, ledges = [], hot = [];
+  let cur = null, enabled = true, saveTimer = 0, lastBlocked = null, offTicks = 0;
+  let lastInput = now(), lastScroll = 0, pointer = { x: -1, y: -1 };
+  const last = {};
+  const cool = (name, s) => now() - (last[name] || -1e9) > s * 1000 / FAST;
+  const mark = (name) => { last[name] = now(); };
+
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => T.store.set('camille', {
+      energy: Math.round(C.energy), annoy: C.annoy, at: Date.now(),
+      pets: C.pets, fed: C.fed, fedAt: C.fedAt, caught: C.caught,
+    }), 400);
+  }
+
+  // ------------------------------------------------------------ drawing
+  function colours() {
+    const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim();
+    return { line: v('--fg'), body: v('--fur'), eye: v('--eye') || v('--hi'), dark: v('--bg'), warn: v('--warn') };
+  }
+  let COL = colours();
+  function paint(name, force) {
+    if (!A.has(name) || (name === C.pose && !force)) return;
+    C.pose = name;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    A.draw(ctx, name, unit * dpr, COL);
+    place();
+  }
+  // which parts of her sprite are actually cat, so clicks on empty corners pass through
+  function mask(name) {
+    if (!MASK[name]) {
+      const m = document.createElement('canvas'); m.width = A.BW; m.height = A.BH;
+      const x = m.getContext('2d'); A.draw(x, name, 1, COL);
+      const d = x.getImageData(0, 0, A.BW, A.BH).data, out = new Uint8Array(A.BW * A.BH);
+      for (let i = 0; i < out.length; i++) out[i] = d[i * 4 + 3] > 40 ? 1 : 0;
+      MASK[name] = out;
+    }
+    return MASK[name];
+  }
+  T.onTheme(() => { COL = colours(); if (C.pose) paint(C.pose, true); });
+  function place() {
+    el.style.transform = 'translate(' + Math.round(C.x) + 'px,' + Math.round(C.y) + 'px)';
+    el.classList.toggle('flip', C.face < 0);
+    // the afterglow she leaves when she runs
+    ghosts.forEach((g, i) => {
+      const t = trail[i];
+      if (!t) { g.style.visibility = 'hidden'; return; }
+      g.style.visibility = ''; g.style.left = Math.round(t.x - C.x) + 'px'; g.style.top = Math.round(t.y - C.y) + 'px';
+      if (g.dataset.pose !== t.pose) { g.dataset.pose = t.pose; const x = g.getContext('2d'); x.clearRect(0, 0, g.width, g.height); A.draw(x, t.pose, unit * dpr, COL, { ghost: i ? .1 : .2 }); }
+    });
+    if (A.has(C.pose)) {
+      const h = A.head(C.pose);
+      bubble.style.left = (C.face < 0 ? A.BW - h[0] : h[0]) * unit + 'px';
+      bubble.style.top = Math.max(0, h[1]) * unit - 5 + 'px';
+    }
+  }
+  const show = () => {
+    C.onstage = true;
+    el.classList.add('snap'); place(); void el.offsetWidth; el.classList.remove('snap');   // appear in place, no glide
+    el.style.visibility = 'visible';
+  };
+  const hide = () => {
+    C.onstage = false; C.ledge = null; C.blocking = null; C.asleep = false; C.onPrompt = false; el.style.visibility = 'hidden'; hush();
+    if (C.boxed) { C.boxed = false; const slot = $('#slot'); if (slot) slot.textContent = 'pending'; }
+  };
+  let sayTimer = 0;
+  function say(text, ms, html) {
+    clearTimeout(sayTimer);
+    if (html) bubble.innerHTML = text; else bubble.textContent = text;
+    bubble.classList.add('on');
+    if (!html && T.sfx) T.sfx(/^h?s+s/i.test(text) ? 'hiss' : /^prrr/.test(text) ? 'purr' : /^[mp]r/.test(text) ? 'mrrp' : '');
+    if (ms !== 0) sayTimer = setTimeout(hush, ms || 1800);
+  }
+  function hush() { clearTimeout(sayTimer); bubble.classList.remove('on'); }
+  const setMode = (m, rest) => { C.mode = m; C.rest = !!rest; };
+
+  // ------------------------------------------------------------ geometry
+  function rel(r) {
+    const L = layer.getBoundingClientRect();
+    return { x: r.left - L.left, y: r.top - L.top, w: r.width, h: r.height, r: r.right - L.left, b: r.bottom - L.top };
+  }
+  function textRect(node) {
+    const rg = document.createRange();
+    rg.selectNodeContents(node);
+    return rel(rg.getBoundingClientRect());
+  }
+  const topOf = (l) => l.y - H;
+  // what to call a place, from its own text but without the live numbers or the cursor
+  const labelOf = (node) => { const c = node.cloneNode(true); $$('.gh, #cursor, .cur-slot', c).forEach((x) => x.remove()); return c.textContent.replace(/^\s*[$>]\s*/, '').replace(/\s+/g, ' ').trim().toLowerCase(); };
+  function measure() {
+    const u = window.innerWidth <= 760 ? .62 : .75, r = Math.min(3, window.devicePixelRatio || 1);
+    if (u !== unit || r !== dpr) {
+      unit = u; dpr = r;
+      [canvas].concat(ghosts).forEach((c) => {
+        c.width = Math.round(A.BW * unit * dpr); c.height = Math.round(A.BH * unit * dpr);
+        c.style.width = A.BW * unit + 'px'; c.style.height = A.BH * unit + 'px';
+      });
+      if (C.pose) paint(C.pose, true);
+    }
+    W = A.BW * unit; H = (A.GY + 1) * unit; cw = 7.2 * unit;
+    layerW = layer.clientWidth;
+    // she comes and goes near the column of content, not from the far edge of a very wide window
+    const col = rel($('.screen').getBoundingClientRect());
+    SL = Math.max(-W - 6, col.x - 170 - W); SR = Math.min(layerW + 6, col.r + 170);
+    const out = [];
+    const add = (id, node, kind, x0, x1, y, extra) => {
+      if (x1 - x0 < W) return;
+      out.push(Object.assign({ key: id, id, el: node, kind, x0, x1: x1 - W, y }, extra));
+    };
+    const nameEl = $('#name');
+    if (nameEl) { const t = textRect(nameEl); add('name', nameEl, 'perch', t.x, t.r, t.y + t.h * 0.25, { label: 'the big heading' }); }
+    $$('main h2').forEach((h, i) => { const t = textRect(h); add('h2-' + i, h, 'perch', t.x, Math.max(t.r, t.x + W + 2), t.y + t.h * 0.2, { label: labelOf(h) }); });
+    $$('.card').forEach((card, i) => {
+      if (card.hidden) return;
+      const c = rel(card.getBoundingClientRect());
+      const path = $('.path', card), label = path ? labelOf(path) : 'an empty slot';
+      add('card-' + i, card, 'perch', c.x, c.r, c.y, { label, card });
+      const p = $('p:not(.path)', card);
+      if (p && card.dataset.project) { const b = rel(p.getBoundingClientRect()); add('desc-' + i, p, 'block', b.x, b.r, b.b, { label, card }); }
+      if (card.classList.contains('card--empty')) add('box', card, 'box', c.x + 6, c.r - 6, c.b - 5, { label: 'the empty slot', card });
+    });
+    const form = $('#form'), input = $('#cmd');
+    if (form) { const f = rel(form.getBoundingClientRect()), n = rel(input.getBoundingClientRect()); add('prompt', form, 'prompt', n.x, f.r, f.b + 2, { label: 'the prompt' }); }
+    if (T.helix) { const h = rel(T.helix.el.getBoundingClientRect()); add('helix', T.helix.el, 'top', h.x - W * .3, h.r + W * .3, h.y + 5, { label: 'the helix' }); }
+    const footer = $('#footer');
+    if (footer) { const f = rel(footer.getBoundingClientRect()); add('footer', footer, 'walk', f.x, f.r, f.y + 1, { label: 'the footer' }); }
+    ledges = out;
+    hot = $$('a, button, input').filter((n) => n.offsetParent !== null && !n.closest('#camille, #tracker')).map((n) => rel(n.getBoundingClientRect()));
+    if (C.ledge) {
+      const again = ledges.find((l) => l.key === C.ledge.key);
+      if (again) { C.ledge = again; C.x = clamp(again.x0 + C.u * cw, again.x0 - W, again.x1 + W); C.y = topOf(again); place(); }
+    }
+  }
+  let measureQueued = false;
+  function queueMeasure() {
+    if (measureQueued) return;
+    measureQueued = true;
+    requestAnimationFrame(() => { measureQueued = false; measure(); });
+  }
+  const viewTop = () => window.pageYOffset;    // the layer starts at the top of the page
+  const vis = (l) => { const t = viewTop(); return topOf(l) >= t + 4 && l.y <= t + window.innerHeight - 4; };
+  const inView = () => { const t = viewTop(); return C.y + H > t && C.y < t + window.innerHeight; };
+  const rectVisible = (r) => { const t = viewTop(); return r.y - H >= t && r.b <= t + window.innerHeight; };
+  // her body fills only the middle of her sprite, so test against that, not the whole box
+  const hits = (x, y, r) => x + W * .22 < r.r && x + W * .78 > r.x && y + H * .25 < r.b && y + H > r.y;
+  function restX(l) {
+    // a resting spot on this ledge that does not cover a link or button
+    for (let i = 0; i < 10; i++) {
+      const x = rand(l.x0, l.x1);
+      if (!hot.some((r) => hits(x, topOf(l), r))) return x;
+    }
+    return rand(l.x0, l.x1);
+  }
+  function setU() { if (C.ledge) C.u = (C.x - C.ledge.x0) / cw; }
+
+  // ------------------------------------------------------------ movement
+  function* wait(n) { for (let i = 0; i < n; i++) yield; }
+  function* cycle(frames, per, n) { for (let i = 0; i < n; i++) { paint(frames[Math.floor(i / per) % frames.length]); yield; } }
+  function* walkTo(x, cells) {
+    const run = cells > 1, step = (cells || 1) * cw;
+    let i = 0;
+    while (Math.abs(x - C.x) > step) {
+      C.face = x > C.x ? 1 : -1;
+      C.x += C.face * step;
+      if (run) { trail.unshift({ pose: C.pose, x: C.x - C.face * step, y: C.y }); trail.length = Math.min(trail.length, 2); }
+      paint(run ? 'RUN_' + (i % 4) : 'W' + (i % 8));
+      i++; place(); setU();
+      C.energy = Math.max(0, C.energy - (run ? .05 : .015));
+      yield;
+    }
+    trail.length = 0; ghosts.forEach((g) => { g.dataset.pose = ''; });
+    C.x = x; place(); setU();
+  }
+  function* hopTo(l, x) {
+    const x0 = C.x, y0 = C.y; let y1 = topOf(l);
+    const d = Math.hypot(x - x0, y1 - y0);
+    const n = clamp(Math.round(d / (2.6 * cw)), 4, 14), lift = Math.min(70, 18 + d * 0.12);
+    if (Math.abs(x - x0) > 2) C.face = x > x0 ? 1 : -1;
+    C.ledge = null; hush();
+    for (let i = 1; i <= n; i++) {
+      // if the page moved under her while she was in the air, aim for where the ledge is now
+      const again = l.kind === 'line' ? null : ledges.find((k) => k.key === l.key);
+      if (again && again !== l) { x += again.x0 - l.x0; l = again; y1 = topOf(l); }
+      const t = i / n;
+      C.x = x0 + (x - x0) * t;
+      C.y = y0 + (y1 - y0) * t - lift * 4 * t * (1 - t);
+      paint('LEAP'); place(); yield;
+    }
+    C.ledge = l; C.x = x; C.y = y1; place(); setU();
+  }
+  // she fades in at the edge of the stage, and out again
+  function appear(l, side) {
+    C.ledge = l; C.x = side < 0 ? SL : SR; C.y = topOf(l); paint('W0');
+    el.style.opacity = 0; show(); void el.offsetWidth; el.style.opacity = '';
+  }
+  function* vanish() { el.style.opacity = 0; yield* wait(3); hide(); el.style.opacity = ''; }
+  function* exit(cells) {
+    if (!C.onstage) return;
+    const side = C.x + W / 2 < (SL + SR + W) / 2 ? -1 : 1;
+    yield* walkTo(side < 0 ? SL : SR, cells);
+    yield* vanish();
+  }
+  function* enter(l, x, cells) {
+    appear(l, x + W / 2 < (SL + SR + W) / 2 ? -1 : 1);
+    yield* walkTo(x, cells);
+  }
+  function* goTo(l, x, cells) {
+    if (!C.onstage) { yield* enter(l, x, cells); return; }
+    if (C.ledge && C.ledge.key === l.key) { yield* walkTo(x, cells); return; }
+    const d = Math.hypot(x - C.x, topOf(l) - C.y);
+    if (d < 560 && inView()) {
+      if (C.ledge) {
+        const nx = clamp(x, C.ledge.x0, C.ledge.x1);
+        if (Math.abs(nx - C.x) > 3 * cw) yield* walkTo(nx, cells);
+      }
+      yield* hopTo(l, x);
+    } else {
+      yield* exit(cells || 2);
+      yield* wait(sec(rand(.8, 2.5)));
+      yield* enter(l, x, cells);
+    }
+  }
+
+  // ------------------------------------------------------------ small behaviours
+  function* sitFor(n) {
+    let i = 0;
+    while (i < n) {
+      paint('SIT');
+      const gap = sec(rand(1.5, 4.5));
+      yield* wait(Math.min(gap, n - i)); i += gap;
+      if (i >= n) break;
+      if (Math.random() < .7) {
+        facePointer();
+        paint('SIT_LOOK'); yield* wait(sec(rand(1, 2.2)));
+        paint('SIT'); yield* wait(2);                       // a blink
+        paint('SIT_LOOK'); yield* wait(sec(rand(.8, 1.6)));
+        i += sec(4);
+      } else { paint('SIT_ALERT'); const k = sec(rand(1.2, 2.4)); yield* wait(k); i += k; }
+    }
+    paint('SIT');
+  }
+  // when she looks, she looks at you: toward the pointer, if she has seen one
+  function facePointer() {
+    if (pointer.x < 0) return;
+    const r = canvas.getBoundingClientRect(), mid = r.left + r.width / 2;
+    if (Math.abs(pointer.x - mid) < 24) return;
+    C.face = pointer.x > mid ? 1 : -1; place();
+  }
+  function* loafFor(n) {
+    for (let i = 0; i < n; i++) { const k = i % 70; paint(k > 40 && k !== 55 && k !== 56 ? 'LOAF_LOOK' : 'LOAF'); yield; }
+  }
+  function* rest() {
+    const what = pick(['sit', 'sit', 'groom', 'loaf']);
+    if (what === 'groom') { setMode('grooming', true); yield* cycle(['GROOM_A', 'GROOM_B'], 3, sec(rand(4, 8))); yield* sitFor(sec(rand(2, 5))); }
+    else if (what === 'loaf') { setMode('loafing', true); yield* loafFor(sec(rand(8, 18))); }
+    else { setMode('sitting', true); yield* sitFor(sec(rand(6, 14))); }
+  }
+  const perches = () => ledges.filter((l) => l.kind === 'perch' && vis(l));
+  const where = (l) => (l && l.label ? 'on ' + l.label : '');
+
+  // ------------------------------------------------------------ behaviours
+  function* intro() {
+    // the page comes first. She turns up once the visitor has scrolled, or after a while
+    const t0 = now();
+    while (!DEBUG && now() - t0 < 22000 && lastScroll < t0) yield;
+    yield* wait(sec(DEBUG ? 4 : 2.5));
+    measure();
+    const l = ledges.find((k) => k.id === 'name' && vis(k)) || pick(perches());
+    if (!l) return;
+    setMode('arriving');
+    yield* enter(l, clamp(l.x0 + (l.x1 - l.x0) * .42, l.x0, l.x1));
+    setMode('sitting ' + where(l), true);
+    yield* sitFor(sec(9));
+  }
+  function* climb() {
+    mark('climb');
+    measure();
+    const hx = T.helix, top = ledges.find((l) => l.id === 'helix');
+    if (!hx || !top) return;
+    const r = rel(hx.el.getBoundingClientRect()), rowH = r.h / hx.H, colW = (r.w - 8) / hx.W;
+    const strand = (row) => r.x + (hx.col(clamp(row, 0, hx.H - 1)) + .5) * colW;
+    // to the foot of it, and a look up
+    setMode('eyeing the helix');
+    const foot = { key: 'line@helix', id: 'line', kind: 'line', x0: -1e5, x1: 1e5, y: r.b + 2, label: 'the helix' };
+    yield* goTo(foot, strand(hx.H - 1) - W * .62);
+    C.face = 1; paint('SIT_ALERT'); place();
+    yield* wait(sec(1.4));
+    // up she goes, holding one strand, so she winds round the helix as it turns
+    setMode('climbing the helix');
+    hx.slow = true; C.ledge = null; C.face = 1; el.classList.add('up');
+    const feet = (A.BW / 2 + A.GY - A.BH / 2) * unit, half = A.BH * unit / 2;
+    let yc = r.b - rowH, i = 0;
+    while (yc > r.y + rowH * 2.2) {
+      const bound = i % 4 === 2;                       // she climbs in bounds: reach, pull, gather
+      yc -= bound ? cw * 1.5 : cw * .45;
+      const row = Math.floor((yc - r.y) / rowH);
+      hx.held = row;
+      C.x = strand(row) - feet; C.y = yc - half;
+      paint('RUN_' + (i % 4)); place(); i++;
+      C.energy = Math.max(0, C.energy - .06);
+      yield;
+    }
+    el.classList.remove('up'); hx.held = -1;
+    yield* hopTo(top, clamp(strand(0) - W * .5, top.x0, top.x1));
+    hx.slow = false;
+    paint('SIT_LOOK'); say('mrrp!', 1400);
+    setMode('sitting on the helix', true);
+    yield* sitFor(sec(rand(7, 14)));
+  }
+  function* perch() {
+    mark('perch');
+    const opts = perches().filter((l) => !C.ledge || l.key !== C.ledge.key);
+    if (!opts.length) { yield* rest(); return; }
+    // she likes high places, so the higher ledges are more likely
+    opts.sort((a, b) => a.y - b.y);
+    const l = opts[Math.floor(Math.pow(Math.random(), 1.6) * opts.length)];
+    setMode('climbing');
+    yield* goTo(l, restX(l));
+    C.energy -= 6;
+    setMode('perched ' + where(l), true);
+    yield* rest();
+  }
+  function* patrol() {
+    mark('patrol');
+    const l = ledges.find((k) => k.id === 'footer');
+    if (!l) return;
+    setMode('patrolling the footer');
+    const from = Math.random() < .5 ? -1 : 1;
+    if (C.onstage) yield* exit(2);
+    appear(l, from);
+    if (Math.random() < .35) {
+      yield* walkTo(rand(l.x0 + (l.x1 - l.x0) * .25, l.x0 + (l.x1 - l.x0) * .75));
+      paint('STAND'); yield* wait(sec(.5)); paint('STAND_LOOK'); yield* wait(sec(1.8));     // she stops, and looks at you
+      setMode('sitting ' + where(l), true);
+      yield* sitFor(sec(rand(3, 6)));
+      setMode('patrolling the footer');
+    }
+    C.energy -= 8;
+    if (Math.random() < .5) { yield* walkTo(from < 0 ? SR : SL); yield* vanish(); C.awayUntil = now() + rand(6, 20) * 1000 / FAST; }
+    else { yield* walkTo(restX(l)); setMode('sitting ' + where(l), true); yield* rest(); }
+  }
+  function* block() {
+    mark('block');
+    const opts = ledges.filter((l) => l.kind === 'block' && vis(l) && l.card !== lastBlocked && !pointerIn(l.card));
+    if (!opts.length) { yield* rest(); return; }
+    const l = pick(opts), roof = ledges.find((k) => k.kind === 'perch' && k.card === l.card);
+    lastBlocked = l.card;
+    setMode('climbing');
+    if (roof && vis(roof)) {
+      yield* goTo(roof, clamp(rand(l.x0, l.x1), roof.x0, roof.x1));
+      yield* sitFor(sec(rand(2, 4)));
+    }
+    yield* goTo(l, rand(l.x0, l.x1));
+    C.blocking = l.card; C.energy -= 4;
+    setMode('sitting on ' + l.label, true);
+    const n = sec(45);
+    for (let i = 0; i < n && C.blocking; i++) { const k = i % 60; paint(k > 22 && k !== 40 && k !== 41 ? 'LOAF_LOOK' : 'LOAF'); yield; }
+    C.blocking = null;
+    yield* vacate(l.card);
+  }
+  function* vacate(card) {
+    C.blocking = null;
+    const roof = ledges.find((k) => k.kind === 'perch' && k.card === card);
+    const others = perches().filter((k) => k.card !== card);
+    const l = Math.random() < .5 && roof && vis(roof) ? roof : (others.length ? pick(others) : roof);
+    if (!l) { yield* exit(2); return; }
+    setMode('moving');
+    yield* goTo(l, restX(l));
+    setMode('perched ' + where(l), true);
+    yield* sitFor(sec(rand(4, 9)));
+  }
+  function* chase() {
+    mark('chase');
+    for (let tries = 0; tries < 3; tries++) {
+      if (!cursor.isConnected) break;
+      const r = rel(cursor.getBoundingClientRect());
+      if (!r.w || !rectVisible(r)) break;
+      const line = { key: 'line@' + Math.round(r.b), id: 'line', kind: 'line', x0: -1e5, x1: 1e5, y: r.b + 1, label: 'a heading' };
+      const side = r.r + 9 * cw + W < layerW ? 1 : -1;
+      setMode('stalking the cursor');
+      const mid = r.x + r.w / 2;
+      yield* goTo(line, (side > 0 ? mid + 86 * unit : mid - 86 * unit) - W / 2);
+      C.face = -side; place();
+      yield* cycle(['STALK_A', 'STALK_B'], 2, sec(rand(1.4, 2.8)));
+      yield* hopTo(line, (side > 0 ? mid + 30 * unit : mid - 30 * unit) - W / 2);
+      C.face = -side; place();
+      const elsewhere = slots.filter((s) => s !== cursor.parentNode && rectVisible(rel(s.getBoundingClientRect())));
+      if (tries < 2 && elsewhere.length && Math.random() < .6) {
+        pick(elsewhere).appendChild(cursor);
+        paint('SIT_LOOK'); say('?');
+        yield* wait(sec(1.4));
+        continue;
+      }
+      cursor.classList.add('caught'); cursor.classList.remove('blink');
+      C.caught++; C.energy -= 10; save();
+      setMode('sitting on the cursor', true);
+      say('mrrp!');
+      yield* cycle(['SWAT_A', 'SWAT_B'], 5, sec(rand(3, 5)));
+      cursor.style.visibility = 'hidden';
+      clearTimeout(respawnTimer); respawnTimer = setTimeout(respawnCursor, 9000 / FAST);
+      break;
+    }
+    yield* sitFor(sec(rand(3, 6)));
+  }
+  let respawnTimer = 0;
+  function respawnCursor() {
+    respawnTimer = 0;
+    const free = slots.filter((s) => s !== cursor.parentNode);
+    if (free.length) pick(free).appendChild(cursor);
+    cursor.classList.remove('caught'); cursor.classList.add('blink');
+    cursor.style.visibility = '';
+  }
+  function* zoomies() {
+    mark('zoomies');
+    setMode('zoomies');
+    say('!!', 900);
+    const laps = 4 + Math.floor(rand(0, 3));
+    for (let i = 0; i < laps; i++) {
+      const tracks = ledges.filter((l) => (l.kind === 'perch' || l.kind === 'walk') && vis(l));
+      if (!tracks.length) break;
+      const l = pick(tracks), dir = Math.random() < .5 ? -1 : 1;
+      if (C.onstage) yield* exit(5);
+      appear(l, -dir);
+      yield* walkTo(dir > 0 ? SR : SL, 5);
+      yield* vanish();
+      yield* wait(sec(rand(.2, .7)));
+    }
+    C.energy = clamp(C.energy - 45, 22, 100); save();
+    const l = pick(perches());
+    if (l) {
+      yield* enter(l, restX(l), 3);
+      setMode('catching her breath ' + where(l), true);
+      yield* sitFor(sec(rand(5, 9)));
+    }
+  }
+  const meter = () => '<span class="batt"><i style="width:' + Math.round(C.energy) + '%"></i></span>' + Math.round(C.energy) + '%';
+  function* chargeNap() {
+    mark('nap');
+    if (!C.onstage || !inView()) {
+      const l = pick(perches()) || ledges.find((k) => k.id === 'footer' && vis(k));
+      if (!l) { yield* wait(sec(3)); return; }
+      if (C.onstage) hide();
+      setMode('looking for a spot');
+      yield* enter(l, restX(l));
+    }
+    setMode('asleep, charging ' + where(C.ledge), true);
+    C.asleep = true;
+    yield* cycle(['LOAF_LOOK', 'LOAF'], 6, 12);
+    let i = 0;
+    while (C.energy < 100 && C.asleep) {
+      paint(Math.floor(i / 12) % 2 ? 'SLEEP_B' : 'SLEEP_A');
+      C.energy = Math.min(100, C.energy + 0.05 * FAST);   // about 2.5 minutes from empty
+      if (i % 10 === 0) say(meter(), 0, true);
+      i++; yield;
+    }
+    C.asleep = false; hush(); save();
+    setMode('waking up');
+    yield* cycle(['STRETCH', 'YAWN', 'STRETCH'], 6, 18);
+    yield* zoomies();
+  }
+  function* promptNap() {
+    mark('nap');
+    const l = ledges.find((k) => k.id === 'prompt');
+    if (!l) return;
+    setMode('heading for the prompt');
+    yield* goTo(l, l.x0 + cw);
+    C.onPrompt = true; C.asleep = true;
+    setMode('asleep on the prompt', true);
+    const n = sec(600);
+    for (let i = 0; i < n && C.asleep; i++) {
+      paint(Math.floor(i / 12) % 2 ? 'SLEEP_B' : 'SLEEP_A');
+      C.energy = Math.min(100, C.energy + 0.05 * FAST);
+      if (i % 40 === 0) say(i % 80 ? 'zZ' : 'z', 1500);
+      yield;
+    }
+    C.asleep = false; C.onPrompt = false;
+    yield* cycle(['STRETCH', 'YAWN'], 6, 12);
+    lastInput = now();
+  }
+  function* offPrompt() {
+    C.asleep = false; C.onPrompt = false; hush();
+    say('mrrp.', 1200);
+    yield* cycle(['STRETCH', 'YAWN'], 3, 6);
+    const l = ledges.find((k) => k.id === 'footer' && vis(k)) || pick(perches());
+    if (l) { yield* goTo(l, restX(l)); setMode('sitting ' + where(l), true); yield* sitFor(sec(rand(4, 8))); }
+    else yield* exit(2);
+  }
+  // if it fits, she sits
+  function* box() {
+    mark('box');
+    const l = ledges.find((k) => k.kind === 'box' && vis(k));
+    if (!l) { yield* rest(); return; }
+    const slot = $('#slot'), roof = ledges.find((k) => k.kind === 'perch' && k.card === l.card);
+    setMode('inspecting the empty slot');
+    if (roof && vis(roof)) { yield* goTo(roof, clamp(l.x0 + (l.x1 - l.x0) * rand(.3, .6), roof.x0, roof.x1)); paint('SIT_ALERT'); yield* wait(sec(1.6)); }
+    yield* goTo(l, l.x0 + (l.x1 - l.x0) * rand(.35, .6));
+    C.boxed = true; C.energy -= 3;
+    if (slot) slot.textContent = 'occupied';
+    setMode('in the empty slot. it fits', true);
+    paint('SIT_LOOK'); yield* wait(sec(2));
+    const n = sec(rand(35, 60));
+    for (let i = 0; i < n && C.boxed; i++) { const k = i % 80; paint(k > 50 && k !== 64 && k !== 65 ? 'LOAF_LOOK' : 'LOAF'); C.energy = Math.min(100, C.energy + .01 * FAST); yield; }
+    yield* unbox();
+  }
+  function* unbox() {
+    C.boxed = false;
+    const slot = $('#slot'); if (slot) slot.textContent = 'pending';
+    const others = perches();
+    if (others.length) { const l = pick(others); setMode('moving'); yield* goTo(l, restX(l)); setMode('perched ' + where(l), true); yield* sitFor(sec(rand(3, 6))); }
+    else yield* exit(1);
+  }
+  // the centrifuge has things in it that can be knocked out. she has noticed.
+  function* meddle() {
+    mark('meddle');
+    const toy = T.toy, card = toy && toy.canvas.closest('.card'), roof = card && ledges.find((k) => k.kind === 'perch' && k.card === card);
+    if (!roof || !vis(roof) || !toy.balanced()) { yield* rest(); return; }
+    const r = rel(toy.canvas.getBoundingClientRect());
+    setMode('eyeing the centrifuge');
+    yield* goTo(roof, clamp(r.x + r.w / 2 + 34 * unit - W / 2, roof.x0, roof.x1));
+    C.face = -1; place();
+    paint('SIT_ALERT'); yield* wait(sec(1.4));
+    yield* cycle(['SWAT_B', 'SWAT_A', 'SWAT_B'], 3, 9);
+    if (toy.knock()) say('mrrp.', 1400);
+    C.energy -= 4;
+    setMode('pleased with herself', true);
+    paint('SIT_LOOK'); yield* wait(sec(2.5));
+    yield* sitFor(sec(rand(4, 8)));
+  }
+  // a loud thunk from the tube. she did not like that.
+  function* startle() {
+    setMode('startled');
+    el.classList.add('hiss'); say('!', 900);
+    yield* cycle(['HISS_B', 'HISS_A'], 2, sec(.9));
+    el.classList.remove('hiss');
+    if (C.ledge && C.ledge.kind === 'perch' || C.ledge && C.ledge.kind === 'walk') {
+      const far = C.x - C.ledge.x0 > C.ledge.x1 - C.x ? C.ledge.x0 : C.ledge.x1;
+      yield* walkTo(clamp(far, C.x - 26 * cw, C.x + 26 * cw), 3);
+    } else { const o = perches(); if (o.length) { const l = pick(o); yield* goTo(l, restX(l), 3); } }
+    paint('SIT_ALERT'); setMode('not amused', true); yield* wait(sec(2));
+    yield* sitFor(sec(4));
+  }
+  T.catNudge = () => { lastScroll = Math.max(lastScroll, now()); };
+  T.startle = () => { if (enabled && C.onstage && T.motion && C.mode !== 'zoomies' && inView()) take(startle()); };
+  T.cursorBusy = () => C.mode === 'stalking the cursor' || C.mode === 'sitting on the cursor';
+  T.onMotion = (on) => { if (T.reduceMotion || !T.booted) return; if (on) { hide(); cur = null; } else { park(); tracker.draw(0); } };
+  // an ordinary nap, wherever she happens to be. She naps more at night, like the rest of us should.
+  const night = () => { const h = new Date().getHours(); return h >= 23 || h < 6; };
+  function* catnap() {
+    mark('catnap');
+    setMode('napping ' + where(C.ledge), true);
+    C.asleep = true;
+    yield* cycle(['LOAF_LOOK', 'LOAF'], 6, 12);
+    const n = sec(rand(30, 70) * (night() ? 1.6 : 1));
+    for (let i = 0; i < n && C.asleep; i++) {
+      paint(Math.floor(i / 12) % 2 ? 'SLEEP_B' : 'SLEEP_A');
+      C.energy = Math.min(100, C.energy + 0.03 * FAST);
+      if (i % 44 === 0) say(i % 88 ? 'zZ' : 'z', 1600);
+      yield;
+    }
+    C.asleep = false; hush();
+    yield* cycle(['STRETCH', 'YAWN'], 6, 12);
+    yield* sitFor(sec(rand(3, 6)));
+  }
+  function* leave() {
+    setMode('leaving');
+    yield* exit(1);
+    C.awayUntil = now() + rand(20, 60) * 1000 / FAST;
+  }
+  function* away(n) { setMode('elsewhere'); yield* wait(n); }
+
+  // ------------------------------------------------------------ interruptions
+  // Whatever she was in the middle of, the page is left as it should be.
+  const fallen = [];           // letters she has taken hold of, each with the timer that puts it back
+  function putBack(span) {
+    const i = fallen.findIndex((f) => f.span === span);
+    if (i >= 0) { clearTimeout(fallen[i].timer); fallen.splice(i, 1); }
+    const p = span.parentNode; if (!p) return;
+    p.replaceChild(document.createTextNode(span.textContent), span); p.normalize(); queueMeasure();
+  }
+  function drop(span) {
+    span.classList.add('go');
+    const f = fallen.find((x) => x.span === span);
+    if (f) { clearTimeout(f.timer); f.timer = setTimeout(() => putBack(span), 9000 / FAST); }
+  }
+  function land() {
+    measure();
+    const spots = ledges.filter((l) => (l.kind === 'perch' || l.kind === 'walk') && vis(l));
+    if (!spots.length) { hide(); return; }
+    const far = (l) => Math.hypot(clamp(C.x, l.x0, l.x1) - C.x, topOf(l) - C.y);
+    spots.sort((a, b) => far(a) - far(b));
+    const l = spots[0]; C.ledge = l; C.x = clamp(C.x, l.x0, l.x1); C.y = topOf(l); setU(); paint('SIT'); place();
+  }
+  function settle() {
+    trail.length = 0; ghosts.forEach((g) => { g.dataset.pose = ''; g.style.visibility = 'hidden'; });
+    el.classList.remove('hiss', 'up'); el.style.opacity = ''; hush();
+    if (T.helix) { T.helix.slow = false; T.helix.held = -1; }
+    if (C.boxed) { C.boxed = false; const slot = $('#slot'); if (slot) slot.textContent = 'pending'; }
+    C.blocking = null; C.asleep = false; C.onPrompt = false;
+    fallen.slice().forEach((f) => { if (!f.span.classList.contains('go')) putBack(f.span); });
+    if ((cursor.classList.contains('caught') || cursor.style.visibility === 'hidden') && !respawnTimer) respawnTimer = setTimeout(respawnCursor, 4000 / FAST);
+    if (C.onstage && !C.ledge) land();
+  }
+  function take(gen) { settle(); cur = gen; }
+  // with motion off she does not move at all: she is simply there, at the end of the footer
+  function park() {
+    settle(); measure(); cur = null;
+    const l = ledges.find((k) => k.id === 'footer');
+    if (!l) { hide(); return; }
+    C.ledge = l; C.x = l.x1 - 8 * cw; C.y = topOf(l); C.face = 1; setU(); paint('LOAF_LOOK', true); show(); el.classList.remove('ghost');
+    setMode('loafing on the footer', true);
+  }
+
+  // ------------------------------------------------------------ being clicked
+  function* knock() {
+    const heads = $$('h1, h2, h3').filter((h) => h.offsetParent !== null && rectVisible(rel(h.getBoundingClientRect())));
+    if (heads.length) {
+      heads.sort((a, b) => Math.abs(rel(a.getBoundingClientRect()).y - C.y) - Math.abs(rel(b.getBoundingClientRect()).y - C.y));
+      const h = heads[0];
+      const tw = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
+      let node = null, n;
+      while ((n = tw.nextNode())) if (/[A-Za-z]/.test(n.data) && !n.parentNode.closest('.ps, #cursor, .fallen')) node = n;
+      if (node) {
+        const idx = node.data.search(/[A-Za-z][^A-Za-z]*$/);
+        const letter = node.splitText(idx); letter.splitText(1);
+        const span = document.createElement('span');
+        span.className = 'fallen'; span.textContent = letter.data;
+        letter.parentNode.replaceChild(span, letter);
+        fallen.push({ span, timer: 0 });
+        const r = rel(span.getBoundingClientRect());
+        const line = { key: 'line@' + Math.round(r.b), id: 'line', kind: 'line', x0: -1e5, x1: 1e5, y: r.b + 1, label: 'a heading' };
+        setMode('about to knock something over');
+        yield* goTo(line, r.r + 30 * unit - W / 2, 2);
+        C.face = -1; place();
+        yield* cycle(['SWAT_A'], 1, 5);
+        paint('SWAT_B'); drop(span); say('mrrp.', 1500);
+        yield* wait(sec(1.3));
+      }
+    }
+    setMode('leaving, offended');
+    yield* exit(3);
+    C.awayUntil = now() + rand(60, 120) * 1000 / FAST;
+    C.annoy = 2; C.clicks = 0; save();
+  }
+  function* react(level, wasBlocking, wasAsleep) {
+    hush(); setMode('watching you', true);
+    if (wasAsleep) {
+      C.energy = Math.max(C.energy, 26);
+      say(pick(['mrrp?!', 'mrrrp.', '...?']), 1500);
+      yield* cycle(['STRETCH', 'YAWN'], 5, 10);
+      if (C.onstage) yield* sitFor(sec(3));
+      if (level < 4) return;
+    }
+    if (level <= 1) {
+      say(pick(['mrrp?', 'prr?', 'mrrp']), 1400);
+      yield* cycle(['SIT_LOOK', 'SIT_LOOK', 'SIT', 'SIT_LOOK'], 2, 10);
+      if (wasBlocking) { yield* vacate(wasBlocking); return; }
+      yield* sitFor(sec(4));
+    } else if (level === 2) {
+      say(pick(['mrow.', 'mrrrow.']), 1300);
+      yield* cycle(['SIT_ALERT', 'SIT_LOOK'], 4, 8);
+      if (wasBlocking) { yield* vacate(wasBlocking); return; }
+      const opts = perches().filter((l) => !C.ledge || l.key !== C.ledge.key);
+      if (opts.length) { const l = pick(opts); setMode('moving'); yield* goTo(l, restX(l)); setMode('perched ' + where(l), true); }
+      yield* sitFor(sec(5));
+    } else if (level === 3) {
+      say('...', 2600);
+      paint('STARE'); setMode('staring at you', true);
+      yield* wait(sec(3));
+      if (wasBlocking) { yield* vacate(wasBlocking); return; }
+      yield* sitFor(sec(3));
+    } else if (level === 4) {
+      el.classList.add('hiss');
+      say(pick(['hssss!', 'HSSSS']), 1400);
+      setMode('hissing');
+      yield* cycle(['HISS_A', 'HISS_B'], 2, sec(1.3));
+      el.classList.remove('hiss');
+      if (C.ledge && C.ledge.kind !== 'block' && C.ledge.kind !== 'prompt') {
+        const far = C.x - C.ledge.x0 > C.ledge.x1 - C.x ? C.ledge.x0 : C.ledge.x1;
+        yield* walkTo(clamp(far, C.x - 22 * cw, C.x + 22 * cw), 3);
+      } else {
+        const opts = perches();
+        if (opts.length) { const l = pick(opts); yield* goTo(l, restX(l), 3); }
+      }
+      paint('BACK'); setMode('ignoring you', true);
+      yield* wait(sec(7));
+      yield* sitFor(sec(3));
+    } else {
+      yield* knock();
+    }
+  }
+  function poke() {
+    if (!C.onstage) return;
+    lastInput = now();
+    if (!T.motion) {
+      paint(C.pose === 'LOAF_LOOK' ? 'SIT_LOOK' : 'LOAF_LOOK'); say('mrrp', 1200);
+      return;
+    }
+    const climbing = el.classList.contains('up');                                                  // slow enough to reach
+    if (C.mode === 'zoomies' || (!climbing && (C.pose === 'LEAP' || C.pose.indexOf('RUN_') === 0))) return;      // too fast to catch
+    const wasAsleep = C.asleep, wasBlocking = C.blocking;
+    C.annoy += wasAsleep ? 2 : 1;
+    C.clicks = clamp(Math.ceil(C.annoy), 1, 5);
+    save();
+    take(react(C.clicks, wasBlocking, wasAsleep));
+  }
+  // She only takes a click where her body actually is, not in the empty corners of her sprite.
+  function hitAt(x, y) {
+    if (!C.onstage || el.classList.contains('ghost') || !A.has(C.pose)) return false;
+    const r = canvas.getBoundingClientRect();
+    // upright on the helix, her outline is turned too: near enough is good enough
+    if (el.classList.contains('up')) return Math.abs(x - (r.left + r.right) / 2) < r.width * .42 && Math.abs(y - (r.top + r.bottom) / 2) < r.height * .45;
+    if (x < r.left || x > r.right || y < r.top || y > r.bottom) return false;
+    let px = Math.floor((x - r.left) / r.width * A.BW);
+    const py = Math.floor((y - r.top) / r.height * A.BH), m = mask(C.pose);
+    if (C.face < 0) px = A.BW - 1 - px;
+    for (let j = -2; j <= 2; j++) for (let i = -2; i <= 2; i++) {
+      const qx = px + i, qy = py + j;
+      if (qx >= 0 && qy >= 0 && qx < A.BW && qy < A.BH && m[qy * A.BW + qx]) return true;
+    }
+    return false;
+  }
+  let swallow = false;
+  document.addEventListener('pointerdown', (e) => {
+    const forLink = !C.blocking && !C.onPrompt && e.target.closest && e.target.closest('a, button, input, canvas.toy');
+    swallow = e.button <= 0 && !forLink && hitAt(e.clientX, e.clientY);
+    if (swallow) { e.stopPropagation(); poke(); }
+  }, true);
+  document.addEventListener('click', (e) => { if (swallow) { e.stopPropagation(); e.preventDefault(); swallow = false; } }, true);
+  // a press on her that never becomes a click, such as the start of a scroll, must not eat the next one
+  ['pointerup', 'pointercancel'].forEach((n) => document.addEventListener(n, () => setTimeout(() => { swallow = false; }, 0), true));
+
+  // ------------------------------------------------------------ director
+  function pointerIn(node) {
+    const r = node.getBoundingClientRect();
+    return pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom;
+  }
+  const idleSeconds = () => (now() - lastInput) / 1000 * FAST;
+  function director() {
+    measure();
+    if (!C.onstage && now() < C.awayUntil) return away(sec(1.5));
+    if (C.energy < 20 && cool('nap', 20)) return chargeNap();
+    const prompt = ledges.find((l) => l.id === 'prompt');
+    if (idleSeconds() > IDLE_NAP && prompt && $('#term').open && vis(prompt) && document.activeElement !== $('#cmd') && cool('nap', 60)) return promptNap();
+    const opts = [];
+    const foot = ledges.find((l) => l.id === 'footer');
+    if (foot && vis(foot) && cool('patrol', 60)) opts.push([5, patrol]);
+    if (perches().length && cool('perch', 12)) opts.push([5, perch]);
+    if (C.annoy < 3 && cool('block', 100) && ledges.some((l) => l.kind === 'block' && vis(l))) opts.push([3, block]);
+    if (cursor.isConnected && cursor.style.visibility !== 'hidden' && cool('chase', 80) && rectVisible(rel(cursor.getBoundingClientRect()))) opts.push([3, chase]);
+    if (C.annoy < 3 && cool('box', 150) && ledges.some((l) => l.kind === 'box' && vis(l))) opts.push([4, box]);
+    if (T.helix && cool('climb', 150) && rectVisible(rel(T.helix.el.getBoundingClientRect()))) opts.push([4, climb]);
+    if (T.toy && T.toy.balanced() && cool('meddle', 240) && rectVisible(rel(T.toy.canvas.getBoundingClientRect()))) opts.push([2, meddle]);
+    if (C.onstage && inView()) {
+      opts.push([3, rest]); opts.push([C.annoy >= 3 ? 4 : 1, leave]);
+      if (C.ledge && C.ledge.kind !== 'line' && cool('catnap', 90)) opts.push([(night() ? 4 : 1) + (idleSeconds() > 60 ? 2 : 0), catnap]);
+    }
+    if (!opts.length) return away(sec(2));
+    let total = 0;
+    opts.forEach((o) => { total += o[0]; });
+    let roll = Math.random() * total;
+    for (const o of opts) { roll -= o[0]; if (roll <= 0) return o[1](); }
+    return opts[0][1]();
+  }
+
+  function tick() {
+    if (!enabled) return;
+    C.annoy = Math.max(0, C.annoy - (TICK / 1000 * FAST) / 15);
+    let r;
+    try { if (!cur) cur = director(); r = cur.next(); } catch (e) { console.error('camille:', e); cur = null; settle(); hide(); return; }
+    if (r.done) cur = null;
+    if (C.onstage) {
+      // never eat a click that was meant for a link, unless she is sitting there on purpose
+      const ghost = !C.blocking && !C.onPrompt && hot.some((h) => hits(C.x, C.y, h));
+      el.classList.toggle('ghost', ghost);
+      // if the visitor scrolled away while she rests, she turns up again where they are
+      offTicks = inView() ? 0 : offTicks + 1;
+      if (offTicks > sec(6) && C.rest && now() - lastScroll > 2500) { hide(); cur = null; offTicks = 0; }
+    }
+  }
+
+  // ------------------------------------------------------------ input from the visitor
+  const touch = () => { lastInput = now(); };
+  ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((n) => window.addEventListener(n, touch, { passive: true }));
+  window.addEventListener('pointermove', (e) => { pointer = { x: e.clientX, y: e.clientY }; touch(); document.documentElement.classList.toggle('cat-hover', hitAt(e.clientX, e.clientY)); }, { passive: true });
+  window.addEventListener('scroll', () => { lastScroll = now(); touch(); }, { passive: true });
+  const input = $('#cmd');
+  const wakeFromPrompt = () => { if (C.onPrompt && T.motion) take(offPrompt()); };
+  input.addEventListener('focus', wakeFromPrompt);
+  input.addEventListener('input', wakeFromPrompt);
+  const moveOff = () => { const card = C.blocking; if (card && T.motion) take(vacate(card)); };
+  document.addEventListener('focusin', (e) => { if (C.blocking && C.blocking.contains(e.target)) moveOff(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') moveOff(); });
+  window.addEventListener('pagehide', () => T.store.set('camille', { energy: Math.round(C.energy), annoy: C.annoy, at: Date.now(), pets: C.pets, fed: C.fed, fedAt: C.fedAt, caught: C.caught }));
+
+  // ------------------------------------------------------------ shell
+  const P = T.print;
+  const mood = () => (C.annoy >= 4 ? 'furious' : C.annoy >= 3 ? 'annoyed' : C.annoy >= 1.5 ? 'wary' : C.asleep ? 'asleep' : C.mode === 'zoomies' ? 'unhinged' : 'content');
+  T.catStatus = () => 'Camille · ' + (C.onstage ? C.mode : 'elsewhere') + ' · energy ' + Math.round(C.energy) + ' %';
+  T.COMMANDS.camille = function () {
+    const pic = document.createElement('canvas'), k = 2 * Math.min(3, window.devicePixelRatio || 1);
+    pic.width = A.BW * k; pic.height = A.BH * k; pic.style.width = A.BW * 2 + 'px';
+    A.draw(pic.getContext('2d'), C.pose && C.onstage ? C.pose : 'SIT', k, COL);
+    pic.setAttribute('aria-hidden', 'true');
+    $('#log').appendChild(pic);
+    P('Camille · ' + (C.onstage ? C.mode : 'elsewhere') + ' · mood: ' + mood());
+    P('energy ' + Math.round(C.energy) + ' % · pets ' + C.pets + ' · meals ' + C.fed + ' · cursors caught ' + C.caught);
+    P('try: pet · feed · pspsps · zoomies · shoo');
+  };
+  T.FILES.camille = T.FILES['camille.txt'] = () => 'Camille. Dark long fur. Chaotic. Loves to climb.\nSleeps to charge up for more zoomies.';
+  T.COMMANDS.pet = function () {
+    if (!C.onstage) { P('pet: Camille is not here. try: pspsps', 'err'); return; }
+    if (C.annoy >= 4) { P('pet: Camille declines.', 'err'); return; }
+    C.annoy = Math.max(0, C.annoy - 2); C.pets++; save();
+    if (!C.asleep && T.motion) take((function* () { paint('PURR'); say('prrr', 2200); setMode('purring', true); yield* wait(sec(2.5)); yield* sitFor(sec(4)); })());
+    P('Camille purrs. pets: ' + C.pets);
+  };
+  T.COMMANDS.feed = function (arg) {
+    if (/sourdough|bread|dough/i.test(arg || '')) { P('Camille sniffs the ' + arg + '. unimpressed.'); return; }
+    if (Date.now() - C.fedAt < 600000 / FAST) { P('Camille is full.'); return; }
+    C.fed++; C.fedAt = Date.now(); C.energy = Math.min(99, C.energy + 25); C.annoy = Math.max(0, C.annoy - 1); C.awayUntil = 0; save();
+    P('you put down a bowl. Camille is on her way.');
+    if (T.motion) take((function* () {
+      T.openTerm(false); measure(); const l = ledges.find((k) => k.id === 'prompt'); if (!l) return;
+      setMode('running to dinner');
+      yield* goTo(l, l.x0 + 14 * cw, 3);
+      setMode('eating', true); say('prrr', 1500);
+      yield* cycle(['EAT_A', 'EAT_B'], 3, sec(4));
+      yield* cycle(['GROOM_A', 'GROOM_B'], 3, sec(3));
+      yield* sitFor(sec(4));
+    })());
+  };
+  T.COMMANDS.pspsps = function () {
+    if (Math.random() < .3) { P('Camille heard you. Camille does not care.'); return; }
+    C.awayUntil = 0;
+    P('...');
+    if (T.motion) take((function* () {
+      T.openTerm(false); measure(); const l = ledges.find((k) => k.id === 'prompt'); if (!l) return;
+      setMode('coming over');
+      yield* goTo(l, l.x0 + 14 * cw, 2);
+      say('mrrp?', 1500); setMode('sitting by the prompt', true);
+      yield* sitFor(sec(8));
+    })());
+  };
+  T.COMMANDS.zoomies = function () {
+    if (!T.motion) { P('zoomies: motion is off.', 'err'); return; }
+    if (C.energy < 30 && !DEBUG) { P('Camille is out of charge. she needs a nap first.'); return; }
+    C.awayUntil = 0;
+    P('oh no.');
+    take(zoomies());
+  };
+  T.COMMANDS.shoo = function () {
+    P('Camille leaves, slowly, to make a point.');
+    if (C.onstage && T.motion) take((function* () { yield* exit(1); C.awayUntil = now() + 60000 / FAST; })());
+  };
+
+  // ------------------------------------------------------------ the tracker
+  // A map of the page in the margin of a wide screen, decks A to G, with a contact where the cat is.
+  // After the one Ash built, which also found the cat first.
+  const tracker = (function () {
+    const box = document.createElement('button');
+    box.id = 'tracker'; box.type = 'button';
+    box.setAttribute('aria-label', 'Motion tracker. Press to go to the cat.');
+    box.innerHTML = '<span class="t">TRACKER</span><canvas></canvas><span class="r">NO CONTACT</span>';
+    document.body.appendChild(box);
+    const cv = $('canvas', box), read = $('.r', box), g = cv.getContext('2d'), MW = 80, MH = 124, X0 = 15, X1 = MW - 3;
+    const decks = [$('.hero')].concat($$('main section[id]')).filter(Boolean);
+    let on = T.store.get('tracker', true) !== false, ink = null, had = false, text = '', seenCat = DEBUG;
+    const show = (v) => { on = v; box.classList.toggle('on', on && seenCat); };
+    const seen = () => box.getClientRects().length > 0;          // a narrow window has no margin to put it in
+    function size() {
+      const r = Math.min(3, window.devicePixelRatio || 1);
+      cv.width = MW * r; cv.height = MH * r; cv.style.width = MW + 'px'; cv.style.height = MH + 'px';
+      g.setTransform(r, 0, 0, r, 0, 0); g.font = '8px monospace'; g.textBaseline = 'top'; g.lineWidth = 1;
+    }
+    function draw(t) {
+      if (C.onstage) seenCat = true;
+      if (seenCat !== box.classList.contains('on')) box.classList.toggle('on', seenCat && on);
+      if (!on || !seenCat || !seen()) return;
+      if (!ink) { const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(); ink = { faint: v('--faint'), dim: v('--dim'), fg: v('--fg'), hi: v('--hi'), glow: v('--glow-rgb') }; }
+      const top = window.pageYOffset, k = (MH - 6) / Math.max(1, document.documentElement.scrollHeight), col = $('.screen').getBoundingClientRect();
+      const my = (y) => 3 + y * k, mx = (x) => clamp(X0 + (x - col.left) / col.width * (X1 - X0), X0 - 4, X1 + 2);
+      g.clearRect(0, 0, MW, MH);
+      let deck = -1;
+      const cy = C.y + H * .6;
+      decks.forEach((d, i) => {
+        const r = d.getBoundingClientRect(), y = Math.round(my(r.top + top)), h = Math.max(4, Math.round(r.height * k));
+        const here = C.onstage && cy >= r.top + top - 40 && cy < r.bottom + top + 6;
+        if (here) deck = i;
+        g.strokeStyle = here ? ink.fg : ink.faint; g.strokeRect(X0 + .5, y + .5, X1 - X0 - 1, h - 1);
+        g.fillStyle = here ? ink.hi : ink.dim; g.fillText('ABCDEFGH'[i], 1, y);
+      });
+      // the part of the page on the screen
+      const vy = Math.round(my(top)), vh = Math.round(window.innerHeight * k);
+      g.fillStyle = ink.fg; g.fillRect(X0 - 5, vy, 1, vh); g.fillRect(X0 - 5, vy, 3, 1); g.fillRect(X0 - 5, vy + vh - 1, 3, 1);
+      // the sweep
+      const sweep = T.motion ? (t % 44) / 44 * MH : -9;
+      const band = g.createLinearGradient(0, sweep - 14, 0, sweep);
+      band.addColorStop(0, 'rgba(' + ink.glow + ',0)'); band.addColorStop(1, 'rgba(' + ink.glow + ',.22)');
+      g.fillStyle = band; g.fillRect(X0 - 6, sweep - 14, MW, 14);
+      // the contact
+      if (C.onstage) {
+        const x = mx(C.x + W / 2), y = my(cy), age = T.motion ? ((sweep - y + MH) % MH) / MH : 0;
+        g.strokeStyle = 'rgba(' + ink.glow + ',' + (.7 * (1 - age)).toFixed(2) + ')';
+        g.beginPath(); g.arc(x, y, 2.5 + age * 9, 0, Math.PI * 2); g.stroke();
+        g.fillStyle = ink.hi; g.fillRect(Math.round(x) - 1.5, Math.round(y) - 1.5, 3, 3);
+        const far = Math.hypot(C.x + W / 2 - window.innerWidth / 2, cy - top - window.innerHeight / 2) / 36;
+        const line = 'CONTACT\n' + (deck >= 0 ? 'DECK ' + 'ABCDEFGH'[deck] + ' · ' : '') + Math.round(far) + ' M';
+        if (line !== text) read.textContent = text = line;
+        if (!had) T.sfx('ping');
+      } else if (text !== 'NO CONTACT') read.textContent = text = 'NO CONTACT';
+      had = C.onstage; box.classList.toggle('contact', had);
+    }
+    box.addEventListener('click', () => {
+      if (C.onstage) window.scrollTo({ top: Math.max(0, C.y + H / 2 - window.innerHeight / 2), behavior: T.motion ? 'smooth' : 'auto' });
+      T.sfx('ping');
+    });
+    T.onTheme(() => { ink = null; draw(0); });
+    window.addEventListener('resize', () => { size(); draw(0); });
+    window.addEventListener('scroll', () => { if (!T.motion) draw(0); }, { passive: true });
+    T.COMMANDS.tracker = function (arg) {
+      if (arg === 'on' || arg === 'off') { show(arg === 'on'); T.store.set('tracker', on); draw(0); }
+      P('tracker ' + (on ? 'on' : 'off') + (on && !seen() ? '. this window is too narrow to show it.' : ''));
+    };
+    size(); show(on);
+    return { draw, box };
+  })();
+
+  // ------------------------------------------------------------ start
+  function start() {
+    if (slots.length) slots[0].appendChild(cursor);
+    paint('SIT'); place(); measure();
+    if ('ResizeObserver' in window) new ResizeObserver(queueMeasure).observe($('.screen'));
+    window.addEventListener('resize', queueMeasure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(queueMeasure);
+    $('.screen').addEventListener('animationend', queueMeasure);
+    window.addEventListener('resize', () => { if (!T.motion) park(); });
+    if (!T.motion) { cursor.classList.remove('blink'); park(); tracker.draw(0); if (T.reduceMotion) return; }
+    if (T.motion) cur = intro();
+    T.Anim.add(null, tick, 1000 / TICK);
+    T.Anim.add(null, tracker.draw, 12);
+  }
+  T.onReady(start);
+
+  if (DEBUG) {
+    window.Camille = {
+      C, hitAt, canvas, get ledges() { return ledges; }, measure, say, poke, paint, place, show, hide,
+      run(name, arg) {
+        const B = { intro, climb, perch, patrol, block, box, catnap, meddle, startle, chase, zoomies, chargeNap, promptNap, leave, knock, rest, offPrompt };
+        C.awayUntil = 0; take(B[name](arg)); return name;
+      },
+      poses: A.names,
+      put(id, frac) {
+        const l = ledges.find((k) => k.id === id || k.key === id); if (!l) return null;
+        C.ledge = l; C.x = l.x0 + (l.x1 - l.x0) * (frac == null ? .5 : frac); C.y = topOf(l); setU(); place(); show(); return l.key;
+      },
+      freeze() { enabled = false; }, thaw() { enabled = true; },
+      set energy(v) { C.energy = v; }, get mode() { return C.mode; },
+    };
+  }
+})();
+</script>
+
+</body>
+</html>
