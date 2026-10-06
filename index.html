@@ -20,16 +20,17 @@
   ALSO IN THIS FOLDER
     404.html   shown by GitHub Pages for a missing page
     og.png     the picture a shared link shows
+    riders.png, riders-fill.png   the sprite frames of the visitors who come through the cat's portals
 -->
 <html lang="en" data-theme="amber">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Yam Amir · YAMIR-1138</title>
-<meta name="description" content="Yam Amir (YAMIR-1138). Geneticist and PhD student in Tel Aviv: how GPCRs switch on, how genes nest inside other genes, what rare variants do in the clinic. Pellaeon, GPCompaRe and other things built along the way.">
+<meta name="description" content="Yam Amir (YAMIR-1138). Geneticist and PhD student: how GPCRs switch on, how genes nest inside other genes, what rare variants do in the clinic. Pellaeon, GPCompaRe and other things built along the way.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Yam Amir · YAMIR-1138">
-<meta property="og:description" content="Genetics · structural bioinformatics · genomics. PhD student, Tel Aviv.">
+<meta property="og:description" content="Genetics · structural bioinformatics · genomics. PhD student, TGGR Lab.">
 <meta property="og:url" content="https://yamir-1138.github.io/YAMIR-1138/">
 <meta property="og:image" content="https://yamir-1138.github.io/YAMIR-1138/og.png">
 <meta property="og:image:width" content="1200">
@@ -47,6 +48,7 @@
   "url": "https://yamir-1138.github.io/YAMIR-1138/",
   "jobTitle": "PhD student",
   "affiliation": [
+    { "@type": "Organization", "name": "TGGR Lab" },
     { "@type": "Organization", "name": "Tel Aviv University" },
     { "@type": "Organization", "name": "Tel Aviv Sourasky Medical Center" }
   ],
@@ -110,6 +112,9 @@
     --portal-b: #ffb000;
     --glow-rgb: 61, 255, 122;
   }
+
+  /* a change of phosphor cross-fades: the colour tokens are registered from script, in the theme code */
+  :root.fading { transition: --bg 1.1s ease-out, --bg-2 1.1s ease-out, --fg 1.1s ease-out, --hi 1.1s ease-out, --dim 1.1s ease-out, --faint 1.1s ease-out, --line 1.1s ease-out, --edge 1.1s ease-out, --warn 1.1s ease-out, --eye 1.1s ease-out, --portal-b 1.1s ease-out; }
 
   * { box-sizing: border-box; }
   html { background: var(--bg); scroll-behavior: smooth; }
@@ -208,6 +213,11 @@
   .hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px 36px; align-items: center; margin-bottom: 44px; }
   .callsign { margin: 0; font-size: 13px; letter-spacing: 3px; color: var(--dim); }
   .callsign a { color: var(--fg); letter-spacing: 2px; border: 0; }
+  h1 .tube { display: inline-block; max-width: 1.2em; overflow: hidden; vertical-align: top; transition: max-width .5s cubic-bezier(.6, 0, .3, 1), opacity .12s; }
+  h1 .tube.dip { opacity: .28; text-shadow: none; }
+  h1 .tube.gone { max-width: 0; opacity: 0; }
+  /* while the sign reads the other name, a ghost of it sits beside it in the other phosphor */
+  h1.liminal .tube { text-shadow: var(--glow-hi), 3px 0 0 color-mix(in srgb, var(--portal-b) 55%, transparent), -2px 0 0 color-mix(in srgb, var(--warn) 35%, transparent); }
   h1 {
     font-family: var(--display); font-weight: 400;
     font-size: clamp(68px, 15vw, 148px); line-height: .82; margin: 2px 0 14px -3px;
@@ -231,11 +241,12 @@
   }
   .art b { color: var(--fg); font-weight: 400; }
   .art i { color: var(--dim); font-style: normal; }
-  #helix { line-height: 1.05; letter-spacing: 1px; padding-right: 8px; }
+  #helix { line-height: 1.05; letter-spacing: 1px; padding-right: 8px; cursor: pointer; }
 
   /* ---- the receptor in the hero: a wire model of PAR2, turning */
   .par2 { margin: 0; display: flex; flex-direction: column; align-items: center; }
   .par2 canvas { display: block; width: 236px; height: 272px; }
+  .par2 .cap { white-space: normal; text-align: center; max-width: 236px; min-height: 2.6em; }
   html:not(.js) .par2 { display: none; }
 
   /* ---- between sections, a sequencing trace runs past */
@@ -337,6 +348,7 @@
   #log .err { color: var(--warn); }
   #log .mu { color: var(--hi); text-shadow: var(--glow-hi); letter-spacing: 1.5px; }
   #log .mu.in { color: var(--dim); text-shadow: none; }
+  #log canvas.spec { display: block; margin: 4px 0 2px; }
   .prompt { display: flex; gap: 8px; align-items: baseline; position: relative; }
   .prompt label { color: var(--dim); white-space: nowrap; }
   .prompt input {
@@ -377,7 +389,15 @@
     transform: scale(0, 0); transition: transform .35s cubic-bezier(.3, 1.4, .5, 1); pointer-events: none;
   }
   .portal.on { transform: none; }
+  .rider { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; transition: transform 95ms linear; }
+  .rider canvas { display: block; }
+  .rider.flip canvas { transform: scaleX(-1); }
+  .rider.hunt { opacity: .82; filter: blur(.3px); }
+  .rider .say { position: absolute; left: 50%; top: 0; transform: translate(-50%, -100%); white-space: nowrap; font-size: 11.5px; color: var(--hi); text-shadow: var(--glow-hi); background: var(--bg); border: 1px solid var(--line); padding: 0 6px; line-height: 1.5; opacity: 0; transition: opacity .15s; }
+  .rider.hunt .say { color: var(--warn); }
+  .rider .say.on { opacity: 1; }
   .portal.b { border-color: var(--portal-b); box-shadow: 0 0 10px var(--portal-b), 0 0 28px var(--portal-b), inset 0 0 10px var(--portal-b); }
+  .portal.hunt, .portal.b.hunt { border-color: var(--warn); color: var(--warn); box-shadow: 0 0 12px var(--warn), 0 0 34px var(--warn), inset 0 0 12px var(--warn); }
   .portal::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; border: 1px dashed currentColor; opacity: .5; animation: portal-spin 6s linear infinite; }
   .portal.b::after { animation-direction: reverse; }
   .portal, .portal.b { color: var(--fg); } .portal.b { color: var(--portal-b); }
@@ -397,6 +417,8 @@
   #tracker span { display: block; white-space: pre; }
   #tracker .t { color: var(--fg); border-bottom: 1px solid var(--line); margin-bottom: 4px; }
   #tracker .r { min-height: 2.8em; margin-top: 3px; }
+  #tracker.hostile { border-color: var(--warn); }
+  #tracker.hostile .r { color: var(--warn); text-shadow: 0 0 6px var(--warn); }
   #tracker.contact .r { color: var(--hi); text-shadow: var(--glow-hi); }
   #tracker canvas { display: block; }
   #camille .say {
@@ -493,7 +515,7 @@
         <p class="callsign"><a href="https://github.com/YAMIR-1138" rel="me">YAMIR-1138</a></p>
         <h1 id="name">YAM AMIR</h1>
         <p class="role">Genetics <span class="sep">·</span> structural bioinformatics <span class="sep">·</span> genomics</p>
-        <p class="where">PhD student <span class="sep">·</span> <a href="https://github.com/tggr-lab">TGGR Lab</a> <span class="sep">·</span> Tel Aviv</p>
+        <p class="where">PhD student <span class="sep">·</span> <a href="https://github.com/tggr-lab">TGGR Lab</a></p>
         <p class="tagline">I work on how proteins and genomes are put together: how a receptor switches on, how one gene can sit inside another, and what rare variants do in the clinic. The things below were built along the way.<span class="cur-slot"></span></p>
         <ul class="profile" aria-label="Profiles">
           <li><a href="https://github.com/YAMIR-1138" rel="me">GitHub</a></li>
@@ -565,7 +587,7 @@
           <p class="links"><a class="primary" href="https://yamir-1138.github.io/genest-website/">open reports</a><a href="https://github.com/YAMIR-1138/genest-website">repo</a></p>
         </li>
         <li class="card card--tool" data-project="CO₂ Monitor" data-alias="co2" data-dir="side" data-site="https://tggr-lab.github.io/incubator-co2-monitor/">
-          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="co2" data-scale="2"></canvas></figure>
+          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="co2" data-scale="2" data-secret="astrophage"></canvas></figure>
           <p class="path">Hardware · ESP32</p>
           <h3>CO₂ Monitor</h3>
           <p>A DIY CO₂ and temperature monitor for cell culture incubators, built on an ESP32.</p>
@@ -652,6 +674,7 @@
     reduceMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
     debug: params.get('debug') || '',
     speed: +params.get('speed') || 0,
+    catSprite: params.get('cat') === 'sprite' || (params.get('cat') !== 'outline' && (() => { try { return localStorage.getItem('camille-sprite') === '1'; } catch (e) { return false; } })()),
     ready: [],
   };
   const $ = T.$ = (s, r) => (r || document).querySelector(s);
@@ -670,11 +693,23 @@
 
   // ---- phosphor theme. Amber unless the visitor chose otherwise.
   const themeBtn = $('#theme');
+  // registered, the colour tokens can animate. Done from script so no stylesheet parser has to understand the at-rule
+  if (window.CSS && CSS.registerProperty) {
+    [['--bg', '#060402'], ['--bg-2', '#140e06'], ['--fg', '#ffb000'], ['--hi', '#ffe2a6'], ['--dim', '#d69a1a'], ['--faint', '#5e4100'], ['--line', '#5c4210'], ['--edge', '#8f6a1c'], ['--warn', '#ff6a3d'], ['--eye', '#e9ffb3'], ['--portal-b', '#3dff7a']]
+      .forEach(([name, initialValue]) => { try { CSS.registerProperty({ name, syntax: '<color>', inherits: true, initialValue }); } catch (e) {} });
+  }
+  let fadeTimer = 0;
   T.setTheme = function (t, save) {
     t = t === 'green' ? 'green' : 'amber';
-    document.documentElement.dataset.theme = t;
+    const root = document.documentElement, was = root.dataset.theme;
+    // a switch while the page is up fades: the old phosphor hangs on for a moment. The canvases redraw once it has gone
+    const fade = T.booted && was && was !== t && T.motion && !T.reduceMotion;
+    root.classList.toggle('fading', fade);
+    root.dataset.theme = t;
     themeBtn.textContent = 'phosphor: ' + t;
+    clearTimeout(fadeTimer);
     if (T.themeChanged) T.themeChanged();
+    if (fade) fadeTimer = setTimeout(() => { root.classList.remove('fading'); if (T.themeChanged) T.themeChanged(); }, 1200);
     if (save) T.store.set('phosphor-v2', t);
     return t;
   };
@@ -747,6 +782,8 @@
       },
       hiss(c, n, t) { noise(c, n, t, .8, 'highpass', 3800, .5, .11, .06); },
       portal(c, n, t) { tone(c, t, .45, 'sine', 180, 720, .08, .05); tone(c, t + .05, .4, 'triangle', 90, 360, .04, .05); noise(c, n, t, .5, 'bandpass', 900, 2, .05, .1); },
+      horn(c, n, t) { [55, 82.4, 110].forEach((f, i) => { tone(c, t + i * .08, 1.9, 'sawtooth', f * 1.01, f, .05, .35); tone(c, t + i * .08, 1.9, 'sawtooth', f * .995, f, .05, .35); }); noise(c, n, t, 2, 'lowpass', 220, .8, .05, .5); },
+      rocky(c, n, t) { [[261.6, 329.6, 392], [293.7, 370, 440], [329.6, 415.3, 493.9]].forEach((ch, i) => ch.forEach((f) => tone(c, t + i * .28, .5, 'sine', f, f * 1.004, .035, .04))); },
       ping(c, n, t) { tone(c, t, .5, 'sine', 1320, 1300, .06, .004); tone(c, t + .09, .4, 'sine', 1980, 1960, .02, .004); },
       mrrp(c, n, t) { tone(c, t, .16, 'triangle', 480, 820, .05, .02); tone(c, t, .16, 'sine', 960, 1640, .015, .02); },
     };
@@ -846,9 +883,14 @@
   // ---- boot log
   const BOOT = [
     ['TGGR-LINK TERMINAL · INTERFACE 1138', 'hd'],
-    ['continuity .......... [ LEGENDS ]', 'ok'],
-    ['balancing rotor ..... [ Σspin = 0 ]', 'ok'],
-    ['CO₂ display ......... [ suspicious ]', 'ok'],
+    ['MU/TH/UR 6000 ....... [ online · order 937 sealed ]', 'ok'],
+    ['astrophage .......... [ 4.26 µm · 2,000,000 kg ]', 'ok'],
+    ['star maps ........... [ 5/5 · Lehon ]', 'ok'],
+    ['ysalamiri ........... [ aboard · Force: null ]', 'ok'],
+    ['HEV suit ............ [ Mk V · 100 % ]', 'ok'],
+    ['painkillers ......... [ 8/8 ]', 'ok'],
+    ['gates ............... [ Kvatch · 1 open ]', 'ok'],
+    ['incubator ........... [ 5.0 % CO₂ · 37.0 °C ]', 'ok'],
     ['meter ............... [ 7/8 ]', 'ok'],
     ['crew ................ [ 1 human · 1 cat ]', 'ok'],
   ];
@@ -876,10 +918,10 @@
       if (booted) return;
       if (li >= BOOT.length) { setTimeout(finishBoot, 250); return; }
       const [text, cls] = BOOT[li];
-      ci = Math.min(text.length, ci + 2);
+      ci = Math.min(text.length, ci + 3);
       bootEl.innerHTML = BOOT.slice(0, li).map((l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>\n').join('') +
         '<span class="' + cls + '">' + T.esc(text.slice(0, ci)) + '</span><span class="blink">█</span>';
-      if (ci >= text.length) { li++; ci = 0; setTimeout(type, 110); } else setTimeout(type, 16);
+      if (ci >= text.length) { li++; ci = 0; setTimeout(type, 70); } else setTimeout(type, 16);
     })();
   }
 
@@ -889,7 +931,7 @@
   let termUsed = false;
   T.openTerm = function (focus) {
     if (!term.open) term.open = true;
-    if (!termUsed) { termUsed = true; BOOT.forEach((l) => print(l[0], l[1] === 'hd' ? 'mu' : 'in')); print(''); }
+    if (!termUsed) { termUsed = true; BOOT.forEach((l) => print(l[0].indexOf('crew') === 0 && T.crew ? 'crew ................ [ ' + T.crew() + ' ]' : l[0], l[1] === 'hd' ? 'mu' : 'in')); print(''); }
     if (focus !== false) { input.focus({ preventScroll: true }); input.scrollIntoView({ block: 'center', behavior: T.motion ? 'smooth' : 'auto' }); }
   };
   term.addEventListener('toggle', () => { if (term.open) T.openTerm(false); });
@@ -937,10 +979,10 @@
         print('mother     ask the ship. mother where is the cat');
         print('neofetch · fortune · grep <word> · man <command>');
       }
-      if (HIST.length >= 10) print('and further down: finger · termlink · degauss · tracker · transcribe · translate · revcomp · gc · zoomies · portal');
+      if (HIST.length >= 10) print('and further down: finger · termlink · degauss · tracker · transcribe · translate · revcomp · gc · zoomies · portal · pazaak');
     },
     ls() { projects().forEach((p) => print((p.dir + '/').padEnd(8) + p.name)); },
-    whoami() { print('Yam Amir · YAMIR-1138 · PhD student, Tel Aviv · genetics, structural bioinformatics, genomics'); },
+    whoami() { print('Yam Amir · YAMIR-1138 · PhD student · genetics, structural bioinformatics, genomics'); },
     cat(arg) {
       if (!arg) { (COMMANDS.camille || (() => print('cat: missing file operand', 'err')))(); return; }
       const f = own(FILES, arg.toLowerCase());
@@ -974,6 +1016,7 @@
       print('  Openclipart · "Nine Cats Silhouettes" and four single poses');
       print('  PhyloPic · Kawinwit Kittipalawattanapol, Margot Michaud');
       print('  NIH BioArt · House Cat Silhouette');
+      print('the girl, her mare and the Hunt: sprite sheets made for this page, cut into frames');
       print('type: VT323 and IBM Plex Mono');
     },
     sudo() { print('nice try. permission denied.', 'err'); },
@@ -995,7 +1038,7 @@
         ['Packages', projects().length + ' (projects)'], ['Shell', 'sh, ' + Object.keys(COMMANDS).length + ' commands'],
         ['Display', window.innerWidth + 'x' + window.innerHeight + ' @ ' + (window.devicePixelRatio || 1) + 'x'],
         ['Phosphor', document.documentElement.dataset.theme], ['Font', 'VT323, IBM Plex Mono'],
-        ['Cat', cat ? cat : 'Camille'],
+        ['Cat', cat ? cat : 'Camille'], ['Crew', T.crew ? T.crew() : '1 human · 1 cat'],
       ];
       const info = document.createElement('span');
       rows.forEach((r) => { const l = document.createElement('span'); if (r[0]) { const b = document.createElement('b'); b.textContent = r[0]; l.appendChild(b); l.appendChild(document.createTextNode(': ' + r[1])); } else l.textContent = r[1]; info.appendChild(l); });
@@ -1048,7 +1091,7 @@
         transcribe: 'DNA to mRNA', translate: 'DNA or RNA to protein, reading frame 1', revcomp: 'reverse complement of a DNA string', gc: 'length and GC content',
         theme: 'switch the phosphor. theme green', motion: 'stop or start all animation', degauss: 'clear the magnetic build-up on the tube', reboot: 'start again',
         keys: 'turn the / and ~ shortcuts off or on. keys off', mother: 'ask the ship. mother where is the cat', tracker: 'the motion tracker in the margin, on wide screens. tracker off', sound: 'key clicks and tube noises. off unless you ask. sound on',
-        portal: 'open a pair of portals for the cat', pet: 'pet the cat', feed: 'feed the cat', pspsps: 'call the cat. she may come', zoomies: 'you will regret this', shoo: 'ask the cat to leave',
+        portal: 'open a pair of portals for the cat', pazaak: 'the card game. first to three sets', replicate: 'copy the helix. or click it', pet: 'pet the cat', feed: 'feed the cat', pspsps: 'call the cat. she may come', zoomies: 'you will regret this', shoo: 'ask the cat to leave',
       };
       const k = (arg || '').toLowerCase();
       if (!k) { print('man: which command? try: man cat'); return; }
@@ -1102,7 +1145,8 @@
     if (/937|special order|priority/.test(q)) a = ['SPECIAL ORDER 1138', 'SCIENCE OFFICER EYES ONLY', 'PRIORITY ONE', 'INSURE RETURN OF SOURDOUGH STARTER FOR ANALYSIS', 'ALL OTHER CONSIDERATIONS SECONDARY', 'CREW EXPENDABLE', 'CAT NOT EXPENDABLE'];
     else if (/cat|camille/.test(q)) a = ['CREW MEMBER: CAMILLE', 'RANK: CAT', 'STATUS: ' + (T.catStatus ? T.catStatus().split(' · ')[1] : 'unknown').toUpperCase(), 'NOT EXPENDABLE'];
     else if (proj) a = [proj.name.toUpperCase(), proj.desc.replace(/\s+/g, ' ').trim().toUpperCase()];
-    else if (/who|yam|you|crew/.test(q)) a = ['YAM AMIR', 'CALLSIGN YAMIR-1138', 'PHD STUDENT. GENETICS AND BIOINFORMATICS', 'TGGR LAB. TEL AVIV'];
+    else if (/crew|aboard|manifest|visitor|uninvited|hunt/.test(q)) a = ['CREW MANIFEST', (T.crew ? T.crew() : '1 human · 1 cat').toUpperCase()].concat(T.crew && /UNINVITED/.test(T.crew()) ? ['INTRUDERS ABOARD', 'SHIP\'S CAT ENGAGED', 'ALL OTHER CONSIDERATIONS SECONDARY'] : []);
+    else if (/who|yam|you/.test(q)) a = ['YAM AMIR', 'CALLSIGN YAMIR-1138', 'PHD STUDENT. GENETICS AND BIOINFORMATICS', 'TGGR LAB'];
     else if (/story/.test(q)) a = ['NOSTROMO REROUTED TO NEW CO-ORDINATES', 'THIS IS NOT THAT SHIP', 'THIS IS A LANDING PAGE'];
     else if (/chance|odds/.test(q)) a = ['DOES NOT COMPUTE'];
     else a = [SHRUG[Math.floor(Math.random() * SHRUG.length)]];
@@ -1130,6 +1174,200 @@
     print('Plan:');
     print('  finish the PhD. ship the tools. feed the cat.');
   };
+  // ---- pazaak, the whole game. A main deck of forty, a side deck of ten you build, four of them in your hand
+  // for the match. Twenty wins a set, over twenty loses it, nine cards on the board wins it outright. First to three.
+  const PZ = (function () {
+    // every side card there is, written the way the game writes them
+    const ALL = [];
+    for (let v = 1; v <= 6; v++) ALL.push('+' + v, '-' + v, '±' + v);
+    ALL.push('±1/2', '2&4', '3&6', '2x', '±1T');
+    const DEFAULT = ['+1', '+2', '+3', '-1', '-2', '-3', '±1', '±2', '±3', '±4'];
+    let deck = T.store.get('pazaak-deck', DEFAULT);
+    if (!Array.isArray(deck) || deck.length !== 10 || deck.some((c) => ALL.indexOf(c) < 0)) deck = DEFAULT.slice();
+    const shuffle = (arr) => { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+    const show = (c) => c.v !== undefined ? '[' + (c.v > 0 && c.side ? '+' : '') + c.v + (c.tie ? 'T' : '') + ']' : '[' + c.name + ']';
+    const total = (board) => board.reduce((a, c) => a + c.v, 0);
+    let G = null, S = null;
+    function mainDeck() { const d = []; for (let v = 1; v <= 10; v++) for (let k = 0; k < 4; k++) d.push(v); return shuffle(d); }
+    function newSet() {
+      S = { main: mainDeck(), you: { board: [], stand: false, played: false, tie: false }, hk: { board: [], stand: false, played: false, tie: false }, turn: 'you' };
+      drawFor('you');
+    }
+    function drawFor(who) { const v = S.main.pop(); S[who].board.push({ v, side: false }); }
+    // playing a side card: returns a message, or null if it could not be played as asked
+    function playCard(who, i, sign) {
+      const hand = G.hands[who], name = hand[i];
+      if (!name) return null;
+      const P = S[who], board = P.board;
+      let put = null, msg = '';
+      if (name === '2&4' || name === '3&6') {
+        const vals = name === '2&4' ? [2, 4] : [3, 6];
+        board.forEach((c) => { if (vals.indexOf(Math.abs(c.v)) >= 0) c.v = -c.v; });
+        put = { v: 0, name, side: true }; msg = 'flips every ' + vals.join(' and ') + ' on the board';
+      } else if (name === '2x') {
+        const last = board[board.length - 1]; put = { v: last ? last.v : 0, name: '2x', side: true }; msg = 'doubles the last card';
+      } else if (name === '±1/2') {
+        const want = sign === '-1' || sign === '-' ? -1 : sign === '+2' || sign === '2' ? 2 : sign === '-2' ? -2 : 1;
+        put = { v: want, side: true };
+      } else if (name === '±1T') {
+        put = { v: sign === '-' ? -1 : 1, side: true, tie: true }; P.tie = true;
+      } else if (name[0] === '±') {
+        put = { v: (sign === '-' ? -1 : 1) * +name.slice(1), side: true };
+      } else put = { v: +name, side: true };
+      board.push(put); hand[i] = null; P.played = true;
+      return (who === 'you' ? 'you play ' : 'HK plays ') + '[' + name + ']' + (msg ? ', which ' + msg : '') + '.';
+    }
+    function table() {
+      const row = (who, label) => { const P = S[who]; return label + ' ' + P.board.map(show).join('') + ' = ' + total(P.board) + (P.stand ? ' · standing' : ''); };
+      print('set ' + G.set + ' · you ' + G.you + ' · HK ' + G.hk + ' · main deck ' + S.main.length);
+      print(row('you', 'you'));
+      print(row('hk', 'HK '));
+      print('hand ' + G.hands.you.map((c, i) => (i + 1) + ':' + (c ? '[' + c + ']' : '[  ]')).join('  ') + '   · end · stand · play N [+|-] · quit');
+    }
+    function finishSet(who, why) {
+      print(why);
+      if (who) G[who]++;
+      print('sets: you ' + G.you + ' · HK ' + G.hk);
+      if (G.you === 3 || G.hk === 3) {
+        print(G.you === 3 ? 'Statement: you have won the match. this unit will reflect on its choices.' : 'Statement: I win the match, meatbag. how predictable.', G.you === 3 ? '' : 'err');
+        T.game = null; return true;
+      }
+      G.set++; newSet(); print(''); table(); return true;
+    }
+    // after any move, is the set over?
+    function judge() {
+      const y = S.you, h = S.hk, yt = total(y.board), ht = total(h.board);
+      if (yt > 20) return finishSet('hk', 'you bust at ' + yt + '.');
+      if (ht > 20) return finishSet('you', 'HK busts at ' + ht + '.');
+      if (y.board.length >= 9) return finishSet('you', 'nine cards on your side. the board is yours.');
+      if (h.board.length >= 9) return finishSet('hk', 'HK fills the board.');
+      if (y.stand && h.stand) {
+        if (yt === ht) return finishSet(y.tie && !h.tie ? 'you' : h.tie && !y.tie ? 'hk' : null, y.tie !== h.tie ? 'tie at ' + yt + ', broken by the tiebreaker.' : 'tie at ' + yt + '. the set is played again.');
+        return finishSet(yt > ht ? 'you' : 'hk', (yt > ht ? 'you take the set, ' : 'HK takes the set, ') + yt + ' to ' + ht + '.');
+      }
+      return false;
+    }
+    // HK's turn: draw, think about a side card, stand or not
+    function hkTurn() {
+      const H = S.hk; if (H.stand) return;
+      drawFor('hk');
+      let t = total(H.board), yt = total(S.you.board);
+      const hand = G.hands.hk, options = [];
+      hand.forEach((c, i) => {
+        if (!c) return;
+        const vals = c === '2x' ? [H.board[H.board.length - 1].v] : c === '±1/2' ? [1, -1, 2, -2] : c === '±1T' ? [1, -1] : c[0] === '±' ? [+c.slice(1), -c.slice(1)] : c === '2&4' || c === '3&6' ? [H.board.reduce((a, k) => a + ((c === '2&4' ? [2, 4] : [3, 6]).indexOf(Math.abs(k.v)) >= 0 ? -2 * k.v : 0), 0)] : [+c];
+        vals.forEach((v) => options.push({ i, v, sign: v < 0 ? '-' : '+', after: t + v }));
+      });
+      const need = S.you.stand ? yt : 0;
+      let pick = options.find((o) => o.after === 20) || (t > 20 ? options.filter((o) => o.after <= 20).sort((a, b) => b.after - a.after)[0] : null)
+        || (S.you.stand && t <= need && options.filter((o) => o.after <= 20 && o.after > need).sort((a, b) => b.after - a.after)[0]) || null;
+      if (pick) { print(playCard('hk', pick.i, pick.sign === '-' ? '-' : (pick.v === 2 ? '+2' : pick.v === -2 ? '-2' : '+'))); t = total(H.board); }
+      if (t === 20 || t >= 18 && (!S.you.stand || t > yt) || (S.you.stand && t > yt && t <= 20)) H.stand = true;
+      if (H.stand) print('HK stands at ' + t + '.');
+    }
+    function afterYou() {
+      if (judge()) return;
+      if (!S.hk.stand) hkTurn();
+      if (judge()) return;
+      // you are standing and HK is not: HK keeps going on its own
+      while (S.you.stand && !S.hk.stand) { hkTurn(); if (judge()) return; }
+      if (!S.you.stand) { drawFor('you'); S.you.played = false; const t = total(S.you.board); if (t === 20) { S.you.stand = true; print('twenty. you stand.'); afterYou(); return; } if (t > 20) print('over twenty. a minus card can save it; end or stand busts.', 'err'); }
+      table();
+    }
+    function input(raw) {
+      const w = raw.toLowerCase().split(/\s+/);
+      if (w[0] === 'quit' || w[0] === 'exit') { T.game = null; print('Statement: a retreat. the table remembers.'); return; }
+      if (w[0] === 'help' || w[0] === '?') { print('end: end your turn (the next card comes) · stand: lock your total · play N [+|-]: a side card from your hand, with its sign · ±1/2 takes +1 -1 +2 -2 · quit'); return; }
+      if (w[0] === 'table') { table(); return; }
+      if (S.you.stand) { print('you are standing.'); return; }
+      if (w[0] === 'end' || w[0] === 'hit' || w[0] === 'draw' || w[0] === 'e') { if (total(S.you.board) > 20) { judge(); return; } afterYou(); return; }
+      if (w[0] === 'stand' || w[0] === 's') { if (total(S.you.board) > 20) { judge(); return; } S.you.stand = true; print('you stand at ' + total(S.you.board) + '.'); afterYou(); return; }
+      if (w[0] === 'play' || w[0] === 'p' || /^[1-4]$/.test(w[0])) {
+        const i = (w[0] === 'play' || w[0] === 'p' ? +w[1] : +w[0]) - 1, sign = (w[0] === 'play' || w[0] === 'p') ? w[2] : w[1];
+        if (S.you.played) { print('one side card a turn.', 'err'); return; }
+        if (!(i >= 0 && i < 4) || !G.hands.you[i]) { print('play 1 to 4, from your hand.', 'err'); return; }
+        const c = G.hands.you[i];
+        if (c[0] === '±' && c !== '±1/2' && !sign) { print('[' + c + '] needs a sign: play ' + (i + 1) + ' + or play ' + (i + 1) + ' -', 'err'); return; }
+        if (c === '±1/2' && !/^[+-]?[12]$|^[+-]$/.test(sign || '')) { print('[±1/2] is played as +1, -1, +2 or -2: play ' + (i + 1) + ' -2', 'err'); return; }
+        print(playCard('you', i, sign));
+        const t = total(S.you.board);
+        if (t === 20) { S.you.stand = true; print('twenty. you stand.'); afterYou(); return; }
+        if (t > 20) { judge(); return; }
+        table(); return;
+      }
+      print('pazaak: end · stand · play N [+|-] · quit', 'err');
+    }
+    function start(arg) {
+      const w = (arg || '').trim().split(/\s+/).filter(Boolean);
+      if (w[0] === 'deck') {
+        if (w.length === 1) { print('side deck: ' + deck.join(' ')); print('cards you can use: ' + ALL.join(' ')); print('set it with: pazaak deck ' + DEFAULT.join(' ')); return; }
+        const d = w.slice(1).map((c) => c.replace(/^\+\/-|^\+-/, '±'));
+        const bad = d.filter((c) => ALL.indexOf(c) < 0);
+        if (d.length !== 10 || bad.length) { print('a side deck is ten cards from: ' + ALL.join(' ') + (bad.length ? ' · not cards: ' + bad.join(' ') : ''), 'err'); return; }
+        deck = d; T.store.set('pazaak-deck', deck); print('side deck set: ' + deck.join(' ')); return;
+      }
+      G = { hands: { you: shuffle(deck.slice()).slice(0, 4), hk: shuffle(['+1', '+2', '+3', '-1', '-2', '-4', '±1', '±2', '±3', '2&4']).slice(0, 4) }, you: 0, hk: 0, set: 1 };
+      print('PAZAAK · first to three sets · twenty wins, over twenty loses, nine cards wins outright');
+      print('Greeting: HK-47 deals, meatbag. four cards from your side deck are your hand for the match. pazaak deck shows it.');
+      newSet(); table();
+      T.game = input;
+    }
+    return { start };
+  })();
+  COMMANDS.pazaak = (arg) => PZ.start(arg);
+  // ---- astrophage. It emits at 4.26 µm. CO₂ absorbs at 4.26 µm, which is how the incubator monitor reads it: the two
+  // spectra, drawn one over the other in the log, say the rest.
+  COMMANDS.astrophage = function () {
+    const W = 460, H = 190, L = 44, R = 12, TOP = 14, BOT = 34, PW = W - L - R, PH = H - TOP - BOT;
+    const c = document.createElement('canvas'); c.className = 'spec'; c.width = W * 2; c.height = H * 2; c.style.width = '100%'; c.style.maxWidth = W + 'px'; c.setAttribute('role', 'img');
+    c.setAttribute('aria-label', 'two spectra over the same wavelength axis: astrophage emission peaking at 4.26 micrometres, and carbon dioxide transmittance dipping at 4.26 micrometres');
+    const g = c.getContext('2d'); g.scale(2, 2);
+    const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(), ink = { faint: v('--faint'), dim: v('--dim'), fg: v('--fg'), hi: v('--hi'), warn: v('--warn') };
+    const X = (um) => L + (um - 3.6) / (5 - 3.6) * PW, mono = '"IBM Plex Mono", ui-monospace, monospace';
+    // the Petrova line: a narrow emission line, and the CO₂ ν3 band, which is where the sensor looks
+    const emit = (um) => { const d = (um - 4.26) / .022; return Math.exp(-d * d); };
+    const trans = (um) => { const d = (um - 4.26) / .07; return Math.max(.02, 1 - .9 * Math.exp(-d * d * .5) * (1 + .12 * Math.cos((um - 4.26) * 220))); };
+    function frame(k) {
+      g.clearRect(0, 0, W, H); g.font = '8px ' + mono; g.textBaseline = 'top'; g.lineWidth = 1;
+      g.strokeStyle = ink.faint; g.beginPath(); g.moveTo(L + .5, TOP); g.lineTo(L + .5, TOP + PH + .5); g.lineTo(W - R, TOP + PH + .5); g.stroke();
+      g.fillStyle = ink.dim; g.textAlign = 'center';
+      [3.6, 3.8, 4.0, 4.2, 4.4, 4.6, 4.8, 5.0].forEach((um) => { const x = Math.round(X(um)) + .5; g.beginPath(); g.moveTo(x, TOP + PH); g.lineTo(x, TOP + PH + 4); g.stroke(); g.fillText(um.toFixed(1), x, TOP + PH + 7); });
+      g.fillText('λ  µm', W - R - 16, TOP + PH + 19);
+      g.textAlign = 'right'; g.fillText('I', L - 6, TOP); g.fillText('T', L - 6, TOP + PH - 9);
+      // the emission line rises first
+      const e = Math.min(1, k / .45);
+      if (e > 0) {
+        g.strokeStyle = ink.hi; g.shadowColor = ink.hi; g.shadowBlur = 6; g.beginPath();
+        for (let i = 0; i <= PW; i++) { const um = 3.6 + i / PW * 1.4, y = TOP + PH - (emit(um) * e * .9 + .03) * PH; i ? g.lineTo(L + i, y) : g.moveTo(L + i, y); }
+        g.stroke(); g.shadowBlur = 0;
+      }
+      // then the transmittance of the gas drops, at the same place
+      const t = Math.max(0, Math.min(1, (k - .5) / .4));
+      if (t > 0) {
+        g.strokeStyle = ink.warn; g.setLineDash([3, 2]); g.beginPath();
+        for (let i = 0; i <= PW; i++) { const um = 3.6 + i / PW * 1.4, tr = 1 - (1 - trans(um)) * t, y = TOP + PH - (tr * .9 + .03) * PH; i ? g.lineTo(L + i, y) : g.moveTo(L + i, y); }
+        g.stroke(); g.setLineDash([]);
+      }
+      if (k >= .95) {
+        const x = Math.round(X(4.26)) + .5; g.strokeStyle = ink.fg; g.setLineDash([1, 3]); g.beginPath(); g.moveTo(x, TOP); g.lineTo(x, TOP + PH); g.stroke(); g.setLineDash([]);
+        g.textAlign = 'left'; g.fillStyle = ink.hi; g.fillText('4.26 µm', x + 5, TOP + 2);
+        g.fillStyle = ink.hi; g.fillText('— ASTROPHAGE · EMISSION', L + 6, TOP + PH * .45); g.fillStyle = ink.warn; g.fillText('- - CO₂ · TRANSMITTANCE · NDIR CELL', L + 6, TOP + PH * .45 + 10);
+      }
+    }
+    typeOut(['ASTROPHAGE · EMISSION SPECTRUM · SOURCE: TAU CETI · SAMPLE: 1 CELL'], 'mu').then(() => {
+      log.appendChild(c); log.appendChild(document.createTextNode('\n'));
+      const t0 = performance.now(), dur = T.motion ? 3200 : 0;
+      const tick = () => { const k = dur ? Math.min(1, (performance.now() - t0) / dur) : 1; frame(k); if (k < 1) requestAnimationFrame(tick); else after(); };
+      const after = () => typeOut([
+        'PEAK · 4.26 µm · PETROVA LINE',
+        'CO₂ · ν₃ ASYMMETRIC STRETCH · 2349 cm⁻¹ · 4.26 µm',
+        'INCUBATOR MONITOR · NDIR · READS [CO₂] FROM THE LIGHT MISSING AT 4.26 µm',
+        'Δλ = 0.00 µm · MATCH',
+      ], 'mu').then(() => { setTimeout(() => { if (T.blipA) T.blipA(); }, (T.debug ? 4 : 25) * 1000); });
+      tick();
+    });
+  };
+  COMMANDS.replicate = function () { print(T.helix && T.helix.replicate() ? 'the helix opens.' : 'replicate: not now.', T.helix && T.helix.rep ? '' : 'err'); };
   COMMANDS.vim = COMMANDS.vi = function () { print('you are in vim. to leave, close the tab. it is the only way.', 'err'); };
   COMMANDS.rm = function () { print('rm: refusing. the cat is sitting on it.', 'err'); };
   COMMANDS.make = function (arg) { print(/bread|dough|loaf/.test(arg || '') ? 'make: see side/DOUGH_FORMULATOR' : 'make: nothing to be done. it is one html file.'); };
@@ -1145,9 +1383,10 @@
     hi = HIST.length;
     print('yam@tggr:~$ ' + raw, 'in');
     T.sfx('enter');
+    if (T.catNudge) T.catNudge();
+    if (T.game) { T.game(raw); input.scrollIntoView({ block: 'nearest' }); return; }     // a game has the prompt
     const parts = raw.split(/\s+/);
     const fn = own(COMMANDS, parts[0].toLowerCase());
-    if (T.catNudge) T.catNudge();
     if (typeof fn === 'function') fn(parts.slice(1).join(' ')); else print(parts[0] + ': command not found. try: help', 'err');
     input.scrollIntoView({ block: 'nearest' });
   });
@@ -1475,9 +1714,11 @@
     const cs = getComputedStyle(document.documentElement);
     return NAMES.map((n) => {
       if (!n) return null;
-      const v = cs.getPropertyValue(n).trim().replace('#', '');
-      const h = v.length === 3 ? v.replace(/./g, '$&$&') : v;
-      return [parseInt(h.slice(0, 2), 16) || 0, parseInt(h.slice(2, 4), 16) || 0, parseInt(h.slice(4, 6), 16) || 0];
+      // a registered colour comes back as rgb(...), an unregistered one as the hex it was written in
+      const v = cs.getPropertyValue(n).trim();
+      if (v.indexOf('rgb') === 0) { const m = v.match(/[\d.]+/g) || []; return [Math.round(+m[0]) || 0, Math.round(+m[1]) || 0, Math.round(+m[2]) || 0]; }
+      const h = v.replace('#', ''), hh = h.length === 3 ? h.replace(/./g, '$&$&') : h;
+      return [parseInt(hh.slice(0, 2), 16) || 0, parseInt(hh.slice(2, 4), 16) || 0, parseInt(hh.slice(4, 6), 16) || 0];
     });
   }
   let PAL = palette();
@@ -1492,25 +1733,50 @@
     const W = 22, H = 16, g = new T.Grid(W, H);
     const PAIRS = ['AT', 'CG', 'TA', 'GC', 'AT', 'GC', 'CG', 'TA'];
     // the cat climbs it: it turns slowly while she does, and the rungs under her paws light up
-    const hx = T.helix = { el: helix, W, H, slow: false, held: -1, ph: 0,
+    const COMP = { A: 'T', T: 'A', C: 'G', G: 'C' };
+    const hx = T.helix = { el: helix, W, H, slow: false, held: -1, ph: 0, rep: 0,
       // where the first strand is on this row, in columns. Not rounded, so whoever follows it moves smoothly
-      col(y) { return (Math.sin(hx.ph + y * .5) + 1) / 2 * (W - 1); } };
+      col(y) { return (Math.sin(hx.ph + y * .5) + 1) / 2 * (W - 1); },
+      // click: a replication fork runs down it, each strand gets a new partner, then it closes up again
+      replicate() { if (!T.motion || hx.rep > 0 || hx.held >= 0) return false; hx.rep = 1e-6; T.sfx('ping'); return true; } };
+    helix.addEventListener('click', () => hx.replicate());
+    const HW = 9, GAP = W - 2 * HW;        // while it is open, each daughter duplex has its own half of the width
+    const sx = (a, w) => Math.round((Math.sin(a) + 1) / 2 * (w - 1));
     T.Anim.add(helix, (t) => {
-      if (t) hx.ph += hx.slow ? .035 : .12;
+      if (t) hx.ph += hx.slow ? .035 : hx.rep ? .05 : .12;
+      if (hx.rep) { hx.rep += 1 / 90; if (hx.rep >= 1) hx.rep = 0; }
       g.clear();
+      // the fork runs down over the first part, holds, then the whole thing zips back up from the bottom
+      const r = hx.rep, fork = r <= 0 ? -1 : r < .4 ? r / .4 * (H + 4) : r < .72 ? H + 4 : (1 - (r - .72) / .28) * (H + 4);
       for (let y = 0; y < H; y++) {
         const a = hx.ph + y * 0.5, held = hx.held >= 0 && Math.abs(y - hx.held) <= 2;
-        const x1 = Math.round((Math.sin(a) + 1) / 2 * (W - 1)), x2 = Math.round((Math.sin(a + Math.PI) + 1) / 2 * (W - 1));
-        const front = Math.cos(a) >= 0;
-        for (let x = Math.min(x1, x2) + 1; x < Math.max(x1, x2); x++) g.put(x, y, (x - x1) % 2 ? '·' : '-', held ? 1 : 0);
-        const p = PAIRS[y % PAIRS.length];
-        g.put(x1, y, p[0], front || held ? 2 : 1); g.put(x2, y, p[1], front && !held ? 1 : 2);
+        const x1 = sx(a, W), x2 = sx(a + Math.PI, W);
+        const front = Math.cos(a) >= 0, p = PAIRS[y % PAIRS.length];
+        const open = r > 0 ? Math.max(0, Math.min(1, (fork - y) / 3)) : 0;     // how far this row has come apart
+        if (open <= 0) {
+          for (let x = Math.min(x1, x2) + 1; x < Math.max(x1, x2); x++) g.put(x, y, (x - x1) % 2 ? '·' : '-', held ? 1 : 0);
+          g.put(x1, y, p[0], front || held ? 2 : 1); g.put(x2, y, p[1], front && !held ? 1 : 2);
+          continue;
+        }
+        // each parent strand slides into its own half and, once there, a new strand is laid against it
+        const l1 = sx(a, HW), l2 = sx(a + Math.PI, HW), r1 = HW + GAP + sx(a + Math.PI, HW), r2 = HW + GAP + sx(a, HW);
+        const px1 = Math.round(x1 + (l1 - x1) * open), px2 = Math.round(x2 + (r1 - x2) * open);
+        const made = Math.max(0, Math.min(1, (fork - y - 4) / 3));
+        if (made > 0) {
+          const n1 = Math.round(l1 + (l2 - l1)), n2 = Math.round(r1 + (r2 - r1));
+          for (let x = Math.min(px1, n1) + 1; x < Math.max(px1, n1); x++) g.put(x, y, '-', 1);
+          for (let x = Math.min(px2, n2) + 1; x < Math.max(px2, n2); x++) g.put(x, y, '-', 1);
+          g.put(n1, y, COMP[p[0]], 2); g.put(n2, y, COMP[p[1]], 2);
+        }
+        g.put(px1, y, p[0], front ? 2 : 1); g.put(px2, y, p[1], front ? 1 : 2);
       }
       helix.innerHTML = g.html();
     }, 11);
   }
 
   // ---- project icons
+  // one of them keeps a secret: a click opens the terminal and runs a command
+  $$('canvas[data-secret]').forEach((c) => { c.style.cursor = 'pointer'; c.addEventListener('click', () => { T.openTerm(false); T.print('yam@tggr:~$ ' + c.dataset.secret, 'in'); T.COMMANDS[c.dataset.secret](); $('#cmd').scrollIntoView({ block: 'center' }); }); });
   $$('canvas[data-icon]').forEach((canvas) => {
     const I = A.ICON[canvas.dataset.icon];
     if (!I) return;
@@ -1564,42 +1830,337 @@
     }
   });
 
-  // ---- PAR2, the receptor, as a wire model of its backbone. The Cα positions of the AlphaFold model of human
-  // F2RL1 (AF-P55085-F1), residues 59 to 377, the part the model is confident about. Units of 0.2 Å.
+  // ---- the display in About. Most of the time it shows PAR2, the receptor, as a wire model of its backbone: the Cα
+  // positions of the AlphaFold model of human F2RL1 (AF-P55085-F1), residues 59 to 377, in units of 0.2 Å.
+  // Once a visitor has been around for a while it starts to show other things. A click moves it on.
   const par2 = $('#par2');
   if (par2) {
     const RAW = [10,-163,14,7,-167,-5,3,-153,-18,-3,-156,-36,8,-156,-52,2,-138,-57,5,-131,-39,23,-140,-40,26,-132,-57,21,-114,-51,32,-116,-35,47,-122,-46,42,-110,-61,50,-94,-67,34,-85,-62,38,-87,-43,58,-89,-44,61,-74,-57,46,-63,-60,41,-60,-41,58,-57,-34,62,-44,-49,45,-35,-44,49,-35,-25,67,-29,-29,60,-14,-39,48,-11,-24,62,-12,-11,74,-1,-21,60,12,-25,49,11,-10,62,11,4,71,28,-1,55,37,-7,44,33,8,60,36,19,61,53,12,42,56,13,42,51,31,57,63,35,49,78,26,32,75,35,39,73,52,54,85,52,52,98,37,33,101,37,30,116,49,11,115,48,3,98,54,-13,98,44,-23,81,43,-17,76,26,1,77,32,-3,65,46,-12,53,34,3,54,22,16,51,36,6,36,42,5,29,24,24,31,22,26,23,39,15,8,34,25,6,17,42,7,26,36,-7,39,31,-18,24,46,-15,12,59,-18,26,55,-36,25,56,-38,6,74,-44,6,68,-60,15,54,-62,3,66,-59,-12,78,-72,-5,64,-84,-2,59,-83,-20,77,-84,-27,80,-100,-16,66,-109,-26,53,-104,-13,62,-112,1,59,-103,18,74,-105,29,70,-91,42,58,-101,53,39,-99,57,40,-83,67,48,-72,53,36,-79,40,21,-73,51,29,-56,53,33,-55,34,14,-60,30,7,-49,44,16,-33,37,13,-38,19,-7,-39,21,-6,-26,35,2,-13,23,-10,-17,9,-26,-13,20,-17,1,29,-13,9,12,-32,8,6,-38,16,23,-25,30,23,-29,34,4,-47,34,8,-44,46,22,-33,57,11,-47,57,-3,-61,62,9,-49,75,17,-45,82,0,-64,84,-4,-67,92,13,-53,105,10,-60,110,-6,-78,112,1,-73,121,17,-57,132,14,-60,142,31,-56,128,43,-47,129,60,-32,118,56,-28,112,74,-44,104,79,-44,95,62,-26,88,65,-31,80,82,-46,71,73,-34,65,60,-22,58,74,-37,49,82,-42,42,65,-24,36,61,-23,28,79,-40,19,75,-33,13,58,-18,6,67,-28,-3,80,-40,-9,67,-26,-16,56,-17,-24,71,-34,-32,76,-38,-39,58,-20,-45,55,-19,-55,72,-24,-72,62,-9,-69,51,3,-69,66,-5,-84,76,-10,-96,62,4,-108,56,10,-101,39,24,-113,35,22,-130,27,36,-143,22,33,-151,5,43,-168,5,42,-170,-14,50,-153,-18,61,-153,-2,55,-135,2,47,-126,16,34,-113,9,29,-97,18,10,-94,16,10,-101,-3,3,-118,3,-9,-120,18,-19,-135,24,-36,-138,14,-46,-137,30,-39,-120,35,-41,-113,17,-59,-119,15,-66,-114,32,-57,-100,41,-46,-91,28,-60,-89,15,-72,-81,28,-58,-71,34,-52,-64,17,-70,-61,11,-73,-51,27,-58,-40,24,-62,-38,5,-80,-32,10,-76,-21,26,-58,-15,22,-57,-15,3,-75,-12,-5,-81,0,8,-66,11,7,-66,10,-12,-84,16,-12,-80,31,0,-65,35,-11,-75,34,-27,-89,45,-20,-76,58,-13,-69,59,-31,-86,61,-40,-90,75,-28,-72,83,-31,-74,82,-50,-92,90,-50,-86,104,-39,-69,108,-48,-80,109,-64,-92,123,-56,-78,134,-49,-74,151,-59,-57,151,-69,-42,160,-62,-25,154,-67,-21,148,-49,-37,139,-49,-33,130,-65,-16,124,-58,-25,117,-42,-38,109,-53,-24,100,-64,-15,94,-48,-32,88,-41,-35,78,-57,-18,71,-57,-20,65,-39,-37,57,-44,-29,48,-58,-15,42,-47,-26,35,-34,-38,27,-46,-23,18,-54,-18,11,-37,-36,5,-34,-38,-2,-52,-20,-10,-54,-14,-13,-36,-29,-16,-25,-44,-22,-35,-36,-37,-44,-27,-43,-28,-43,-43,-17,-54,-50,-30,-43,-64,-36,-39,-68,-17,-58,-70,-13,-61,-80,-30,-45,-91,-26,-52,-96,-9,-70,-97,-15,-64,-110,-29,-55,-120,-16,-70,-120,-5,-83,-124,-19,-73,-135,-31,-58,-142,-20,-46,-133,-32,-41,-116,-39,-36,-113,-57,-33,-94,-54,-19,-96,-42,-5,-90,-54,-16,-74,-58,-19,-71,-39,0,-71,-35,4,-60,-49,-10,-48,-44,-4,-49,-25,14,-45,-31,8,-30,-42,-2,-24,-27,15,-20,-18,19,-7,-32,7,4,-22,23,9,-11,31,15,-27,16,25,-33,13,34,-16,27,47,-19,16,53,-33,2,55,-21,14,65,-9,20,76,-24,3,81,-29,-4,84,-11,11,91,-2,21,107,-7,34,103,6,37,86,-1,37,92,-19,51,105,-15,62,93,-6,59,79,-20,64,93,-33,80,97,-24,85,79,-21,82,76,-40,93,91,-44,107,84,-32,105,101,-23,113,100,-5,102,106,9,116,119,11,113,126,-6,94,126,-3,96,136,13,108,149,4,95,151,-10,81,154,3,92,167,12,96,176,-5,78,176,-9,73,183,8,87,196,6,80,201,-11];
-    const N = RAW.length / 3, X = new Float32Array(N), Y = new Float32Array(N), Z = new Float32Array(N);
-    for (let i = 0; i < N; i++) { X[i] = RAW[i * 3] * .2; Y[i] = RAW[i * 3 + 1] * .2; Z[i] = RAW[i * 3 + 2] * .2; }
-    const CW = 236, CH = 272, g = par2.getContext('2d');
+    const cap = $('.par2 .cap'), CW = 236, CH = 272, g = par2.getContext('2d');
     let dpr = 0, ink = null;
-    const inkOf = () => { const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(); return { faint: v('--faint'), dim: v('--dim'), fg: v('--fg'), hi: v('--hi'), glow: v('--glow-rgb') }; };
+    const inkOf = () => { const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(); return { faint: v('--faint'), dim: v('--dim'), fg: v('--fg'), hi: v('--hi'), warn: v('--warn'), glow: v('--glow-rgb') }; };
     T.onTheme(() => { ink = null; });
+    // ---- models: points, the segments between them, and how they sit and turn
+    const seg = (pts, segs) => ({ pts, segs });
+    const ring = (n, r, y, pts, segs, z0) => { const b = pts.length; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; pts.push([Math.cos(a) * r, y, Math.sin(a) * r + (z0 || 0)]); segs.push([b + i, b + (i + 1) % n]); } return b; };
+    const box = (pts, segs, x0, y0, z0, x1, y1, z1) => { const b = pts.length; [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1], [x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]].forEach((q) => pts.push(q)); [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]].forEach((e) => segs.push([b + e[0], b + e[1]])); };
+    const M = {
+      par2: { cap: 'PAR2 · ALPHAFOLD MODEL · Cα TRACE', spin: .011, size: 76, build() {
+        const pts = [], segs = []; for (let i = 0; i < RAW.length; i += 3) { pts.push([RAW[i] * .2, RAW[i + 1] * .2, RAW[i + 2] * .2]); if (i) segs.push([i / 3 - 1, i / 3]); }
+        return { pts, segs, membrane: 15 };
+      } },
+      urchin: { cap: 'M. FRANCISCANUS · SECTION · SENESCENCE: NEGLIGIBLE', spin: .009, size: 30, tilt: .35, build() {
+        // the test, cut in half: the back half keeps its plates and spines, the front is open to show the lantern inside
+        const pts = [], segs = [], RX = 11, RY = 9, P = (th, ph) => [Math.cos(th) * Math.sin(ph) * RX, -Math.cos(ph) * RY, -Math.abs(Math.sin(th)) * Math.sin(ph) * RX];
+        const line = (q, tag) => { const b = pts.length; q.forEach((v, i) => { pts.push(v); if (i) segs.push([b + i - 1, b + i, tag]); }); };
+        // ten meridians, in five pairs, the way the ambulacra run, and the plates between them as latitude rings
+        for (let m = 0; m < 10; m++) { const th = Math.PI * (m + .5) / 10, q = []; for (let i = 0; i <= 10; i++) q.push(P(th, .15 + i / 10 * (Math.PI - .3))); line(q); }
+        for (let i = 1; i < 6; i++) { const ph = i / 6 * Math.PI, q = []; for (let j = 0; j <= 16; j++) q.push(P(j / 16 * Math.PI, ph)); line(q); }
+        // the rim of the cut, bright
+        const rim = []; for (let i = 0; i <= 28; i++) { const ph = .15 + i / 28 * (Math.PI - .3); rim.push([Math.sin(ph) * RX, -Math.cos(ph) * RY, 0]); } for (let i = 0; i <= 28; i++) { const ph = .15 + i / 28 * (Math.PI - .3); rim.push([-Math.sin(ph) * RX, Math.cos(ph) * RY, 0]); } line(rim.concat([rim[0]]), 'h');
+        // Aristotle's lantern: five jaws, a pentagonal bipyramid with its teeth meeting at the mouth underneath
+        const top = pts.length; pts.push([0, -3.5, 0]); const mouth = pts.length; pts.push([0, 8.6, 0]);
+        const ring5 = pts.length; for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2 + .3; pts.push([Math.cos(a) * 4.4, 1.5, Math.sin(a) * 4.4]); }
+        for (let k = 0; k < 5; k++) segs.push([ring5 + k, ring5 + (k + 1) % 5], [ring5 + k, top], [ring5 + k, mouth]);
+        // the gut, coiled once round the inside of the test
+        const gut = []; for (let i = 0; i <= 40; i++) { const a = i / 40 * Math.PI * 2.6, r = 7.8 - i * .02; gut.push([Math.cos(a) * r, 4.5 - i * .2, Math.sin(a) * r]); } line(gut, 'f');
+        // spines on the intact half, long and uneven, and a few tube feet between them
+        for (let m = 0; m < 12; m++) for (let i = 1; i < 7; i++) {
+          const th = Math.PI * (m + .5) / 12, ph = i / 7 * Math.PI, q = P(th, ph), l = Math.hypot(q[0], q[1], q[2]) || 1, k = 1 + (4 + Math.sin(m * 2.3 + i * 1.7) * 2.5) / l * 1.6;
+          pts.push(q, [q[0] * k, q[1] * k, q[2] * k]); segs.push([pts.length - 2, pts.length - 1]);
+          if ((m + i) % 3 === 0) { const t2 = th + .12, q2 = P(t2, ph + .1), k2 = 1 + 9 / l; pts.push(q2, [q2[0] * k2, q2[1] * k2, q2[2] * k2]); segs.push([pts.length - 2, pts.length - 1, 'f']); }
+        }
+        return seg(pts, segs);
+      } },
+      monolith: { cap: 'TMA-1 · TYCHO · 1 : 4 : 9 · MAGNETIC ANOMALY', spin: .008, size: 40, tilt: .15, build() { const pts = [], segs = []; box(pts, segs, -2, -18, -8, 2, 18, 8); return seg(pts, segs); } },
+      holocron: { cap: 'HOLOCRON · SITH · ACCESS: DENIED', spin: .012, size: 30, tilt: .3, build() {
+        const pts = [[-12, 10, -12], [12, 10, -12], [12, 10, 12], [-12, 10, 12], [0, -14, 0]], segs = [[0, 1], [1, 2], [2, 3], [3, 0], [0, 4], [1, 4], [2, 4], [3, 4]];
+        const apex = pts[4];
+        // on each face: u runs along the base, v up to the apex
+        for (let f = 0; f < 4; f++) {
+          const A = pts[f], B = pts[(f + 1) % 4], mid = [(A[0] + B[0]) / 2, 10, (A[2] + B[2]) / 2], dx = (B[0] - A[0]) / 2, dz = (B[2] - A[2]) / 2;
+          const at = (u, v) => [mid[0] + dx * u * (1 - v) + (apex[0] - mid[0]) * v, 10 + (apex[1] - 10) * v, mid[2] + dz * u * (1 - v) + (apex[2] - mid[2]) * v];
+          const poly = (uv, tag, closed) => { const b = pts.length; uv.forEach((q) => pts.push(at(q[0], q[1]))); for (let i = 0; i < uv.length - (closed ? 0 : 1); i++) segs.push([b + i, b + (i + 1) % uv.length, tag]); };
+          poly([[-.8, .06], [.8, .06], [0, .72]], 'w', true);                       // the frame, lit from inside
+          poly([[-.42, .5], [.42, .5], [0, .17]], 'w', true);                        // the inner panel, upside down
+          poly([[-1, .74], [1, .74]], undefined);                                     // the seam under the cap
+          poly([[-.5, .8], [.5, .8], [0, .95]], 'w', true);                           // the cap's own panel
+          [[-.72, .1, .14], [-.5, .13, .1], [-.3, .1, .18], [.02, .13, .12], [.28, .1, .08], [.46, .13, .16], [.64, .1, .1]].forEach((r) => poly([[r[0], r[1]], [r[0] + r[2], r[1]]], 'w'));   // runes along the base
+        }
+        return seg(pts, segs);
+      } },
+      vault: { cap: 'VAULT 101 · DOOR · STATUS: SEALED · 2077-10-23', spin: .006, size: 34, tilt: .25, build() {
+        const pts = [], segs = [], N = 32;
+        [-2, 2].forEach((z) => { const b = pts.length; for (let i = 0; i < N; i++) { const a = i / N * Math.PI * 2, r = i % 2 ? 15 : 13; pts.push([Math.cos(a) * r, Math.sin(a) * r, z]); segs.push([b + i, b + (i + 1) % N]); } });
+        for (let i = 0; i < N; i += 2) segs.push([i, N + i]);
+        const c = pts.length; ring(12, 6, 0, pts, segs, 2); pts[c].y = 0;
+        for (let i = 0; i < 3; i++) { const a = i / 3 * Math.PI * 2 + .5; pts.push([Math.cos(a) * 6, Math.sin(a) * 6, 2], [Math.cos(a) * 12.5, Math.sin(a) * 12.5, 2]); segs.push([pts.length - 2, pts.length - 1]); }
+        // the ring in the door is drawn in the xy plane: swap it into place
+        for (let i = c; i < c + 12; i++) { const q = pts[i]; pts[i] = [q[0], q[2] - 2, 2]; }
+        return seg(pts, segs);
+      } },
+      chimaera: { cap: 'ISD CHIMAERA · IMPERIAL I-CLASS · 1,600 M', spin: .007, size: 44, tilt: .1, rock: .6, build() {
+        const pts = [], segs = [], L = 26, Wd = 15;
+        // the hull: a flat top deck and a shallow keel beneath, meeting at the bow; the trench where they join
+        const bow = pts.length; pts.push([0, 0, L]);
+        const tl = pts.length; pts.push([-Wd, 0, -L]); const tr = pts.length; pts.push([Wd, 0, -L]);
+        const bl = pts.length; pts.push([-Wd, 1.2, -L]); const br = pts.length; pts.push([Wd, 1.2, -L]);
+        const keel = pts.length; pts.push([0, 5.5, -L]); const keelMid = pts.length; pts.push([0, 3.8, -4]);
+        segs.push([bow, tl], [bow, tr], [tl, tr], [bow, bl], [bow, br], [tl, bl], [tr, br], [bl, keel], [br, keel], [bow, keelMid], [keelMid, keel], [bl, keelMid], [br, keelMid]);
+        // the underside, for the mural: how deep the hull is at a point beneath it
+        const under = (x, z) => { const w = Wd * (L - z) / (2 * L), yk = z > -4 ? 3.8 * (L - z) / (L + 4) : 3.8 + 1.7 * (-4 - z) / (L - 4), ye = 1.2 * (L - z) / (2 * L), f = Math.min(1, Math.abs(x) / Math.max(.01, w)); return yk * (1 - f) + ye * f + .35; };
+        const mural = (q) => { const b = pts.length; q.forEach((v, i) => { pts.push([v[0], under(v[0], v[1]), v[1]]); if (i) segs.push([b + i - 1, b + i, 'w']); }); };
+        // the chimaera itself: the body, the long neck up to the head, the wings and the claws spread wide
+        mural([[0, -14], [-1.6, -10], [-1.4, -5], [0, -2], [1.4, -5], [1.6, -10], [0, -14]]);                      // body
+        mural([[0, -2], [-.8, 2], [-1.6, 6], [-1, 9], [.4, 10.5], [1.6, 9]]); mural([[0, -2], [.9, 2], [1.8, 6], [1.2, 9]]);   // the neck, and the two horns
+        mural([[-1.4, -6], [-5, -9], [-8, -8], [-10.5, -11]]); mural([[1.4, -6], [5, -9], [8, -8], [10.5, -11]]);            // wings
+        mural([[-1.6, -10], [-4, -13], [-6, -12.5]]); mural([[1.6, -10], [4, -13], [6, -12.5]]);                           // claws
+        mural([[-1.2, -12.5], [-2.2, -16]]); mural([[1.2, -12.5], [2.2, -16]]);                                           // tail
+        // the hangar notch under the keel
+        box(pts, segs, -2.5, 3.2, -10, 2.5, 4.2, -2);
+        // the terraces of the superstructure, stepping up toward the stern
+        box(pts, segs, -8, -1.1, -24, 8, 0, 2);
+        box(pts, segs, -5, -2.3, -23, 5, -1.1, -7);
+        box(pts, segs, -2.8, -3.6, -22, 2.8, -2.3, -13);
+        // the neck and the bridge, and the two deflector globes on top of it
+        box(pts, segs, -1.2, -5.4, -19.3, 1.2, -3.6, -16.3);
+        box(pts, segs, -4, -7, -20.3, 4, -5.4, -15);
+        [-2.6, 2.6].forEach((x) => {
+          pts.push([x, -7, -17.6], [x, -7.7, -17.6]); segs.push([pts.length - 2, pts.length - 1]);
+          const c = [x, -8.5, -17.6], b1 = pts.length; for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; pts.push([c[0] + Math.cos(a) * .85, c[1] + Math.sin(a) * .85, c[2]]); segs.push([b1 + i, b1 + (i + 1) % 8]); }
+          const b2 = pts.length; for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; pts.push([c[0] + Math.cos(a) * .85, c[1], c[2] + Math.sin(a) * .85]); segs.push([b2 + i, b2 + (i + 1) % 8]); }
+        });
+        pts.push([0, -7, -17.3], [0, -9.2, -17.3]); segs.push([pts.length - 2, pts.length - 1]);   // the comm scanner between them
+        // three engines at the stern, the middle one bigger
+        [[-9, 2.6, 2.4], [0, 2.4, 3.2], [9, 2.6, 2.4]].forEach((e) => {
+          const b1 = pts.length; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; pts.push([e[0] + Math.cos(a) * e[2], e[1] + Math.sin(a) * e[2] * .75, -L]); segs.push([b1 + i, b1 + (i + 1) % 12]); }
+          const b2 = pts.length; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; pts.push([e[0] + Math.cos(a) * e[2] * .7, e[1] + Math.sin(a) * e[2] * .5, -L - 2.5]); segs.push([b2 + i, b2 + (i + 1) % 12]); if (i % 3 === 0) segs.push([b1 + i, b2 + i]); }
+        });
+        return seg(pts, segs);
+      } },
+      ebonhawk: { cap: 'EBON HAWK · DYNAMIC-CLASS · CREW: VARIES', spin: .009, size: 34, tilt: .95, rock: .3, build() {
+        const pts = [], segs = [], R = 14, T = 1.9;
+        const line = (q, tag) => { const b = pts.length; q.forEach((v, i) => { pts.push(v); if (i) segs.push([b + i - 1, b + i, tag]); }); };
+        // the stern: half a disc, its rim top and bottom, plating radiating from the hub, a chord across the front
+        [-T, T].forEach((y) => { const q = []; for (let i = 0; i <= 16; i++) { const a = Math.PI / 2 + i / 16 * Math.PI; q.push([Math.cos(a) * R, y, Math.sin(a) * R]); } line(q); });
+        for (let i = 0; i <= 16; i += 2) { const a = Math.PI / 2 + i / 16 * Math.PI; pts.push([Math.cos(a) * R, -T, Math.sin(a) * R], [Math.cos(a) * R, T, Math.sin(a) * R]); segs.push([pts.length - 2, pts.length - 1]); }
+        for (let i = 1; i < 8; i++) { const a = Math.PI / 2 + i / 8 * Math.PI; pts.push([Math.cos(a) * 5, -T, Math.sin(a) * 5], [Math.cos(a) * R, -T, Math.sin(a) * R]); segs.push([pts.length - 2, pts.length - 1, 'f']); }
+        [-T, T].forEach((y) => { pts.push([-R, y, 0], [R, y, 0]); segs.push([pts.length - 2, pts.length - 1]); });
+        // the spine down the middle, forward to the cockpit at its tip
+        box(pts, segs, -2.2, -1.9, -13.5, 2.2, 1.9, 15);
+        box(pts, segs, -1.7, -1.5, 15, 1.7, 1.2, 19); pts.push([0, -.2, 22]); const nose = pts.length - 1; for (let k = 8; k > 4; k--) segs.push([nose, pts.length - 1 - (8 - k) - 4]);
+        // the two forward pods, with their outer corners cut back, and the deck between them and the spine
+        [[4.2, 10.5], [-10.5, -4.2]].forEach((x) => { box(pts, segs, x[0], -2.1, -1, x[1], 2.1, 13); const o = x[0] < 0 ? x[0] : x[1]; pts.push([o, -2.1, -1], [o * .7, -2.1, -6], [o, 2.1, -1], [o * .7, 2.1, -6]); const n = pts.length; segs.push([n - 4, n - 3], [n - 2, n - 1], [n - 3, n - 1]); });
+        [-1.2, 1.2].forEach((y) => { [[2.2, 4.2], [-4.2, -2.2]].forEach((x) => { pts.push([x[0], y, 0], [x[1], y, 0], [x[0], y, 12], [x[1], y, 12]); const n = pts.length; segs.push([n - 4, n - 3], [n - 2, n - 1]); }); });
+        // the cannons out on either side, pointing forward
+        [-1, 1].forEach((sgn) => { box(pts, segs, sgn * 14.5 - .8, -.6, -1, sgn * 14.5 + .8, .6, 3); pts.push([sgn * 14.5, 0, 3], [sgn * 14.5, 0, 9]); segs.push([pts.length - 2, pts.length - 1]); pts.push([sgn * R, 0, 0], [sgn * 14.5, 0, 1]); segs.push([pts.length - 2, pts.length - 1]); });
+        // the turret on top, and the engines at the stern
+        const t = pts.length; for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; pts.push([Math.cos(a) * 2.2, -1.9, -4 + Math.sin(a) * 2.2], [Math.cos(a) * 1.4, -3, -4 + Math.sin(a) * 1.4]); segs.push([t + i * 2, t + ((i + 1) % 8) * 2], [t + i * 2 + 1, t + ((i + 1) % 8) * 2 + 1], [t + i * 2, t + i * 2 + 1]); }
+        [-5.5, 5.5].forEach((x) => { const b1 = pts.length; for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; pts.push([x + Math.cos(a) * 2.4, .4 + Math.sin(a) * 1.5, -Math.sqrt(R * R - x * x) + .5]); segs.push([b1 + i, b1 + (i + 1) % 10, 'h']); } const b2 = pts.length; for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; pts.push([x + Math.cos(a) * 1.4, .4 + Math.sin(a) * .9, -Math.sqrt(R * R - x * x) - 1.5]); segs.push([b2 + i, b2 + (i + 1) % 10]); } });
+        return seg(pts, segs);
+      } },
+      baraddur: { cap: 'BARAD-DÛR · GORGOROTH · CONTACT: OBSERVING', spin: .005, size: 60, tilt: .12, build() {
+        const pts = [], segs = [];
+        const oct = (r, y, tag) => { const b = pts.length; for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2 + Math.PI / 8; pts.push([Math.cos(a) * r, y, Math.sin(a) * r]); segs.push([b + i, b + (i + 1) % 8, tag]); } return b; };
+        const join = (b1, b2, step) => { for (let i = 0; i < 8; i += step || 1) segs.push([b1 + i, b2 + i]); };
+        // the fortress: two tiers of walls with spikes along them, and four buttress spires
+        let r1 = oct(15, 30), r2 = oct(13, 22); join(r1, r2);
+        for (let i = 0; i < 8; i++) { const q = pts[r2 + i]; pts.push([q[0] * 1.02, 18.5, q[2] * 1.02]); segs.push([r2 + i, pts.length - 1]); }
+        let r3 = oct(9, 22), r4 = oct(8, 12); join(r3, r4, 2); join(r2, r3, 2);
+        for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2 + Math.PI / 4; pts.push([Math.cos(a) * 11, 22, Math.sin(a) * 11], [Math.cos(a) * 10.5, 6, Math.sin(a) * 10.5], [Math.cos(a) * 8.5, 12, Math.sin(a) * 8.5]); const n = pts.length; segs.push([n - 3, n - 2], [n - 2, n - 1]); }
+        // the spire: eight ribs tapering up, bound by rings
+        let prev = oct(5, 12); [[4.6, 4], [4.2, -4], [3.8, -12], [3.4, -17]].forEach((t) => { const r = oct(t[0], t[1]); join(prev, r); prev = r; });
+        // the crown flares out, and the two horns rise from it about the Eye
+        const crown = oct(6.2, -20); join(prev, crown); const top = oct(3.4, -22); join(crown, top, 2);
+        [-1, 1].forEach((sg) => { const q = [[3.2, -22], [5, -25.5], [6.4, -29.5], [6.6, -34], [5.6, -37.5]]; const b = pts.length; q.forEach((v, i) => { pts.push([sg * v[0], v[1], 0]); if (i) segs.push([b + i - 1, b + i, 'h']); }); });
+        return { pts, segs, eye: [0, -30, 5, 2.8] };
+      } },
+      oblivion: { cap: 'OBLIVION GATE · KVATCH · STATUS: OPEN', flat(g, t, k, cx, cy) {
+        // the Daedric sign, traced from the real thing: the two horns and the dot, as drawn on the gates
+        const S = [[0.2025,-0.5,0.3289,-0.4942,0.3397,-0.4897,0.3451,-0.4808,0.3405,-0.4668,0.2931,-0.4139,0.2808,-0.3916,0.2778,-0.3758,0.3035,-0.32,0.3212,-0.2606,0.3444,-0.1342,0.3494,-0.0533,0.345,-0.0032,0.3494,0.0387,0.3481,0.0777,0.3339,0.1325,0.3175,0.2533,0.2729,0.3462,0.2081,0.4261,0.1468,0.4787,0.1105,0.5,0.101,0.493,0.1007,0.4837,0.1697,0.3704,0.2118,0.2273,0.2128,0.0767,0.1993,-0.0617,0.1853,-0.1528,0.1368,-0.2866,0.0991,-0.3581,0.0715,-0.3932,0.0306,-0.408,0.0074,-0.408,-0.0168,-0.4013,-0.0414,-0.3841,-0.0992,-0.3061,-0.1174,-0.2661,-0.1381,-0.2364,-0.1631,-0.1686,-0.1868,-0.0691,-0.1887,0.0535,-0.1828,0.1427,-0.1744,0.1873,-0.1615,0.2198,-0.0889,0.3537,-0.0599,0.3964,-0.0643,0.4119,-0.0799,0.4155,-0.1106,0.3955,-0.2328,0.2607,-0.2487,0.2338,-0.2924,0.1186,-0.3297,-0.045,-0.3327,-0.0756,-0.3221,-0.1983,-0.311,-0.2578,-0.2903,-0.3228,-0.2884,-0.3516,-0.292,-0.3721,-0.3016,-0.3925,-0.347,-0.4455,-0.3494,-0.4548,-0.3411,-0.4675,-0.3271,-0.4768,-0.2927,-0.4925,-0.2723,-0.4963,-0.1468,-0.4975,-0.0911,-0.4929,-0.0112,-0.4975,0.065,-0.4929],[0.0148,-0.1683,0.0223,-0.1683,0.0316,-0.1665,0.0427,-0.1617,0.0573,-0.1515,0.0721,-0.1357,0.0832,-0.1193,0.0915,-0.1026,0.0953,-0.0905,0.0983,-0.071,0.0953,-0.0487,0.0917,-0.0357,0.087,-0.0245,0.0788,-0.0087,0.0694,0.0014,0.0455,0.0205,0.0306,0.0272,0.0232,0.0284,0.0139,0.0279,0.0055,0.0242,-0.0037,0.0172,-0.0145,0.0043,-0.0388,-0.0385,-0.0432,-0.0506,-0.0446,-0.0608,-0.0446,-0.0868,-0.0433,-0.1035,-0.0368,-0.1305,-0.0321,-0.1407,-0.022,-0.1526,-0.0084,-0.1618,-0.001,-0.1654]], sw = Math.sin(t * .03) * .05, sc = 212;
+        g.save(); g.translate(cx, cy + 4); g.rotate(sw);
+        const path = (poly) => { const n = poly.length / 2, X = (i) => poly[(i % n) * 2] * sc, Y = (i) => poly[(i % n) * 2 + 1] * sc; g.beginPath(); g.moveTo((X(0) + X(1)) / 2, (Y(0) + Y(1)) / 2); for (let i = 1; i <= n; i++) g.quadraticCurveTo(X(i), Y(i), (X(i) + X(i + 1)) / 2, (Y(i) + Y(i + 1)) / 2); g.closePath(); };
+        g.shadowColor = 'rgba(' + ink.glow + ',.7)'; g.shadowBlur = 14; g.fillStyle = ink.fg;
+        S.forEach((poly) => { path(poly); g.fill(); });
+        g.shadowBlur = 0; g.strokeStyle = ink.hi; g.lineWidth = 1.2; g.lineJoin = 'round';
+        S.forEach((poly) => { path(poly); g.stroke(); });
+        g.restore();
+      } },
+      rama: { cap: 'RAMA · 54 × 20 KM · 0.25 RPM · INTERIOR: PRESSURISED', spin: .006, size: 56, tilt: .35, build() {
+        const pts = [], segs = [], N = 18;
+        const a0 = ring(N, 12, -26, pts, segs), b0 = ring(N, 12, 26, pts, segs);
+        for (let i = 0; i < N; i += 2) segs.push([a0 + i, b0 + i]);
+        [0, 2.09, 4.19].forEach((a) => { const r = 11.2; box(pts, segs, Math.cos(a) * r - 1, -6, Math.sin(a) * r - 1, Math.cos(a) * r + 1, 6, Math.sin(a) * r + 1); });
+        return seg(pts, segs);
+      } },
+      tauceti: { cap: 'TAU CETI · 11.9 LY · G8V · LUMINOSITY: STEADY', spin: .006, size: 34, tilt: 1.1, build() {
+        const pts = [], segs = [];
+        ring(10, 2.5, 0, pts, segs);
+        [6, 9.5, 13, 16].forEach((r, i) => { const b = ring(36, r, 0, pts, segs); const q = pts[b + (i * 9) % 36]; pts.push([q[0] * 1.08, 0, q[2] * 1.08], [q[0] * .92, 0, q[2] * .92]); segs.push([pts.length - 2, pts.length - 1]); });
+        return seg(pts, segs);
+      } },
+      nostromo: { cap: 'USCSS NOSTROMO · 180924609 · TOW: REFINERY · 20,000,000 T ORE', flat(g, t, k, cx, cy) {
+        // the ship's own name on its own screen, boxed the way MU/TH/UR wrote it, with the company's badge beneath
+        const mono = '"IBM Plex Mono", ui-monospace, monospace', cw = 22, ch = 30;
+        g.fillStyle = ink.warn; g.globalAlpha = .07; g.fillRect(8, 22, CW - 16, 232); g.globalAlpha = 1;
+        g.strokeStyle = ink.warn; g.fillStyle = ink.warn; g.shadowColor = ink.warn; g.shadowBlur = 8; g.lineWidth = 1; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.font = '8px ' + mono; g.fillText('BUILDING BETTER WORLDS', cx, 36); g.fillText('USCSS', cx, 54);
+        g.font = 'bold 20px ' + mono;
+        [['NOSTROMO', 64], ['180924609', 148]].forEach((ln) => {
+          const w = ln[0].length * cw, x0 = cx - w / 2, y0 = ln[1];
+          g.strokeRect(x0 + .5, y0 + .5, w, ch);
+          for (let i = 0; i < ln[0].length; i++) { g.strokeRect(x0 + i * cw + .5, y0 + .5, cw, ch); g.strokeText(ln[0][i], x0 + i * cw + cw / 2, y0 + ch / 2 + 1); }
+        });
+        // the wings: a hub, and feathers fanning out either side
+        g.beginPath(); g.arc(cx, 118, 7, 0, Math.PI * 2); g.stroke(); g.beginPath(); g.arc(cx, 118, 3, 0, Math.PI * 2); g.fill();
+        [-1, 1].forEach((sg) => { for (let i = 0; i < 6; i++) { const y = 108 + i * 3.6, L = 96 - i * 11; g.beginPath(); g.moveTo(cx + sg * 9, y + 3); g.lineTo(cx + sg * (9 + L), y - 4 + i * 1.2); g.stroke(); } g.beginPath(); g.moveTo(cx + sg * 9, 128); g.lineTo(cx + sg * 44, 126); g.stroke(); });
+        // the company's mark: the W, and its name
+        const wy = 204; g.lineWidth = 3.5; g.lineJoin = 'miter'; g.beginPath(); g.moveTo(cx - 22, wy - 10); g.lineTo(cx - 12, wy + 10); g.lineTo(cx, wy - 6); g.lineTo(cx + 12, wy + 10); g.lineTo(cx + 22, wy - 10); g.stroke();
+        g.beginPath(); g.moveTo(cx - 14, wy - 10); g.lineTo(cx - 6, wy + 2); g.lineTo(cx, wy - 6); g.lineTo(cx + 6, wy + 2); g.lineTo(cx + 14, wy - 10); g.stroke(); g.lineWidth = 1;
+        g.font = '9px ' + mono; g.fillText('WEYLAN-YUTANI', cx, 232); g.font = '7px ' + mono; g.fillText('COMMERCIAL TOWING VEHICLE · CREW 7' + (t % 96 < 48 ? '' : ' · CAT 1'), cx, 246);
+        g.shadowBlur = 0; g.textAlign = 'left'; g.textBaseline = 'top'; g.lineJoin = 'round';
+      } },
+      word: { cap: '', spin: .012, sway: .5, tilt: .15, build(word) {
+        st.cap = 'TEXT · ' + word;
+        // a word, read off a small canvas: its outline pixels become the wire, with a few lines of depth
+        const c = document.createElement('canvas'), x = c.getContext('2d'), CWd = 160, CHt = 34; c.width = CWd; c.height = CHt;
+        x.font = '30px "VT323", monospace'; x.fillStyle = '#fff'; x.textBaseline = 'middle'; x.textAlign = 'center'; x.fillText(word, CWd / 2, CHt / 2 + 1);
+        const d = x.getImageData(0, 0, CWd, CHt).data, on = (i, j) => i >= 0 && j >= 0 && i < CWd && j < CHt && d[(j * CWd + i) * 4 + 3] > 120;
+        const pts = [], segs = [], idx = {};
+        for (let j = 0; j < CHt; j++) for (let i = 0; i < CWd; i++) if (on(i, j) && !(on(i - 1, j) && on(i + 1, j) && on(i, j - 1) && on(i, j + 1))) { idx[i + ',' + j] = pts.length; pts.push([(i - CWd / 2) * .5, (j - CHt / 2) * .5, -3]); }
+        const n = pts.length; for (let k = 0; k < n; k++) pts.push([pts[k][0], pts[k][1], 3]);
+        Object.keys(idx).forEach((key) => {
+          const [i, j] = key.split(',').map(Number), a = idx[key];
+          [[1, 0], [0, 1]].forEach((o) => { const b = idx[(i + o[0]) + ',' + (j + o[1])]; if (b !== undefined) { segs.push([a, b]); segs.push([n + a, n + b]); } });
+          if ((i + j) % 5 === 0) segs.push([a, n + a]);
+        });
+        return Object.assign(seg(pts, segs), { word });
+      } },
+      blipa: { cap: 'BLIP-A · 40 ERIDANI · HULL: XENONITE · SIGNAL: ♪ ♫', spin: .008, size: 44, tilt: .3, build() {
+        // a long hull with a broad fin and a round bow, the way Grace first saw it on the radar
+        const pts = [], segs = [], N = 12;
+        const a = ring(N, 6, -22, pts, segs), b = ring(N, 7, 0, pts, segs), c = ring(N, 5, 18, pts, segs), d = ring(N, 2, 26, pts, segs);
+        for (let i = 0; i < N; i += 2) segs.push([a + i, b + i], [b + i, c + i], [c + i, d + i]);
+        box(pts, segs, -1, -24, -18, 1, 10, -6); pts.push([0, -30, -12]); segs.push([pts.length - 1, pts.length - 9], [pts.length - 1, pts.length - 5]);
+        return seg(pts, segs);
+      } },
+      hal: { cap: 'HAL 9000 · URBANA, ILLINOIS · 1992-01-12', flat(g, t, k, cx, cy) {
+        const r = 50;
+        g.lineWidth = 1; [1, .78, .55].forEach((f, i) => { g.strokeStyle = i ? ink.dim : ink.fg; g.beginPath(); g.arc(cx, cy, r * f, 0, Math.PI * 2); g.stroke(); });
+        const pulse = .72 + Math.sin(t * .06) * .08;
+        g.fillStyle = ink.warn; g.shadowColor = ink.warn; g.shadowBlur = 24; g.beginPath(); g.arc(cx, cy, r * .3 * pulse, 0, Math.PI * 2); g.fill(); g.shadowBlur = 0;
+        g.fillStyle = ink.hi; g.beginPath(); g.arc(cx, cy, r * .08, 0, Math.PI * 2); g.fill();
+      } },
+      telomere: { cap: '', flat(g, t, k, cx, cy, st) {
+        // the end of a chromosome, its repeats counted off with every division, until there is nothing left to lose
+        const DIV = Math.floor(t / 28) % 40, blocks = Math.max(0, 14 - DIV), y = cy;
+        g.strokeStyle = ink.fg; g.lineWidth = 1.5; g.beginPath(); g.moveTo(14, y - 4); g.lineTo(90, y - 4); g.moveTo(14, y + 4); g.lineTo(90, y + 4); g.stroke();
+        g.fillStyle = ink.dim; g.font = '9px monospace'; g.textAlign = 'left';
+        for (let i = 0; i < 14; i++) { const x = 92 + i * 9.5, on = i < blocks; g.fillStyle = on ? (i >= blocks - 2 ? ink.hi : ink.fg) : ink.faint; g.fillRect(x, y - 4, 7, 8); }
+        g.fillStyle = ink.dim; g.textAlign = 'center'; g.fillText('TTAGGG × ' + (blocks * 60), cx, y + 24);
+        st.cap = blocks > 2 ? 'TELOMERE · DIVISION ' + DIV + ' · ' + (blocks * .58).toFixed(1) + ' kb' : blocks > 0 ? 'TELOMERE · HAYFLICK LIMIT' : 'TELOMERE · 0 kb · SENESCENCE';
+      } },
+      lv426: { cap: 'LV-426 · ZETA II RETICULI · DEORBITAL DESCENT', flat(g, t, k, cx, cy, st) {
+        // two of the Nostromo's screens, the way the film drew them: the descent first, then the ground coming up
+        const phase = t < 240 ? 0 : 1, W = CW, H = CH, mono = '"IBM Plex Mono", ui-monospace, monospace';
+        if (t === 240) st.flash = 4;
+        const want = phase ? 'LV-426 · ZETA II RETICULI · TERRAIN' : 'LV-426 · ZETA II RETICULI · DEORBITAL DESCENT'; if (st.cap !== want) st.cap = want;
+        g.lineWidth = 1; g.textBaseline = 'top';
+        if (!phase) {
+          // the header, the main area with its four crosses, and the column of readouts
+          g.font = '9px ' + mono; g.fillStyle = ink.hi; g.fillText('DEORBITAL  DESCENT', 8, 7);
+          g.font = '6.5px ' + mono; g.fillStyle = ink.dim; g.fillText('COMMENCE FINAL', 150, 6); g.strokeStyle = ink.dim; g.strokeRect(146.5, 3.5, 82, 10); g.fillText('SYSTEM : BL : 76.75 : OB :', 8, 19);
+          g.strokeStyle = ink.faint; g.strokeRect(6.5, 27.5, 154, 238); g.strokeRect(165.5, 27.5, 64, 238);
+          g.strokeStyle = ink.fg; [[24, 46], [142, 46], [24, 248], [142, 248]].forEach((c) => { g.beginPath(); g.moveTo(c[0] - 7, c[1]); g.lineTo(c[0] + 7, c[1]); g.moveTo(c[0], c[1] - 7); g.lineTo(c[0], c[1] + 7); g.stroke(); });
+          // the planet, a gridded sphere mostly off the edge of the screen, turning under the ship
+          g.save(); g.beginPath(); g.rect(7, 28, 153, 237); g.clip();
+          const ox = 236, oy = 146, R = 128, lam0 = t * .004;
+          g.strokeStyle = ink.dim;
+          for (let i = -4; i <= 4; i++) { const ph = i / 5 * Math.PI / 2, yy = oy - Math.sin(ph) * R, rx = Math.cos(ph) * R; g.beginPath(); g.ellipse(ox, yy, rx, rx * .12, 0, Math.PI, Math.PI * 2); g.stroke(); }
+          for (let i = 0; i < 9; i++) { const lam = lam0 + i / 9 * Math.PI, rx = Math.abs(Math.sin(lam)) * R; g.beginPath(); g.ellipse(ox, oy, Math.max(.5, rx), R, 0, Math.PI / 2, Math.PI * 3 / 2); g.stroke(); }
+          g.strokeStyle = ink.fg; g.beginPath(); g.arc(ox, oy, R, Math.PI / 2, Math.PI * 3 / 2); g.stroke();
+          g.restore();
+          // the target: boxes turning into one another, the way the landing screen drew it
+          g.save(); g.translate(62, 150); g.strokeStyle = ink.fg;
+          for (let i = 0; i < 7; i++) { g.save(); g.rotate(i * .16 + t * .003); const sz = 46 * Math.pow(.78, i); g.strokeRect(-sz / 2, -sz * .35, sz, sz * .7); g.restore(); }
+          g.restore();
+          g.fillStyle = ink.hi; g.fillRect(140, 170 - (t * .1) % 60, 2, 2);
+          // the readouts
+          g.font = '7px ' + mono; const ad = (3454.94 - t * .37).toFixed(2);
+          [['TIME FROM #7', ink.fg], ['3 : 39 : ' + String(37 + Math.floor(t / 24) % 60).padStart(2, '0'), ink.hi], ['', 0], ['PRESENT', ink.fg], ['P.O.R.', ink.fg], ['NOSTROMO', ink.hi], ['#7', ink.dim], ['', 0], ['HEADING', ink.fg], ['N 0.52  E 0.91', ink.hi], ['', 0], ['GROUND', ink.fg], ['SPEED  ' + (75.28 - t * .02).toFixed(2), ink.hi], ['CONDITION', ink.fg], ['CODE', ink.fg], ['18 S=C75C', ink.hi], ['PAST=8', ink.dim], ['', 0], ['SYSTEM #   4', ink.fg], ['AUTODECOUNT', ink.fg], [ad, ink.hi]]
+            .forEach((r, i) => { if (!r[0]) return; g.fillStyle = r[1]; g.fillText(r[0], 169, 32 + i * 11); });
+        } else {
+          // the ground: ridge after ridge of it, stacked up the screen, and a column of numbers nobody is reading
+          const tt = t - 240, rows = 24, cols = 44, x0 = 50, x1 = 230, y0 = 24, dy = (262 - y0) / rows;
+          const hill = (c, r) => { let h = 0; [[12, 6, 30, 5, 3], [30, 10, 42, 7, 4], [20, 18, 26, 6, 5], [38, 2, 22, 4, 3], [6, 22, 20, 5, 3]].forEach((m) => { h += m[2] * Math.exp(-(((c - m[0]) * (c - m[0])) / (m[3] * m[3] * 2) + ((r - m[1]) * (r - m[1])) / (m[4] * m[4] * 2))); }); return h + (Math.sin(c * 1.7 + r * .9) + Math.sin(c * .6 - r * 2.1)) * 2.2; };
+          g.strokeStyle = ink.faint; g.beginPath(); g.moveTo(44.5, 10); g.lineTo(44.5, 262); g.moveTo(6, 10.5); g.lineTo(230, 10.5); g.stroke();
+          g.font = '6.5px ' + mono; g.fillStyle = ink.dim; const GL = '0123456789ABCDEF=:-';
+          for (let r = 0; r < 23; r++) { let sstr = ''; for (let c = 0; c < 5; c++) { const v = Math.sin(r * 12.9 + c * 7.3 + Math.floor((tt + r * 5) / 36) * 3.1) * 43758.5; sstr += GL[Math.floor((v - Math.floor(v)) * GL.length)]; } g.fillText(sstr, 8, 16 + r * 10.6); }
+          const scroll = tt * .02;
+          for (let r = 0; r < rows; r++) {
+            const base = y0 + (r + .8) * dy, d = r / rows; g.strokeStyle = d < .3 ? ink.dim : ink.fg; g.beginPath();
+            for (let c = 0; c <= cols; c++) { const x = x0 + (x1 - x0) * c / cols, y = base - hill(c, r + scroll) * .9; c ? g.lineTo(x, y) : g.moveTo(x, y); }
+            g.stroke();
+          }
+          g.strokeStyle = ink.hi; g.beginPath(); g.moveTo(cx - 14, 5); g.lineTo(cx, 9); g.lineTo(cx + 14, 5); g.stroke();
+        }
+      } },
+    };
+    const WORDS = ['ZIREAEL', 'MU/TH/UR', 'NOSTROMO', 'KELPIE', 'TGGR', 'YAMIR', 'DAISY', 'HAYFLICK'];
+    const TOUR = ['urchin', 'telomere', 'tauceti', 'lv426', 'monolith', 'hal', 'chimaera', 'ebonhawk', 'holocron', 'rama', 'baraddur', 'oblivion', 'word', 'blipa', 'nostromo'];
+    const st = { key: 'par2', model: null, cap: '', t0: 0, flash: 0, order: [], idx: -1, next: 0 };
+    function show(key, t) {
+      st.key = key; const m = M[key];
+      st.model = m.build ? m.build(key === 'word' ? T.pick(WORDS) : undefined) : null;
+      // every model fills the screen the same way: its longest reach sets the scale
+      if (st.model) st.model.size = Math.max(1, ...st.model.pts.map((q) => Math.hypot(q[0], q[1], q[2]))) * (key === 'par2' ? 1.25 : 1.08);
+      if (m.cap) st.cap = m.cap; st.t0 = t; st.flash = 4;
+    }
+    function advance(t) {
+      if (!st.order.length) { st.order = TOUR.slice().sort(() => Math.random() - .5); st.idx = -1; }
+      // the receptor comes back between every other thing
+      if (st.key !== 'par2' && Math.random() < .5) show('par2', t); else { st.idx = (st.idx + 1) % st.order.length; show(st.order[st.idx], t); }
+      st.next = t + (st.key === 'par2' ? 20 : 20) * 24;
+    }
+    par2.style.cursor = 'pointer';
+    par2.addEventListener('click', () => { st.click = true; });
     const draw = (t) => {
       const r = Math.min(3, window.devicePixelRatio || 1);
       if (r !== dpr) { dpr = r; par2.width = CW * r; par2.height = CH * r; }
       if (!ink) ink = inkOf();
+      if (!st.model && st.key === 'par2') show('par2', t);
+      // the first long while is the receptor only. After that, the tour, each thing for twenty seconds
+      if (!st.next) st.next = t + (T.debug ? 10 : 150) * 24;
+      if (st.click || (T.motion && t >= st.next && !T.reduceMotion)) { st.click = false; advance(t); }
       g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, CW, CH);
-      const a = still(t, 48) * .011, ca = Math.cos(a), sa = Math.sin(a), k = (CH - 28) / 76, cx = CW / 2, cy = CH / 2 + 2;
-      // the membrane, as two faint lines the bundle crosses
-      g.strokeStyle = ink.faint; g.lineWidth = 1; g.setLineDash([2, 4]);
-      [-15, 15].forEach((m) => { g.beginPath(); g.moveTo(14, cy + m * k); g.lineTo(CW - 14, cy + m * k); g.stroke(); });
-      g.setLineDash([]);
-      // the chain, nearer parts brighter and drawn last
-      const px = new Float32Array(N), py = new Float32Array(N), pz = new Float32Array(N);
-      for (let i = 0; i < N; i++) { const x = X[i] * ca + Z[i] * sa, z = -X[i] * sa + Z[i] * ca, f = 1 / (1 + z / 520); px[i] = cx + x * k * f; py[i] = cy + Y[i] * k * f; pz[i] = z; }
-      const order = Array.from({ length: N - 1 }, (_, i) => i).sort((i, j) => pz[j] - pz[i]);
-      g.lineCap = 'round'; g.lineJoin = 'round'; g.shadowColor = 'rgba(' + ink.glow + ',.55)';
-      order.forEach((i) => {
-        const d = Math.max(0, Math.min(1, (pz[i] + 22) / 44));           // 0 far, 1 near
-        g.strokeStyle = d < .35 ? ink.faint : d < .7 ? ink.dim : d < .9 ? ink.fg : ink.hi;
-        g.lineWidth = .8 + d * 1.1; g.shadowBlur = d > .7 ? 5 : 0;
-        g.beginPath(); g.moveTo(px[i], py[i]); g.lineTo(px[i + 1], py[i + 1]); g.stroke();
-      });
-      g.shadowBlur = 0;
+      const m = M[st.key], cx = CW / 2, cy = CH / 2 + 2, k = (CH - 28) / 76;
+      if (st.flash > 0) { st.flash--; g.fillStyle = ink.faint; for (let i = 0; i < 140; i++) g.fillRect(Math.random() * CW, Math.random() * CH, 2 + Math.random() * 20, 1); }
+      if (m.flat) { m.flat(g, still(t - st.t0, 40), k, cx, cy, st); }
+      else {
+        const { pts, segs } = st.model, tt = still(t - st.t0, 48), a = m.sway ? Math.sin(tt * .04) * m.sway : tt * m.spin, ca = Math.cos(a), sa = Math.sin(a), tl = (m.tilt || 0) + (m.rock ? Math.sin(tt * .021) * m.rock : 0), ct = Math.cos(tl), stt = Math.sin(tl), sc = k * 76 / (st.model.size * 2);
+        if (st.model.membrane) { g.strokeStyle = ink.faint; g.lineWidth = 1; g.setLineDash([2, 4]); [-1, 1].forEach((d) => { g.beginPath(); g.moveTo(14, cy + d * st.model.membrane * sc); g.lineTo(CW - 14, cy + d * st.model.membrane * sc); g.stroke(); }); g.setLineDash([]); }
+        const n = pts.length, px = new Float32Array(n), py = new Float32Array(n), pz = new Float32Array(n);
+        for (let i = 0; i < n; i++) {
+          const q = pts[i], x = q[0] * ca + q[2] * sa, z0 = -q[0] * sa + q[2] * ca, y = q[1] * ct - z0 * stt, z = q[1] * stt + z0 * ct, f = 1 / (1 + z * sc / 520);
+          px[i] = cx + x * sc * f; py[i] = cy + y * sc * f; pz[i] = z * sc;
+        }
+        const order = segs.map((e, i) => i).sort((i, j) => (pz[segs[j][0]] + pz[segs[j][1]]) - (pz[segs[i][0]] + pz[segs[i][1]]));
+        g.lineCap = 'round'; g.lineJoin = 'round'; g.shadowColor = 'rgba(' + ink.glow + ',.55)';
+        order.forEach((i) => {
+          const e = segs[i], d = Math.max(0, Math.min(1, ((pz[e[0]] + pz[e[1]]) / 2 + 22 * k) / (44 * k)));
+          g.strokeStyle = e[2] === 'w' ? ink.warn : e[2] === 'f' ? ink.faint : e[2] === 'h' ? ink.hi : d < .35 ? ink.faint : d < .7 ? ink.dim : d < .9 ? ink.fg : ink.hi;
+          g.lineWidth = e[2] === 'f' ? .6 : .8 + d * 1.1; g.shadowBlur = e[2] === 'w' ? 6 : d > .7 ? 5 : 0; if (e[2] === 'w') g.shadowColor = ink.warn; else g.shadowColor = 'rgba(' + ink.glow + ',.55)';
+          g.beginPath(); g.moveTo(px[e[0]], py[e[0]]); g.lineTo(px[e[1]], py[e[1]]); g.stroke();
+        });
+        g.shadowBlur = 0;
+        if (st.model.eye) { const e = st.model.eye, ex = cx + e[0] * sc, ey = cy + e[1] * sc, rx = (e[2] || 7) * (e[2] ? sc : 1), ry = (e[3] || 3.5) * (e[3] ? sc : 1); g.fillStyle = ink.warn; g.shadowColor = ink.warn; g.shadowBlur = 14; g.beginPath(); g.ellipse(ex, ey, rx, ry, 0, 0, Math.PI * 2); g.fill(); g.shadowBlur = 0; g.fillStyle = '#000'; g.beginPath(); g.ellipse(ex, ey, rx * .12, ry * .85, 0, 0, Math.PI * 2); g.fill(); }
+      }
+      const text = st.key === 'word' ? 'TEXT · ' + (st.model && st.model.word || '') : st.cap;
+      if (cap && cap.textContent !== (st.cap || text)) cap.textContent = st.cap || text;
     };
     T.Anim.add(par2, draw, 24);
     T.onTheme(() => draw(0));
+    T.display = { show: (k) => { if (M[k]) { st.click = false; show(k, 0); st.next = 1e9; } }, keys: Object.keys(M) };
   }
 
   // ---- a sequencing trace runs past between the sections. Peaks only, no letters: it is a shape, not a read.
@@ -1690,7 +2251,7 @@
     const REPERTOIRE = [
       ['DRY', 'DRY MOTIF · TM3 · CLASS A GPCRs'], ['NPIIY', 'NPxxY MOTIF · TM7 · CLASS A GPCRs'], ['CWLP', 'CWxP MOTIF · TM6 · CLASS A GPCRs'],
       ['GENETICS', '8 AA · READS: GENETICS'], ['SCIENCE', '7 AA · READS: SCIENCE'], ['CAMILLE', '7 AA · THE CAT, IN AMINO ACIDS'],
-      ['WHISKERS', '8 AA · READS: WHISKERS'], ['ALIEN', '5 AA · IN SPACE NO ONE CAN HEAR YOU TRANSLATE'], ['FEEDTHECAT', '10 AA · A MESSAGE'],
+      ['WHISKERS', '8 AA · READS: WHISKERS'], ['ALIEN', '5 AA · IN SPACE NO ONE CAN HEAR YOU TRANSLATE'], ['FEEDTHECAT', '10 AA · A MESSAGE'], ['LIHI', '4 AA · Leu-Ile-His-Ile'],
     ];
     let which = -1, CODONS = [], aa = [], spans = [], beads = [], N = 0, STOP = 0, REL = 0, CUT = 0, HOLD = 0, PERIOD = 1, cap = '';
     function load(i) {
@@ -1716,6 +2277,56 @@
     };
     T.Anim.add(mrna, draw, 1.1);
   }
+
+  // ---- the name is a sign of glass tubes, and one of them is not what it was. Rarely, a letter dips for a frame.
+  // Now and then the sign goes somewhere else: the second AM dies, the rest close up, and for a while it reads YAMIR,
+  // with a ghost of itself in the other phosphor. Then it comes back.
+  (function () {
+    const h1 = $('#name');
+    if (!h1 || T.reduceMotion) return;
+    const all = [], letters = [];
+    Array.from(h1.childNodes).forEach((n) => {
+      if (n.nodeType !== 3) return;
+      const f = document.createDocumentFragment();
+      Array.from(n.data).forEach((c) => { const sp = document.createElement('span'); sp.className = 'tube'; sp.textContent = c === ' ' ? '\u00a0' : c; all.push(sp); if (c !== ' ') letters.push(sp); f.appendChild(sp); });
+      n.parentNode.replaceChild(f, n);
+    });
+    // which tubes die for YAMIR: the space and the AM after it, if the sign reads YAM AMIR
+    const text = all.map((sp) => sp.textContent.replace('\u00a0', ' ')).join('');
+    const spare = text === 'YAM AMIR' ? [3, 4, 5].map((i) => all[i]) : [];
+    const stutter = (sp, times) => times.forEach((ms, i) => setTimeout(() => sp.classList.toggle('dip', i % 2 === 0), ms));
+    let busy = false;
+    function dip() {
+      setTimeout(dip, 18000 + Math.random() * 50000);
+      if (!T.motion || document.hidden || busy) return;
+      const sp = T.pick(letters);
+      stutter(sp, [0, 60, 110, 170]); setTimeout(() => sp.classList.remove('dip'), 240);
+    }
+    function elsewhere() {
+      setTimeout(elsewhere, (T.debug ? 20000 : 70000) + Math.random() * (T.debug ? 15000 : 80000));
+      if (!T.motion || document.hidden || busy || !spare.length) return;
+      busy = true;
+      // the three tubes fail, one after another, and go dark
+      spare.forEach((sp, i) => stutter(sp, [i * 230, i * 230 + 70, i * 230 + 130, i * 230 + 190, i * 230 + 260]));
+      setTimeout(() => { spare.forEach((sp) => { sp.classList.remove('dip'); sp.classList.add('gone'); }); h1.classList.add('liminal'); window.dispatchEvent(new Event('resize')); }, 900);
+      // while it reads the other name, the whole sign is not quite steady
+      const unsteady = setInterval(() => { if (Math.random() < .5) { const sp = T.pick(letters.filter((l) => !l.classList.contains('gone'))); stutter(sp, [0, 50, 90, 140]); setTimeout(() => sp.classList.remove('dip'), 200); } }, 700);
+      const hold = 5000 + Math.random() * 5000;
+      setTimeout(() => {
+        clearInterval(unsteady);
+        spare.forEach((sp) => sp.classList.remove('gone')); h1.classList.remove('liminal'); window.dispatchEvent(new Event('resize'));
+        spare.forEach((sp, i) => stutter(sp, [0, 80, 150, 230, 300].map((ms) => ms + i * 120)));
+        setTimeout(() => { spare.forEach((sp) => sp.classList.remove('dip')); busy = false; }, 1000);
+      }, 900 + hold);
+    }
+    setTimeout(dip, 9000 + Math.random() * 12000);
+    setTimeout(elsewhere, T.debug ? 6000 : 25000 + Math.random() * 20000);
+    T.elsewhere = () => { if (!busy) elsewhere(); };
+    // resting the pointer on the sign is enough to unsettle it
+    let hover = 0;
+    h1.addEventListener('pointerenter', () => { clearTimeout(hover); hover = setTimeout(() => { if (!busy) elsewhere(); }, 900); });
+    h1.addEventListener('pointerleave', () => clearTimeout(hover));
+  })();
 
   // ---- each section's heading is a command. It types itself when you reach it, then its output appears.
   (function () {
@@ -1823,15 +2434,11 @@
      screen draws them.
      ================================================================== -->
 <script>
-/* Camille, drawn from life.
-   Each outline is a list of x, y pairs. x runs from her middle, y up from the ground, she faces right.
-   They are traced from public-domain and CC0 silhouettes of house cats:
-     sitting, lying, arched, paw raised, pouncing, sniffing   "Nine Cats Silhouettes", Openclipart 235610
-     sitting alert, looking away, stretching, leaping         Openclipart 169097, 85909, 280835, 286637
-     napping                                                  House Cat Silhouette, NIH BioArt 207
-     standing and walking                                     PhyloPic, Kawinwit Kittipalawattanapol, CC0
-     dashing                                                  PhyloPic, Margot Michaud, CC0
-   The walk is one silhouette with its own legs swung from their joints, so her body never changes. */
+/* The riders are sprites: the girl, her mare, the two together and the Hunt, from the sprite kit Yam had made for
+   this page, cut from its 256-pixel cells. riders.png holds the ink (white, its alpha the brightness), riders-fill.png
+   the dark of each body. Each frame: where it sits in the sheet, its size, how big to draw it, where the top of the
+   head is, and where the kit's ground anchor falls inside it (x, then y). */
+window.SPRITEDATA = {"groups":{"G_IDLE":{"n":6,"ms":180},"G_WALK":{"n":8,"ms":100},"G_RUN":{"n":6,"ms":100},"G_DRAW":{"n":6,"ms":125},"G_SHEATHE":{"n":6,"ms":125},"G_CAST":{"n":6,"ms":130},"G_LOOK":{"n":4,"ms":350},"G_WAVE":{"n":4,"ms":160},"G_CROUCH":{"n":4,"ms":160},"M_IDLE":{"n":6,"ms":220},"M_WALK":{"n":8,"ms":135},"M_GALLOP":{"n":6,"ms":95},"M_REAR":{"n":4,"ms":180},"M_LOOK":{"n":2,"ms":450},"C_IDLE":{"n":4,"ms":220},"C_WALK":{"n":8,"ms":135},"C_GALLOP":{"n":6,"ms":95},"C_MOUNT":{"n":6,"ms":180},"C_DISMOUNT":{"n":6,"ms":180},"H_IDLE":{"n":4,"ms":200},"H_GALLOP":{"n":8,"ms":100},"H_APPEAR":{"n":6,"ms":145},"H_VANISH":{"n":6,"ms":145},"H_TURN":{"n":2,"ms":180}},"frames":{"G_IDLE0":[0,0,37,84,1,21,6,19.2,79.8],"G_IDLE1":[38,0,37,85,1,21,6,20.2,79.8],"G_IDLE2":[76,0,37,85,1,22,5,20.2,80.8],"G_IDLE3":[114,0,36,84,1,21,6,18.2,79.8],"G_IDLE4":[151,0,36,84,1,20,6,19.2,79.8],"G_IDLE5":[188,0,36,84,1,21,6,19.2,79.8],"G_WALK0":[225,0,70,84,1,40,5,34.2,78.8],"G_WALK1":[296,0,57,84,1,35,5,29.2,78.8],"G_WALK2":[354,0,54,83,1,28,5,22.2,77.8],"G_WALK3":[409,0,73,84,1,42,5,37.2,78.8],"G_WALK4":[483,0,70,84,1,40,5,34.2,78.8],"G_WALK5":[554,0,56,84,1,35,5,29.2,78.8],"G_WALK6":[611,0,53,83,1,28,5,23.2,77.8],"G_WALK7":[665,0,72,84,1,40,5,34.2,78.8],"G_RUN0":[738,0,77,87,1,48,6,41.2,81.8],"G_RUN1":[816,0,57,87,1,33,6,25.2,81.8],"G_RUN2":[874,0,84,86,1,49,6,43.2,85.8],"G_RUN3":[0,88,76,86,1,47,5,42.2,80.8],"G_RUN4":[77,88,54,86,1,32,5,28.2,80.8],"G_RUN5":[132,88,78,86,1,48,6,43.2,85.8],"G_DRAW0":[211,88,36,85,1,21,6,19.2,79.8],"G_DRAW1":[248,88,40,85,1,24,6,23.2,79.8],"G_DRAW2":[289,88,43,89,1,8,5,26.2,84.8],"G_DRAW3":[333,88,67,94,1,58,5,19.2,88.8],"G_DRAW4":[401,88,66,84,1,20,6,19.2,79.8],"G_DRAW5":[468,88,58,84,1,21,6,20.2,79.8],"G_SHEATHE0":[527,88,53,84,1,21,5,19.2,79.8],"G_SHEATHE1":[581,88,41,96,1,31,5,19.2,90.8],"G_SHEATHE2":[623,88,39,90,1,10,5,22.2,85.8],"G_SHEATHE3":[663,88,38,85,1,22,5,21.2,80.8],"G_SHEATHE4":[702,88,38,85,1,22,6,20.2,79.8],"G_SHEATHE5":[741,88,36,85,1,21,6,19.2,79.8],"G_CAST0":[778,88,47,85,1,24,6,23.2,79.8],"G_CAST1":[826,88,52,85,1,24,6,23.2,79.8],"G_CAST2":[879,88,58,85,1,24,6,23.2,79.8],"G_CAST3":[938,88,64,85,1,24,6,23.2,79.8],"G_CAST4":[0,185,68,87,1,47,5,23.2,82.8],"G_CAST5":[69,185,57,85,1,24,6,23.2,79.8],"G_LOOK0":[127,185,37,84,1,22,5,20.2,79.8],"G_LOOK1":[165,185,36,84,1,19,5,20.2,79.8],"G_LOOK2":[202,185,37,84,1,22,5,19.2,78.8],"G_LOOK3":[240,185,36,85,1,20,6,20.2,79.8],"G_WAVE0":[277,185,40,84,1,22,5,21.2,78.8],"G_WAVE1":[318,185,43,84,1,22,5,25.2,78.8],"G_WAVE2":[362,185,41,84,1,22,5,24.2,78.8],"G_WAVE3":[404,185,40,84,1,23,5,24.2,78.8],"G_CROUCH0":[445,185,53,84,1,24,5,29.2,78.8],"G_CROUCH1":[499,185,54,73,1,21,5,33.2,67.8],"G_CROUCH2":[554,185,67,60,1,28,6,42.2,54.8],"G_CROUCH3":[622,185,53,83,1,13,5,30.2,77.8],"M_IDLE0":[676,185,108,101,1,87,9,53.1,91.3],"M_IDLE1":[785,185,109,101,1,87,9,54.1,91.3],"M_IDLE2":[895,185,111,101,1,91,9,56.1,91.3],"M_IDLE3":[0,287,109,99,1,85,10,53.1,89.3],"M_IDLE4":[110,287,118,98,1,97,9,62.1,89.3],"M_IDLE5":[229,287,109,102,1,87,10,54.1,92.3],"M_WALK0":[339,287,127,100,1,104,9,65.1,91.3],"M_WALK1":[467,287,127,100,1,104,9,65.1,91.3],"M_WALK2":[595,287,126,100,1,103,9,64.1,91.3],"M_WALK3":[722,287,126,100,1,104,9,64.1,92.3],"M_WALK4":[849,287,125,100,1,100,9,66.1,91.3],"M_WALK5":[0,390,128,100,1,105,9,68.1,91.3],"M_WALK6":[129,390,127,100,1,104,9,67.1,91.3],"M_WALK7":[257,390,127,99,1,101,9,67.1,90.3],"M_GALLOP0":[385,390,125,89,1,104,9,63.1,80.3],"M_GALLOP1":[511,390,135,93,1,109,10,70.1,84.3],"M_GALLOP2":[647,390,129,90,1,102,9,67.1,81.3],"M_GALLOP3":[777,390,132,90,1,106,9,70.1,81.3],"M_GALLOP4":[0,491,127,93,1,106,9,64.1,84.3],"M_GALLOP5":[128,491,131,84,1,112,9,69.1,85.3],"M_REAR0":[260,491,112,98,1,92,10,55.1,89.3],"M_REAR1":[373,491,98,105,1,69,9,49.1,96.3],"M_REAR2":[472,491,97,119,1,67,9,44.1,110.3],"M_REAR3":[570,491,111,98,1,87,10,55.1,89.3],"M_LOOK0":[682,491,101,100,1,82,10,52.1,91.3],"M_LOOK1":[784,491,101,100,1,71,10,52.1,91.3],"C_IDLE0":[886,491,117,110,1,54,9,56.1,100.3],"C_IDLE1":[0,611,117,110,1,55,9,54.1,100.3],"C_IDLE2":[118,611,126,108,1,63,9,65.1,99.3],"C_IDLE3":[245,611,116,109,1,53,10,53.1,100.3],"C_WALK0":[362,611,127,113,1,62,9,65.1,104.3],"C_WALK1":[490,611,127,113,1,62,9,65.1,104.3],"C_WALK2":[618,611,126,113,1,61,9,64.1,104.3],"C_WALK3":[745,611,127,112,1,62,9,65.1,104.3],"C_WALK4":[873,611,127,113,1,60,9,67.1,104.3],"C_WALK5":[0,725,126,113,1,60,9,66.1,104.3],"C_WALK6":[127,725,126,113,1,60,9,66.1,104.3],"C_WALK7":[254,725,127,113,1,60,9,67.1,104.3],"C_GALLOP0":[382,725,125,97,1,79,9,63.1,88.3],"C_GALLOP1":[508,725,134,100,1,77,9,69.1,91.3],"C_GALLOP2":[643,725,127,97,1,86,9,65.1,88.3],"C_GALLOP3":[771,725,131,97,1,86,9,69.1,88.3],"C_GALLOP4":[0,839,126,97,1,85,9,63.1,88.3],"C_GALLOP5":[127,839,130,88,1,86,9,68.1,88.3],"C_MOUNT0":[258,839,119,95,1,93,9,59.1,86.3],"C_MOUNT1":[378,839,117,96,1,91,10,59.1,86.3],"C_MOUNT2":[496,839,118,103,1,68,9,63.1,94.3],"C_MOUNT3":[615,839,118,104,1,77,9,57.1,94.3],"C_MOUNT4":[734,839,118,105,1,66,9,60.1,96.3],"C_MOUNT5":[853,839,118,108,1,57,9,62.1,99.3],"C_DISMOUNT0":[0,948,119,111,1,58,9,59.1,102.3],"C_DISMOUNT1":[120,948,118,107,1,69,9,59.1,97.3],"C_DISMOUNT2":[239,948,120,105,1,68,9,62.1,96.3],"C_DISMOUNT3":[360,948,121,100,1,69,10,60.1,90.3],"C_DISMOUNT4":[482,948,122,96,1,100,9,59.1,87.3],"C_DISMOUNT5":[605,948,123,97,1,99,10,62.1,88.3],"H_IDLE0":[729,948,104,92,1,61,5,57.4,86.6],"H_IDLE1":[834,948,113,92,1,70,5,66.4,86.6],"H_IDLE2":[0,1060,111,92,1,68,5,64.4,86.6],"H_IDLE3":[112,1060,106,92,1,66,5,60.4,86.6],"H_GALLOP0":[219,1060,100,90,1,58,5,51.4,85.6],"H_GALLOP1":[320,1060,99,90,1,58,5,52.4,85.6],"H_GALLOP2":[420,1060,107,86,1,65,5,57.4,85.6],"H_GALLOP3":[528,1060,101,91,1,61,5,52.4,85.6],"H_GALLOP4":[630,1060,100,91,1,58,5,51.4,87.6],"H_GALLOP5":[731,1060,101,91,1,58,5,52.4,87.6],"H_GALLOP6":[833,1060,101,86,1,62,5,54.4,89.6],"H_GALLOP7":[0,1153,101,91,1,57,5,52.4,87.6],"H_APPEAR0":[102,1153,104,93,1,63,6,56.4,87.6],"H_APPEAR1":[207,1153,100,94,1,59,6,60.4,87.6],"H_APPEAR2":[308,1153,105,91,1,63,7,65.4,85.6],"H_APPEAR3":[414,1153,109,98,1,65,5,57.4,91.6],"H_APPEAR4":[524,1153,107,97,1,63,7,59.4,90.6],"H_APPEAR5":[632,1153,107,98,1,61,7,61.4,91.6],"H_VANISH0":[740,1153,100,90,1,55,5,55.4,83.6],"H_VANISH1":[841,1153,101,90,1,58,5,59.4,83.6],"H_VANISH2":[0,1252,106,90,1,65,5,60.4,83.6],"H_VANISH3":[107,1252,101,91,1,58,5,56.4,85.6],"H_VANISH4":[209,1252,99,91,1,58,6,57.4,85.6],"H_VANISH5":[309,1252,101,88,1,50,5,57.4,82.6],"H_TURN0":[411,1252,83,93,1,25,7,28.4,86.6],"H_TURN1":[495,1252,113,91,1,46,6,51.4,85.6]}};
 window.CATDATA = {
   SIT: [25.7,-74.1,26.1,-74.1,26.3,-73.5,26.9,-66.1,29.2,-61.3,29.4,-56.8,27.4,-53,25.6,-50.6,24.4,-43.2,22.1,-35.8,16.8,-26.1,15.9,-23.5,15.8,-21.9,16.5,-17.4,18.8,-10.3,19.7,-8.9,22.8,-6.6,23.9,-5.5,24.2,-4.2,23.7,-3.4,22.5,-2.7,20.6,-2.5,19,-3.1,17.5,-4.3,13.9,-10,8.8,-22.2,8.2,-22.9,7.3,-23.1,5.2,-22.3,3.9,-20.3,3,-16.8,3.6,-12.9,4.3,-10.8,8.2,-8.4,11,-5.2,11.4,-3.9,11.3,-3,10.3,-2,7,-0.2,3.8,-0.8,0.9,-3.3,-3.3,-4.9,-6.2,-6.9,-7.5,-7,-14.2,-5.9,-17.1,-6.6,-24.9,-6.8,-28.4,-6.5,-34.2,-7.2,-37.5,-7.8,-40.4,-9.1,-45.1,-12.6,-47.3,-15.8,-49,-21.3,-48.6,-27.1,-47.7,-29.3,-46.4,-30.9,-44.9,-31.8,-43.6,-31.4,-43.7,-30,-45.3,-24.5,-45.1,-22.6,-44.1,-19,-43.2,-17.4,-39.7,-14,-36.5,-12.4,-33.6,-11.7,-29.7,-11.5,-23.9,-12,-22.9,-12.5,-22.6,-13.9,-23.3,-21,-22.8,-25.8,-20.9,-32.6,-17.6,-39.3,-12.3,-44.7,-7.8,-47.6,-5.2,-48.6,6.1,-50.7,8.8,-52.3,9.3,-53.9,9.2,-58.1,7.5,-68,8.2,-69.8,9.3,-70.1,10.6,-69.8,14.8,-67.3,19.3,-67.8,20.6,-68.3,21.8,-69.4],
   SIT4: [29.7,-73.8,30.5,-73.8,31.2,-73,31.5,-69.8,29.9,-62.5,29.1,-60.9,25.2,-46.4,25.4,-40,25,-37.5,23.1,-33.7,18.7,-28.1,15.4,-22.4,15.4,-13.1,15.7,-9.9,16.3,-8.4,20.1,-5.8,20.2,-4.7,19.6,-3.7,17.6,-3.1,15.4,-3.2,13,-3.8,11.5,-4.9,9.4,-9.9,7,-20.2,6,-12,4.8,-9.3,2.9,-6.5,3.8,-5.1,3.9,-4.1,3.1,-3,1.9,-2.5,-5.4,-1.7,-9.8,-2,-18,-1.4,-24.5,-0.2,-33.7,-0.1,-38.6,-0.6,-42.3,-1.6,-45.6,-3.1,-48.1,-5.1,-49.8,-7.8,-50.7,-11.1,-50.6,-14.5,-49.7,-17.6,-48.1,-20.5,-46.1,-22.6,-43.3,-24.4,-40.7,-25,-38.4,-24.6,-37.3,-23.4,-38.1,-22.7,-40.9,-22.4,-42.7,-21.7,-44.3,-20.3,-45.6,-18.3,-46.5,-15.3,-46.8,-12.4,-46.4,-10,-44.9,-7.7,-41.4,-5.6,-36.6,-4.7,-27.1,-4.6,-25.5,-5.1,-23.1,-6.5,-22.2,-7.8,-21.6,-11.8,-21.5,-16.2,-21.9,-23.8,-21.5,-26.5,-19.7,-31.9,-16.7,-36.7,-13.3,-40.6,-9.9,-43.4,-4.4,-46.1,2.5,-48.3,6.1,-49.9,7.7,-51,12.5,-55.9,12.8,-57.1,12.7,-60.1,10.1,-69.4,10,-71,10.5,-72.4,11.1,-72.6,11.9,-72.3,17.7,-67.3,22.7,-67.3,23.6,-67.9,28.4,-73],
@@ -1857,7 +2464,7 @@ window.CATDATA = {
 };
 (function (root) {
   'use strict';
-  const D = root.CATDATA, BW = 150, BH = 100, GX = 75, GY = 97;
+  const BW = 150, BH = 100, GX = 75, GY = 97;
   // Where her eyes are, on the poses where her head is turned toward you.
   const EYES = {
     SIT: [[16.5, -61.5], [24.5, -62]], LOAF: [[19.5, -39], [28.5, -39.5]],
@@ -1879,47 +2486,56 @@ window.CATDATA = {
   };
   for (let i = 0; i < 8; i++) F['W' + i] = ['W' + i];
 
-  const CORNER = {};
-  function trace(ctx, name) {
-    const p = D[name], n = p.length / 2;
-    if (!CORNER[name]) {
+  // One rig draws any of them: outlines D, frames F, the box they live in, and where the head is.
+  function rig(D, F, BW, BH, GX, GY, EYES, HEAD) {
+  const CORNER = {}, names = Object.keys(F);
+  function ring(ctx, p, key) {
+    const n = p.length / 2;
+    if (!CORNER[key]) {
       // mark the sharp corners, such as ear tips, so smoothing does not blunt them
-      const c = CORNER[name] = new Uint8Array(n);
+      const c = CORNER[key] = new Uint8Array(n);
       for (let i = 0; i < n; i++) {
         const a = ((i - 1 + n) % n) * 2, b = i * 2, d = ((i + 1) % n) * 2;
         const ux = p[a] - p[b], uy = p[a + 1] - p[b + 1], vx = p[d] - p[b], vy = p[d + 1] - p[b + 1];
         c[i] = (ux * vx + uy * vy) / ((Math.hypot(ux, uy) * Math.hypot(vx, vy)) || 1) > -.2 ? 1 : 0;
       }
     }
-    const c = CORNER[name], X = (i) => p[(i % n) * 2], Y = (i) => p[(i % n) * 2 + 1];
-    ctx.beginPath(); ctx.moveTo((X(0) + X(1)) / 2, (Y(0) + Y(1)) / 2);
+    const c = CORNER[key], X = (i) => p[(i % n) * 2], Y = (i) => p[(i % n) * 2 + 1];
+    ctx.moveTo((X(0) + X(1)) / 2, (Y(0) + Y(1)) / 2);
     for (let i = 1; i <= n; i++) {
       const mx = (X(i) + X(i + 1)) / 2, my = (Y(i) + Y(i + 1)) / 2;
       if (c[i % n]) { ctx.lineTo(X(i), Y(i)); ctx.lineTo(mx, my); } else ctx.quadraticCurveTo(X(i), Y(i), mx, my);
     }
     ctx.closePath();
   }
+  function trace(ctx, name) {
+    const p = D[name];
+    ctx.beginPath();
+    if (Array.isArray(p[0])) p.forEach((r, i) => ring(ctx, r, name + '/' + i)); else ring(ctx, p, name);
+  }
   // The way the tube would draw her: dark body, a bright edge that bleeds, raster lines inside.
   // o.ghost draws only a faint afterimage.
   function draw(ctx, frame, s, col, o) {
     o = o || {};
-    const f = F[frame] || F.SIT, name = f[0], tw = f[2] || {}, px = Math.max(1, s / .75 * .5), H = ctx.canvas.height, W = ctx.canvas.width;
+    const f = F[frame] || F[names[0]], name = f[0], tw = f[2] || {}, px = Math.max(1, s / .75 * .5), H = ctx.canvas.height, W = ctx.canvas.width;
     ctx.save();
     ctx.translate(GX * s, (GY - (tw.dy ? -tw.dy : 0)) * s); ctx.scale(s * (tw.s || 1), s * (tw.s || 1) * (tw.sy || 1));
     ctx.lineJoin = 'round';
     if (o.ghost) {
-      ctx.globalAlpha = o.ghost; trace(ctx, name); ctx.fillStyle = col.line; ctx.fill();
+      ctx.globalAlpha = o.ghost; trace(ctx, name); ctx.fillStyle = col.line; ctx.fill('evenodd');
       ctx.restore(); return;
     }
+    if (o.before) o.before(ctx, name, col, px, s);
     ctx.save(); ctx.shadowColor = col.line; ctx.shadowBlur = 5 * px; ctx.strokeStyle = col.line; ctx.lineWidth = 1.5 / s * px; trace(ctx, name); ctx.stroke(); ctx.restore();
-    trace(ctx, name); ctx.fillStyle = col.body; ctx.fill();
-    ctx.save(); trace(ctx, name); ctx.clip();
+    trace(ctx, name); ctx.fillStyle = col.body; ctx.fill('evenodd');
+    ctx.save(); trace(ctx, name); ctx.clip('evenodd');
     ctx.strokeStyle = col.line; ctx.globalAlpha = .2; ctx.lineWidth = 7 / s * px; trace(ctx, name); ctx.stroke();
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = .17; ctx.fillStyle = col.line;
     const pitch = Math.max(2, Math.round(3 * px));
     for (let y = 0; y < H; y += pitch) ctx.fillRect(0, y, W, Math.max(1, Math.round(px)));
     ctx.restore();
     trace(ctx, name); ctx.strokeStyle = col.line; ctx.lineWidth = 1.25 / s * px; ctx.stroke();
+    if (o.after) o.after(ctx, name, col, px, s);
     const eyes = f[1] && EYES[name];
     if (eyes) {
       // eyeshine: two discs that give back the light, the way a cat looks at you from the dark
@@ -1935,11 +2551,69 @@ window.CATDATA = {
     }
     ctx.restore();
   }
-  delete root.CATDATA;
-  root.CAT = {
-    BW, BH, GY, names: Object.keys(F), draw, has: (n) => !!F[n],
-    head: (n) => { const h = HEAD[(F[n] || F.SIT)[0]] || HEAD.STAND; return [GX + h[0], GY + h[1]]; },
+  return {
+    BW, BH, GY, names, draw, has: (n) => !!F[n],
+    head: (n) => { const h = HEAD[(F[n] || F[names[0]])[0]] || HEAD[names[0]]; return [GX + h[0], GY + h[1]]; },
   };
+  }
+  root.CAT = rig(root.CATDATA, F, BW, BH, GX, GY, EYES, HEAD);
+  delete root.CATDATA;
+  // Sprite rigs: frames from a sheet, drawn the way the tube draws everything else. D.frames: where each frame sits
+  // in the sheet, its size, how big to draw it, the top of the head, and where the ground anchor falls inside it.
+  function spriteRig(D, srcInk, srcFill, BW, BH, GX, GY, KU, F, EYES) {
+    const Fr = D.frames, ink = new Image(), fill = new Image(); let ready = 0; const waiting = [];
+    const loaded = () => { if (++ready === 2) waiting.splice(0).forEach((f) => f()); };
+    ink.onload = fill.onload = loaded; ink.src = srcInk; fill.src = srcFill;
+    const tmp = document.createElement('canvas'), tc = tmp.getContext('2d'), tmp2 = document.createElement('canvas');
+    const names = Object.keys(Fr), group = (g) => { const out = []; for (let i = 0; i < D.groups[g].n; i++) out.push(g + i); return out; }, per = (g) => Math.max(1, Math.round(D.groups[g].ms / 90));
+    // where a frame lands: the ground anchor on the ground line, at the centre
+    function box(frame, s) { const f = Fr[frame] || Fr[names[0]], k = f[4] * KU * s, w = f[2] * k, h = f[3] * k; return { f, k, w, h, x: GX * s - f[7] * k, y: GY * s - f[8] * k }; }
+    // one layer of the frame in one colour, on a scratch canvas the size of the frame
+    function layer(c, img, b, colour) {
+      const w = Math.max(1, Math.ceil(b.w)), h = Math.max(1, Math.ceil(b.h)), g = c.getContext('2d');
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+      g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, w, h); g.imageSmoothingEnabled = false;
+      g.drawImage(img, b.f[0], b.f[1], b.f[2], b.f[3], 0, 0, w, h);
+      g.globalCompositeOperation = 'source-in'; g.fillStyle = colour; g.fillRect(0, 0, w, h);
+      g.globalCompositeOperation = 'source-over';
+    }
+    function draw(ctx, frame, s, col, o) {
+      if (ready < 2) return;
+      o = o || {}; const b = box(frame, s), px = Math.max(1, s / .75 * .5), x = Math.round(b.x), y = Math.round(b.y);
+      ctx.save();
+      if (o.ghost) { layer(tmp, ink, b, col.line); ctx.globalAlpha = o.ghost; ctx.drawImage(tmp, x, y); ctx.restore(); return; }
+      // the dark of the body, the ink over it, raster lines through both, and the glow around the lot
+      layer(tmp, fill, b, col.body); layer(tmp2, ink, b, col.line); tc.drawImage(tmp2, 0, 0);
+      tc.globalCompositeOperation = 'source-atop'; tc.globalAlpha = .17; tc.fillStyle = col.line;
+      const pitch = Math.max(2, Math.round(3 * px));
+      for (let yy = 0; yy < tmp.height; yy += pitch) tc.fillRect(0, yy, tmp.width, Math.max(1, Math.round(px)));
+      tc.globalAlpha = 1; tc.globalCompositeOperation = 'source-over';
+      ctx.shadowColor = col.line; ctx.shadowBlur = 5 * px; ctx.drawImage(tmp, x, y);
+      ctx.shadowBlur = 0;
+      // eyeshine, on the poses that look at you
+      const mode = F && F[frame] && F[frame][1], eyes = EYES && EYES[frame];
+      if (mode && eyes) {
+        const c = mode === 'angry' ? col.warn : col.eye, r = (mode === 'wide' ? 2.6 : 2.1) * s;
+        ctx.fillStyle = c; ctx.strokeStyle = c; ctx.lineWidth = 1.1 * s; ctx.lineCap = 'round';
+        eyes.forEach((e) => {
+          const ex = x + e[0] * b.k, ey = y + e[1] * b.k;
+          if (mode === 'happy') { ctx.shadowColor = c; ctx.shadowBlur = 6 * px; ctx.beginPath(); ctx.moveTo(ex - 2.4 * s, ey + .8 * s); ctx.quadraticCurveTo(ex, ey - 2.2 * s, ex + 2.4 * s, ey + .8 * s); ctx.stroke(); return; }
+          ctx.shadowColor = c; ctx.shadowBlur = 14 * px; ctx.beginPath(); ctx.arc(ex, ey, r, 0, Math.PI * 2); ctx.fill(); ctx.fill();
+          ctx.shadowBlur = 4 * px; ctx.beginPath(); ctx.arc(ex, ey, r, 0, Math.PI * 2); ctx.fill();
+          ctx.save(); ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.globalAlpha = .85; ctx.beginPath(); ctx.arc(ex - r * .3, ey - r * .3, r * .38, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        });
+      }
+      ctx.restore();
+    }
+    const head = (n) => { const b = box(n, 1); return [b.x + b.f[5] * b.k, b.y + b.f[6] * b.k]; };
+    return { BW, BH, GY, names, draw, has: (n) => !!Fr[n], head, top: head, group, per, ready: (fn) => { if (ready === 2) fn(); else waiting.push(fn); } };
+  }
+  root.RIDER = spriteRig(root.SPRITEDATA, 'riders.png', 'riders-fill.png', 220, 160, 110, 157, 1.6);
+  delete root.SPRITEDATA;
+  // Camille as a sprite, from the same kit (a draft beside her traced self: ?cat=sprite, or `cat sprite` in the terminal).
+  // Her sheets ride inside the page so her outline can still be read back for the hit test from a file: URL.
+  root.CATS = spriteRig({ groups: {}, frames: {"SIT":[0,0,56,69,1,41,7,35.5,64.1],"SIT_LOOK":[57,0,60,69,1,31,7,35.5,64.1],"SIT_ALERT":[118,0,57,71,1,38,6,35.5,65.1],"LOAF":[176,0,67,54,1,51,6,35.5,49.1],"LOAF_LOOK":[244,0,67,51,1,47,6,35.5,46.1],"STARE":[312,0,61,63,1,26,6,25.5,57.1],"SLEEP_A":[374,0,70,44,1,29,7,34.5,38.1],"SLEEP_B":[445,0,68,43,1,28,6,36.5,38.1],"STAND":[514,0,82,64,1,64,6,45.5,58.1],"STAND_LOOK":[597,0,82,62,1,61,6,45.5,56.1],"BACK":[680,0,59,67,1,26,6,26.5,61.1],"PURR":[740,0,59,65,1,39,6,33.5,59.1],"W0":[800,0,91,61,1,13,6,52.5,54.1],"W1":[892,0,90,61,1,13,6,51.5,54.1],"W2":[0,72,91,62,1,14,7,52.5,55.1],"W3":[92,72,91,62,1,14,7,52.5,55.1],"W4":[184,72,90,61,1,13,7,51.5,55.1],"W5":[275,72,91,61,1,13,7,52.5,55.1],"W6":[367,72,90,61,1,13,7,51.5,55.1],"W7":[458,72,90,60,1,12,6,51.5,54.1],"RUN_0":[549,72,95,48,1,22,7,48.5,50.1],"RUN_1":[645,72,84,51,1,24,6,47.5,45.1],"RUN_2":[730,72,88,48,1,64,6,46.5,48.1],"RUN_3":[819,72,96,51,1,18,6,49.5,47.1],"LEAP":[916,72,93,70,1,63,6,47.5,64.1],"LAND":[0,143,84,62,1,16,6,43.5,56.1],"STALK_A":[85,143,94,43,1,47,6,47.5,36.1],"STALK_B":[180,143,82,44,1,46,7,44.5,37.1],"SWAT_A":[263,143,56,70,1,41,6,31.5,65.1],"SWAT_B":[320,143,76,71,1,38,6,33.5,65.1],"HISS_A":[397,143,79,86,1,20,6,41.5,80.1],"HISS_B":[477,143,77,86,1,19,7,41.5,79.1],"STRETCH":[555,143,79,77,1,25,7,41.5,70.1],"YAWN":[635,143,64,74,1,40,6,33.5,69.1],"EAT_A":[700,143,80,53,1,38,7,42.5,46.1],"EAT_B":[781,143,80,52,1,37,6,41.5,46.1],"GROOM_A":[862,143,57,62,1,39,6,34.5,57.1],"GROOM_B":[920,143,63,69,1,43,6,33.5,63.1],"BLINK_A":[0,230,57,70,1,41,7,31.5,64.1],"BLINK_B":[58,230,58,70,1,40,7,33.5,64.1]} },
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAEsCAMAAABqlTFbAAADAFBMVEX///////////////////////////////////////////////////////////////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADSfQ7DAAAAEXRSTlMADx8vP09fb3+Pn6+/z9/v//X6cQYAAHWSSURBVHja7V2JguM2jhUOnnJl9v+/dgleIiVKll2upDohdzbpdHfRMkUADw/Xssw111xzzTXXXHPNNddcc80111xzzTXXXHPNNddc//FFr/11/MBHavzMo2t444fA2hc+ns3xMxS/8bHhZwgpfDJ8723BgmT+nouhfmofNldba9cfEZj3rgvAzXsHjOQNw89IFz0M/GLxB/KvPZ613/5M9J+5Wmp962TVcpQgNid6kMno3Ss1Wr8u/qv7YmVWZxdFb58bGvPw5Fenw5364VuFXL7mdz9IkW6FC4hpuVQAYJu/j+G433sCY/sfRO3Gmtt+eaPZuB84Rf0IWytjfq38o1n4NSDAoL/5mUQfMWHsF8b8SK9iGNTd11VG6fO/rDRvckCGl+UlBADKrdbbBYGBQFnl37vPYB9GyRbhVSnrNfOPXowgLJRf13e3EiPugvKyVpMFOcBLBSBHbhDJ2vBdjQsfr9/9XA4XDYkNykam3Jf9fTQKw7GGB6NPK9VwW1CeQ/PvBAG4KhEG+ZX9uqnOg+kx37p6wOEufx+5sMcELmF9TXUjiiyTNquxihiUF+tPVx6PCirLeKesjmYC/EuXQBuRofCZEO5h0FbKvXGh+eGVwviUIBqMjf6L8cduhpPrYKMoum/eXTBRdwYpU+EcLUdwfg0Bw98Pb8WwMfGqwXv2guKPBjUSZN85OavhteMvoyjeCaX1h+X/y2alwkr/QvFHG9+DWcg6fROVKzkp864AQ3bE9HfvLq7xQO1Czr+BqUUaWVxylcT/3CQl0SVmDsiV5foC4AsfyJqp6J3ilwYxMFmz3DwGsOEe45J1SII8wDp5J+rTFyOoKCeqDxR7893txQJmb7y4LbRcniA0TjzKzwC8qQAgcS9hA5L7PSY1nMbyAZ+G6kZB2Vr/PgWAq2DR8IDKBREivi864VTtlzZvAIGgByOjQ7rs9KZrJZ8dflqvQYTw5W2Q8wWDZOLhnNvECg7KLaZXnts6Buwol4IKrEaL1gQhDkJNzxy1L2yloCABXpVhDq8vXG9cPuUSoFpNelIvFuK7Nxco+MCZ/IzvHLk/k/3Ha8RWYcDyHjKXlyp2BuMtDw4YqdGrUxbrb+J7R2jdBha7W+q2renNrf1460+40I9o+kTF6uDk3rRqwV+It5UYtVbqRUMebGdQsshKBTSNb8u/WSO7E24RBvT2KgUQzDgzpusFVZ7oTBiS4dg+Ilyj2xcSV9sJblF64YmBg1QHIGWcdetfji4F0g1BDkQQ9wgIO+gR/VjXjLi/eVvAZUwkl4KcUd+lAU3QVO0OAXnpiy3RMfWUUTCkb7EYyuhG5NEOuefglGDjrr2Bd8Jtkh34yCz75sFJv8GlsIonxz8AH8jrDFHjJ9DNa4MPij8BCdWSf4TvGMCxufXtrKBpH1zZYPPMuxc1ANT0YTr6k+Ru+SMB7Fc4Tap5z2LiNfPZ8wcl3invcHmVuxvX8T4bMYCKgouuCQo0vtxguZGUjd8pqMah0tWw7VIUCiZooHTUA7KJXwMOCFr5e7clfFramiLIgmCD4FsKQDmARFxsR34FHvX+fYJ/y3oqH5wmwpaMoIHe4aAlcG/MX+SUwumjOpKyKpIL9TK8vrUcWvAizm/n+0u7bMYoSTPcDIKgClAqnmO6jYJlgyjfiyWCK98qWeK3NACYIH4Yb2rip8nS0yvolLZBPDhDvqDDsBdqe/L85EQNd0Zcgb15IZUuYg97HBC+vUpnka4IBCMvSH4kvM5WJwT21ssFeFK1guzAt3mFU6OTpaSgDl6/Jf8wUmrqAaf4zB2AzjukadgIKp9QnDc3wG7G6+bE2L2mbEoEQdmAMJ5sbV/bGi2DbM0BQX0+jFhhD3G+VfrOh9ivALsbPFrc73uhwQAqI4EGmeC5fSBIje7WGxjPX8JfaQCyZpUAjzgta7DnhY3Ber8ksnaiRPjhoCemkpm4pe6aE01ebSO/kCETJuEVd0gsyQgA6E25RmXRUB7BIZMNsHMSvwcAYLWb9SkP8K0dE9MMnfq7ePVwBJP6HbDYENVQ34gdeGl9lsL6ig+AXpLKQNQ2sToI0BebVuO8lP1Cq2yNaWv9aZ432Pti1TaM4m7gDI7kHTY0bboq9x5Q0GomWuP1ugVsUD0M24dEkLNbXeyhw/x6aT13dHxQ0Ql4h+OU8yyuGLT/QmvONPzgb1t/50IGg1PILEwhgE10QUAdh99PIKb+AY++QuEcwl+PB47YuJXioacLDJBCjd9TAGSPKPQ7QVvgBw+g7TmqN2aH04MZfMMAqnRNdupbjymlxiNRL8ha8D6j9k4xxnCHjqmHa2NZXvHNyMbrjjb+/On1fN8D0EtvB8MV1Dfec9bO/RfFSJU9vwrxW9jMYMfgmrsWJADjrTcULj6FE4mGfsvLa77CmROgvC0ccJKuCDtgEH/AMXBGg7toRbTk9g4C0D4HGAiLC1AgAEWZpvAnGxspN4lwZJLVpm0TkMj6IlJrlLju4pMFc/Qtf5F8/23jr79lf0zKsU0uT/iKazxP8zgzMf5ALDN7euNjBy7TCUEa1DBeeiwnj/owBQekH/cjVYfb1veVC39liS9p6/6jGCA4Lr0ExBt1I5rG9siiBNmke6otnb5JYmFdZN/gWot7m2RFkndIf0ncbJdNn8Lp421wVS3tE1VP+B3c+5gCItSJPBC0eDiTcXecUrO2T7ozalRkuAEFQU2pI92mVl6wPic0Yrlk7VEVgrxCUPQtzl65/mmj9/mdBDll0/vGxIHxw6Y8nzOH2OqBHfD21ScQ4tBUZISZhSQcOm9aN+eu7nJ1pMtLVOX+HS9RRyDru1AKNGX2uGwN+qPy77jQyg0l8Nwj1wnT7i8z+FtPl/8WNvYRL5lRZaNZTgg4Xn9FLqdWbG+MT0OYanuuguBRlwMtZE/82bDnOnw55aDWZL90cizhxpvkxR3iZ9DYhZEdOnqR4aPCNz5RzaNdkN13OMAgNy3GCF/jL1johR3RatZBNFQ0CuHweKWGhauI/BwO6z0+kzj1q+nIaNxSWPmCusR04BgB2AYZgLmXV6JXTkKKWxz6qKewpQHvbq0KlJDs8fwT7pO5xKLxOsuxPPQdHTPkIoDxln7mAUCii/wosK46vwX8hqPJ1rA+On1tr3pvzHCHnVPMrWArSnxeVkF6tEeSpphwFP+4pMXq5wEMeJhq2Ts8vZyaVMnM3O8LB4O0OTAjwQx7fMdWWLeHK7w5fjdgt3XmEXCb8xz+P/yX1QlxZRiF5YvjaQjI78ucwquG19Po0APvMW5wJZ05ISoaDAl3alUxqDgo7wJ2HnJ/h9qt7wS+AhBk6Ekn2fqDPoDwC7B02WfixD8rLklltAFJ8e6ajmieEa1x+PIgn3kSZEan+j+SFwoippH33v5ETkadMTQHCh+oAvnknxcdo8wp51EuLVaLpJ5zMs4tB7lviLWgNgfO1IEcB14PVPbSKBY6eLn8Wn4VK7ltnGMzYIY3FG5dPrv6yKen3HcChUJSYMqclGhlgMOSc68TazNO3wJ1jHkHwPVyCD1CNchpF8ErCqY0eEz00MMcRONblYxdKJDSreldZjHScNDLI1bb9lt354stC1dfbzY2u60/WE0kMA8Hnim4ZxKskikl01PjaO7Ua2a/ebOCcqjOnBIstPm1hUyPCRGjFzgAlPQwLZFd/2arDHgDGKBHWgxzXWqCS1AcIFJPIyb6ATczlBsRPuaKsa/bwJ1NYLkdBADlvbdOPez65ezj4deHU7r3DEuq+A27RX5NWfc566c6i8QSg41qIJpMRAxQ4BRUjCxduLEvuADA2kVFhpk8gsyeAAilA9fOYoLqJSsGnPHWWr1qZ8NfCmosktD8yFe+Mf8UrhaP3Gbd+yaqhFm98U62Dh+mvVLb1qYohoIDJPXukx5AAiISU2qtCj6njyMBt0mwy9kct4q1MPHs1Yxi5L/MWRp8uHTZTnc58Jviws4XPp68qt4T9DE4qKoXN5cQxqmMqF2h24NpjXRB9Anss2xg5Wn0xfBKeDFS8DtMrRWf6QthDfc7h9+5l26i7GqVvPGARIA0UJBThTGzArb6m3h0kFL5rt8uPzQ2cAsyuZ5DGyLzVdXK5nod6ykErWjboezj7ss/BJivVIDRpfYge/7yO1KRiMOXgA4XaEqW2BrNaCyH/4HkbJI0MUHWwXPU8o8WuUJ3Y6+2jlgovFQibVTdGtgwKB2rH23Mg4b+bWv/2TplAddCyFTfTPARgH0G9NgurfxBpgQA/R1206y0tGFHSSdgAWejFyLIAA4WErE49ADVrQz/NfB7gTYCAWCjLimWpmH83JSFR8lkjXMtBCxlph6SNor/+bQaEve8pFTycklJWGAfWMxktT1sow+SdlkbAydEzV5I9Lq2iRglClTiYfXM41+yoJ5Uo4D1pv8+dQfKr6xDCxLXHgrLgYtJ/oS5rQDAPIJIhTebaidBfplUcbDeQsuOD499GxcDcaRE2INw4laEmVE+YIfHq50ZI4DoLOy3Ns4wp8NOuDKnxYQnrVgH+q0/RwGgcZRSxyociofCz7wMcjpbNSmt6hybx40XFByrjt8VGeZTVYObDEBPn0XhqQRvzKThI3hBRwcGMF2xGJTHLUskvJ7wtdTYGXE66knE8qYlCBEu2TPMA27DG5LKKWUp/GAVbrJWBgaBgcyA7bdpMknDDaZgK4JbIrU0eNLd6ggjBkIi5q31LLAA/04bh6OVIgPztB4XrC4b7R0fig70wc+VDBAe+5l8+Ntwh3QtP55dCMoAoGNELrhE7mP0GCUETr83jDw4GLccG2wNy3J/6/RF1OcKAtmkoAps2FMs4lMqH6S4iSDxqVmo4qUhe8PdzWx2td3xZ88SeNBmRY3ZfmPrN1SbJZIbwBgesxOMP2UXRd1l1QeFi0BW414RlAhZ7MEFP/VJVdGUhJJrLd17RNuJR6qMWw8xnRR8k+Lh/lFz+AsFLAZHRxi+YDcUI5s9C1VYXeYnhZ3BQ67vqxX4PdcQ7H7MvHr+bs2qtqKHgVk/gDzUZ20V9SDcFXDQXQosHApnJE61AHkTqIt0GogtKnAsiudC2h3YSbgEZeteM57zOuOt8WNtNBPXRI2SwRgLhxs2nFL+cAKJBPV1441ELVSxsxsWjYZRet2YPeQcboiOQqticWcZOCqCQeqIFF6cyz/vLmjwFnh0wPJXTXzWo3669rTV4D2mnLBYObKoIMAlp1HgSLLn7A9EHbZ7YLFq4VdKIGRwVWkjQtJJPcubR79SZQyGiUrVLkB0S54yPFty5kmZf+9WCEyglU7gKcPODKaDueUDkIuhZiQ4Ed+LWFqsHdyFap4pANiFZ2CcrqAcj7ceUXsw8qMk8PSxBnAxtZSWHhQ/L8wJQOaxcfDZaUyhKMO3tAc3QdN4WaGrl27fBeIh6rXUGqLGR0r/U2fkXUePN4Xhg/t5EsrUTh1ektDi/ISV7XIjs0XC5vMlZU/nHBGQCxs1gNofB5kDWZAwEMZMMQoIpeSwiEaK+cUK8DoGZJtAIoxvNxQWWoTmCTREY7ZIxZAHqw+00bL6jMcwARR2ieXJO9Z4KxBh9+91e+0xeHxV8oqmjxDsv8pApWcaqn59dXIrZGscbn22adm6Am1ePlQRTJ4d7VSNPI92z260k9At9d1tYiMNWu9EniIDtrcJw6YAkq6BJ8AIsUICTHR1+NexIQCtuFcT206R/MSexkEct561mJpSLa07RmieNVA06uDIQhOKiDwkKt5EMfwBe7+nqJXaQ/Qa0yrfDTdKQbgNaUFy+RpWM3ZfR5YoclTqOsYbcEi15gCnsc8ebMBJa2mMDRR0C0OkBSqoe0W68SLs9F+Tih+uypU/Q7ZtCoq4DGzIEZpHMYAoquo0m57NbmvobsXp1oJNQTxWveBnXACMxCYWJr2RAH1Z4cbR48TdU8RLos3XnXJROAaTEbQb/k23/5Cdau6Fm/lAJWjzxEI32Co7AXY9fv9w+alxl+pFIn4WlxqnuWD/3gFLggvGPHU6XM+ueeZmP2txYPxNU6oiY9I7XjqLUlMFfXRkcDh9/MU+eb0et9gfPDv09BdTEdQy1riNjoOs5/GWC2D87glSot4mUsjqgkxAaXC1HfK2CZ77AFiIqmsELVvXLJIms2OkL7u0s5g08bkAQBAt2ApQCr2OMbjlrly9nJwMvWqMmbVS2QrPE2PF/YI94CFyA7HTf21O6IHIqQxqKidMCnj/6G7o6zW3A/t4RPgCPEK6sKxuXzoY4YN9XqCuRtZ1H9kste9R0AEG6cgWL7RX3qc0m0ItGuC6mo1d6wCMNQCUXIB0d5+4AGzUzY5BOS8nGMuzYioBc9i0D0jVz+oyZbxxbnKUdQfeMVq8+MrV4wnMZcr9FaAt3DjVPpsF52dZdJqyvgZ4UhOy35o+N6/AehrcyqSZDvMvOvtPnU/eWkUp93iqoqR3Z3QfcD/zZZBktvF3ZyZl86bTT9td8uS+p4R0txIqVitsiYDazSB61KO6pKD4os/R8pDSxMfsP3EUQIATw9pkN2Etj5EGfKMQPh7LFHtsGtFn7jQad7wkZMjj7dlEJbdV2SchALrgsQeXLXh+Z0pKdHmfDgmpEO6G/NfkQoCB4iHxV4mu2SoJw0t/sNQMbS+Lx99pruKzSl9UwVejVDjfWtDcK3rgK9Vf0Mfov8SlUlaSWBBMyo6n9dTX29B7iqlDy5OHr2CeYMTcZgk2612/5MAXZANP8p6gbxUN5HZ2su04Jzlc2iq0SoZNWMMNJ5VL8ROrNlBj/BBxKlGLlDsUWVO+k/2sl2e0cjh1C88oZ8IFLgUMSifBBFYuD49EE993GGOA4kkE2nfW4Pmeu/ezU/5aJAl3GkPfqL0It+zilaSmSfg0XwWMNkbqBjsCcVAD33LoYsifl2CB09qSqmkOcHop+q3BfKoSGJxqVU+fjEDnk5Gg75YeI/nYcECkr5vy9T0dodqBmI9j9960srxDcLFnr9rxjymTObX3B/WlhgogKCct4yhE3YnlloQcI02n6egk0uD7a7O5t7CRJsB8p7Qb9mXKA9PI91rFXtuAOCPl3vKqQ9dPwEBkq56gb03nX+94rWMM8zykhb4ceZeLyPp541fBFQdNu6NQ4VbbO2msuI8345mQxuMH4HttWFTA2aYT/0OpR093ydafGv8iQZKmynBzRyFZDXNCtETgTJ38Y60Rj73X10trKO2Hi+fTguloW4xTB4NnelsvMqKdYgt9An7SIRFR4W6gwwabq0sIGy5X2hxifsGKukE3h/9RtUbUNBFXkv585y5djRA46wB08nfPDTvQ7UoxIV3v1BZ1XoC5RLbW3PgSPTY4DVTSo4K/7ifCDXTr8y+XijtgZKuT2bk5yKKKc004hwH73QElvtvqw8RcpHIjBT/juWqJsWP2n5F/0MHWUpOh3dxD6fVLZ/nt6NpapCaFDFJJMaBz18hnDx/aL3k0gTpbXUl8C5ZWEUqNCmsEZS22CTtY6Ih9T8CusBk6XiiP1NmXtyCqQbsCsTtQKwFqEx+SHiT6bpOazclrQ4kCSV6q8IAukwFbNHZ7G73Sy+aE7SXFF8DHDQqwC3ufJvZjTGsaZNmKiXoWCITVx3AuXMjT3V4ppWE71JdPdPmt6O6ADEi5dIDlWiLxMLxQXVRSH0IA1QGAAzqKBTJwlvChVxjpJsjBKyllunpEtNQlgfXpffQ4VLvoDdPhUroBJ7qLFUtybneDIgbZmWNNI8iWC9Ikm5ZbvwrivM0BPOSvQfUxpOADmXcSM2BA5f19C5TFV54TMyV7qVLw5e9/Cucl6ro0vTBqqrowEc9K1SKCgz0P2EFG0vcQgDa7fm270RCd+y4onuHeMVCtcamBuH0Nbjf0IW39oQyg4te0MaQOD5zcjkMnQ9zXQZr1Ak9Kd8P+B0pHr2i88CB2mkY501syACpWfdIOwr5WZMiEA2zkargLljffXg7gKP+w9ZTrvYXIBLrfO/H53Bmj5dUpP/x1JTTo7uen1Mq20w0l4NhQPbi5Z8sgTXrPbiR+dhgDKFXrdyuKmhaLhbNSYzyT+hvwvfnfTTf5XIsPZ1FbyBYW1adGi/MheX2HgcmcIFLCWsfdMmfVTwO6CgNqgyf5jsIwAx8yzZGPLHefC0DsumSX4Crs0xifR06ywYf6KIeeIsqnzAU8oAkT43df8KfJ/2pefuTLGDR5y32SA1zQ5QXSnnOKMeOA9hgpOzlP2lWUNgKEB3azIombvYX15ilQBgHYJGmDajMEmDBYm1vFSk1pN+eUI+BDDd6GLEnJDNmPjQSQbMo2Nl27ARR+7EQ/0ippMnQaiYLaHPXWBWr5H1pGabzH6S2wdG15AZTZsssxDk7Y/4gaGYLmF9j5XiBc60B3jbA6LLkwS/9JEECe2mq4MgE7yi5p96sQgJZ+pUzjHSXwjjvyjxISPftU9ApgOZR8VYiPlwxJ9iXHxQiQEd2L8i+9jJLP1+T5tPma4fo5vDvwpzn+eGwAtVl6y1+rCpW+8HMzxcH8pWu92CZJLTA/8TUeGvZFnruOgFdVBIquL5s6itGwVTjUbNd0RVQdrCP0zMipvNb2MqX0Sennlv+yj0omB01HWorwD1EBsb4C7/ETm5d6gbsluWKXpdRgYxverJY2Q9gXHJxjMxa2GAcinFKX4JoFtLqBazgkYm+OF2nrYlMKIeSRFtlEq55au+1UqVbMU8YzHUfqKV+rID45rDymy1+Fpc8SAaOLQrCcKQCAyz7qw0qSNpFo8KmbooYxO7qkeZlVI/BJGPLyxfCT48Xa1ZuaJPYt1U6mwUlpFdLyB/gCKk5EhgOvkt+C1YZhl/KK1zYTbCpyPakoWqMGpoW2qh5V79P4wFXqGEMnuvyyKYgMYaLlMAio9yUeN+wpdSZZQvzxmZyOafmxG0w3KvY+QE/fP1LbskdqL+S1bEqIW1q2z05zeB+Pzw0DaCej7wPBicwcKwCrYZiRu+2FV6Ob4WEHcaomHDaEmIfIIBx5ON0wEhf51KfeCTybuCzhrwEiXZIelbZQX2SsVcYT/Xr5t64Mmjgx5rHQkxv8mUzpObsjPEzfQajzsUZFnqaDhGeI69Rg4FUmAPI5D1+C+HQnWaenKEnlfnE++IgB05DhknSV/vnC3G6kyjlxKgSX1lLSFi9gpYBoNbMMqUZareJ0tvfabd+6APmF4KkpH1OknBs04MF4VAeCruLh0crCyYfG6gw/FM5nRlV8gNc84Fbz3Iqcm7P4ayGEyZnwtoLUBNP0y/0As+pdzjmML/2Wh5PE9fTdGo9bePaS76pKIjY8PO+5z7UNZJ9sXorxEEXY+JSP3HV7xkO1yy1h7ahyydLhzE7kL4LSEHaDJS+k6cYDLUUbaVoS2Ao3gEoXYI7ZVc7o2Dv5rw/xv7lGFEedTLIzPeYAc7ALRvW4Za74+WnGn4YLQI6n/AHjJZoH+/hp4K0raKJyi5NHkOKHICNbI/Gtzee6tfzEQp8zuUZoXb5Ba1pjMT5k3+xCyzY87JE7QDdwfqNSOG9aLlxaOuQD4ioDuKQpJY5JhCKIQUuAWjFgszZtNO3wvFniAr4jhuPQSalFaAnIHEtwaUjk7beQ6nDygcSbQ8P5iFwcJmkiwp+65YkyQxwlgCecO+YbhfzEs1wzeEaGszFDp6N1Ps+N9nminHQvUD8tNk18hneZ3+l6pBOD2EvX6l/MA1A45bMWonBgtfIbiWT9Ob1DX2OUBiNjojOcrn7A+LLgAlfMDVnnSX/9Tw/hWpqdoTSTjK/QirReqZAaiVeA53UXqvS5zm6dpHuhjKg7yFIqkobbnfriRBDexnxJs9WR1wJbMXT4Krx+5l5l1w4u4DH7oYWOHj4sQ2p1ycO6zr/0SpWoOyp0sUrK30HuS5G0/HKQ8OflTfLBm8YJm73U+bdYV4AKhvEXawBvzjo+wsHrTYRvLjBkc4pnd1MXsckWBR5xPhDT5c9z5pHVBXnLaI1S0rvRGKP3cQJFKcGWsRLW4ZpozAN/Crv5PF1PF31Rg4/C1rUpCLnSPJj++O/7jqjWWEKmyV85iWtujTdkdvSHSAC4aIRSGJIxNrvofJPf+UUhtNa149jgxWJi2n4tcMatEAiXOmam9KvA5osDKfeLWYBjtXZx/uSh94Ho3DA9frvzIMC+Rx810PJoaGP9S9QmF07FVWM5Q+yT2idSxykUeVYdlqaEJUMt/OVUaxKVHDwN2KvGJy4eEcUpCptXmx0ATrL/AhBVbYd38RyHujB6OFiklv1nmoHghRznjOYxPGruzjEOgNVnPNuZnll3q3+v3CjsOvJCDqMztcxW4aluZ9n/A4v3YQrdSOvRyCcXJ4rMqQJQuymm5T+SVTwchU5cyXI1fxJXXMaJCgHfU6nGETaa7X4ate+7nOd0YvkPtmuMQ6XZzk/EVcEA6RopSKl53zlZRty/eE7veaIBP5wV30UWMl8xw+7rI66ueujUx2dX6Fz7p4sojlRzLvTXh5aZTW3NRXppj/f6zpq5D7b9vQoAktNaHzlnThaIptrSCuDfzAHsKiMK041jaTV5XvqVAkDqigCoRA8jVj4SO0nsL52KSPkMp7MFqEwFb6bG6sGfph3LsezrP2shkfFUMqCecLV0BABLzDDAijrydN90oLwsy5sh4CCHAd6fVgGUxAVtPhJhNmmkn9GSC6KMxp4Fjt9mVCoNsd8sSB0xG9a4/7LJ77roRaHVWSPuwstoC79ZA3SGBVqWdpOcUqH0e7/HYrt0RSzV3VGnHz044Kqg3XkaQCvITWVkkvR9S0Zs/uyMNpPhV8fuODK4cBN8KKMC7R7j7DOAMmMkBb2xti/J7TWeph3hU347aBBmG9tlROK3Uotwb0706Pic9L1wIzwUhcp8EhmrFMqPI6lZ0Ixm1ao5alRb9ySptbUcZfhBZuODT9I2S+akIM95z/i5EidXdOwWxWP785uWHqQknnR/5d9cGKDaeApVkY8huWMUF1TVeRel6KrpTcAtOyg/sZ+0HE0HmFiv68/yeZQ+1ip2SYvQ4A+72//YhB3KP2NX0/h18EnuJ29fv8fBwW6y0w9Mk4e6WwGLe8eGWU2szToYMZfwl/lgchltNcgxvktas7X11aZw1ugTa+50ZlQYw0PrrVw34T13Jv7RN0BWxIqV4/3gJf7tHMCyzWmMnQ+TXWQe2AnEX50MiC3BY1plFuVj3980CZdO47TVE04LsU/uzRkn7ijIkJMvzyYNpdyj09gibIPLQe3aFJ6Uo+W2x1DTYOG6IUCqOj3+FZkHbJSWvjddHkJq6fGel26NXo0bdFzP9+uDYW6PjRpNMMpwGhC6ubowCGS7I1mopI6+qGW6UgA52RFT156AlLRTrZ5O52x/eQodtKk/bYesngIj/N3lANUrh67YOohc9AL84EsDxcAG+NOwvFBzuJtCALF4vxZMtt4iluzC0wJDopH9b0Y7Fx8AcO930knPvpTFKvovNfqFN8vrMBi/D6d7YiokPvvTTwJAbMeNlyhp4heggMDR2I4u3Fr7YW5u+2WfBiitj3ITLhlsqZSvEdWEFZ3+3Qog09oKqTZpKeHbMn0elgXot5cDpV4PiPuWwFF9792/lK2HkgVEl9WOCvbzPfCk3E9CqimycHWzRxFlGLSjO3ZjoWNBfvNTSWebOP/it1+4n/AAcX98sScv1xQ+NQoHL7sEuOpZkan5fZElP6nStHRodo5EwfUpHfFTvyn1J5wgbRO7Air+I6+Q4Lz95EHMOamH3Fsds96DpZai/r/T5fJjBHb4zcHMhSstHCCONO4xcZrif08B7F08yEiq1jVGKI/Hop59n63ST6DOdUlmZciDomnH3NWYDJEqhHrED46Wuf42HfDaYf8DqAbu9b88gc4ahzoAVAaj8N9873SI1G/SmAe1JS5+7wrSonD4g8AZG5DLadEjzHcs6Y3Zv6rIfMp4UDAlc65GtJ8OGBTYQtd6axtcEWnA/7yR4Y582wiSrUWpcCp0bAnCahSUkZm++edEZyDgqGJBHTvvJwICy6dGDkI5Pa/9XANDczJoO9XkzvUishpCI7Kl9iE4A8MhpCfj3tOoL4gj947zb7ICGPc7j4Tq9qmxr+x8QXNd+yGpgwPCveFjcw1ok2MQQ/pgqmUzxqc/evgNoJhUDU8G25jhPlAjMYARPzie72euuX5elfbN+V8INdYB6WW++cuf2IG4NINPgJySv4JTp881179U6QySu7FNpZ5rrrn+zQv3U5pYzUOZa6655pprrrnmmmuuueaaa6655pprrrnmmmuuueaaa6655pprrrnmmmuuueaaa6655pprrrnmmmuuueaaa6655pprrpOFf+be87F3+yr/+4YpvPBAIGPX4R//BnBn6q7MPTD4e3q+v99AE3ihr58aw8UL/9DeoIAeP/bYQKv9mX6RtNAPSSn5VRE796vEn1JX2DtfmEl775yj9f7xwM88Mz6ZSoHar//TRin3IPgFKheIZbTve+qIH84qpfyPCNIa9ia9/sDW5mu12ugfmSCsHt5oZdyPnIjXSpkfeGyWcY3Szv83DSOWASIqvKynNwC0sUZGxLHloNjVwZAMhR3WT3zXnQQHFEJgLgfwaQWoZOAI6JVea2KhfqTnhXTS4HAD3jiOOBUc41Dij18cMorSiImP700yhB4BjPq8oU57iyh9HOFRllL98RPBL5ffoPqhiSoyBZrV/SOBhR6i6AAtP23vHGfMy4QO4CB/ZjWbvAdQoNaH4cOMajAsDebRvC82/kHaWdeOBTQ6vCDphHshxDZ2sY7t7dn6VwyFiuOHPj1AJg7pDciFX++hqR713phPD7FVa9mbzYfvJH/FaYLwI4/95fOkQrbm41tXKf3sHQC/KXD8AeiiV/f18AG9PB53XyW4NTaGZnvZWTbqRbdaVb4AEEDASCZrHe89M7B2ph36B4QPGU6qxKO6Vi15zB2MsK9WApyMKiOL0XkTe1Lai6Z03rbzxhH97csNOg5OVp++V6JVgiuiNFmv0+zj2y+J6zfVn34qS3VvZT583XVtSq4+DKfRqbo3f1aUcN0MP312a05DftO8UnrLN1brcuqukzYyAVMcXrarfr4/LNpGs6T1YnUdn3gmo+vOcYFgmWz4RKN1HgcCSGpVlaJ5/CX/EaywUpfDPUjZv9yX0d6rHtSLqCc1L5gGtfsKH0RfKyWYTio8//BrUpb/qm4BHd/B3sFriKpC60+DVvpSEaDFCd9K5m7dfv/hVKqyeHM0mvYndIyy295pqsu7e+MQg5Wt1VtbZw9/+NjbLXnzsdezx/7+1o/x1tFt2bTBG/CCVRzKQAN9CtZFzZX0OenV4rO7wmtC7GhM+Cl2l03i+8ncdTZNQEnlwNKw7QAHMrSQXaP1XcyVasGAzwMuVkYr6/3K23hvUJ5aAB38iQcom/7cyLws0I4GkgRK6a5tNsjcQn/DwAXUihFd6M96f/FBRfLLvuYFQWbf3JvU0v9V7ZN09+DKked27zcwACYn/PhY/WO/4wRQGolExx9l16jztx6bsiiZSyl9a+tTKdWuJSz8y/AChEtRQZuOhgTatRvmGq5wMMYXOgDco5DokNxSsFdqOhpGaqZ2C55N7Hq1Tmn+cgAfGDbnjWOMPNPYxQAma3UaQC1uBQY59XlHa3GbLQ7x04NHQMWmpL801qPJsWluaTgQdju+iA53QseQlShEoz7KBK5f6VJt1+mFt48Bj+A37k18TQGE6UFD3+BaNXu710MBmPc+HheZ8Nj1wNfXt470DbEeDC5iqzbksvjXoyNRlGSoIg5otFZKX9+ao5TS4LG1b1lcpV+LTWHwHmWCbniLgxnZ1jE0sphmnq/ugn5FU8dtcv4ZS6e41Gk4zImIsJ/yz1TVAIs3yirIA0BlgmV46HUc9wDtg/WPU6sjdgm/NMZ5AeDsfB6CW+dbhU8K9wx76R2iIbXHjdFr8NuRh02de3jTzClHX4ZcKRMhg/tYCFN53rgOaa2/4AvqxXjd3BV+kT8GGase7g0FvXw8K9vtTa9y0+FngxMoo6uPe/dbqxdD9uLQynxzteLouq+6gQD8YqpB2DuJkh2MU9MubA3vbi3KOm6tB6/YKd2KgXvlsPXq5LCDrQ6X6KjJyWo84mzQ9kEj9B3EVIxymTK77XIOxqwezZms02FbPo5UUgqJ7MgJFW4IL0zQFB0ZFpG7sWGZrR99VUsQIDTB4SGO6GakyEQGVpfOAx9r2Cq8D+2zVhCOk+qXSrcseewfcADWjCrzbu4vesEHoC/uhMe+QgMENSY8idhnpCOxgY9+75fupPLWlL3x6AKswng0j/3K1rx6eVMC7wIuU4PHdu/v/ZAkH9lbUjPo+NiW3pVSyU0Q5R70IcHI+JLfvNqRa3N+CRLwQ2vSfNbDj3o9An4gjlh6xQHn+6CTOY2aptXKtPjub8vo53OH4cQpzuCBOknBsHOZZUedD7EHiZn0g508x90UVA5/U8h9Jg2uuOgRLKVBSEE0Mikn2t/6zPSCEKFrcDXJOrV7joCIPhIFAmV2wWowDXJR/CRKDoIdG3b0lckc2fVGc3JvJNzhWnjxwjemFDUgm/wmawf0oG1e3QuPjdaJ2yL/ioBu8NhRl28m/YXHtkmUjE176wHT/q6UurI1jqV06eapw30fgP/S6boKYpUNVrVHiUPiPspRcM+0W32A5dpqtl82+Fa8fe+iBsKW59T3AAlB/mGOs2M2BRB8At7baDh5SSQnDY2FT1SCxBOA1YBGBeSO3v8/vQyoS0SHyNjCgEi+R8WAcvAKthnGpKwLiiHoMNr9AHyEBlC+pE22YAeyvBij9Y2sU9wMHt6nAVWOB1fpHEZDm+/90t7c7z2ylc3WoG5fd3q4BFO9g+F1b/ypvPdtpEZfNr12CRSd7d3GWl547C+braVdzraGFr7dDo6i4J14ZUt6IuykaZCzFMfxQgx+IakCa4JTZdb1Eblf7OC14F5zboUGMQBRDFV6txcttj977TUOZGBUPxDkH044qyVZdhwxLEtP/A+wCWqhIFBolk7oooyzaUOwibhkCVn3Txj+1ofyNU3iFkpRQvgcqaaIbwSjJ/DcgGH7KLdTayFFeUVAuMEehzvZfG91l2IkX4Y98/neRneK8LaLnt8v1bRJM3jHnSjdfWzQ6UgATL43oD8kpRCgZdpam/Ot2yOBmwSDLow6boK+z4JFHEkYxNi8FiMPG7aW6F3BIoXaezb3LSAGlXm/hg0M755G3nh2CaoNhv+5RY2YxVPIkUzHcbT1AViE4zlLfARr4TDCMpwHQL+VsLa6dz/CClaIn74fcAo5Oll4gTkznshamUhETjxnsipiJ37Kj0GbgxHuzS3NVKhHqH4TDClTbve+CUuVa/ZOyn5xcCSuG/sJN8tr9CP/EG7WV42UfPvYFu7uXUSJz/eGllO4vbU/bj06TMXd9blj/xkb1j1f3X1CqRFbjzC8h9Qris7rrgY8+Yin/JIVV5XZyKT6epeTzoHeJMMmX5vshW99JEWVu+LCk9LKz5eVW3p6rMAiqj1vTjQAsAY4ohY4/EbwWrCcBLQI012/e7O69WGdMg+jrKcz+6+iIqSSopH2VmIoMJ38DTcTWt0M5gajDq2E1F+M0n13e/OdvVVVKc3eevgKGlG6Q1/GAP3+HanRT6pu7zs0QD2S9rEH6hdaTwjcra2bE6nB8cHWpjd6Kz8X/8fu74zUf8DvmiVxgkaCVM+zQKvGPYYC1oMiDwoATn2AAIXiPQ5niMHvDv500EyG457YCg5U5QKdrT2mXFxBIL2F/qoCIM4aLqF1kCdY5Iqdk/XIe2yCnUop9xTyQfSOwGU+IJqvYAYRJbs/XPTEWw1gDjchUtldKhQERbms2OFOfMy6jqDorBIOnSW1L9hMzOrgGW2nQXvcOt6b/c29rW/Pnzzv7BLsEmKlNkUNth7deds5kNTRG3BEpZEz5sHew+BU5/E+l1Lg4dYje9CHQ4PiKhjaW2e0c9Z4r7wO2jTqZfw/x1R1FlTbNLxrYY9joAcbmRw9XhKthYLuUOoq8g3lryulldYSneWaSFovP7biWMRK9BIdlYuzQ3yfMG+GzWUL7F4tJk0DxEIBIJ7TyTEdDVsaEc6/3LIBIvHTaVXnrQ/YqOTzJXHGxfhhjTQZbGjF9OrYLTpnA6t7JJPuwSLYklkn9yZcHO2N1GMp1ik1ih/Zx8XN/+CTSI52PYSyhWlCa6Wc1zy0s/rBsndMB/vKvvnm15ztrXoeDE3d2tuHXPY1/EtZHaBgxA/05Q1s+C+zyssyBAC9zEEpTUlHIoIUEJpykv6k8966SDw0MI8vnO5y2jVnzjtvrQuiGrdWOsVN8H8uwZbd1jikCqAqtKg2w5koCgLvfMDw4b0Gn91SOKkAHU34IoL1sZdb4/DEakjta3k34e8egdMwlh8gcHhcFvhwz0urX9OpTJ23GUQREuDGAaCgi6AjzWF3034N6NQUbEp/Q87V9mdSGSGWbeLlY6PWJhvhtjcInKCqBFtSdEMZOPe2dZd5JbZrWJeGDxs/F5btrxP48mpuF8qSg+pSib5BFa+KUcYFFGYMo2RJy5e14U9cNBu7b6sdju0SmU1rR7eLg50iI3tLtpwRnBWwnop7B6hDeNhb7iQO+Wtstw56L2xLysat0eigRDne/7D16r2o6/0++uy6o4V+b2tlb3HH4t6aMHwQhqe2ylq/MwX5SGCYoRoLzQZba1ukFHU47fDUQUpd2JoOWxs/dsj1qjteWsWCRo1M0RYk/zZZuHgN29w+gGpTTu9NMM+aY9iZii+1ueLQMe3QgASAd2LeEN/jdnFGLgqlmlwcELlL80pUH2YAXZP8scXJ9QpLblv+IYBLDQBOXpf43HbTJDjCsMV3g/jMSArOEVEy91AZlEjv+b0LRtrbGLrEkvAQ9g7CVFzR++lxwZY2khFEQvSTDeYNMco65HsjxwK0MfvNvZG7NnzLkrXf7C36KkikCnuT3GyIsh0//bB3OQEpntDDx9ad0lHis1kbDoCiGgFsDp+2UGFTLSm8JC9P94Yl6qmguoJC5BpeztZDzOFwbxijC7+TUimwC2IfjKRsjQDN1jjcGs3JY3PPDFDWHXj0RqAavHgRccsmg8uqMMlvAq3VmrPecJ9r18Vn8+72rRZIlR+BjaLrc4JSznUwHwhHSORSuQcKlk/+saQRCL2w7NR+DslTS7EQqdtaSz7F6NTNYOT3tQ8tNWCEesGLGqZVJV6vea+RJ/nCPVGA9fVmB6nRxK9ksLFSsHftOirjyPgVeqfR0OOCL9UXekKzNwz23vB/A2VPPLFdHl8KSMGJ892eDmIv28O9+bj3mc6G9rHbvYdHonpoVvD87a2zlNIJX0jLvjUUPAXd/Zt9ygOLaciB/l7+IbsgsOFuUhjeE954jsNX4QwmBK6YxucsLxBiG5vlQLtV7achsmiSPWnDPWSdc444QpLCIkKT9VGcLSUO/n2wwqW0GODI0lB7C+LLvi7WLMd18O96xhbFmaSNA+gDkMtrvUHivdn7JHB5YfoLGqlcOuFKX9/7oBrGlCnqaOPgyTNefQeAEzY2iRJ+T5TGeweL9VNSKs7DLqjy9BD6rSXB5/pJAuyl2qJrHwlvbHa2YQEjP94ogC95iTvKvPKB8VcxbLD95zEEVQNP0ppq+yvWEhZnc/eW5KYG/47cK8+8i7keSpuiUgz4QAKCRLTy5St3PDRg4vNWP914q8N+GYFV8ar3lV/zuowb3xsY9UXpyjY3NuUsr00O+3t749neyu9+H/FcnIbX/dzF0+51UcKdKJ1404PThk9JKVrV/VVExDMlU/zqpbJp8VHMlS5y1voHNmc9/Ms7Qoje6FW3oTspruM9oSYnQNabKit0As7Hjoxk6O5tZQG1LBFteEUBcDDa1OcF7pUmVIXPyNcK8aGXZe9EpVoKKh1fzV8pwlNeNbeUZvyQx4vHHdyJHrYgnF5AaH+NJcfh3G6g6Tun1r0BL/fGzP2FTzi7QBJc7h/7qSjtHvs8UQJ3JeyM8Hxv6I7ELPceG58/dpFSzLf0NIVIug5uzgpwm9W864yF7S8gWWy47i+9eiikGTzBCY2e8e90PtBZVCn1CsOB2MUuom+t3ESjsjmtTeCYMGpuK4AAh8Tf7thr7N4eAuzJ2YvtdJfjBcVNJMkIiPSgXrucCtzLkxQ24uvn3fJHG7dzSMdu0zKyqyU5u4s+vxKs1TAkA/Bk73QnaTk/sHDduXWn90oYBleyue7jurqyt23rrOCQEn8lSvGtn+9dti5S2tEtt6SUztWtSvC28A270x0givSOpXEP0rU7IilRdO1SNd+jJL5IyZp5uYN70gCFioFdU4hYg6+/UVGXMiFQ7doURM4dJavkJmhBZayteXHbHYOBES8ahnek254jKtH1HegUxctGQsWwU7WxrUGTG/kG6Rr0DlcSs40JEByxeYu3xRF50hmZJCJ33BtGXjB2e4fNrxuVoVZq04Ad3QLXtknytq/fchAl3qK7XascuCCE40cQXLp5u6077v6MECxxMMZrD1KywInynav5bfkbjymFCsXwsqZCneQtSlhgY7UrYsGmBA5IW/diK6x4iwuKAsAGMIb/CsfwF3+juZ7dbMiuFgmCeN61oGyNpCu0vlnUVkS8b3K4VQqk/GB+nKiv8DwqJzjDzjmUp5Ki671Sl1SILbZs3tOLbFKZdW+CkA54ZPOfsZ7hU/WCcNgbkE6dtk2bPdtbrjuX5+GedzmxUvW6P31sq6qniwStd/907yd1PuRUbXcjYaot2e0MaGxS6p65c0IzYUxnUSttKFlafnTggmADfFDg7znY2rnFNSapYimtHBX2VrCvFAg6QNMrsYAohRlOLbFxUD0EsYWev1FR29ZhQTZgOTbIhvGuBZWcuR7bQIpbS1Rsl5iJFawnsoUSF3RIYjQgJT0B3Ug6gupjT8S5um+vF6AeNhv3ZqGh5LVQaiiEW9g535KRz1EF4XkPIg4wUNp4c7s3EB/2hlf3RoUyS0ICrOHgoau32PVuw50z8DRTEoNtllQlybaQfjEXe+88pqdRGAwuV5RS2drS9iS06zcBzdbpwZ9PosBglyxxuJyracLBsHsobH8Zdz/H1LQVlkvv/u1xOV83I60BGMf8K24Havx620DFv6jqPySNhIoCeMFJH9/29ufzkUrCiX2lg72oEdi1DUAuLGq4PQxVvgkOzckBlZJ01b3GR106Hh2KkXbB/sNJE5n3Ow2BC89DVGKhC54w1E2DhpRSdqO9JTitIsTAujdstWg9X/rq3pJXyMaIl46Nuh1sXdl6SI3bbtxBq7S078StxR8McuXavSPUudH5XXIfY+eTdUvih4S4+uSaZmuIxca3AB0J0U02HHrN8ttrvJbiEH9InRaokOv8Pr0Gtx4lM7LFyqCN5I7BCL7UFkHh8G6LbhT3COsg0yrluyv6bj19eHplUvfHoFdSIwdpjPbS5EapW+lblMiMrua/lTM7G37Ed8eK/cZNDsqWBw45nEU3tPnmuYjJ49zxIT5AVbpjAByMAd7lYoNupIYuFQefDhel+/uEdMvPC06XaUUOm5Yex1KydKHA3OvPHvZ2Dkqxf7zBfL03S8kf3TttF6VUp5MQNvXwg20IRcpY9G3/VB7JOKugeC+7tgnYp38R0GnwKNPOqCvxywJTj1JIjsLXCZeorxWQdLxa5H2fopYU/9Teply6rMKI1QdG8km2meJwy9hn8vy1H49XjnM6sSS3BpuyzwBQQc8EoercXak0agqc7DWaq611EeCgIXYCtnzgUKTFpjQ2KZWN+5Qz2KdjA/nbe4crQwWoI+JeBHdoI9yvu3tLK7aGiaFRjsEu8qbW248d/vGlc6JhAHx0uXXEyHfjsPGVyXDGRNYB7WuPoRtPId7h12s6/utRIg7g/P54t7yJoBIVnuY6pLuXx7s8VW5iBQn0zppyYvXwhWsqvZ/z0I2C/VNKQDCtH5vJGeQr9sEBcK+RCqmu0+WnQzwmADUhAUDp5SwBmiAE1mip/xD9ifap+WSjd5EKPKTjJTftMweipQJZ1TFNhxvZ84Gw8Asj9IKjzrYSOawP7k8XUBJEdXdv+1BUAw0wPIsu0PlaV0YypsYueYSyuMEyuLTNf289/JrDezBg2putg5RqfmkcLQSF/j+dD7b3eazeemKE94zKnWst6XSVa0/xPvgmHZAQbWoFhTN7aShi2CFP/igMDCd7qd1nBkJx888XJ+PoKJasluXWWN4gtsaxNrSxyRLKoFuEI/NWeRO7puxS5RIh8cGBI5ypBGF3xwqgEAThS/iXlDH50qsAtRujixoDvL+3+YrynxNDUY2pqBqGARkZ9YJ82q338lD+kereEr6xXy/CrodNybXoDg6ylI/kYwmy/+LWcibKu/T0+JfuMNNWJ6TE9fD6wjnHSEhTRfI3pUtYMKEHi5V7eY7bJh7l2ZJvwR8asJz8JLpHrvYEYNKm9v4kvpj99Q5wwdx/F/v8olx7Ua6J/+SccpsHKgQf3B89p01cUYjM1ybzcBnrFXDGOQjH2NpE8d29H23uA6ohFUK1lCToXa9uh6Wta7+xHiWJ1pQClsiB0y+mvbhHmUXzxQPHLinbIEt8LaUjvRS5qtg6AXSn8rRPVXYBZAMFx53vTHHH1y9Z6tobHVl+kmd8oX4aK5uUCfvPTNhjUnHIDLxo//Ocg8hK/sCE6p3IUFseW/shNb1IyBJ/8iPlBqfmxcc2obBRdzK9EV6b/Eu5v6VEX/1AkHj7lCCiNzsJq8ejmSx15BaK3c9IQEa7m/vjhHynjNch3uNMKqEQYObFCUv2L4xXULn1+OC6DH5BIWjNS+OESsPPr4gEvmzrOdo1OdOoPIN1wQOAH73F8kLp3dB9y+ouuR39hy68hKYVK/XidrmuMFIS6kcPDr07z0FNagA/PRKe4vDdSEoP/EKva8k7vTyR3JTRaqSjDPZkBpU5JxILvU/K6m3gRqRb9PCgXOn+KB3q1H1fNKI8UjE948vlcmPY+YMZesiUuJczVJ0X8+4e1gLst2aTnXRajCFtX7ra5SyDiAM9bCyIL5XY5hGbv6BWzv/1wPfA6YtY4BvUfVsdr7ILrj83YflVG16aSxms7+jHluHibw8bnctt/vTAYSk2TbxvZIpgj35svVkvf3WTiwaQYz+j3VjobeQF2Pu2jttEcSCXosVCULRlGHl6EUS3+JXrLhOqyVivHy7XYIE0m0h7lzSYnE4PQrS9eM2B/2IpUEtdTPLW5c7brACQ7BfDS1vXcBv/RQBfXlIBlVYmWDth5h5SXWLCxyJctQH6hUvFsETQs/ofe+qkAHgxibrVP/ltfQSBKd1/dwFiNwOy9PnPzN7yukr2VmxWg/HWxOxk/cgdoVC9qoNdCd/wumZSmWKjlujXUJxPmBiC+8Nz3f90J/8F3JNcd80CPaPXQuWzX6SQwQc72akjknRxSSRR0ixXWNkyysS8Xvoafp4e0iPNZRQh06xFSlkKIXJoCgL6V/AS3KoeT5zuS66YOu3V6lBDOCdgX8HcH6QAOPKiYED/Y0+dYjFKQjQyH9P8mPtEudfIbt5AecVsYfkB5Z1HvqX5WXLcwclwxkhPlUTo5qmHEVe+tLHP6eJqNYXtA+WkLZ7KvYPyyCEwt0uat4bAgKztRsmIXQsawGmMT61zmzcyL87lNRZyDffWOjdmtBgZCqsEkqb+MSAs94s1qindbfVKf/kC6kg6tXqDipRPwfMUHXzhvtcBunJB/qeD97I/T1xTKkv6TupPggAUC+xpgX/uCTDXRUsJBCj7g580yLaKnK6ioMXNz7y2pFnz/LwGaFXIS1+pcTaqxytKWNzw6DTZwnZtadTVJ7eJEhdcfE88y6A3yU1dbR1V0lcRcPRYYgYFP151RQ1RHOYNjVu+JwqioEZ7ja8EZAstZrxeByoP4kFxzp9/wYfmpFzyyXwF9froOktL+ecCX5Q10KtBsLn+pmWl0KXLx8eUIG1/Uv/ZGPCSzII0irLVfJlIC5IffVb1Qlyawm2WwbyrGHm33dOW0BTLGoepBlh8z11xKdEqYGgdmwqXdnk7Xjd14I1/8GKUPuxkkqJLUjVUedFE50EfL81YLbMJtB06JoI80Hh8UUoROu26rE4Z3+QBKKlEwhT5S9n2Bqe0/baFxiSb1VKgmBjQn3xdq4k1GzZLaOt6Nl2krIwHxLtymgktkAaqXBKaOlnJMWbJ/33IVJSbjvoaPQqnt9azOW+9g04JEUvwGEC/6AEsevX+kdmnM4+LIqm+xqQ7otcUgLxM8us6VADihP0FRUrvKn3Vy7+kGhht/6rvSoZaKP9obArzFLhftoIfSPumGVFPmx/215xc41yIj9y1defGbCsvhQD6tq8eC9nR9rldW/FUo1tk4CzdywFygoR0nwWlD+AiZUkQaxlA9yoFILHLZDyjpJzgcGkig192odcUQG13ReMCQi8kpCp2+m4LDDg2NEWv7PqAqg9Wt8WOCZefjmbP9br3f3QlU2TXuJ/+5HXZasOhLdrlbphWbExMXt/XK6jaPLoklUWgJLJQi0Yt0q2Rv04GLO3LehL4bzmAuG8A0Lg2Q8dfZeoKk6DPXJFF5j0FS/pKjsrW2/HECoR78IAipXfJerUMgpFm9VVZk+sAVhwkbafM/arld9OUgJMd+xuCn6sY4OGsz6VLC+CHEghwD5eSk2DCcnD6hzldq0Z6PJejYBsRjzmsyVdumgnpAsy9FNT690+GluHQ+Ghhw/sSZajdS2VGMJ5OljddEepIwwgBbkmpolGBCvnHqZXnDozN9QvW1jcw5ptIz6WUGfI3xD6dHXvKatnZK/KK+K6zzkdUHwt01AD7giWyT5GOyBzqr8HwepUwRYHMRmegEQSIAnB5G+5yKpAY6WATlKE1+sUBGHhZIOIYaSvi5WXQQepMnFGdd1wbnHckDdVUAb9m5Ti5VLamDJzsIv8d8i+BLCJ3hBqwLEtfDY9BrJW500dJAMCIwzqph2Qt+173jgj7EZphZXjC7FA1QO0wZlHE9K93bzpk72KgAZQG1GZdXzzqZTnv5CC9mhtqIFH7N7RXaqb3kpZL2G6CgN+ych7crokTaMV/S/JDsDya7ZDgh35ar/FBAzjvn1KBwQjzC953QNRaO3fpBpDVQfecjFnIeb97vO4J9GN1X++eTOpNNSqKpxXYftmv17KjUxgQT76D/+oUSrTs+FxKU17yG4Eipil6v2JxIgD7ruVB0P4unkZZ5a07EvwxB6Gf9KOtdsY8ryX1Tluz3r9gMpdc2WvAY9maM0chhhmPnQHIG+Wd+wblHduljb4HaaW9ea8s+0StO+OO0j4Ddv/6lRthmUIDBj+AgjdIf1/qIyhGfqF5040n08AvNS2DZfkHcz3nmusfWzn1TmN2XWea5lxz/YdWqm5XhR+eiG+uuf5TDEDsn6RKitg8kLnm+i+t2CM6V+JMYnauuf5jS8YqeEg5H39Up4a55prrEyvm4EQmYMr/XHP9J1ecKwgzADDXXP/JRfowz3Wuueb6zywknATgXHPNNddcc80111xzzTXXXHPNNddcc80111xzzTXXXHPNNddcc80111xzzTXXXHPNNddcc80111xzzTXXXHPN1S2w6u9uwKtZsVL89w6lfru4SqN760n5zUbu+PEy8A/XlRL8aKGqts2renMU9ucmaKM17BQpZWn5wKbp0mPtTa/Nm1L7ZT7y9ZR5KG28+/tkEYyz3jlvtX7Yj5Y8ArP2Wmk3vJ5Kv6cGNBv1zlmzebOhM7H/7Ikj20/qErBBQslZ81ODKhWUMXLwRnN4ejz8ypYf9vsdNZE43CdrrHGO/PqJ8WnqL+ONerDL0qff6/pjFH6kXRAZR8Eak17pb+k+AKhklBCrOMI6qB71uWnHxq4uaBVNzoV99xdHxbkE4F77vPD36Xx619XBrvo9zAFg45DBj504aOUMfWjKAgTktq7Keruuzv9QwxpYyHsvCgZE37wgr8jhx0x4RmOAwy/8d7+18ia8jDKc3a3rd1UphhtqBeKxVUGraHwZnclXkhd6Nqr+pa/39YgT+zBYHef+DhTA3uk0vTfKFYEyfmTvXv9y2gXRj1O0wz9Re9sdrJU2qxDEmV+QLZDx53I+aUTRfVSJFF5yeFMC9/g1YUayq2b/OePKFAQVtfnMhhzQmyYMqIhZBYWrf2CkaDi81QUUwFpmZL4iwhRxJcaZqyjT49xD0TduNQTTL2PrIb0ZWhSFDb9xkqAD9JeJX+F/ee6Tef2iGxM0I7xjlg7Q0GSNEh4oAFb301SAcQH0pyFHABn9B3x6uESsHL0E19EH2w9J+ONXgmCo8qtnbYyMVQPwmpdX6A7zcOkqqQBVtLr9NMrLpPCgL9BBO9/zxvdYAnQlAApm5yPqGODLqqD8nMcPYAAKD6fCISIaFbSbsm5Vy4fNRgCIViGkuXhBAF94arEuYgFSPz1RAcgP9T6aCp4EBKuBkDaLc+EwXKbv0AmQlQksaomepX1xnrRcREhjer/v4TTOsoyT9D87fRCC88NLP1kvHazPM/XClQrgPXxF+X4QkOt9oAZFH+YDFmXwCKpFefcwwriET9JKvaIAnIpPF8y4ESCg78t/tN/hgdA6plf8WBVcaxkMEY7gI0ygCmBdAwfTuH7AVIMK2iyqWEw9q61ZH+ZDE2sFG2tj7WohS0gCiowyQhqff0i4ReF2sdhrzEY7HHzwON88SLDBCgFU+UgGKdwz86bbvsi0yzQOWyZMh8cMb/k1gBgQREa24pEYC8v2hO/IPzVuRRBM9fWTPAA9HJdB5+Gp84PLm4IA9sJNcqsz1rnViBa3xqqbdxYCVITdOUSx44A4AgjEzHZEfH1bx5k8HhnDj4QH5NsjGqzNyMMLTtMvjEQNQCZAatTBbQ+q8BMKIOAipnAAAYfY9du7cThnVAKJ45jyaB2V//oQYeGymMnpiZKhoKuDh6j/unWAwelzrXKHJVM3GF6gekvZHYNUEf1DMGRv2d4AU/PU5iD2OqPT9ZVng6DMsgG1wWEHdgnEv3vijFUIo5miv/xPSX/wh912bNBp9HjQ2nhrxbfhOIB3Cdp8UXcVa6W4WmsrVIDRFByOaI/DkYfrhXcPHByno8bk8+Hj5ksnm34O8nR3inrgJocVlJ8K6IWCq7J+37IiBKuaoLABZ7+L1ckE1Zw9LIxHSnEEs1If4RewJ7owIm8yYjduBIzZ8tEWYhrmbF8H7YDOBCiGGwBIbzG92jdDd47KI1K6GwGgvOSaubWaIWb5QRMJtTcvStihsWpRY2r3Y43IBZ9VuLKz10FEA/oD+UrpRQdPgVnjnWMOjoLVmafZ4cQggjqq3HhptSrA/qa3VpElZY2Adw4afRKS8IFUmKm7EqC0MsknCpbvJe/35A1rHTzgOGWCgxvzTRVOwYGj7jcwuuyfIo+D3gwOW8fZgTjg4SLAUwIW1i+1AX8QSUVdeFt0L/u29PBcHcp0b6ExLzFs/uLXBu/Kz4SbCXlfvk+80eqpnIM3WVjW7yQnuOaORdqE159hATj44a34dK9TDCYGpIrCtqQIQaTA+FaUSXBV954avKZwqda3Ug/g7xyY+YLGmag+xB0/Bzfrkz7+biyKvQmohaOLrdB8/1UInxBwDIiyB+O+K5+WDpOqgmJhYz90acSDN7EXPmQMIP/Shp67uUG4sE6Uh2xfNmuD7jX2J1xY7q4r9FpJ6HNL9kX5fxBifxfl14+7AJFak0DlxvN3gF34Yn0iDlr3eekPDqMRUqv3z5YeunTvOB8UPreBbLzmjcmAc1wJ9ejtDWaBTX+sEUjcOWrdPXM2QHdv3V8SczIRVyME6/1dCCBRj3iY4gaw+ia6E4pt/1WEq0NaP3RrKNKW9V3Jx7H43U/PAb05u0uZuiOhQe8/iPLPiA2w/CJcFqA6+Cb3o0Rbbktrt793Taj/8Xedm6tbrfTj4TOI2hQzNH4aNCazMpwJwj557wEqUNEsuH/7clt3R47VjXvGKvYOZbr4NzQ+Oeh9WQEhN5lV1pKSHYG1yJV9fJNcQ7SSARgpEAk7P76lAEB5HrwAFUyIYIOPkABR62K+HCxaFyMRhLvQ0RE6sOmlvke28e7x6AucPQkb2nMSB1Ir+K3Gcc6fc09PQK8k4UlAhN7v9nDv9HR+ga3/DOKDfS8Qi9v8MSFdPwUBoqQBKmNWy4jpUuPhLMM7jqIGRDDAB9evDF3whKrzD0fkkYPJzZ9J9OXGNVCWejV1M2MZgj7tnkN9qWArbnKZRsep8CkkQ/67b0J7swRAnfdT8M28PTsYVJUUqnKfiQOQ36yE+PDxvkRj8AQli8LuBANhf9Miz6wfN1WAXjEGohsDADv7oiWOBewf/9MRnV9eEIki5Xg/ts8UAx43uRmzJlOJtMMB370nqBqnFT/FAgZNYoPlf3ijIYnPkNSG0zyt+M7P4zeirDRjDBTGgzxh6KCkhKSv+D+/3EihNuueU/BBem4kJ0rRUH/3BNHyegekkQvftri7TMT6mzHZaPFyfgVqoMf3NLo687DAKPsJGhB8RADUI/kSOro8wqCBoLEgDe6rtHPMPHVf9/L4lKMc+0lZJdgoF6gAK+aWBmQUHIYnTBz5FZM+a5yoQnjfsy2j0GN6FP/NwyddlKcogM9koTtnjSGngwVu9dXBThMdXlRLDV68dftYvUqSjXBWM3K02wLYnkaF9YP2zi6tXcjkTP6zm7eHo3eS0QDWzf+Sjzffy8sMAiuB9I0Ddd8L1qk2OblHx+jsJ3KBMAKAbBFgSUk4dIdBDZY9W8fCrR/lNeXzET+eG0zyHkUqCqYAPMYgGngQgOi1Y4lKEu5QlDvipp0olvPdTSwOapZg2WQI6kZf3/bSuX2X3yYBUHnJl47cHOwYnpz510PIXgGU3zF/0UbAH9WhMwU7ZA9qJ3TJ/4dG9TRi+vRCuRwC6jd9bsh5ECoMfpDdGU9DxzpBAI9NXlbAN99EAMGhgCY58rtRAExVEclDxkYVkAFvPqAA6PEQF5m2iwCoSd/wn76CA06tc3wk2yIPQoIFyT3X/6ZyDgd6as8KKKlYcmcAtzgU3DISGVUsMROY7lWM8moRE5rNX1O+DfXi+753hxuu/n7wSUntybKxOdi9FOz5vwuNJ291rB0lqBBTiQjOwGGneaD1KoI79kznUkRbe62PN9IS5DW1nw+RgSfbf9EAj9SBbQUd3YdMU4Yf/GZedtAgqtG9gN8l6jYOO28c0V24fkp9pNAoeJ/J1d4uClj1HAGgxE64f/c49gXjS+U14rFz51ISULGzVrAFk3dXVltxW+SoDZ56Yi7ZwpyQitSS03gnNmNcLG3D5F8GTWCUKUIL34fs0KYD1WvCir3iNyoOXWTuet87fv8DTd8bWIzZG9CxdqOUS7TeKoBGymAT7z1ETagLi+4lQXNP8zidbI+pYimfuJiO5/Ea5QF7PzEeQS96qCSP1uwuTLBMWzhTvgq470lVardSjkaSgb/H7mz6sCjCWM6FwEZ/hAKwLtbwFLIYs66M5T3X+roeZaF88WBhuovmCbT1V0dXcgiL1jjc3WSOc0Jk0ILe0pkTkI4r1wDFmFf6pSQDh19pqXa4PnkJ1QFXaCTOKDIlgM3m+3G7DhPlhFcIb3UN/7POvVZ0CMbHr0Swt6FFBcA5BEDsqADEEUVoHWdFePqWd8a7KKK0u3mWUxawNxc3q3EpUT/LBCQfI7XJjuUaS+wZAAz+csom3QcVdcyDrshSyqK+h6itKscgmpWd/h5M55o+0eAyCN5AALL8AQSAudlGPoQsFNo8Vy4iAjEYVMxqDbQ1F21LuJXMYGsuMgslEEZJ/gvEPLx53t6xPHawKo+z47Ued8AUUiqRFFUqtk8iHMpZW8JkNZFYfhEuqVxs833lSy2Fk35tneJkY8M98q/cRFAnlotwILHQOPGtGY/lX+F4Bm6r+jK8U8Z7LNAii1LGmQRTCvueu8LV+673SC7CDXZERXCBS1tDBlKkzvkI3JeXCoOYm6f2b4G2liyiNtbvcYBksQVJSN8V0ngPJZ6ouzZO8KFOIyLHcliYFG5xqfFp8J6+sJw3FwuzTwUqwSapXzQM8iZP32auiJO3WEzzplGgBWnxm3OkzWF5jDlbWtWyCyFAKnQQJz6VsOK14o0R8jaCIORWOCEt+pf0t8+fElucH08a5mgfLw/Ggw3W3L+CAXwHz3cQf+CzQ2uxSxp94mxhVHbpDEDPLwLRnurDjgxMWaVirPAG6Qp6y7heUusGCidu1NOUPrXqfAUhk1jpiijrA7xl+3AuXcRYn9A/CKUyz417KokRkG/2q4nnyXRio9XqS1bLO6kjEZEYDpjTebfSp7uBqQD2M08cHbcC75W/UrxSmWfKfSt0GBxLTqCW4eOSIm9nDItfU7QEkwBg79FVE779XgIuMA7nY7gTpIYQNah7WB9P2pWA+SpJyZsKiAoAk7l4fCBzTxtVbi2G78G8bk6VdLRB9ofHPM2LV0bV+N0+CS/LOuzJuq3UYpMe0QBiE450qEKk3c6wJxS66A0Wy6pvNYfBcOMIekoJ7nGt5Kg1jElqg6nX6+ofRpiLTUXt9/OWmwAiVt9OOCm1OP1qG05tN2Auld4ZiJLWGlcyr6P24AMExzMgw1i59bCf1gCUkSaW/2VP6TLCQC7n9uQgYJNwuvQp512aaQCRagzXXfe9ah+QU/qKuLgJIxcLEijcZyRFTS+/eDyuy+9YjFG5FgiZQsdS7ICp1vXbECxh6oLMg8/Sh7IJ2HRPGRxKkk5mwxTG4Rfa5QH3xQBFLCrzmhpAwCgMBmZQlYt4Am02bIEuuOfqRhYwrmvSE42ykPPgGxce/dG2RrSvg15tMi7jq92D1IA3uTnhlDgGku20Kq/cQ73YzFC7zUwRUsIXq7PSM8+Ef6wvR4+sow1hB1SjPtoKCP7SC7V3ORZykbrqGakDFOHupXZ8UCuvJToTtJdY33WgAAP0s1JYTrjVgQH2+x3S1rePGCZ7sOGUq1JZ/2LLS13g5cXCjrmBhMmzxYPMy3y/0xO2PV1QwYA3Zd9U2VsvWk1SXNUIATANy7KXNgUKDvoBGs9K9OaZXjT7P8Ch/O9JASGrbyU5Ohc9BXnawsnFto34vIQoKqeGyMMNfuKISNrZVwPFAxCPNfuf2jqvWQckCTagvft4jxe9pUeKNxLeMSqjnVYquFAa1r9eNB2xwSbWnDGlHvZzHeTQORW/8sboxDQOxKCRT4LBvDoxXRuHjrgJaMHZ0GH32CZQjK994EH819RRgBpe8ujDYlXrew57BNGqFwu7u84lHg5XFys2lu1TB+UBU6iYI0P4kVegm1graIKjIJGPaJwdr3/FtOeAibUaJ8hLVGZfPbmX2bG4NthNr+MER3C6Dx523vE5tRtxlH6aXh9ri3chH4hR+QDlnpw1fK0JjhFWp4YS5ds+11mBk7fUHI1koklhRnBwOTJYSgULbO5TvmQV9+cUJMm5gOYiHRiAhbUvdbZSD12VGASnRLT053pImlVF3R6eDXMLPii03RhpoNV7FIV9IRbV0HNjcTI3CscsC9B4lmy7JbTAyb2GE1ox4LCl9wGyJ7wUZQUXzthDepLh3qildHETA1NmWT7Rk5GqnwUxp2MLx1Ua/AHKkH34VJwtJO1ZiRYQ8SERc3iqy8C3Km43jEcVSNCp0y6veKJonrU7qL0tYPdPhGdVUiButcqCX6hAokxA1/M97XIGXf0hyD1VDkml5skynSCYPG9vd4Azqj2osEWQeXm7iCzPIO1WHusLUxn6qCRJZIQ/1UEO7f9S1pdAwJi0T5yrvNieVBqhcaSGtHILO2EXG649fmjfaAweJnwqN53YzqtUjg7GsgxjofR/PqUAH297JRFOUV0wOvaQk16UcIxkLLx+pgxT2S3TaUkoaF9cqYzEx4syZukNoc4MLqaMToJKpu1ABewC/DufIFN42uojA6Qs3DD4Z18U3HpN43OJQ0aiNz0WhQfRiq9L3vDhcKDhynWrN51P5bVNFwyIPTi/wrqlgnvBe6hROsjdtNqsmqxkCRepv/Icj9xRNmxtrFG3RdRzTeaOYWnxHF9raHexu45wZUcSkfijhHoYBpDKISKlVKXYaZcSvvs3YFeHu0/rlIZRZJTQnCaRT8puzj8e7Rc1vTTMl7SwHb3V2N5ylxzWc9fnwJJiq7tdSK0ygjH896nifTDlYhLUoAO0MADIcoO4YmQDrT4t18ER9Zn63MY3DZp6i09DxUSHK8bOqBRQPAag4Ua5i+F7f1hir9IFWiGze1JEwsmaAux5zpKCkL7Q6afDajbSE4IlQmeaTMq8r9LuLgbQoimpBL+UdCrtwtHCtHDwr++2K7TFppZsGwlkPNaPyL//Ek8OK6aszVuYZcDD8FXp8GpIuvaZGD5ZcnPMLK+4vx2w/429wWYXOcigKSX5UJLimxBqeB8AR/66kPP6gcNaAPNoczH2Fg6WlsAYHAtn1IXHwHn8ukDmY+07VExtgtJ9KTmuXUK9EfesqK+Uyf5S7bC8Xa5fbdH99DccnYTwsXoXXiUKQAQQxtT/sZU2tBItouWuZQa7qm1QsX3zEtveXNVt25a1rGnQGLuBVPvBVy486lILGz0HrglkbRAqaMTbI0MCZms/WmN1XLM2Ci89jgy6tXxuu45dZEytjw9cPqrd6VO2GEJ1uOV/65heBwkWCUQy+stJI/VtPw1yR/prs+dgdzn4YFPsJzUitbrtRqWdyNqBWCYVS/vyfw9eC+G6Ueq7yjIoauzqUtEJibbEVAaJk3+yi3dSwE3iQ/u5JP0Pgpbbid2b9SpHn/+kmJ/HR3QQfoSRHuH92QmgNBc0t9oDMoLm2c6tHUS3ui08zTR0vE4lpIjXFF6aZ1NgMMkkEoZcip4eSwgF0l93HZ8G36O1CbRFWJdkg2Ko4OaESWNygRd0aW2g3Qec0HC52jo+6ZkTjEUKeqFyZiQADmreFCrpz6c2U2tl+EQthTxWnCcTyjsLWEsno4NkHrUGodTrQdXOW9fiQvjAMgJ39EWtBOPSG3RwlzkOynPsODC0dDr1w/qc+CuvFcXLCm3Uo1zw4fQHWPhnJ4m81nkVjqG23U8z4kUDNdNdZtjlj4jPe8Ee6s2LqSYylYpkvwSenBWpNj7AMhSrJrbWyoLYre5eE94ujWJrrAnYlkgjm3sgHnI+y566IeW/T0J7X8dFYNa6UmQASpLx9ZcdUhwZwsszCD71thbslC+e09vo4AREfbwvxjIpCSGH/sOuBfHVBjIlcV3t7giJ+zKUxdU09b+HlgF4meO4wJcDOKuYJaF43UdzsYRSUJ1TD7BjUKFjP+O/f1YB/IBKgYsDp1bk+7peaU55jr3Zu2E8AupFBHw6ezU67fXjLO1jo4lWYaa/7r1PVU0YbEzZlt8UtSWgXm8FUrRacn916AIXBP67KJQl9IIHDzkOBRISQI3SDSAXJ2PpBoOuZDZxX3JSiCFMzSPlNP8yg/CR3XWsQVt6ePWiDck5EAfApNxNGZU0zIkhoQYW7PDqxuroJ43U0jTHUTljDAVK+cHHx/iYvmSkEfctOXBDaw/84BD2f36VujMYEAiivS9GsNBqeurvSE8+TSWW+v0iX0KRVkS660kdfGJ7x3GXwX2894Bx15YRpK2ye16SjlbnLD3sq64Jvlm0uFAuJj4Ggghjn/BxUZTqQH0sQlMFHPT3N1nsXBMSg7LB7QFz4CH2Liqq3Oy4r0cGiB+EJqbi5M7lY1HU0aXsM2BrFxvma/qEI7fZdOroKY00Z/DT5pFzbkXTQQP2vTG2R/kyC/x75J9AXQ7xu0rk8/4SWYU7eONdod967iwlnlG42HrTg6OhHut6IzGZ3ca5Ug1dbYGkbEmQbdhOSVY5X/ATrqbU7bM4zfhL3+WH6cEdCdSmoMeRJuP2DWrfsxdR54pc01uw1ACK+yYRB53HrYNXgjaJfkRN3cMdIlak/o+Hh8a5JQPs61TFz+DLZqBKMwE1gKiVwZgyQebz5lemlBBufZAgPik0lHtlPXOWhfkXaQDLUvoIAyIidfs8l3E7ZEhKC5qFbgpD/Wwu8p/zyFvaNPgArGWEooxS855xOe1Hl4umku3OSei7FC+JwCvWfn3E/5nlRAdKBhEsfWi4PNCxCiaYvrv9jNRDnbVcTs44D32MrrEXpIdbcvsw3AEkVfRJ5PoSQDh2hm3j+IUuUbktSJcyCRmybJjuRHECPfhY+IYb4rzms/IUgHbaUbeT/gH326g4+hV6ar2/ntDwA/AvUgD8ZaUDydiPB+UuIDwiL8dxFFC19d10G8hpoc1NgcHwV0VKG2O1DhjZOPdwatw2i9pmGniiIoKRokSoSdMjHZutjTCOhtx17/At4RCW0KgM3rwZdqXlUMHXsB5o6SQTeN/+pXQUEWKjV+x5yGsiDJTEZWnA2TdOWvZ1y3g4bBWAtPJY06CBZ9/N6Y0Phv5hIzFzfR89ZQaxRoawjdGh1Z8XAk2J7W/eRkxnx00HZUgqajH8PzP8W7wA46Etx+9TwPia65YMXRylayRDoG9CNfUwcC2xIOWf3KNfsmf8AjfdB0ZqjRhUP+1P6g/GhIKi2iG3t9KAu/7lku0Q/pK7NRWdHseu3zWROqLrM0UCvDOJkP14CACqN7wJbMenJElGAW6Chu1x7Txtto9IKu7iP5DoYHzWWUoleBaOSDve3wugJ6VUQrvyPglx+0zkv35ijKfAm7apemo+ehBykmCJJG8Z9a9RAPbYWKiVC7oED3SYXtmwgXSbrOXkLMBFh9mUokX7u3Kyn6IOwx11kzx4g+GlE9Gowkdmm+QmePvUCmlfWku0iW0cjg6GDdwZwaSOyrGm3CV+bb2grGinEny6sLv0ekynmh0DPu/EDQv3SesjIy2l6ooGt+Swm3QzlNl9ciaSZMxNk1yQXOZr2hXh+CnbuyTlfoSAl+7jbVo27BNcltyBR+bEy9yrf0sYwGjMnYMGLyPI2CUA4DNAiKjD/91W1aSjPByyIrc0mTyuxrotcUYGKJ23Z4GuHw0czAkUvjmpA0gt8Q77ZH4ScGQNdO55hiw9kaICk661d/oFgIGlb7vTjfeRXJcLZdjiFxjm4giHRRUh3QAlheUAwnGsBS+G2fQ6UyWVHo41yJSQNqYp7YEnWQDBtvaJ4HtcyO5HTK/0n2GsKBNqIcOue2f4SnSoGfqDF+YmvDRkVkGZqzdtkms88AGkDcFL8zikuIVxu62w9PkY+QYwq65t6RkfxHXAapUxOI7Nq51IqJnMscMYfhyQLnB21VIwuaYR0NGbAnsnRejL7uth+0CqepanRKk/iSRPfy4qDojfZtiD5srHLcPvJKVRKmmpksNPBJibXv1tRWNV/ObnUnDshstw56GljA0gHsZt/mgEoFJHqfGL1+rqtlgoTQAHHIB77V4iPek9DH19YYwHnqsY4HOxRdhldkNswhBv1s7JADPOjkjGAGIM00v1OvJGetwY6qOkWob3Jb24jVW+xSXCb8xHkQyprehHHOaAmANU0sXBue5Or8bIp6Y7kvvBr2xd22B9l4bCyJEcra3Y/h1OgMYFT6Z5Sz3P1T10asF2ZuNOPF6FauZQS9kapj0CX6Um/7yzB5vltHFvO4io2NMIJ46NZtupIsN2LuFCmtogpkgtr0/8ZPK4HAr3UuhNPBfa8iH+vOV1k/SPUa+Hf5LzJYX5MpWjpKXTrmNI7XBCf+mfe3YqyVTQvvD8egOqdbT86xbbtsalkwocZQe0wrE0yG4vsvRqtpRVCz1rddAqG8wwg84c0V2jrGXgp3TMmoKjceFmxOPoLFAGmVEXPhZ08cRKkdT57GvByzkm0df8p14oy336XLYlbDKYgitoSGlGBDrWUhRmtxqW2trQ/KACWHLbHVLd/B0hU5GU1vDvk/+eR+tBTzC7VyEbZA1nzfGFSnrtRYEdzFA/mNseuROdIeXgSY4a1bSl7dUN2BpruKPCUzU1cYEBUSq5hlg75W1a4Ompx6cbO9wRfeo/1tbE8m48ajZyOWZyManJpbglKunDHETdOlvDsMWwrOontVeefZqJ3Ho1YhK05X+f+JsHXUyhhtM6IJDcmfP+umLfjH/pSaTvAg+5rkQQdA9ZMjOUOmkNRSaDhb4WvU3m2pc9xlSDAwIxw35H7UFk9rB+ULgmT8MfjgfJifkpkgLzf+yV4l376tiRKPXySbDmvDA1WJR4lDFGK3yktKPyPnacLLU5P6sANoaRGPYaAA5Dbf70BTG1Xnr/B38ruJ87o3lVQ6zr3AcY4nYMf+MlkoS/4unufP1qT3MXKehzgUBaueLwi6VYX9/Asm5Wel23r15rO2ja6JvqWT5oglhsgNgRCw8/yLfdExSpAehOq6Q0O10IkT9VAexSmDN9AzJLLbeHOCkQIS4ZXDkPOM4BYtTSILo6getPcm9t9BWkMVFFfSQDsoDtv0n+c1t0GRsMqJWRyeNI1FZunnxfTsNscr6U1IVr1TeOQuCXEBP7MnkXBjY2sUD7lq1KqZP5UDpNHE93r4vjYTNmvuliJlODRlwGV8cECXFAAUKbLVr/4AmAB23wJPURk+Uh++fSTW3/pxhfKhmOZUwr4Am+AV+UcvqJNHwk4Dxrtq79/mdPhpC3nvLSeazmokQDZf9VGEClVH5MaQ8sTeGC1mtyNvT4TSmrsyCFHUjUhnbG2M6DRnoJxcb+zLAcujKfufFZ+k4yXNgWJ2HA/VVvfSOr1Vl+esxqiR8jeGcUAc4dI7uO8PQkFYhX1Qf/GnGJ6AG0/6PvFe0aqOTqnmhPpEbkpEVUYm43AJq7AklGgfdFeaz6h58eSkNraQBf3raM7bHHJMw/e9U2gZSnU4vtNGvTkuOMY8s92eIAtZhprkgpZGc3q//im7KGEZqU0UY0yrjhJUf3YeOaTrWJolLNDQMV0Lc+iUaLTpnOCpcOpj4dWt91O0YsZYzbxbFbq8ss1UEqUPwc+qOLzeI8t0NaOabe2jjuIhaBG48om9QrWifbC/jQf8t3SLkxqnkW/JcRALtGwUn+QeIsZiuCHrsADcGPG25FTZJOuU35e8Vf0roOFYGdRMDmyzcUO5hzlMzatPPNO92wdH2qoXJ99gQBlEK7hMxbz2Sf/1iDgMtlFVQAS/FPJd4/SOGNuVdAf7avKWUDNUe8dhR75rwT633VRm1RH2xRlnz6F8bi/6G3pHmTglp7HZRtM5dtTNd47lul4DYx0m7uL75yibdoJAwpgJ2gRT/E3lBt+2lHO1S6gVZ9RnZklRL/eU6KQo2mhH+7S/mPHQ7FTQigSUnibNdaOwUA0f4Xb+Qgxl+bsULV+GB4Cu+HKADsSXxILTSUq0QLjTLSgqEfBLBSZLsZ5Qn2Pl8LtulhO+6T0/2WiiNbToWMuGspRUvb2uZQviDsDvIJlsj3UD3xOvJoPxnwep3FF6cgSN93MYky5t552yiAXIuv1v/kjbRmOVH3MnarZOmhV1N4P6NwcaBvk/GOI3slNjCo3ULSR64+l/KEa12dNHxBASjVzaNtxgXiAHKz2dp9nei2to6Mmy+YB7C1dSZenzapYKz6JlEmsI3h2Veqxex+TE27zsOnvqQLRcggeUSgrK8cRLjocazBfxIBcDji/SyiWpRXqgBwITUhwIc0AO+EuAhuqbmLzTMH4qWGA2Hzv3mDD7dTJ6Fv4pMeDDIleCD7JcBw2Zem261tCNqW3JZfqYt0R2yG4nIz7hr2HEX8g5QCd8ngr9SMYMgDuSWSUpubAIgD9m9qOffSjTwfGQSchw3kOadzfeK8oaPcsqSwyso2wFkaRaQHGbhNPp0u8wC0vh2zjd13i/bnnMWHPYqozmCAzU92M6YV8NZT35639Aumq5Ln5Duki6fKDx4H5uVCRaVjNQM7cw66uEmzqA9JZjU1ABKHUP9nQa61Jy1HlDI0ponmen/BsJYP+GHLxR+XA+3mpTQNd4lz8oyA4dtkNrsGOFMzaaSr/olt2YJ+ehYkZ99OurXbr7G17bH3a0xjuHJN4reFVpEAL3sQUAm8R8xmNKfNEBFz15nq8ERXRkIvlf/KvsF/1i8NqHPQoVZP8v+nTnx/2pJ+yU/QezBzPGoCIFfXupxffMqtD1xjV7fBrfN1kI0O6EtXBmTztNcol3mAkoBa/BxJKqW+To2JyV82LkxymrSh7lDB0RLFhhE69Sl4nE1D0/v2HZIqHxVtw54usTb5v4tzxaNaaiM2is36ptv/00cevauYi4Z3fHfQy6CFB4r/kHEzLnS7cSLFyv40u25Lv+ZD4hUo1Po5PI55NGnQeab3ILYv6Y09iqZ7ElOKkdI0kl43h0UFXux0YDg7KVYh1ieDg/b1Fk2uSwY+4r+IttLT053r11M2sUa2lt0BvkT9t3KwtVpQdSSlMftC/phMdgMdb7xFrSKJPe73CkCs77U6iZ5JHgnd/vYCeHRVI4vCPjIfZMfdI0BhN4QuexKsEtsK0R9Q8m9284bN9R9ZqhZ5NrSkoZ3Ips6Azwd6qdVks9q4ENKgaJB692TSfOQgUjoU77sRHP2AWDTAJhIai7KsBikB3DxEo0IopyNLGEGCgASs572Y6z/igfgcd9wQMqbg+zZ6pArLUw6wpCoj1totTGRnTOXJYbsij9cN/OIna8O5jXCLHzC7OqOifmOEzTasRj0TeNReF6LTgFL6LuOSgRaaZPdc/xUFYMrYJ7NNxohS3EQE6AjwzxRAppC4hhY4ZS6UEddbmQfg0wYT0g87cgq4xx6CUEpT8R0G4ZhEjKBOcXxJck9klzJbfyKYkj/Xf45NyATgUqi1GusvbHgVWeWeiWzCDhijBSmGX2Z8ZooCqhYJhvcyVAmxaXKcAUR4ZpP3PaSF0osl/UQ4s1bnmuvpKiPut3LgipIrjZdjE4jqGTtGTW9n7Bz2rR9VaTKGeL1bjB2+FJXPSUwYJ4VNJn+uue4qgFbMNgYsZxxs+fq4PgkKp2pG7iB5kc6cibe1OgD/YbKtKID5Vuea6+ZS1QEoEtSQ88l8Y2koHzxyd0OdcIvLmzyymGsfdnN5gg2bGW6ba65/mgNoZD7+R5MGA7m9D+UhAPQsDhBFvObi7UOHyS3HUuVEuE5jPddc/7gLsPXSFYHs4vMJA4CpDOE1tRZ/tMus7ZJqIA8aLTWGEwLMNdc/CwBo2fd6Qtu2yUnegSqZhuifK4A+wUe3FcyJmqPSHuzWON+55prrp1YsukPumv4EoN+24Iv/sKr2A7uIBcbUXdpQQm62eQj3GVN6m1tn50uYa65/0AWABbdWuEkwu3AfxJbtuuT4LuT05W5N2U3qAUa7OQVSB5Cyb8UlMGa+hLnm+ucWxkEfjcgq2Dcjkj5aqjTpA3VutFVqZWSavZFo12tGavrKHmrRkweYa65/DgHIlA/uRBR35fYkjgKVsd8MfO64S5XfuJ9pAygkx0+n3QJk4EkDzDXX7yYKxGZ/rkIG8M3S5bnmmmuuueaaa6655pprrrnmmmuuueaaa6655pprrrnmmmuuueaaa6655pprrrnmmmuuueaaa6655pprrrnmmmuuuX7JerdMbJaXzTXXn7/4673+MOj8PLy55vqzFziuk2pe+kHry/SapsPtXHPN9SehfyftomNTOmVeaRVJ0qYyzZtBY2eHqbnm+vOMv7YrSTcqVmy9xtsj4QD1qqTNnEbF3ptlzoSca64/zvd3XhrJyeBmE3vF3+0/BWp1GAdO4sNJd+s5FHKuuf485z8BdxlCR0ywqLsIQK+cWtnHqdS6m0U311xz/RH2f3VJbJWNFB5qdw8BQJ5SASZuAGS1wQXmic411x+0tC6jnctgSnuPy1dOWtZL73mNhUqYUYC55vrDCIBC3OX5FEGm/R0kz4+sOWATe3KTBJhrrj9pOV1i+Jvs8p3EHreWSfSNupjD5uaa6w9axu6S/yCi+vWpJw+2wASAAhxk7sz0Aeaa649Z5Ey2+1AVQPz9p/KvPfd8H6ZBtjwPda65/hwEoJIBRyzSbINKuOPIGwstAIgTrJZFTw5grrn+nGUpSj5sxnwN8P8Gjkcfx9UBVgaBBDboGQWca64/ZvEXYXIAkgqIUT2J7D/9Se2S5ij6ICsRO12Aueb6Y5ZLOT8ImckvSOBpSj/6mDNchln3fsBcc831RzAAhkSAQQAAJOvP4RdontpxMpB/Mgk/hB8MboDWamqAueb6YyiAQuUHXz7W8gAHZI/qOQlgxduPhQCUfjyoEkC0euYCzzXXn0EAaO3VFsRPFl3ieAEAXMcBSRlXfAYsCEJcAkPTB5hrrj9hgXpYxyV+n9x5XCi4AM/sP6nVrpwyBnIIgRak8PMxqWAGAuea6w9A/45gk/4ECWI6AD0LAeg1yDtzI+icSESwU/jnmuuPgP8upuwgQ5cEIDlAZK41gIp+A0oaAFYHAqPTYB7TAZhrrj8A/zvfGn9oQnqw8HrBAKBzirZcQcyZA6IAAgxYZxBgrrn+AACgawAv5vA04oygH3ilOrgqC4Tyk6mLIJKdTsBcc/36ZdYt0J+RfFMDBMqf2nHwW8W/cIa9B7HQm5MF5pprrr9t0Zdt2nfGdH5pBpDr+Qj1aVE/mBWXjf5LyUOU1QcCqnWmAs811y9ffuUmZxdgqfm8KS6A7kyMcXW4qY5cRpBKCdLvaj8bg8811+8mAIJ8d5U8m4GnSOaRO2MBnVn6TB9of1Th4mdHoLnm+t0rQPxSAlQwQP2ViH9QACcIADkxAFRDCLCpAKIACZSbYYC55vrVC+zOejfJezGrl049eZkfRh3Rj1A3ktFifiqAueb63QDgKyB8xHaIT8cCABtzIsXuSwFohs4HSBvlkKKZUYC55vrVS3tcShJwyeRL3kBp72lOigHQKqjdg7fcgaYpKJjJAc41129eRtx4QOikGDpQf9IVnL8EGTB0P1I5QYj5wWaOB55rrt/sAGgNsOf/27GeAMjD8cDIKX+wBg4rBqhoAicHONdcv3ylgZ5AAK0hL+28gjSfWHFYjE8xAKg5xAkxiBsQ6wGCezHPd665fvPyPottw90tXVTPnVAAnGoEEDvVkRmBqADgMTnAueb6zYsepY5n9IdJ0E/8eBX7AAIO632SPpkc4Fxz/eplbQz2nWQCxt89G+7hY/FPHwNoKAL5/9kVfK65fvMCoza6b2jEFzhJA2JpF1YchTb0F7FDBA/k52jAueb6zUv5Kt67pH7M4B7NCQLQ2x/A1kc0/ovyXAEz2wHMNddvXp6Olr/+IuoGPksD6hsFQXUiokcRWwHRzAKYa65fvMj6zUZzowDyhNBIAQyZfMTsGYjxp1YVJD5RxR+dFMBcc/3eheaRinc0a+OZt/wfqCoBx7F885VmgRGzlYaisMsilCRB5BkFnGuuX7t0zOUFhVopxdZoo6ltDQQs9N7IjONqKEq/Cj9KpI11xiA2P6pEI9jZDWCuuX4t/tcqJuyL4AIzk7VufWDT4SvKrx5wAGB1hA7IUi3MMhnIfWnchoqAKAg0MxFwrrl+7WKdgnWQvHgM8kyogybIwf2ADMI/Vz3yHWreYFQEgBQUgXVW9okZxDJPFNzMA5prrl+LANZa/1vaf8qcL7QPlct5WAZ+jZJ5HmorHY4koMwQJWTrlUobkhLvYSqAueb6tRSAwiYECAXAAxibWX0WOR/F8i0ujVqoPymcABX/YpFx4/OU55rr13oAfEz+FU1AyifJlbjAMmgHooJmOOQPQOL9c2IRifF3MxFwrrl+6wK1r+MBTJW9wKmbb8wEAnXsBlANfYsfkiOhvhLuj9NB9ewHMNdcv1UBkNqjeyxNAFS042R11AAHJB9J/t1PliZAOT9AggcQNMnUAHPN9Ut9AHNwALL8L7kJiMh++E27J/MkUrBDANn1xzpFRDkpKLCTBphrrt+5lF/4yAEkeU6jApTkARO4gxTzngKA3FYQMKYOw6KkhoBJTRpgrrl+6cKRf58gvkNBAyK/uAxbAi56DO7ZRewfQIKKTYGmCzDXXL+XB5B2ALAvBUaiG/gheAr7RkLCBdI81bnm+pNgwEJ1FBjGYn6+mcATFAXVHAAZBERT/Oea6w9UAlstH+JrMpzpP5Qx4Tj7f8w111xzzTXXXHPNNddcc80111xzzTXXXHPNNddcc8011z+0/h+n6dKhFmL+xQAAAABJRU5ErkJggg==', 'data:image/png;base64,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', BW, BH, GX, GY, 1.33, F, {});
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 
@@ -1964,7 +2638,7 @@ window.CATDATA = {
   const rand = T.rand, pick = T.pick;
 
   // ------------------------------------------------------------ sprites
-  const A = window.CAT;
+  const A = T.catSprite ? window.CATS : window.CAT;
   let unit = 0, dpr = 0, MASK = {};
 
   // ------------------------------------------------------------ DOM
@@ -2243,9 +2917,9 @@ window.CATDATA = {
     for (let i = 0; i < n; i++) { const k = i % 70; paint(k > 40 && k !== 55 && k !== 56 ? 'LOAF_LOOK' : 'LOAF'); yield; }
   }
   function* rest() {
-    const what = pick(['sit', 'sit', 'groom', 'loaf']);
-    if (what === 'groom') { setMode('grooming', true); yield* cycle(['GROOM_A', 'GROOM_B'], 3, sec(rand(4, 8))); yield* sitFor(sec(rand(2, 5))); }
-    else if (what === 'loaf') { setMode('loafing', true); yield* loafFor(sec(rand(8, 18))); }
+    // no grooming for now: the paw-raised pose on repeat did not read as washing
+    const what = pick(['sit', 'sit', 'loaf']);
+    if (what === 'loaf') { setMode('loafing', true); yield* loafFor(sec(rand(8, 18))); }
     else { setMode('sitting', true); yield* sitFor(sec(rand(6, 14))); }
   }
   const perches = () => ledges.filter((l) => l.kind === 'perch' && vis(l));
@@ -2269,7 +2943,7 @@ window.CATDATA = {
     mark('climb');
     measure();
     const hx = T.helix, top = ledges.find((l) => l.id === 'helix');
-    if (!hx || !top) return;
+    if (!hx || !top || hx.rep) return;
     const r = rel(hx.el.getBoundingClientRect()), rowH = r.h / hx.H, colW = (r.w - 8) / hx.W;
     const strand = (row) => r.x + (hx.col(clamp(row, 0, hx.H - 1)) + .5) * colW;
     // to the foot of it, and a look up
@@ -2388,7 +3062,7 @@ window.CATDATA = {
       C.caught++; C.energy -= 10; save();
       setMode('sitting on the cursor', true);
       say('mrrp!');
-      yield* cycle(['SWAT_A', 'SWAT_B'], 5, sec(rand(3, 5)));
+      paint('SWAT_B'); yield* wait(sec(.5)); paint('PURR'); yield* wait(sec(rand(2.5, 4)));
       cursor.style.visibility = 'hidden';
       clearTimeout(respawnTimer); respawnTimer = setTimeout(respawnCursor, 9000 / FAST);
       break;
@@ -2565,7 +3239,7 @@ window.CATDATA = {
   // Two ovals, one in this phosphor and one in the other. She walks into the first and out of the second.
   const portals = ['a', 'b'].map((k) => { const d = document.createElement('div'); d.className = 'portal ' + k; layer.appendChild(d); return d; });
   function openPortal(i, x, y) { const d = portals[i]; d.style.transform = ''; d.style.left = Math.round(x) + 'px'; d.style.top = Math.round(y) + 'px'; d.style.height = Math.round(H * 1.12) + 'px'; d.style.marginTop = Math.round(-H * .56) + 'px'; void d.offsetWidth; d.classList.add('on'); }
-  function closePortals() { portals.forEach((d) => d.classList.remove('on')); el.style.clipPath = ''; }
+  function closePortals() { portals.forEach((d) => d.classList.remove('on', 'hunt')); el.style.clipPath = ''; }
   // how much of her is past a vertical plane at x, as a clip on her sprite
   function clipPast(x, entering) {
     const leftOf = x - C.x, w = W;
@@ -2582,16 +3256,199 @@ window.CATDATA = {
     }
     C.x = x; place(); setU(); onStep && onStep();
   }
-  function* portal() {
+  // ---- riders. Others can come through a portal too. Each is a canvas of its own in the layer, drawn from the sprite sheets.
+  const R = window.RIDER, riders = [], G = R.group, PER = R.per;
+  const RW = () => R.BW * unit, RH = () => R.BH * unit;
+  const hostile = (r) => r.kind === 'hunt';
+  function makeRider(kind) {
+    const d = document.createElement('div'); d.className = 'rider ' + kind;
+    d.innerHTML = '<span class="say"></span><canvas></canvas>';
+    const c = $('canvas', d); c.width = Math.round(R.BW * unit * dpr); c.height = Math.round(R.BH * unit * dpr); c.style.width = R.BW * unit + 'px'; c.style.height = R.BH * unit + 'px';
+    layer.appendChild(d);
+    const r = { el: d, canvas: c, ctx: c.getContext('2d'), say: $('.say', d), kind, x: 0, y: 0, face: 1, pose: '', w: R.BW * unit, gait: [], per: 1, loop: null };
+    gait(r, kind === 'hunt' ? 'H_GALLOP' : kind === 'girl' ? 'G_WALK' : kind === 'mare' ? 'M_IDLE' : 'C_GALLOP');
+    riders.push(r);
+    return r;
+  }
+  // the frames a rider moves with, and how many ticks each one lasts
+  function gait(r, group, per) { r.gait = G(group); r.per = per || PER(group); }
+  const inkOf = (r) => hostile(r) ? { line: COL.warn, body: COL.body } : COL;
+  function paintRider(r, pose) {
+    if (pose === r.pose) return;
+    r.pose = pose; r.ctx.clearRect(0, 0, r.canvas.width, r.canvas.height);
+    R.draw(r.ctx, pose, unit * dpr, inkOf(r));
+  }
+  R.ready(() => riders.forEach((r) => { const p = r.pose; r.pose = ''; if (p) paintRider(r, p); }));
+  // a change of role mid-scene: the same canvas, another kind
+  function become(r, kind, pose) { r.kind = kind; r.el.className = 'rider ' + kind; r.pose = ''; r.loop = null; paintRider(r, pose); placeRider(r); }
+  // a cycle that runs on its own while something else happens: setLoop, and tickLoops once a frame
+  function setLoop(r, group, per, once) { r.loop = group ? { g: G(group), per: per || PER(group), i: 0, once: !!once } : null; }
+  function tickLoops() { riders.forEach((r) => { const l = r.loop; if (!l) return; const n = l.g.length * l.per, i = l.once ? Math.min(l.i, n - 1) : l.i % n; paintRider(r, l.g[Math.floor(i / l.per)]); l.i++; }); }
+  function* bg(gen) { for (;;) { const s = gen.next(); if (s.done) return s.value; tickLoops(); yield; } }
+  const hold = (n) => bg(wait(n));
+  // a group played once, so many ticks a frame, ending on its last frame
+  function* play(r, group, per) { r.loop = null; const g = G(group); per = per || PER(group); for (let i = 0; i < g.length * per; i++) { paintRider(r, g[Math.floor(i / per)]); yield; } }
+  // an afterimage of a rider, in the other phosphor, for when she blinks
+  function ghostOf(r, x, alpha) {
+    const c = document.createElement('canvas'); c.className = 'ghost-rider'; c.width = r.canvas.width; c.height = r.canvas.height;
+    c.style.cssText = 'position:absolute;left:0;top:0;width:' + r.canvas.style.width + ';height:' + r.canvas.style.height + ';pointer-events:none;transform:translate(' + Math.round(x) + 'px,' + Math.round(r.y) + 'px)' + (r.face < 0 ? ' scaleX(-1)' : '') + ';opacity:' + alpha + ';transition:opacity .7s';
+    const cs = getComputedStyle(document.documentElement), other = cs.getPropertyValue('--portal-b').trim();
+    R.draw(c.getContext('2d'), r.pose, unit * dpr, { line: other, body: COL.body });
+    layer.appendChild(c); requestAnimationFrame(() => { c.style.opacity = 0; }); setTimeout(() => c.remove(), 800);
+  }
+  // she is somewhere else, with a flash, and three of her fading along the way
+  function* blink(r, x) {
+    T.sfx('portal');
+    for (let i = 1; i <= 3; i++) ghostOf(r, r.x + (x - r.x) * i / 4, .55 - i * .12);
+    r.el.style.opacity = 0; yield;
+    r.x = x; placeRider(r); r.el.style.transition = 'none'; void r.el.offsetWidth; r.el.style.opacity = 1; r.el.style.transition = '';
+    yield* wait(2);
+  }
+  function placeRider(r) {
+    r.el.style.transform = 'translate(' + Math.round(r.x) + 'px,' + Math.round(r.y) + 'px)';
+    r.el.classList.toggle('flip', r.face < 0);
+    const h = R.head(r.pose || 'G_IDLE0');
+    r.say.style.left = (r.face < 0 ? R.BW - h[0] : h[0]) * unit + 'px'; r.say.style.top = Math.max(0, h[1]) * unit - 5 + 'px';
+  }
+  function clipRider(r, planeX, entering) {
+    const leftOf = planeX - r.x, w = r.w;
+    r.el.style.clipPath = entering ? (r.face > 0 ? 'inset(0 ' + Math.max(0, w - leftOf) + 'px 0 0)' : 'inset(0 0 0 ' + Math.max(0, leftOf) + 'px)')
+                                   : (r.face > 0 ? 'inset(0 0 0 ' + Math.max(0, leftOf) + 'px)' : 'inset(0 ' + Math.max(0, w - leftOf) + 'px 0 0)');
+  }
+  function dropRiders() { riders.splice(0).forEach((r) => r.el.remove()); $$('.ghost-rider', layer).forEach((c) => c.remove()); }
+  // a ride from one x to another in the rider's gait, clipped at a portal plane while entering or leaving it
+  function* ride(r, x, plane, entering, speed) {
+    let i = 0; r.loop = null;
+    while (Math.abs(x - r.x) > speed) {
+      r.face = x > r.x ? 1 : -1; r.x += r.face * speed;
+      paintRider(r, r.gait[Math.floor(i / r.per) % r.gait.length]); i++; placeRider(r);
+      if (plane != null) clipRider(r, plane, entering);
+      yield;
+    }
+    r.x = x; placeRider(r); if (plane != null) clipRider(r, plane, entering);
+  }
+  // several things at once: each generator starts on its own tick, and the lot ends when all have
+  function* together(gens, starts, onDone) {
+    const done = gens.map(() => false);
+    for (let i = 0; ; i++) {
+      let all = true;
+      gens.forEach((g, j) => { if (done[j]) return; if (i < (starts[j] || 0)) { all = false; return; } if (g.next().done) { done[j] = true; onDone && onDone(j, i); } else all = false; });
+      if (all) return;
+      tickLoops(); yield;
+    }
+  }
+  const riderSay = (r, text, ms) => { r.say.textContent = text; r.say.classList.add('on'); setTimeout(() => r.say.classList.remove('on'), ms); };
+  // Someone else comes through first: a rider and her mare, in the wrong world, and then the ones after her
+  function jolt() { const sc = $('.screen'); sc.classList.remove('degauss'); void sc.offsetWidth; sc.classList.add('degauss'); setTimeout(() => sc.classList.remove('degauss'), 1400); }
+  function* wrongWorld(dest, planeB, dir) {
+    const rw = RW(), y = dest.y - RH(), gallop = cw * 2.2, walk = cw * .7;
+    const room = Math.max(0, dir > 0 ? SR - planeB : planeB - SL), k = clamp(room / (rw * 4), .4, 1);
+    const out = (n) => planeB + dir * (rw * n * k) - (dir > 0 ? 0 : rw);
+    const edgeX = dir > 0 ? SR + rw : SL - rw;                     // off the end of the stage
+    const inPortal = planeB - (dir > 0 ? rw : 0);                  // a rider wholly behind the portal plane
+    // 1. a girl on a black mare, at a gallop, out of the portal. She reins in
+    const ciri = makeRider('ciri');
+    ciri.x = inPortal; ciri.y = y; ciri.face = dir; paintRider(ciri, 'C_GALLOP0'); placeRider(ciri); clipRider(ciri, planeB, false);
+    T.sfx('portal');
+    yield* ride(ciri, out(2.8), planeB, false, gallop);
+    ciri.el.style.clipPath = '';
+    gait(ciri, 'C_WALK'); yield* ride(ciri, out(3.5), null, false, walk);
+    setLoop(ciri, 'C_IDLE'); yield* hold(sec(.9));
+    // 2. she gets down, on the near side. The mare stands; she looks back the way she came, and about
+    yield* bg(play(ciri, 'C_DISMOUNT'));
+    become(ciri, 'mare', 'M_LOOK0'); setLoop(ciri, 'M_IDLE');
+    const girl = makeRider('girl'); girl.y = y; girl.face = dir; girl.x = ciri.x - dir * rw * .3; paintRider(girl, 'G_IDLE0'); placeRider(girl);
+    yield* hold(sec(.5));
+    yield* bg(play(girl, 'G_LOOK'));
+    setLoop(girl, 'G_IDLE'); yield* hold(sec(.4));
+    riderSay(girl, 'wrong world.', 2400);
+    yield* hold(sec(2));
+    // 3. the Hunt, after her: the portal turns, the screen jolts, a horn. They need no door: three riders out of nothing, along the ledge
+    portals[1].classList.add('hunt'); jolt(); T.sfx('horn');
+    const hunt = [makeRider('hunt'), makeRider('hunt'), makeRider('hunt')], stops = [out(2.5), out(1.8), out(1.1)];
+    hunt.forEach((h, j) => { h.x = stops[j]; h.y = y; h.face = dir; h.el.style.opacity = 0; placeRider(h); });
+    setLoop(ciri, 'M_REAR', 0, true);                                                 // the mare rears
+    girl.face = -dir; girl.loop = null; placeRider(girl);                            // she turns
+    yield* together(hunt.map((h) => (function* () { h.el.style.opacity = ''; yield* play(h, 'H_APPEAR'); setLoop(h, 'H_IDLE'); })()), [0, 7, 14], (j) => { if (j === 0) T.sfx('portal'); });
+    // she draws, and the Hunt names her
+    yield* bg(play(girl, 'G_DRAW'));
+    riderSay(hunt[0], 'Zireael!', 1600);
+    yield* hold(sec(.8));
+    // a sign, and she is not where she was: between them and the portal, in a blink. They turn
+    yield* bg(play(girl, 'G_CAST'));
+    yield* blink(girl, out(.7));
+    girl.face = dir; paintRider(girl, 'G_DRAW5'); placeRider(girl);
+    yield* together(hunt.map((h) => (function* () { yield* play(h, 'H_TURN'); h.face = -dir; h.pose = ''; paintRider(h, 'H_IDLE0'); placeRider(h); setLoop(h, 'H_IDLE'); })()), [0, 2, 4]);
+    yield* hold(sec(.5));
+    // and the ship's cat, out of the same portal, behind them
+    C.ledge = dest; C.y = topOf(dest); C.face = dir; C.x = planeB - (dir > 0 ? W : 0); setU();
+    clipPast(planeB, false); show(); T.sfx('portal');
+    yield* bg(stepTo(planeB + (dir > 0 ? W * .1 : -W * 1.1), () => clipPast(planeB, false)));
+    el.style.clipPath = '';
+    setMode('seeing them off');
+    paint('HISS_A'); say('HSSSS', 2200); el.classList.add('hiss');
+    for (let i = 0; i < sec(1.6); i++) { paint(i % 6 < 3 ? 'HISS_A' : 'HISS_B'); tickLoops(); yield; }
+    hunt.forEach((h) => riderSay(h, '!', 1000));
+    yield* hold(sec(.4));
+    // she charges. They wheel and run for the far end, past the mare, and come apart as they go
+    el.classList.remove('hiss'); setMode('chasing the hunt');
+    const fleeing = hunt.map((h, j) => (function* () {
+      h.loop = null; gait(h, 'H_GALLOP');
+      const from = h.x; let i = 0;
+      while (Math.abs(h.x - from) < rw * (1.1 + j * .25) && Math.abs(edgeX - h.x) > gallop * 1.7) { h.face = dir; h.x += dir * gallop * 1.7; paintRider(h, h.gait[i++ % h.gait.length]); placeRider(h); yield; }
+      const v = G('H_VANISH');                                                        // still moving, and gone before the edge
+      const vp = PER('H_VANISH');
+      for (let q = 0; q < v.length * vp; q++) { h.x += dir * gallop * 1.2; paintRider(h, v[Math.floor(q / vp)]); placeRider(h); yield; }
+      h.el.style.opacity = 0;
+    })());
+    const chaseTo = out(2) + (dir > 0 ? 0 : rw - W);
+    const run = walkTo(chaseTo, 3);
+    for (let i = 0; ; i++) {
+      const r = run.next();
+      let going = false;
+      fleeing.forEach((g, j) => { if (i >= j * 3 && !g.next().done) going = true; });
+      if (r.done && !going) break;
+      tickLoops(); yield;
+    }
+    hunt.forEach((h) => h.el.remove()); riders.splice(0, riders.length, ciri, girl);
+    portals[1].classList.remove('hunt');
+    paint('SIT_ALERT'); C.face = dir; place(); say('mrrp!', 1400);
+    setLoop(ciri, 'M_IDLE');
+    yield* hold(sec(.8));
+    // she sheathes, thanks the cat, and walks back to the mare
+    girl.face = -dir; placeRider(girl);
+    yield* bg(play(girl, 'G_SHEATHE'));
+    // she crouches to the cat, who allows it, then a wave for the one at the keyboard
+    girl.face = C.x > girl.x ? 1 : -1; placeRider(girl); yield* bg(play(girl, 'G_CROUCH'));
+    riderSay(girl, 'thank you, cat.', 2200); paint('PURR'); say('prrr', 1800);
+    yield* hold(sec(2));
+    girl.face = -dir; girl.pose = ''; paintRider(girl, 'G_IDLE0'); placeRider(girl); yield* bg(play(girl, 'G_WAVE')); setLoop(girl, 'G_IDLE');
+    yield* hold(sec(.6));
+    gait(girl, 'G_WALK'); yield* bg(ride(girl, ciri.x - dir * rw * .3, null, false, walk));
+    girl.el.remove(); riders.splice(riders.indexOf(girl), 1);
+    become(ciri, 'ciri', 'C_MOUNT0'); yield* bg(play(ciri, 'C_MOUNT'));
+    setLoop(ciri, 'C_IDLE'); yield* hold(sec(.7));
+    C.face = -dir; paint('SIT_LOOK'); place();
+    gait(ciri, 'C_WALK'); yield* bg(ride(ciri, out(2.2), null, false, walk));
+    gait(ciri, 'C_GALLOP'); yield* ride(ciri, inPortal, planeB, true, gallop);
+    T.sfx('portal'); ciri.el.remove(); riders.length = 0;
+    say('mrrp?', 1400);
+  }
+  function* portal(withRiders) {
     mark('portal');
     if (!C.onstage || !C.ledge || C.ledge.kind === 'line' || C.ledge.kind === 'top') return;
     const here = C.ledge;
     const far = ledges.filter((l) => (l.kind === 'perch' || l.kind === 'walk') && l.key !== here.key && vis(l) && l.x1 - l.x0 > W);
     if (!far.length) return;
-    const dest = pick(far), xB = restX(dest), face = Math.random() < .5 ? 1 : -1;
+    const visitors = withRiders === true || (withRiders !== false && Math.random() < (DEBUG ? .5 : .18));
+    const dest = pick(far);
+    // visitors ride along the ledge and beyond it, so the portal goes at the end with more room past it
+    let xB = restX(dest), face = visitors ? (SR - dest.x0 > dest.x1 + W - SL ? 1 : -1) : (Math.random() < .5 ? 1 : -1);
     // the near portal stands a few steps ahead of her, on this ledge
     let xA = clamp(C.x + face * (W * .9 + 40), here.x0, here.x1 + W);
-    const dir = xA > C.x ? 1 : -1, planeA = xA + W * .5, planeB = xB + (dir > 0 ? 0 : W);
+    const dir = xA > C.x ? 1 : -1;
+    if (visitors) xB = dir > 0 ? dest.x0 : dest.x1;          // the portal at the near end, the room on the far side
+    const planeA = xA + W * .5, planeB = xB + (dir > 0 ? 0 : W);
     setMode('eyeing a portal');
     openPortal(0, planeA, topOf(here) + H * .5); T.sfx('portal');
     paint('SIT_ALERT'); C.face = dir; place();
@@ -2603,6 +3460,7 @@ window.CATDATA = {
     yield* stepTo(planeA + (dir > 0 ? 4 : -W - 4), () => clipPast(planeA, true));
     hide(); el.style.clipPath = '';
     yield* wait(sec(.5));
+    if (visitors) { yield* wrongWorld(dest, planeB, dir); closePortals(); setMode('sitting ' + where(dest), true); yield* sitFor(sec(rand(5, 9))); return; }
     // and out the far side, from the other one
     C.ledge = dest; C.y = topOf(dest); C.face = dir; C.x = planeB - (dir > 0 ? W : 0); setU();
     clipPast(planeB, false); show(); T.sfx('portal');
@@ -2639,7 +3497,7 @@ window.CATDATA = {
   }
   function settle() {
     trail.length = 0; ghosts.forEach((g) => { g.dataset.pose = ''; g.style.visibility = 'hidden'; });
-    el.classList.remove('hiss', 'up'); el.style.opacity = ''; hush(); closePortals();
+    el.classList.remove('hiss', 'up'); el.style.opacity = ''; hush(); closePortals(); dropRiders();
     if (T.helix) { T.helix.slow = false; T.helix.held = -1; }
     if (C.boxed) { C.boxed = false; const slot = $('#slot'); if (slot) slot.textContent = 'pending'; }
     C.blocking = null; C.asleep = false; C.onPrompt = false;
@@ -2795,7 +3653,8 @@ window.CATDATA = {
     if (C.annoy < 3 && cool('block', 100) && ledges.some((l) => l.kind === 'block' && vis(l))) opts.push([3, block]);
     if (cursor.isConnected && cursor.style.visibility !== 'hidden' && cool('chase', 80) && rectVisible(rel(cursor.getBoundingClientRect()))) opts.push([3, chase]);
     if (C.annoy < 3 && cool('box', 150) && ledges.some((l) => l.kind === 'box' && vis(l))) opts.push([4, box]);
-    if (T.helix && cool('climb', 150) && rectVisible(rel(T.helix.el.getBoundingClientRect()))) opts.push([4, climb]);
+    if (T.blipA && cool('blipa', 900) && Math.random() < .15) { mark('blipa'); T.blipA(); }
+    if (T.helix && !T.helix.rep && cool('climb', 150) && rectVisible(rel(T.helix.el.getBoundingClientRect()))) opts.push([4, climb]);
     if (C.onstage && C.ledge && cool('portal', 200)) opts.push([3, portal]);
     if (T.toy && T.toy.balanced() && cool('meddle', 240) && rectVisible(rel(T.toy.canvas.getBoundingClientRect()))) opts.push([2, meddle]);
     if (C.onstage && inView()) {
@@ -2844,6 +3703,27 @@ window.CATDATA = {
   const P = T.print;
   const mood = () => (C.annoy >= 4 ? 'furious' : C.annoy >= 3 ? 'annoyed' : C.annoy >= 1.5 ? 'wary' : C.asleep ? 'asleep' : C.mode === 'zoomies' ? 'unhinged' : 'content');
   T.catStatus = () => 'Camille · ' + (C.onstage ? C.mode : 'elsewhere') + ' · energy ' + Math.round(C.energy) + ' %';
+  // the manifest: who is aboard right now. Visitors through a portal count, and so do the ones nobody invited
+  T.crew = () => {
+    const guests = riders.some((r) => r.kind === 'ciri' || r.kind === 'girl') ? 1 : 0, hunt = riders.filter(hostile).length;
+    return '1 human · 1 cat' + (guests ? ' · ' + guests + ' visitor' : '') + (hunt ? ' · ' + hunt + ' UNINVITED' : '');
+  };
+  // a draft beside the real thing: Camille as a sprite from the kit, or her traced outline
+  const fileCat = T.COMMANDS.cat;
+  T.COMMANDS.cat = function (arg) {
+    const want = /^sprite$/i.test(arg || '') ? '1' : /^(outline|trace)$/i.test(arg || '') ? '0' : null;
+    if (want === null) return fileCat ? fileCat.apply(this, arguments) : P('cat: ' + (arg || '') + ': no such file', 'err');
+    try { localStorage.setItem('camille-sprite', want); } catch (e) {}
+    P('redrawing her...'); setTimeout(() => location.reload(), 400);
+  };
+  T.COMMANDS.crew = function () {
+    const guests = riders.some((r) => r.kind === 'ciri' || r.kind === 'girl') ? 1 : 0, hunt = riders.filter((r) => r.kind === 'hunt').length;
+    P('crew ................ [ ' + T.crew() + ' ]');
+    P('  yam ................ human · at the keyboard, presumably');
+    P('  camille ............ cat · ' + (C.onstage ? C.mode : 'elsewhere'));
+    if (guests) P('  ciri ............... visitor · wrong world · armed');
+    if (hunt) P('  ' + hunt + ' riders ........... UNINVITED · hostile · the cat is handling it', 'err');
+  };
   T.COMMANDS.camille = function () {
     const pic = document.createElement('canvas'), k = 2 * Math.min(3, window.devicePixelRatio || 1);
     pic.width = A.BW * k; pic.height = A.BH * k; pic.style.width = A.BW * 2 + 'px';
@@ -2873,8 +3753,7 @@ window.CATDATA = {
       yield* goTo(l, l.x0 + 14 * cw, 3);
       setMode('eating', true); say('prrr', 1500);
       yield* cycle(['EAT_A', 'EAT_B'], 3, sec(4));
-      yield* cycle(['GROOM_A', 'GROOM_B'], 3, sec(3));
-      yield* sitFor(sec(4));
+      yield* sitFor(sec(5));
     })());
   };
   T.COMMANDS.pspsps = function () {
@@ -2889,11 +3768,11 @@ window.CATDATA = {
       yield* sitFor(sec(8));
     })());
   };
-  T.COMMANDS.portal = function () {
+  T.COMMANDS.portal = function (arg) {
     if (!T.motion) { P('portal: motion is off.', 'err'); return; }
     if (!C.onstage || !C.ledge) { P('portal: Camille is not here to use it. try: pspsps', 'err'); return; }
     P('a portal opens.');
-    take(portal());
+    take(portal(/ciri|witcher|hunt/i.test(arg || '') ? true : undefined));
   };
   T.COMMANDS.zoomies = function () {
     if (!T.motion) { P('zoomies: motion is off.', 'err'); return; }
@@ -2919,6 +3798,9 @@ window.CATDATA = {
     const cv = $('canvas', box), read = $('.r', box), g = cv.getContext('2d'), MW = 80, MH = 124, X0 = 15, X1 = MW - 3;
     const decks = [$('.hero')].concat($$('main section[id]')).filter(Boolean);
     let on = T.store.get('tracker', true) !== false, ink = null, had = false, text = '', seenCat = DEBUG;
+    // a contact that comes in from the edge, stops beside you, says hello in chords, and goes. Grace called it Blip-A
+    let blip = null;
+    T.blipA = () => { if (!blip) blip = { t0: now(), said: false }; };
     const show = (v) => { on = v; box.classList.toggle('on', on && seenCat); };
     const seen = () => box.getClientRects().length > 0;          // a narrow window has no margin to put it in
     function size() {
@@ -2951,6 +3833,18 @@ window.CATDATA = {
       const band = g.createLinearGradient(0, sweep - 14, 0, sweep);
       band.addColorStop(0, 'rgba(' + ink.glow + ',0)'); band.addColorStop(1, 'rgba(' + ink.glow + ',.22)');
       g.fillStyle = band; g.fillRect(X0 - 6, sweep - 14, MW, 14);
+      // Blip-A, on its way in
+      if (blip) {
+        const age = (now() - blip.t0) / 1000 * FAST, vy0 = my(top), vh0 = window.innerHeight * k;
+        const k2 = Math.min(1, age / 18), ease = 1 - Math.pow(1 - k2, 2), gone = age > 34 ? (age - 34) / 10 : 0;
+        const bx = X1 + 10 - (X1 + 10 - (X0 - 9)) * ease * .55 + gone * 30, by = Math.max(6, vy0 + vh0 * .5 - 14) + (1 - ease) * 40;
+        g.fillStyle = ink.hi; g.shadowColor = ink.hi; g.shadowBlur = 6; g.fillRect(Math.round(bx) - 1.5, Math.round(by) - 1.5, 3, 3); g.shadowBlur = 0;
+        g.font = '7px monospace'; g.fillStyle = ink.dim; g.textAlign = 'left'; g.fillText('A', Math.round(bx) + 4, Math.round(by) - 3);
+        if (age >= 18 && !blip.said) { blip.said = true; T.sfx('rocky'); if ($('#term').open) { T.print('tracker: contact BLIP-A alongside. it says hello. in chords.', 'mu'); } }
+        if (age > 44) blip = null;
+      }
+      // other contacts: anyone who came through a portal
+      riders.forEach((r) => { const x = mx(r.x + r.w / 2), ry = my(r.y + RH() * .7); g.fillStyle = ink.warn; g.shadowColor = ink.warn; g.shadowBlur = 4; g.fillRect(Math.round(x) - 1.5, Math.round(ry) - 1.5, 3, 3); g.shadowBlur = 0; });
       // the contact
       if (C.onstage) {
         const x = mx(C.x + W / 2), y = my(cy), age = T.motion ? ((sweep - y + MH) % MH) / MH : 0;
@@ -2958,11 +3852,19 @@ window.CATDATA = {
         g.beginPath(); g.arc(x, y, 2.5 + age * 9, 0, Math.PI * 2); g.stroke();
         g.fillStyle = ink.hi; g.fillRect(Math.round(x) - 1.5, Math.round(y) - 1.5, 3, 3);
         const far = Math.hypot(C.x + W / 2 - window.innerWidth / 2, cy - top - window.innerHeight / 2) / 36;
-        const line = 'CONTACT\n' + (deck >= 0 ? 'DECK ' + 'ABCDEFGH'[deck] + ' · ' : '') + Math.round(far) + ' M';
+        const hostile = riders.filter((r) => r.kind === 'hunt').length;
+        let line = (riders.length ? (riders.length + 1) + ' CONTACTS' + (hostile ? '\n' + hostile + ' UNKNOWN' : '') : 'CONTACT') + '\n' + (deck >= 0 ? 'DECK ' + 'ABCDEFGH'[deck] + ' · ' : '') + Math.round(far) + ' M';
+        if (blip) { const age = (now() - blip.t0) / 1000 * FAST; line = 'BLIP-A\n' + (age < 18 ? 'RANGE ' + Math.round(140 - age * 7) + ' M' : age < 34 ? '♪ ♫ ♪  HELLO' : 'LEAVING'); }
         if (line !== text) read.textContent = text = line;
         if (!had) T.sfx('ping');
-      } else if (text !== 'NO CONTACT') read.textContent = text = 'NO CONTACT';
-      had = C.onstage; box.classList.toggle('contact', had);
+      } else {
+        // no cat on the stage, but perhaps others: the tracker counts whoever it can see
+        const hostile = riders.filter((r) => r.kind === 'hunt').length;
+        let line = riders.length ? riders.length + ' CONTACT' + (riders.length > 1 ? 'S' : '') + (hostile ? '\n' + hostile + ' UNKNOWN' : '') : 'NO CONTACT';
+        if (blip) { const age = (now() - blip.t0) / 1000 * FAST; line = 'BLIP-A\n' + (age < 18 ? 'RANGE ' + Math.round(140 - age * 7) + ' M' : age < 34 ? '♪ ♫ ♪  HELLO' : 'LEAVING'); }
+        if (line !== text) read.textContent = text = line;
+      }
+      had = C.onstage; box.classList.toggle('contact', had); box.classList.toggle('hostile', riders.some((r) => r.kind === 'hunt'));
     }
     box.addEventListener('click', () => {
       if (C.onstage) window.scrollTo({ top: Math.max(0, C.y + H / 2 - window.innerHeight / 2), behavior: T.motion ? 'smooth' : 'auto' });
@@ -2998,8 +3900,9 @@ window.CATDATA = {
   if (DEBUG) {
     window.Camille = {
       C, hitAt, canvas, get ledges() { return ledges; }, measure, say, poke, paint, place, show, hide,
+      rider: makeRider, paintRider,
       run(name, arg) {
-        const B = { intro, climb, portal, perch, patrol, block, box, catnap, meddle, startle, chase, zoomies, chargeNap, promptNap, leave, knock, rest, offPrompt };
+        const B = { intro, climb, portal, ciri: () => portal(true), perch, patrol, block, box, catnap, meddle, startle, chase, zoomies, chargeNap, promptNap, leave, knock, rest, offPrompt };
         C.awayUntil = 0; take(B[name](arg)); return name;
       },
       poses: A.names,
