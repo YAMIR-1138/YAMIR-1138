@@ -3438,9 +3438,18 @@ window.CATDATA = {
     mark('portal');
     if (!C.onstage || !C.ledge || C.ledge.kind === 'line' || C.ledge.kind === 'top') return;
     const here = C.ledge;
-    const far = ledges.filter((l) => (l.kind === 'perch' || l.kind === 'walk') && l.key !== here.key && vis(l) && l.x1 - l.x0 > W);
-    if (!far.length) return;
+    const roomy = ledges.filter((l) => (l.kind === 'perch' || l.kind === 'walk') && l.key !== here.key && l.x1 - l.x0 > W);
+    let far = roomy.filter(vis);
     const visitors = withRiders === true || (withRiders !== false && Math.random() < (DEBUG ? .5 : .18));
+    if (!far.length) {
+      // nothing in view to come out on (she is at the prompt, say): the page goes to the nearest ledge that will do, and the portal opens there
+      if (!roomy.length || !T.motion) return;
+      const mid = viewTop() + window.innerHeight / 2, best = roomy.slice().sort((a, b) => Math.abs(a.y - mid) - Math.abs(b.y - mid))[0];
+      window.scrollTo({ top: Math.max(0, best.y - window.innerHeight * .42), behavior: 'smooth' });
+      for (let i = 0; i < sec(1.6); i++) { yield; if (vis(best)) break; }
+      if (!vis(best)) { window.scrollTo({ top: Math.max(0, best.y - window.innerHeight * .42) }); yield; }
+      far = [best];
+    }
     const dest = pick(far);
     // visitors ride along the ledge and beyond it, so the portal goes at the end with more room past it
     let xB = restX(dest), face = visitors ? (SR - dest.x0 > dest.x1 + W - SL ? 1 : -1) : (Math.random() < .5 ? 1 : -1);
