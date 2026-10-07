@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup E · The plate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  /* Option E. A natural-history plate. The wordmark's serif leads; the tiger sits inside its
+     ring of text, which turns slowly. Teal and orange appear only where the logo puts them. */
+  :root {
+    --paper: #f7f3ea; --paper-2: #efe9db; --ink: #15302e; --ink-2: #4e5f5c; --rule: #cfc7b4; --teal: #1f8f92; --orange: #d47a18; --disc: transparent;
+    --display: "Cormorant Garamond", "Cormorant", Georgia, serif; --body: "EB Garamond", Garamond, Georgia, serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --gutter: clamp(16px, 5vw, 64px); color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper: #10201f; --paper-2: #162a28; --ink: #ece6d6; --ink-2: #a9b3ae; --rule: #2d4542; --teal: #4fc0c6; --orange: #f0a040; --disc: #ece6d6; color-scheme: dark; } }
+  :root[data-theme="dark"] { --paper: #10201f; --paper-2: #162a28; --ink: #ece6d6; --ink-2: #a9b3ae; --rule: #2d4542; --teal: #4fc0c6; --orange: #f0a040; --disc: #ece6d6; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 400 19px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
+  a { color: var(--teal); text-decoration: none; border-bottom: 1px solid var(--teal); } a:hover { color: var(--orange); border-color: var(--orange); }
+  h1, h2, h3 { font-family: var(--display); font-weight: 600; margin: 0; text-wrap: balance; }
+  p { margin: 0; } ul, ol { margin: 0; padding: 0; list-style: none; }
+  .sc { font-variant: small-caps; letter-spacing: .12em; text-transform: lowercase; font-weight: 500; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding-inline: var(--gutter); }
+
+  header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; min-width: 0; padding-block: 26px 14px; border-bottom: 1px solid var(--ink); }
+  header .name { font: 600 30px/1 var(--display); letter-spacing: .02em; }
+  header .name i { font-style: italic; display: inline-block; font-weight: 500; color: var(--ink-2); font-size: 22px; margin-left: 10px; }
+  header nav { display: flex; gap: 22px; } header nav a { border: 0; color: var(--ink); font-size: 17px; } header nav a:hover { color: var(--orange); }
+
+  .hero { display: grid; grid-template-columns: 1fr; gap: 32px 56px; align-items: center; padding-block: 48px 36px; }
+  @media (min-width: 900px) { .hero { grid-template-columns: 380px minmax(0, 1fr); padding-block: 64px 48px; } }
+  .ring { position: relative; width: min(100%, 380px); aspect-ratio: 1; margin: 0 auto; }
+  .ring svg { position: absolute; inset: 0; width: 100%; height: 100%; animation: turn 90s linear infinite; }
+  .ring svg text { font: 500 21px var(--display); letter-spacing: .22em; fill: var(--ink); }
+  .ring::before { content: ""; position: absolute; inset: 11%; border-radius: 50%; background: var(--disc); }
+  .ring img { position: absolute; left: 50%; top: 50%; width: 46%; height: auto; transform: translate(-50%, -54%); -webkit-mask-image: linear-gradient(#000 72%, transparent 100%); mask-image: linear-gradient(#000 72%, transparent 100%); }
+  .ring .word { position: absolute; left: 50%; bottom: 18%; transform: translateX(-50%); font: 600 34px/1 var(--display); letter-spacing: .04em; color: #15302e; }
+  @keyframes turn { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .ring svg { animation: none; } }
+  .hero h1 { overflow-wrap: anywhere; font-size: clamp(40px, 5.6vw, 68px); line-height: 1.02; font-weight: 500; }
+  .hero h1 i { font-style: italic; }
+  .hero .lede { margin-top: 20px; font-size: 21px; max-width: 30em; }
+  .hero .links { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 17px; }
+
+  .plates { border-top: 1px solid var(--ink); padding-top: 8px; }
+  .plates .cap { display: flex; justify-content: space-between; align-items: baseline; padding-block: 6px 26px; font-size: 16px; color: var(--ink-2); }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 0 48px; }
+  @media (min-width: 760px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .plate { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 18px; padding-block: 26px; border-top: 1px solid var(--rule); }
+  .plate .fig { background: var(--paper-2); border: 1px solid var(--rule); height: 96px; display: grid; place-items: center; }
+  .plate .fig svg { width: 60px; height: 60px; fill: none; stroke: var(--ink); stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+  .plate .fig .o { stroke: var(--orange); } .plate .fig .t { stroke: var(--teal); }
+  .plate .num { font: 500 14px var(--display); letter-spacing: .2em; color: var(--orange); }
+  .plate h3 { font-size: 30px; line-height: 1.1; margin-top: 2px; }
+  .plate .kind { font-style: italic; color: var(--ink-2); margin: 2px 0 8px; }
+  .plate p.what { font-size: 17.5px; }
+  .plate .links { margin-top: 10px; font-size: 16px; display: flex; gap: 20px; }
+
+  .index { display: grid; grid-template-columns: 1fr; gap: 24px 56px; padding-block: 44px; border-top: 1px solid var(--ink); margin-top: 24px; }
+  @media (min-width: 900px) { .index { grid-template-columns: 300px minmax(0, 1fr); } }
+  .index h2 { font-size: 40px; line-height: 1; }
+  .index h2 small { display: block; font: italic 500 20px/1.3 var(--display); color: var(--ink-2); margin-top: 8px; }
+  .index ol { counter-reset: n; display: grid; }
+  .index li { counter-increment: n; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; padding-block: 12px; border-top: 1px solid var(--rule); font-size: 18px; }
+  .index li::before { content: counter(n, upper-roman) "."; font-family: var(--display); font-size: 22px; color: var(--orange); }
+  .index li b { font-weight: 500; font-family: var(--display); font-size: 22px; display: block; }
+
+  footer { border-top: 1px solid var(--ink); padding-block: 18px 48px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; font-size: 15px; color: var(--ink-2); }
+  footer .seq { font-family: var(--mono); font-size: 13px; letter-spacing: .08em; } footer .seq b { color: var(--orange); font-weight: 400; }
+  .theme { font: inherit; color: inherit; background: none; border: 0; border-bottom: 1px solid var(--rule); padding: 0; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="name">TggR Lab<i>Translational Genetics &amp; Genomics Research</i></div>
+    <nav><a href="#">Plates</a><a href="#">Index</a><a href="#">People</a><a href="#">Contact</a></nav>
+  </header>
+
+  <div class="hero">
+    <div class="ring" aria-hidden="true">
+      <svg viewBox="0 0 400 400"><defs><path id="c" d="M200,200 m-172,0 a172,172 0 1,1 344,0 a172,172 0 1,1 -344,0"/></defs>
+        <text><textPath href="#c" startOffset="0">Translational Genetics and Genomics Research Laboratory · Tel Aviv ·</textPath></text></svg>
+      <img src="tiger.png" alt="">
+      <div class="word">TggR</div>
+    </div>
+    <div>
+      <h1>On the genes behind rare disease, <i>and the instruments made in pursuit of them.</i></h1>
+      <p class="lede">A medical genetics laboratory inside the Genetics Institute of Tel Aviv Sourasky Medical Center. Families come to us with questions their tests could not answer; we look for the gene, then for what it does.</p>
+      <p class="links"><a href="#">Our code on GitHub</a><a href="#">The laboratory at Ichilov</a><a href="#">Prof. Hagit Baris Feldman</a></p>
+    </div>
+  </div>
+
+  <section class="plates">
+    <div class="cap"><span class="sc">Plates I to IV · the tools</span><span>Open source, in use on our own bench</span></div>
+    <div class="grid">
+      <div class="plate"><div class="fig"><svg viewBox="0 0 60 60"><path d="M10 12h40v26H26l-10 9v-9H10z"/><path class="o" d="M20 22h20M20 29h12"/></svg></div><div><div class="num">PLATE I</div><h3>Pellaeon</h3><p class="kind">A plug-in for UCSF ChimeraX, in Python</p><p class="what">Talk to ChimeraX in plain English. A chat panel turns what you type into commands, shows every command it ran, and asks before anything destructive.</p><p class="links"><a href="#">Site</a><a href="#">Source</a><a href="#">Toolshed</a></p></div></div>
+      <div class="plate"><div class="fig"><svg viewBox="0 0 60 60"><path d="M12 10v40M19 10v40M26 10v40M33 10v40M40 10v40M47 10v40"/><circle class="t" cx="26" cy="22" r="3"/><circle class="t" cx="40" cy="36" r="3"/><path class="o" d="M26 22l14 14"/></svg></div><div><div class="num">PLATE II</div><h3>GPCompaRe</h3><p class="kind">A database of receptor contacts, with reports</p><p class="what">What changes when a receptor switches on. Residue contacts in the inactive and active states of 283 human Class A G protein-coupled receptors, compared one by one.</p><p class="links"><a href="#">Browse</a><a href="#">Source</a></p></div></div>
+      <div class="plate"><div class="fig"><svg viewBox="0 0 60 60"><rect x="9" y="12" width="42" height="28" rx="2"/><path class="t" d="M15 33l6-8 5 4 6-11 5 7 7-4"/><path d="M22 50h16M30 40v10"/></svg></div><div><div class="num">PLATE III</div><h3>Incubator CO₂ monitor</h3><p class="kind">An instrument, built on an ESP32</p><p class="what">A CO₂ and temperature monitor for a cell culture incubator, made from three parts and six wires, with a build guide and ten days of real data. Calibrate before relying on it.</p><p class="links"><a href="#">Guide</a><a href="#">Source</a></p></div></div>
+      <div class="plate"><div class="fig"><svg viewBox="0 0 60 60"><rect x="18" y="7" width="24" height="46" rx="5"/><path d="M24 17h12M24 24h12M24 31h6"/><circle class="o" cx="30" cy="44" r="2.5"/></svg></div><div><div class="num">PLATE IV</div><h3>Bench Mate</h3><p class="kind">A pocket companion for the bench, offline</p><p class="what">Dilution, molar, timers, ladders, plate maps, NanoDrop, BCA, and protocols as worksheets you fill in. Installs on a phone and works without a signal.</p><p class="links"><a href="#">Open</a><a href="#">Source</a></p></div></div>
+    </div>
+  </section>
+
+  <section class="index">
+    <h2>Index of the work<small>from a family in clinic to a gene, and back</small></h2>
+    <ol>
+      <li><span><b>Families</b>Referred to the Genetics Institute with a rare, often inherited condition. Many are consanguineous, which makes recessive disease easier to map.</span></li>
+      <li><span><b>Sequencing</b>Exome and genome sequencing in house, and the analysis that finds the variants segregating with disease.</span></li>
+      <li><span><b>Function</b>Cell and animal models, protein structure, and assays made for the gene in question.</span></li>
+      <li><span><b>Clinic</b>A diagnosis for the family, counselling, a new gene in the literature, and where the mechanism allows it, a target.</span></li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>Genetics Institute, Tel Aviv Sourasky Medical Center · Faculty of Medicine, Tel Aviv University · <button class="theme" type="button" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">light / dark</button></span>
+    <span class="seq">TGG<b>R</b> · a valid IUPAC sequence: tryptophan, then a purine</span>
+  </footer>
+</div>
+</body>
+</html>

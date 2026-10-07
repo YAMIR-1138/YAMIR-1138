@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup D · The bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&family=Share+Tech+Mono&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  /* Option D. The full BenchMate costume: a cream instrument case, keycaps, LCD readouts, the
+     stripe, a nameplate. The lab page is the front panel; the tools are the keys. */
+  :root {
+    --bg: #efe3c6; --panel: #fbf4e2; --text: #2b1d14; --muted: #6a5947; --line: #2b1d14; --line-soft: #c9b995; --edge: 4px; --bw: 2.5px;
+    --teal: #1f8f92; --orange: #e5761f; --mustard: #e0a92e; --avocado: #8c9b3b; --key-ink: #2b1d14; --band-ink: #fbf4e2;
+    --lcd: #d8dfc2; --lcd-ink: #070c07; --lcd-glow: none; --paper: #fbf7ea; --pen: #1f3fbf; --grain: .07; --blend: multiply;
+    --display: "Chakra Petch", "Avenir Next", "Trebuchet MS", sans-serif; --font: "Atkinson Hyperlegible", system-ui, sans-serif; --mono: "Share Tech Mono", ui-monospace, Menlo, monospace; --pen-font: "Caveat", cursive;
+    --gutter: clamp(16px, 4vw, 40px); color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #1c1917; --panel: #2b2622; --text: #f3e9d2; --muted: #b5a892; --line: #0d0b0a; --line-soft: #4a423a; --teal: #2aa9ac; --orange: #f08a2e; --mustard: #e8b73e; --avocado: #9fb04a; --key-ink: #1c1410; --band-ink: #0d0b0a; --lcd: #0c0907; --lcd-ink: #ffa044; --lcd-glow: drop-shadow(0 0 2px rgba(255,150,60,.6)); --paper: #2f2a25; --pen: #8fb0ff; --grain: .06; --blend: screen; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #1c1917; --panel: #2b2622; --text: #f3e9d2; --muted: #b5a892; --line: #0d0b0a; --line-soft: #4a423a; --teal: #2aa9ac; --orange: #f08a2e; --mustard: #e8b73e; --avocado: #9fb04a; --key-ink: #1c1410; --band-ink: #0d0b0a; --lcd: #0c0907; --lcd-ink: #ffa044; --lcd-glow: drop-shadow(0 0 2px rgba(255,150,60,.6)); --paper: #2f2a25; --pen: #8fb0ff; --grain: .06; --blend: screen; color-scheme: dark; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 400 17px/1.45 var(--font); -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: var(--grain); mix-blend-mode: var(--blend); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .app { position: relative; z-index: 1; }
+  a { color: var(--teal); }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: .01em; }
+  p { margin: 0; } ul, ol { margin: 0; padding: 0; list-style: none; }
+
+  .top { background: var(--teal); color: var(--band-ink); padding: 14px var(--gutter); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .disc { width: 56px; height: 56px; border-radius: 50%; background: var(--panel); border: var(--bw) solid var(--line); display: grid; place-items: center; overflow: hidden; }
+  .brand .disc img { width: 40px; height: auto; margin-top: 4px; }
+  .brand .lab { font-family: var(--mono); font-size: 12px; letter-spacing: .32em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .brand .lab::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--orange); border: 2px solid var(--line); }
+  .brand .word { font: 700 36px/1 var(--display); }
+  .top nav { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+  .top nav a { font: 700 14px/1 var(--display); color: var(--text); background: var(--panel); text-decoration: none; padding: 10px 14px; border: var(--bw) solid var(--line); border-radius: 10px; box-shadow: 0 3px 0 var(--line); }
+  .stripe { height: 10px; background: linear-gradient(90deg, var(--orange) 0 34%, var(--mustard) 34% 67%, var(--avocado) 67%); border-top: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 28px var(--gutter) 40px; }
+  .readout { background: var(--lcd); color: var(--lcd-ink); border: var(--bw) solid var(--line); border-radius: 10px; padding: 18px 22px; font-family: var(--mono); filter: var(--lcd-glow); display: grid; gap: 6px; }
+  .readout .big { font-size: clamp(22px, 4vw, 40px); line-height: 1.1; letter-spacing: .04em; text-transform: uppercase; }
+  .readout .big::after { content: "▮"; animation: blink 1s steps(1) infinite; margin-left: 6px; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .readout .row { display: flex; flex-wrap: wrap; gap: 6px 24px; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
+  @media (prefers-reduced-motion: reduce) { .readout .big::after { animation: none; } }
+
+  .panel { display: grid; grid-template-columns: 1fr; gap: 24px 32px; align-items: center; margin-top: 26px; }
+  @media (min-width: 900px) { .panel { grid-template-columns: minmax(0, 1fr) 300px; } }
+  .panel h1 { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.08; font-weight: 700; }
+  .panel p { font-size: 18px; margin-top: 14px; max-width: 34em; }
+  .panel img { width: min(100%, 280px); justify-self: center; height: auto; background: #fbf4e2; border: var(--bw) solid var(--line); border-radius: 18px; padding: 18px 22px 10px; box-shadow: 0 var(--edge) 0 var(--line); }
+
+  .label { font-family: var(--mono); font-size: 12px; letter-spacing: .32em; text-transform: uppercase; color: var(--muted); margin: 34px 0 12px; display: flex; align-items: center; gap: 10px; }
+  .label::after { content: ""; flex: 1; border-top: var(--bw) solid var(--line-soft); }
+  .tiles { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 640px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1000px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .tile { display: block; text-decoration: none; color: var(--key-ink); border: var(--bw) solid var(--line); border-radius: 12px; padding: 16px 16px 18px; box-shadow: 0 var(--edge) 0 var(--line); min-height: 170px; display: grid; grid-template-rows: auto 1fr auto; gap: 10px; }
+  .tile:active { transform: translateY(var(--edge)); box-shadow: none; }
+  .tile.k1 { background: var(--orange); } .tile.k2 { background: var(--mustard); } .tile.k3 { background: var(--teal); } .tile.k4 { background: var(--avocado); }
+  .tile .hd { display: flex; align-items: flex-start; justify-content: space-between; }
+  .tile .hd svg { width: 30px; height: 30px; fill: none; stroke: var(--key-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .tile .idx { font-family: var(--mono); font-size: 13px; }
+  .tile h3 { font-size: 24px; font-weight: 700; align-self: end; }
+  .tile .sub { font-size: 14px; opacity: .85; }
+  .tile .st { font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; background: rgba(0,0,0,.14); border-radius: 6px; padding: 4px 8px; justify-self: start; }
+
+  .sheet { background: var(--paper); border: var(--bw) solid var(--line); border-radius: 12px; padding: 20px 22px; display: grid; grid-template-columns: 1fr; gap: 18px 32px; }
+  @media (min-width: 900px) { .sheet { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  .sheet h2 { font-size: 24px; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+  .sheet ol { list-style: decimal; padding-left: 22px; display: grid; gap: 8px; margin-top: 10px; }
+  .sheet li { padding-left: 4px; }
+  .chip { display: inline-block; font-family: var(--mono); font-size: 13px; border: var(--bw) solid var(--line); border-radius: 999px; padding: 2px 10px; background: var(--panel); margin-left: 4px; box-shadow: 0 2px 0 var(--line); }
+  .pen { font: 600 22px/1.1 var(--pen-font); color: var(--pen); border-bottom: 1.5px solid var(--line-soft); padding: 0 6px; }
+  .sheet .mat { font-family: var(--mono); font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); margin-top: 12px; }
+  .sheet dl { margin: 6px 0 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; font-size: 16px; }
+  .sheet dt { color: var(--muted); } .sheet dd { margin: 0; }
+
+  footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; margin-top: 34px; font-family: var(--mono); font-size: 12.5px; letter-spacing: .06em; color: var(--muted); align-items: center; }
+  footer .moon { width: 44px; height: 44px; border-radius: 50%; background: var(--panel); border: var(--bw) solid var(--line); box-shadow: 0 3px 0 var(--line); cursor: pointer; font-size: 18px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><span class="disc"><img src="tiger.png" alt=""></span><div><div class="lab">TGGR</div><div class="word">Lab</div></div></div>
+    <nav><a href="#">Tools</a><a href="#">Research</a><a href="#">People</a><a href="#">Contact</a></nav>
+  </header>
+  <div class="stripe" aria-hidden="true"></div>
+
+  <main>
+    <div class="readout" role="status">
+      <div class="big">Translational genetics &amp; genomics</div>
+      <div class="row"><span>Genetics Institute · Tel Aviv Sourasky Medical Center</span><span>4 tools</span><span>3 public repos</span><span>last push 2026-10-03</span></div>
+    </div>
+
+    <div class="panel">
+      <div>
+        <h1>A medical genetics lab, and the instruments that came out of it.</h1>
+        <p>We look for the genes behind rare disease in the families who come to the Genetics Institute, then work out what those genes do. Along the way we built the things below. Press one.</p>
+      </div>
+      <img src="logo.png" alt="TGGR Lab logo: a tiger whose stripes become a DNA helix.">
+    </div>
+
+    <p class="label">Tools</p>
+    <div class="tiles">
+      <a class="tile k1" href="#"><div class="hd"><svg viewBox="0 0 30 30"><path d="M5 6h20v13H13l-5 4v-4H5z"/><path d="M10 11h10M10 15h6"/></svg><span class="idx">01</span></div><h3>Pellaeon</h3><p class="sub">ChimeraX in plain English</p><span class="st">on toolshed</span></a>
+      <a class="tile k2" href="#"><div class="hd"><svg viewBox="0 0 30 30"><path d="M6 5v20M11 5v20M16 5v20M21 5v20M26 5v20"/><circle cx="16" cy="12" r="2.2" fill="currentColor"/><circle cx="21" cy="18" r="2.2" fill="currentColor"/></svg><span class="idx">02</span></div><h3>GPCompaRe</h3><p class="sub">283 receptors, on and off</p><span class="st">beta</span></a>
+      <a class="tile k3" href="#"><div class="hd"><svg viewBox="0 0 30 30"><rect x="4" y="6" width="22" height="15" rx="2"/><path d="M8 17l3-4 3 2 3-6 3 4 3-2"/><path d="M11 25h8M15 21v4"/></svg><span class="idx">03</span></div><h3>CO₂ monitor</h3><p class="sub">incubator, ESP32, DIY</p><span class="st">calibrate</span></a>
+      <a class="tile k4" href="#"><div class="hd"><svg viewBox="0 0 30 30"><rect x="8" y="3" width="14" height="24" rx="3"/><path d="M12 8h6M12 12h6M12 16h3"/><circle cx="15" cy="22" r="1.5" fill="currentColor"/></svg><span class="idx">04</span></div><h3>Bench Mate</h3><p class="sub">bench tools, offline, phone</p><span class="st">PWA · v0.1.0</span></a>
+    </div>
+
+    <p class="label">Protocol 01 · how a project runs</p>
+    <div class="sheet">
+      <div>
+        <h2>Gene discovery, one family</h2>
+        <ol>
+          <li>Family referred to the Genetics Institute. Pedigree drawn at intake: <span class="pen">consanguineous, 2 affected</span></li>
+          <li>Trio exome, in house <span class="chip">timer 4 wk</span></li>
+          <li>Filter to variants that segregate with disease. Candidates: <span class="pen">1</span></li>
+          <li>Functional assay tailored to the gene <span class="chip">timer 6–18 mo</span></li>
+          <li>Diagnosis to the family. Counselling. Write it up.</li>
+        </ol>
+      </div>
+      <div>
+        <p class="mat">Materials</p>
+        <dl>
+          <dt>Sequencing</dt><dd>In-house NGS, exome and genome</dd>
+          <dt>Analysis</dt><dd>Bioinformatics, segregation, population data</dd>
+          <dt>Models</dt><dd>Patient cells, animal models, protein structure</dd>
+          <dt>Output</dt><dd>Diagnosis, mechanism, sometimes a target</dd>
+        </dl>
+      </div>
+    </div>
+
+    <footer>
+      <span>model TGGR-1 · site v1.0 · 10-26</span>
+      <span>made at TGGR Lab · Tel Aviv Sourasky Medical Center · Tel Aviv University</span>
+      <button class="moon" type="button" aria-label="Light or dark" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">☾</button>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup C · Night ward</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,600;125,800&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Option C. One theme, always dark: the logo's own ink as the ground. Teal is the voice of
+     the clinic and the research, orange the voice of code. The hero plays Mendelian segregation. */
+  :root {
+    --bg: #061a19; --bg-2: #0b2422; --panel: #0e2a28; --ink: #e6f0ee; --muted: #8fa8a4; --line: #1d3d3a;
+    --teal: #2bb5bc; --teal-soft: #1a6f74; --orange: #f09a2e; --orange-soft: #8a5416;
+    --display: "Archivo", "Helvetica Neue", Arial, sans-serif; --body: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --gutter: clamp(16px, 4vw, 48px); color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+  a { color: var(--teal); }
+  h1, h2, h3 { font-family: var(--display); font-stretch: 125%; margin: 0; text-wrap: balance; }
+  p { margin: 0; } ul { margin: 0; padding: 0; list-style: none; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding-inline: var(--gutter); }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; padding-block: 18px; border-bottom: 1px solid var(--line); }
+  header nav { flex-wrap: wrap; }
+  header img { width: 40px; height: auto; -webkit-mask-image: linear-gradient(#000 72%, transparent 100%); mask-image: linear-gradient(#000 72%, transparent 100%); }
+  header .name { font: 800 22px/1 var(--display); font-stretch: 125%; letter-spacing: .02em; }
+  header .name small { display: block; font: 400 11px/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  header nav { margin-left: auto; display: flex; gap: 20px; font-family: var(--mono); font-size: 13px; }
+  header nav a { color: var(--muted); text-decoration: none; } header nav a:hover { color: var(--ink); }
+
+  .hero { display: grid; grid-template-columns: 1fr; gap: 36px 56px; align-items: center; padding-block: 56px 48px; }
+  @media (min-width: 1000px) { .hero { grid-template-columns: minmax(0, 1fr) minmax(380px, 520px); padding-block: 80px 64px; } }
+  .hero h1 { font-size: clamp(40px, 6vw, 76px); line-height: .98; font-weight: 800; letter-spacing: -.01em; }
+  .hero h1 .t { color: var(--teal); } .hero h1 .o { color: var(--orange); }
+  .hero .lede { margin-top: 24px; font-size: 19px; max-width: 32em; color: #c4d4d1; }
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .btn { font: 500 14px/1 var(--mono); text-decoration: none; padding: 13px 16px; border-radius: 4px; border: 1px solid var(--line); color: var(--ink); }
+  .btn.o { background: var(--orange); border-color: var(--orange); color: #1a1206; } .btn.t { border-color: var(--teal); color: var(--teal); }
+
+  /* segregation */
+  .seg { background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 22px 22px 16px; }
+  .seg svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .seg .ln { stroke: #3c5f5b; stroke-width: 1.6; fill: none; }
+  .seg .sym { fill: var(--bg-2); stroke: #bcd0cc; stroke-width: 1.6; }
+  .seg .sym.aff { fill: #bcd0cc; }
+  .seg .al { r: 4.2; stroke: var(--bg-2); stroke-width: 1.2; transition: cx 1.1s cubic-bezier(.5,0,.3,1), cy 1.1s cubic-bezier(.5,0,.3,1), opacity .4s; }
+  .seg .al.ref { fill: var(--teal); } .seg .al.var { fill: var(--orange); }
+  .seg .gen { font: 500 11px var(--mono); fill: var(--muted); }
+  .seg .bar { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; margin-top: 14px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  .seg button { font: 500 12.5px var(--mono); background: none; color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 7px 11px; cursor: pointer; }
+  .seg button:hover { border-color: var(--teal); }
+  .seg .k { display: inline-flex; align-items: center; gap: 6px; } .seg .k i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .seg .status { margin-left: auto; color: var(--ink); }
+
+  /* two voices */
+  .voices { display: grid; grid-template-columns: 1fr; gap: 40px; padding-block: 24px 40px; }
+  @media (min-width: 900px) { .voices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px; } }
+  .voice h2 { font-size: 15px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; padding-bottom: 12px; border-bottom: 2px solid; margin-bottom: 18px; }
+  .voice.t h2 { color: var(--teal); border-color: var(--teal); } .voice.o h2 { color: var(--orange); border-color: var(--orange); }
+  .voice p { color: #c4d4d1; margin-bottom: 14px; }
+  .steps li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; padding-block: 10px; border-top: 1px solid var(--line); }
+  .steps b { font-family: var(--mono); font-weight: 500; color: var(--teal); font-size: 13px; padding-top: 3px; }
+  .steps span { font-size: 15.5px; color: #c4d4d1; }
+  .repos li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; min-width: 0; gap: 8px 18px; align-items: baseline; padding-block: 11px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 13.5px; }
+  .repos .n { color: var(--ink); font-weight: 500; } .repos .n small { display: block; color: var(--muted); font-family: var(--body); font-size: 14px; font-weight: 400; margin-top: 2px; max-width: 34em; }
+  .repos .l { color: var(--muted); } .repos .l::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--orange); margin-right: 6px; vertical-align: 0; }
+  .repos .d { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .repos .note { padding-top: 12px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  @media (max-width: 640px) { .repos li { grid-template-columns: minmax(0, 1fr) auto; } .repos .d { grid-column: 1 / -1; } .hero h1 { font-size: clamp(34px, 10vw, 76px); } }
+  footer { border-top: 1px solid var(--line); padding-block: 20px 40px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; font-family: var(--mono); font-size: 12.5px; color: var(--muted); }
+  footer b { color: var(--ink); font-weight: 500; } footer .seq { letter-spacing: .1em; } footer .seq .r { color: var(--orange); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="tiger.png" alt="">
+    <div class="name">TGGR<small>Translational Genetics and Genomics Research</small></div>
+    <nav><a href="#">Tools</a><a href="#">Research</a><a href="#">People</a><a href="#">Contact</a></nav>
+  </header>
+
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Genetics Institute · Tel Aviv Sourasky Medical Center</p>
+      <h1 style="margin-top:14px">Rare disease, <span class="t">one family at a time.</span> Open tools, <span class="o">one repo at a time.</span></h1>
+      <p class="lede">We look for the genes behind rare disease in the families who come to the Genetics Institute, then work out what those genes do. The code we write on the way is public.</p>
+      <div class="cta"><a class="btn o" href="#">github.com/tggr-lab</a><a class="btn t" href="#">The lab at Ichilov</a></div>
+    </div>
+
+    <figure class="seg" id="seg" style="margin:0">
+      <svg viewBox="0 0 360 236" aria-labelledby="seg-t"><title id="seg-t">Alleles passing down a family</title>
+        <g id="lines"></g><g id="syms"></g><g id="alleles"></g>
+        <text class="gen" x="8" y="44">I</text><text class="gen" x="8" y="124">II</text><text class="gen" x="8" y="204">III</text>
+      </svg>
+      <figcaption class="bar">
+        <span class="k"><i style="background:var(--teal)"></i>reference</span><span class="k"><i style="background:var(--orange)"></i>variant</span>
+        <button type="button" id="play">play segregation</button><button type="button" id="redo">new family</button>
+        <span class="status" id="status">recessive · 2 of 4 affected</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <div class="voices">
+    <div class="voice t">
+      <h2>Research</h2>
+      <p>The starting point is always a family: people referred with a rare, often inherited condition that existing tests could not explain. From there the work runs the same way every time.</p>
+      <ul class="steps">
+        <li><b>01</b><span>Families referred to the Genetics Institute, many consanguineous, which makes recessive disease easier to map.</span></li>
+        <li><b>02</b><span>Exome and genome sequencing in house, and the analysis to find variants that segregate with disease.</span></li>
+        <li><b>03</b><span>Functional work tailored to the gene: cell models, animal models, protein structure.</span></li>
+        <li><b>04</b><span>Back to clinic: a diagnosis, counselling, a new gene in the literature, sometimes a target.</span></li>
+      </ul>
+    </div>
+    <div class="voice o">
+      <h2>Code</h2>
+      <p>Every public repository in the organization, read from GitHub when the page loads. Nothing to update by hand when a new one goes public.</p>
+      <ul class="repos">
+        <li><span class="n">pellaeon<small>Talk to UCSF ChimeraX in plain English. On the Toolshed.</small></span><span class="l">Python</span><span class="d">pushed 4 d ago</span></li>
+        <li><span class="n">incubator-co2-monitor<small>DIY CO₂ and temperature monitor for cell culture incubators, on an ESP32.</small></span><span class="l">C++</span><span class="d">9 d ago</span></li>
+        <li><span class="n">GPCompaRe<small>Contact analysis across 283 human Class A GPCRs, active against inactive.</small></span><span class="l">CSS</span><span class="d">Aug 26</span></li>
+        <li><span class="n">benchmate<small>Bench tools for molecular biology as an installable web app. Offline.</small></span><span class="l">TypeScript</span><span class="d">if moved to the org</span></li>
+      </ul>
+      <p class="note">Static here. The live page calls api.github.com/orgs/tggr-lab/repos and keeps hand-written blurbs for the main tools.</p>
+    </div>
+  </div>
+
+  <footer>
+    <span><b>TGGR Lab</b> · Tel Aviv Sourasky Medical Center · Tel Aviv University</span>
+    <span class="seq">TGG<span class="r">R</span> is a valid IUPAC sequence: tryptophan, then a purine.</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  // A three-generation family. Alleles are drawn as dots beside each person and animate
+  // down the lines when played. Genotypes are random but Mendelian.
+  var S = 9, people = [
+    { id: 'I1', x: 70, y: 40, sex: 'm' }, { id: 'I2', x: 140, y: 40, sex: 'f' }, { id: 'I3', x: 220, y: 40, sex: 'm' }, { id: 'I4', x: 290, y: 40, sex: 'f' },
+    { id: 'II1', x: 105, y: 120, sex: 'f', par: ['I1', 'I2'] }, { id: 'II2', x: 255, y: 120, sex: 'm', par: ['I3', 'I4'] },
+    { id: 'III1', x: 110, y: 200, sex: 'm', par: ['II1', 'II2'] }, { id: 'III2', x: 160, y: 200, sex: 'f', par: ['II1', 'II2'] }, { id: 'III3', x: 210, y: 200, sex: 'm', par: ['II1', 'II2'] }, { id: 'III4', x: 260, y: 200, sex: 'f', par: ['II1', 'II2'] }
+  ];
+  var byId = {}; people.forEach(function (p) { byId[p.id] = p; });
+  var svgNS = 'http://www.w3.org/2000/svg', g = function (id) { return document.getElementById(id); };
+  function el(n, a) { var e = document.createElementNS(svgNS, n); for (var k in a) e.setAttribute(k, a[k]); return e; }
+  // lines
+  var L = g('lines'), lines = [[79, 40, 131, 40], [229, 40, 281, 40], [105, 40, 105, 111], [255, 40, 255, 111], [114, 118, 246, 118], [114, 122, 246, 122], [180, 122, 180, 160], [110, 160, 260, 160], [110, 160, 110, 191], [160, 160, 160, 191], [210, 160, 210, 191], [260, 160, 260, 191]];
+  lines.forEach(function (c) { L.appendChild(el('line', { class: 'ln', x1: c[0], y1: c[1], x2: c[2], y2: c[3] })); });
+  var Y = g('syms'), A = g('alleles'), status = g('status');
+  function draw() {
+    Y.innerHTML = ''; A.innerHTML = '';
+    people.forEach(function (p) {
+      p.sym = p.sex === 'm' ? el('rect', { x: p.x - S, y: p.y - S, width: 2 * S, height: 2 * S }) : el('circle', { cx: p.x, cy: p.y, r: S });
+      p.sym.setAttribute('class', 'sym' + (p.g[0] && p.g[1] ? ' aff' : '')); Y.appendChild(p.sym);
+      p.dots = p.g.map(function (v, i) { return el('circle', { class: 'al ' + (v ? 'var' : 'ref'), cx: p.x - 6 + 12 * i, cy: p.y + S + 11 }); });
+      p.dots.forEach(function (d) { A.appendChild(d); });
+    });
+    var aff = people.filter(function (p) { return p.par && p.par[0] === 'II1' && p.g[0] && p.g[1]; }).length;
+    status.textContent = 'recessive · ' + aff + ' of 4 affected';
+  }
+  function newFamily() {
+    people.forEach(function (p) {
+      if (!p.par) { p.g = [Math.random() < 0.5 ? 1 : 0, 0]; if (Math.random() < 0.5) p.g.reverse(); }
+      else { var a = byId[p.par[0]], b = byId[p.par[1]]; p.from = [a.g[Math.random() < 0.5 ? 0 : 1], b.g[Math.random() < 0.5 ? 0 : 1]]; p.g = p.from.slice(); }
+    });
+    // keep the demo interesting: both cousins carry at least once in a while
+    draw();
+  }
+  function play() {
+    // children's dots start on their parents, then travel down
+    people.filter(function (p) { return p.par; }).forEach(function (p, i) {
+      p.dots.forEach(function (d, j) { var par = byId[p.par[j]]; d.style.transition = 'none'; d.setAttribute('cx', par.x - 6 + 12 * j); d.setAttribute('cy', par.y + S + 11); d.style.opacity = 0.35; });
+    });
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      people.filter(function (p) { return p.par; }).forEach(function (p) {
+        var delay = p.id.indexOf('III') === 0 ? 1200 : 100;
+        setTimeout(function () { p.dots.forEach(function (d, j) { d.style.transition = ''; d.setAttribute('cx', p.x - 6 + 12 * j); d.setAttribute('cy', p.y + S + 11); d.style.opacity = 1; }); }, delay);
+      });
+    }); });
+  }
+  g('play').addEventListener('click', play); g('redo').addEventListener('click', newFamily);
+  // first family: the classic one, two affected
+  people.forEach(function (p) { p.g = [0, 0]; });
+  byId.I1.g = [1, 0]; byId.I4.g = [0, 1]; byId.II1.g = [1, 0]; byId.II2.g = [0, 1]; byId.III1.g = [0, 0]; byId.III2.g = [1, 1]; byId.III3.g = [1, 1]; byId.III4.g = [1, 0];
+  draw();
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setTimeout(play, 600);
+})();
+</script>
+</body>
+</html>
