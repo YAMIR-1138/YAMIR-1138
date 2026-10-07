@@ -3395,9 +3395,12 @@ window.CATDATA = {
   function jolt() { const sc = $('.screen'); sc.classList.remove('degauss'); void sc.offsetWidth; sc.classList.add('degauss'); setTimeout(() => sc.classList.remove('degauss'), 1400); }
   function* wrongWorld(dest, planeB, dir) {
     const rw = RW(), y = dest.y - RH(), gallop = cw * 2.2, walk = cw * .7;
-    const room = Math.max(0, dir > 0 ? SR - planeB : planeB - SL), k = clamp(room / (rw * 4), .4, 1);
-    const out = (n) => planeB + dir * (rw * n * k) - (dir > 0 ? 0 : rw);
-    const edgeX = dir > 0 ? SR + rw : SL - rw;                     // off the end of the stage
+    // the stage is what is on the screen: on a phone the stops close up, so that nobody acts past the edge
+    const L = Math.max(SL, 0), Rr = Math.min(SR, layerW);
+    const room = Math.max(0, dir > 0 ? Rr - planeB : planeB - L), k = clamp((room - rw) / (rw * 3.5), .2, 1);
+    const out = (n) => clamp(planeB + dir * (rw * n * k) - (dir > 0 ? 0 : rw), L, Rr - rw);
+    const edgeX = dir > 0 ? Rr - rw * .7 : L - rw * .3;            // where a fleeing rider starts to vanish, still mostly in view
+    const tight = k < .75;                                         // a stage squeezed by a quarter or more: two of the Hunt, not three
     const inPortal = planeB - (dir > 0 ? rw : 0);                  // a rider wholly behind the portal plane
     // 1. a girl on a black mare, at a gallop, out of the portal. She reins in
     const ciri = makeRider('ciri');
@@ -3418,11 +3421,11 @@ window.CATDATA = {
     yield* hold(sec(2));
     // 3. the Hunt, after her: the portal turns, the screen jolts, a horn. They need no door: three riders out of nothing, along the ledge
     portals[1].classList.add('hunt'); jolt(); T.sfx('horn');
-    const hunt = [makeRider('hunt'), makeRider('hunt'), makeRider('hunt')], stops = [out(2.5), out(1.8), out(1.1)];
+    const stops = tight ? [out(2.5), out(1.5)] : [out(2.5), out(1.8), out(1.1)], hunt = stops.map(() => makeRider('hunt'));
     hunt.forEach((h, j) => { h.x = stops[j]; h.y = y; h.face = dir; h.el.style.opacity = 0; placeRider(h); });
     setLoop(ciri, 'M_REAR', 0, true);                                                 // the mare rears
     girl.face = -dir; girl.loop = null; placeRider(girl);                            // she turns
-    yield* together(hunt.map((h) => (function* () { h.el.style.opacity = ''; yield* play(h, 'H_APPEAR'); setLoop(h, 'H_IDLE'); })()), [0, 7, 14], (j) => { if (j === 0) T.sfx('portal'); });
+    yield* together(hunt.map((h) => (function* () { h.el.style.opacity = ''; yield* play(h, 'H_APPEAR'); setLoop(h, 'H_IDLE'); })()), [0, 7, 14].slice(0, hunt.length), (j) => { if (j === 0) T.sfx('portal'); });
     // she draws, and the Hunt names her
     yield* bg(play(girl, 'G_DRAW'));
     riderSay(hunt[0], 'Zireael!', 1600);
@@ -3431,7 +3434,7 @@ window.CATDATA = {
     yield* bg(play(girl, 'G_CAST'));
     yield* blink(girl, out(.7));
     girl.face = dir; paintRider(girl, 'G_DRAW5'); placeRider(girl);
-    yield* together(hunt.map((h) => (function* () { yield* play(h, 'H_TURN'); h.face = -dir; h.pose = ''; paintRider(h, 'H_IDLE0'); placeRider(h); setLoop(h, 'H_IDLE'); })()), [0, 2, 4]);
+    yield* together(hunt.map((h) => (function* () { yield* play(h, 'H_TURN'); h.face = -dir; h.pose = ''; paintRider(h, 'H_IDLE0'); placeRider(h); setLoop(h, 'H_IDLE'); })()), [0, 2, 4].slice(0, hunt.length));
     yield* hold(sec(.5));
     // and the ship's cat, out of the same portal, behind them
     C.ledge = dest; C.y = topOf(dest); C.face = dir; C.x = planeB - (dir > 0 ? W : 0); setU();
@@ -3448,7 +3451,7 @@ window.CATDATA = {
     const fleeing = hunt.map((h, j) => (function* () {
       h.loop = null; gait(h, 'H_GALLOP');
       const from = h.x; let i = 0;
-      while (Math.abs(h.x - from) < rw * (1.1 + j * .25) && Math.abs(edgeX - h.x) > gallop * 1.7) { h.face = dir; h.x += dir * gallop * 1.7; paintRider(h, h.gait[i++ % h.gait.length]); placeRider(h); yield; }
+      while (Math.abs(h.x - from) < rw * (1.1 + j * .25) * k && Math.abs(edgeX - h.x) > gallop * 1.7) { h.face = dir; h.x += dir * gallop * 1.7; paintRider(h, h.gait[i++ % h.gait.length]); placeRider(h); yield; }
       const v = G('H_VANISH');                                                        // still moving, and gone before the edge
       const vp = PER('H_VANISH');
       for (let q = 0; q < v.length * vp; q++) { h.x += dir * gallop * 1.2; paintRider(h, v[Math.floor(q / vp)]); placeRider(h); yield; }
