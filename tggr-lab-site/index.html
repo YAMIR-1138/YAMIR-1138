@@ -26,10 +26,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TGGR Lab</title>
-<meta name="description" content="The Translational Genetics and Genomics Research lab at Tel Aviv Sourasky Medical Center finds the genes behind rare disease in the families who come to the Genetics Institute, and builds open tools on the way: Pellaeon, GPCompaRe and a DIY incubator CO₂ monitor.">
+<meta name="description" content="Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center. Gene discovery in families with rare monogenic disease, and the software and hardware the lab has released: Pellaeon, GPCompaRe, an incubator CO₂ monitor.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="TGGR Lab">
-<meta property="og:description" content="Translational Genetics and Genomics Research, Tel Aviv Sourasky Medical Center. Gene discovery in families with rare disease, and the open tools we build on the way.">
+<meta property="og:description" content="Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center. Rare disease gene discovery, and the software and hardware the lab has released.">
 <meta property="og:url" content="https://tggr-lab.github.io/">
 <meta property="og:image" content="https://tggr-lab.github.io/og.png">
 <meta property="og:image:width" content="1200">
@@ -151,7 +151,7 @@
   /* ---- hero ---- */
   .hero { display: grid; grid-template-columns: 1fr; gap: 36px 56px; align-items: end; }
   @media (min-width: 1100px) { .hero { grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr); } }
-  .hero h1 { font-size: clamp(64px, 11vw, 132px); font-weight: 700; line-height: .9; letter-spacing: -.035em; margin: 14px 0 22px -.04em; }
+  .hero h1 { font-size: clamp(56px, 9vw, 108px); font-weight: 700; line-height: .9; letter-spacing: -.035em; margin: 14px 0 22px -.04em; }
   .hero h1 span { display: block; font-size: .28em; font-weight: 500; letter-spacing: -.01em; line-height: 1.15; margin-top: 14px; color: var(--ink-2); }
   .hero .lede { font-size: clamp(19px, 2vw, 23px); line-height: 1.5; max-width: 30em; }
   .hero .lede em { font-style: italic; color: var(--accent-ink); }
@@ -297,11 +297,11 @@
     <div class="hero">
       <div>
         <p class="eyebrow">Translational Genetics and Genomics Research</p>
-        <h1>TGGR<span>A medical genetics lab inside a hospital, and the code that comes out of it.</span></h1>
-        <p class="lede">We look for the genes behind rare disease in the families who come to the Genetics Institute at Tel Aviv Sourasky Medical Center, then work out what those genes do. <em>Along the way we build tools, and we put them here.</em></p>
+        <h1>TGGR Lab<span>Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center.</span></h1>
+        <p class="lede">The lab studies rare, mostly monogenic disease in families referred to the Genetics Institute. It finds the causative gene by exome and genome sequencing, then characterises what the gene does. This page lists the software and hardware the lab has released.</p>
         <div class="cta">
-          <a class="btn primary" href="https://github.com/tggr-lab"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Our code on GitHub</a>
-          <a class="btn" href="https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/">The lab at Ichilov</a>
+          <a class="btn primary" href="https://github.com/tggr-lab"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>github.com/tggr-lab</a>
+          <a class="btn" href="https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/">Lab page at TASMC</a>
         </div>
       </div>
 
@@ -366,7 +366,7 @@
     <section id="tools" aria-labelledby="h-tools">
       <div class="head">
         <h2 id="h-tools">Tools</h2>
-        <p>Three things the lab needed and could not buy. All of them are open source and in use on our own bench.</p>
+        <p>Software and hardware released by the lab. All open source.</p>
       </div>
       <ul>
         <li class="tool">
@@ -409,11 +409,11 @@
     <section id="research" aria-labelledby="h-research">
       <div class="head">
         <h2 id="h-research">Research</h2>
-        <p>From a family in clinic to a gene, and from the gene back to the family.</p>
+        <p>What the lab does, and how a project runs.</p>
       </div>
       <div class="prose">
-        <p>The lab discovers new disease-causing genes and studies how they cause disease. The starting point is always a family: people referred to the Genetics Institute with a rare, often inherited condition that existing tests could not explain.</p>
-        <p>Sequencing and bioinformatics find the candidate. Functional work, tailored to each gene, pathway and phenotype, shows what the variant does. The result is a diagnosis for the family, a mechanism for the field, and sometimes a target for treatment.</p>
+        <p>The lab identifies novel disease-causing genes and studies how they cause disease. Families are referred to the Genetics Institute with rare, often inherited conditions that standard testing did not explain.</p>
+        <p>In-house next generation sequencing and bioinformatic analysis identify the candidate variant. Functional assays, chosen for each gene, pathway and phenotype, show what the variant does. The outcome is a molecular diagnosis for the family, a described mechanism, and in some cases a target for treatment.</p>
       </div>
       <ol class="flow" aria-label="How a project runs">
         <li><span class="n">STEP 1</span><h3>Families</h3><p>Referred to the Genetics Institute at Ichilov, with consent to take their question into the lab. Many are consanguineous, which makes recessive disease easier to map.</p></li>
@@ -430,7 +430,7 @@
     <section id="people" aria-labelledby="h-people">
       <div class="head">
         <h2 id="h-people">People</h2>
-        <p>The lab is part of the Genetics Institute, so most of us also see patients, run the diagnostic pipeline, or both.</p>
+        <p>The lab is part of the Genetics Institute.</p>
       </div>
       <ul class="people">
         <li>
@@ -453,14 +453,14 @@
         </li>
         <!-- Add a person: copy an <li> above. The two letters in .ini are initials. -->
       </ul>
-      <p class="join">Students and clinicians interested in gene discovery, functional genomics or scientific software are welcome to get in touch through the lab page.</p>
+      <p class="join">Enquiries about joining the lab go through the lab page at TASMC.</p>
     </section>
 
     <!-- ============================ CONTACT ============================ -->
     <section id="contact" aria-labelledby="h-contact">
       <div class="head">
         <h2 id="h-contact">Contact</h2>
-        <p>Where to find us, on the ground and online.</p>
+        <p>Addresses and links.</p>
       </div>
       <div class="contact">
         <dl>
