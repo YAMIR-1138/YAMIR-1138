@@ -14,3 +14,5 @@ Four directions for the lab page, each a self-contained HTML file. Open any of t
 ## Logo motion
 
 `logo-motion.html` shows seven ways the logo could move. `tiger-ink.png`, `tiger-teal.png` and `tiger-orange.png` are the tiger split into its three colours so the layers can move independently.
+
+`band.png` is the solid teal ring cut from the supplied logo so it can turn on its own; `logo.png` is the supplied transparent lockup.
