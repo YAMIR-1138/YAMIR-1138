@@ -90,7 +90,7 @@
   .o6 .lock img { transition: transform .7s cubic-bezier(.2, .8, .2, 1), opacity .7s; }
   .o6:hover .teal { transform: translate(-9%, 1.5%); }
   .o6:hover .orange { transform: translate(5%, -1%); }
-  .o6:hover .ink { opacity: .5; }
+  .o6:hover .ink.lt { opacity: calc(var(--lt) * .5); } .o6:hover .ink.dk { opacity: calc(var(--dk) * .5); }
   .o6 .ring { animation: turn 80s linear infinite; }
 
   /* 7 · the ring turns with the page */
