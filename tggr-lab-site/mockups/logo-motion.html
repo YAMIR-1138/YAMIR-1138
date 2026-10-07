@@ -8,15 +8,17 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=EB+Garamond:ital,wght@0,400;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  /* Seven ways to move the lab logo. The tiger is three layers (ink, teal rungs, orange
-     stripes) so each can move on its own; the ring of text is an SVG text path. */
+  /* Nine ways to move the lab logo. The lockup is the supplied file, split into ink, teal and
+     orange layers that sit in exactly the supplied position; the ring is either live text at the
+     original radius or the solid band cut from the supplied file. No discs: in dark mode the ink
+     layer is swapped for a cream one. */
   :root {
-    --paper: #f7f3ea; --paper-2: #efe9db; --ink: #15302e; --ink-2: #5a6b68; --rule: #d6cfbd; --teal: #1f8f92; --orange: #d47a18; --disc: #fbf8f0; --glow: rgba(43, 181, 188, .55); --glow-a: .35;
-    --display: "Cormorant Garamond", Georgia, serif; --body: "EB Garamond", Georgia, serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    --paper: #f7f3ea; --ink: #15302e; --ink-2: #5a6b68; --rule: #d6cfbd; --orange: #d47a18; --teal: #1f8f92; --glow: rgba(43, 181, 188, .5); --glow-a: .3; --lt: 1; --dk: 0; --band-b: 1;
+    --display: "Cormorant Garamond", Georgia, serif; --body: "EB Garamond", Garamond, Georgia, serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
     --gutter: clamp(16px, 4vw, 48px); color-scheme: light;
   }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper: #0f1f1e; --paper-2: #16302e; --ink: #ece6d6; --ink-2: #a9b3ae; --rule: #2d4542; --teal: #4fc0c6; --orange: #f0a040; --disc: #ece6d6; --glow: rgba(79, 192, 198, .8); --glow-a: .9; color-scheme: dark; } }
-  :root[data-theme="dark"] { --paper: #0f1f1e; --paper-2: #16302e; --ink: #ece6d6; --ink-2: #a9b3ae; --rule: #2d4542; --teal: #4fc0c6; --orange: #f0a040; --disc: #ece6d6; --glow: rgba(79, 192, 198, .8); --glow-a: .9; color-scheme: dark; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper: #0f1f1e; --ink: #ece6d6; --ink-2: #a9b3ae; --rule: #2d4542; --orange: #f0a040; --teal: #4fc0c6; --glow: rgba(79, 192, 198, .8); --glow-a: .9; --lt: 0; --dk: 1; --band-b: 1.55; color-scheme: dark; } }
+  :root[data-theme="dark"] { --paper: #0f1f1e; --ink: #ece6d6; --ink-2: #a9b3ae; --rule: #2d4542; --orange: #f0a040; --teal: #4fc0c6; --glow: rgba(79, 192, 198, .8); --glow-a: .9; --lt: 0; --dk: 1; --band-b: 1.55; color-scheme: dark; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--paper); color: var(--ink); font: 400 18px/1.5 var(--body); -webkit-font-smoothing: antialiased; padding-inline: var(--gutter); }
   .wrap { max-width: 1180px; margin: 0 auto; padding-block: 36px 64px; }
@@ -32,75 +34,73 @@
   .opt .n { font: 500 12px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--orange); }
   .opt h2 { font: 600 26px/1.1 var(--display); margin: 2px 0 0; }
   .opt p { margin: 0; font-size: 16.5px; color: var(--ink-2); }
-  .opt .ctl { display: flex; gap: 8px; flex-wrap: wrap; }
+  .opt .ctl { display: flex; gap: 8px; flex-wrap: wrap; min-height: 32px; align-items: center; }
   .opt button { font: 500 12.5px var(--mono); color: var(--ink); background: none; border: 1px solid var(--rule); border-radius: 4px; padding: 6px 10px; cursor: pointer; }
   .opt button:hover { border-color: var(--teal); color: var(--teal); }
+  .hint { font: 400 12px var(--mono); color: var(--ink-2); letter-spacing: .08em; }
 
-  /* the stage: a ring and a layered tiger */
-  .stage { position: relative; width: min(100%, 320px); aspect-ratio: 1; margin: 6px auto; max-width: 100%; }
-  .stage .disc { position: absolute; inset: 12%; border-radius: 50%; background: var(--disc); }
-  .stage svg.ring { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-  .stage svg.ring text { font: 500 20px var(--display); letter-spacing: .22em; fill: var(--ink); }
-  .stage svg.ring.inner text { font-size: 15px; letter-spacing: .3em; fill: var(--ink-2); }
-  .stage .tiger { position: absolute; left: 50%; top: 50%; width: 46%; aspect-ratio: 480 / 653; transform: translate(-50%, -54%); -webkit-mask-image: linear-gradient(#000 74%, transparent 100%); mask-image: linear-gradient(#000 74%, transparent 100%); }
-  .stage .tiger img { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .stage .word { position: absolute; left: 50%; bottom: 19%; transform: translateX(-50%); font: 600 30px/1 var(--display); letter-spacing: .04em; color: #15302e; }
+  /* ---- the stage. Its width is the outer diameter of the ring. ---- */
+  .stage { position: relative; width: min(100%, 320px); aspect-ratio: 1; margin: 6px auto; }
+  /* the ring of live text, at the radius of the supplied ring version */
+  .ring { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .ring text { font: 500 21px var(--display); fill: var(--ink); }
+  .ring.outer text { font-size: 17px; } .ring.inner text { font-size: 14px; fill: var(--ink-2); }
+  /* the solid band, cut from the supplied file */
+  .band { position: absolute; inset: 0; width: 100%; height: 100%; filter: brightness(var(--band-b)); }
+  /* the lockup: 44.4% of the ring's diameter, its centre 1.5% above the ring's, as supplied */
+  .lock { position: absolute; left: 50%; top: 50%; width: 44.4%; aspect-ratio: 600 / 962; transform: translate(-50%, -51.5%); }
+  .band ~ .lock { width: 43%; transform: translate(-50%, -50%); }
+  .lock img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .lock .lt { opacity: var(--lt); } .lock .dk { opacity: var(--dk); }
   @media (prefers-reduced-motion: reduce) { .stage * { animation: none !important; transition: none !important; } }
+  @keyframes turn { to { transform: rotate(360deg); } }
+  @keyframes appear { to { opacity: 1; } }
+  @keyframes sweep { from { -webkit-mask-position: 0 0; mask-position: 0 0; } to { -webkit-mask-position: 0 100%; mask-position: 0 100%; } }
+  @keyframes reveal { to { -webkit-mask-position: 0 0; mask-position: 0 0; } }
 
   /* 1 · the ring turns */
   .o1 .ring { animation: turn 80s linear infinite; }
   .o1:hover .ring { animation-play-state: paused; }
-  @keyframes turn { to { transform: rotate(360deg); } }
 
   /* 2 · two rings, counter-rotating */
   .o2 .ring.outer { animation: turn 90s linear infinite; }
   .o2 .ring.inner { animation: turn 60s linear infinite reverse; }
+  .o2 .lock { width: 38%; }
 
-  /* 3 · the rungs light up, top to bottom */
-  .o3 .teal { -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.28) 0 30%, #000 45% 55%, rgba(0,0,0,.28) 70% 100%); mask-image: linear-gradient(to bottom, rgba(0,0,0,.28) 0 30%, #000 45% 55%, rgba(0,0,0,.28) 70% 100%); -webkit-mask-size: 100% 300%; mask-size: 100% 300%; animation: sweep 3.2s linear infinite; }
-  .o3 .glow { filter: drop-shadow(0 0 4px var(--glow)) drop-shadow(0 0 9px var(--glow)); opacity: var(--glow-a); }
-  @keyframes sweep { from { -webkit-mask-position: 0 0; mask-position: 0 0; } to { -webkit-mask-position: 0 100%; mask-position: 0 100%; } }
+  /* 3 · the rungs light up */
+  .sweep { -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.3) 0 30%, #000 45% 55%, rgba(0,0,0,.3) 70% 100%); mask-image: linear-gradient(to bottom, rgba(0,0,0,.3) 0 30%, #000 45% 55%, rgba(0,0,0,.3) 70% 100%); -webkit-mask-size: 100% 300%; mask-size: 100% 300%; animation: sweep 3.2s linear infinite; }
+  .glow { filter: drop-shadow(0 0 4px var(--glow)) drop-shadow(0 0 9px var(--glow)); opacity: var(--glow-a); }
+  .o3 .ring { animation: turn 80s linear infinite; }
 
   /* 4 · drawn on, layer by layer */
-  .o4 .tiger img { -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent 50%); mask-image: linear-gradient(to bottom, #000 50%, transparent 50%); -webkit-mask-size: 100% 200%; mask-size: 100% 200%; -webkit-mask-position: 0 100%; mask-position: 0 100%; }
-  .o4.go .ink { animation: reveal 1.4s ease-out forwards; }
-  .o4.go .orange { animation: reveal 1.2s ease-out .9s forwards; }
-  .o4.go .teal { animation: reveal 1.2s ease-out 1.6s forwards; }
-  .o4 .word { opacity: 0; } .o4.go .word { animation: appear .8s ease-out 2.4s forwards; }
+  .o4 .lock img { -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent 50%); mask-image: linear-gradient(to bottom, #000 50%, transparent 50%); -webkit-mask-size: 100% 200%; mask-size: 100% 200%; -webkit-mask-position: 0 100%; mask-position: 0 100%; }
+  .o4.go .ink { animation: reveal 1.6s ease-out forwards; }
+  .o4.go .orange { animation: reveal 1.2s ease-out 1s forwards; }
+  .o4.go .teal { animation: reveal 1.2s ease-out 1.7s forwards; }
   .o4 .ring { opacity: 0; } .o4.go .ring { animation: appear 1.2s ease-out 2.6s forwards, turn 80s linear 2.6s infinite; }
-  @keyframes reveal { to { -webkit-mask-position: 0 0; mask-position: 0 0; } }
-  @keyframes appear { to { opacity: 1; } }
 
   /* 5 · follows the pointer, and breathes */
-  .o5 .tiger { animation: breathe 5s ease-in-out infinite; }
-  .o5 .tiger img { transition: transform .25s ease-out; will-change: transform; }
+  .o5 .lock { animation: breathe 5s ease-in-out infinite; }
+  .o5 .lock img { transition: transform .25s ease-out; will-change: transform; }
   .o5 .ring { transition: transform .4s ease-out; }
-  @keyframes breathe { 50% { transform: translate(-50%, -54%) scale(1.025); } }
+  @keyframes breathe { 50% { transform: translate(-50%, -51.5%) scale(1.02); } }
 
   /* 6 · the helix unzips on hover */
-  .o6 .tiger img { transition: transform .7s cubic-bezier(.2, .8, .2, 1), opacity .7s; }
-  .o6:hover .teal { transform: translate(-11%, 2%); }
-  .o6:hover .orange { transform: translate(6%, -1%); }
-  .o6:hover .ink { opacity: .55; }
+  .o6 .lock img { transition: transform .7s cubic-bezier(.2, .8, .2, 1), opacity .7s; }
+  .o6:hover .teal { transform: translate(-9%, 1.5%); }
+  .o6:hover .orange { transform: translate(5%, -1%); }
+  .o6:hover .ink { opacity: .5; }
   .o6 .ring { animation: turn 80s linear infinite; }
 
   /* 7 · the ring turns with the page */
   .o7 .ring { will-change: transform; }
-  .hint { font: 400 12px var(--mono); color: var(--ink-2); letter-spacing: .08em; padding: 7px 0; }
 
-  /* 8 · the teal band, as supplied, turns around the still lockup */
-  .o8 .band { position: absolute; inset: 0; width: 100%; height: 100%; animation: turn 80s linear infinite; }
+  /* 8 · the supplied band turns */
+  .o8 .band { animation: turn 80s linear infinite; }
   .o8:hover .band { animation-play-state: paused; }
-  .o8 .lock { position: absolute; left: 50%; top: 50%; width: 36%; height: auto; transform: translate(-50%, -50%); }
-  .o8 .disc { background: #fff; inset: 19%; }
 
   /* 9 · the band turns, the rungs light up */
-  .o9 .band { position: absolute; inset: 0; width: 100%; height: 100%; animation: turn 80s linear infinite; }
-  .o9 .disc { background: #fff; inset: 19%; }
-  .o9 .tiger { width: 36%; transform: translate(-50%, -62%); }
-  .o9 .teal { -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.28) 0 30%, #000 45% 55%, rgba(0,0,0,.28) 70% 100%); mask-image: linear-gradient(to bottom, rgba(0,0,0,.28) 0 30%, #000 45% 55%, rgba(0,0,0,.28) 70% 100%); -webkit-mask-size: 100% 300%; mask-size: 100% 300%; animation: sweep 3.2s linear infinite; }
-  .o9 .glow { filter: drop-shadow(0 0 4px var(--glow)) drop-shadow(0 0 9px var(--glow)); opacity: var(--glow-a); }
-  .o9 .wm { position: absolute; left: 50%; bottom: 23%; width: 30%; height: auto; transform: translateX(-50%); }
+  .o9 .band { animation: turn 80s linear infinite; }
 
   .notes { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--ink); color: var(--ink-2); font-size: 16.5px; max-width: 70ch; }
   .notes b { color: var(--ink); font-weight: 500; }
@@ -109,123 +109,128 @@
 <body>
 <div class="wrap">
   <div class="top">
-    <div><h1>Logo motion options</h1><p class="sub">Nine ways the TGGR logo could move on the lab page. Each is built from the ring of text and the tiger split into its ink, teal and orange layers, so any of them can be combined.</p></div>
+    <div><h1>Logo motion options</h1><p class="sub">Nine ways the TGGR logo could move. The lockup is the supplied file in its supplied position; only the ring, or one colour layer, moves.</p></div>
     <button class="theme" type="button" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">light / dark</button>
   </div>
 
   <div class="grid">
     <!-- 1 -->
     <div class="opt">
-      <div><div class="n">Option 1</div><h2>The ring turns</h2><p>One slow revolution every 80 seconds, the tiger still. Pauses under the pointer. The one in mockup E.</p></div>
-      <div class="stage o1"><div class="disc"></div>
-        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r1" d="M200,200 m-172,0 a172,172 0 1,1 344,0 a172,172 0 1,1 -344,0"/></defs><text><textPath href="#r1">Translational Genetics and Genomics Research Laboratory · Tel Aviv ·</textPath></text></svg>
-        <div class="tiger"><img src="tiger.png" alt=""></div><div class="word">TggR</div>
+      <div><div class="n">Option 1</div><h2>The ring turns</h2><p>The text ring, one revolution every 80 seconds, the lockup still. Pauses under the pointer.</p></div>
+      <div class="stage o1">
+        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r1" d="M200,200 m-180,0 a180,180 0 1,1 360,0 a180,180 0 1,1 -360,0"/></defs><text textLength="1030" lengthAdjust="spacing"><textPath href="#r1" textLength="1030" lengthAdjust="spacing">· Translational Genetics and Genomics Research Laboratory</textPath></text></svg>
+        <div class="lock"><img class="ink lt" src="lock-ink.png" alt=""><img class="ink dk" src="lock-ink-dark.png" alt=""><img class="orange" src="lock-orange.png" alt=""><img class="teal" src="lock-teal.png" alt=""></div>
       </div>
-      <div class="ctl"><span></span></div>
+      <div class="ctl"></div>
     </div>
 
     <!-- 2 -->
     <div class="opt">
-      <div><div class="n">Option 2</div><h2>Two rings, opposite ways</h2><p>The lab's name on the outer ring, the institute on the inner, turning against each other.</p></div>
-      <div class="stage o2"><div class="disc"></div>
-        <svg class="ring outer" viewBox="0 0 400 400"><defs><path id="r2a" d="M200,200 m-178,0 a178,178 0 1,1 356,0 a178,178 0 1,1 -356,0"/></defs><text><textPath href="#r2a">Translational Genetics and Genomics Research Laboratory · TGGR ·</textPath></text></svg>
-        <svg class="ring inner" viewBox="0 0 400 400"><defs><path id="r2b" d="M200,200 m-142,0 a142,142 0 1,1 284,0 a142,142 0 1,1 -284,0"/></defs><text><textPath href="#r2b">Genetics Institute · Tel Aviv Sourasky Medical Center · Tel Aviv University ·</textPath></text></svg>
-        <div class="tiger"><img src="tiger.png" alt="" style="width:84%;height:84%;left:8%;top:8%"></div><div class="word" style="bottom:22%;font-size:26px">TggR</div>
+      <div><div class="n">Option 2</div><h2>Two rings, opposite ways</h2><p>The lab on the outer ring, the institute on the inner, turning against each other. The lockup a little smaller to make room.</p></div>
+      <div class="stage o2">
+        <svg class="ring outer" viewBox="0 0 400 400"><defs><path id="r2a" d="M200,200 m-186,0 a186,186 0 1,1 372,0 a186,186 0 1,1 -372,0"/></defs><text textLength="1070" lengthAdjust="spacing"><textPath href="#r2a" textLength="1070" lengthAdjust="spacing">· Translational Genetics and Genomics Research Laboratory</textPath></text></svg>
+        <svg class="ring inner" viewBox="0 0 400 400"><defs><path id="r2b" d="M200,200 m-152,0 a152,152 0 1,1 304,0 a152,152 0 1,1 -304,0"/></defs><text textLength="870" lengthAdjust="spacing"><textPath href="#r2b" textLength="870" lengthAdjust="spacing">· Genetics Institute · Tel Aviv Sourasky Medical Center · Tel Aviv University</textPath></text></svg>
+        <div class="lock"><img class="ink lt" src="lock-ink.png" alt=""><img class="ink dk" src="lock-ink-dark.png" alt=""><img class="orange" src="lock-orange.png" alt=""><img class="teal" src="lock-teal.png" alt=""></div>
       </div>
-      <div class="ctl"><span></span></div>
+      <div class="ctl"></div>
     </div>
 
     <!-- 3 -->
     <div class="opt">
-      <div><div class="n">Option 3</div><h2>The rungs light up</h2><p>The teal base pairs brighten in a wave down the helix, like a read coming off a sequencer. Glows in dark mode.</p></div>
-      <div class="stage o3"><div class="disc"></div>
-        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r3" d="M200,200 m-172,0 a172,172 0 1,1 344,0 a172,172 0 1,1 -344,0"/></defs><text><textPath href="#r3">Translational Genetics and Genomics Research Laboratory · Tel Aviv ·</textPath></text></svg>
-        <div class="tiger"><img class="ink" src="tiger-ink.png" alt=""><img class="orange" src="tiger-orange.png" alt=""><img class="teal glow" src="tiger-teal.png" alt=""><img class="teal" src="tiger-teal.png" alt=""></div><div class="word">TggR</div>
+      <div><div class="n">Option 3</div><h2>The rungs light up</h2><p>The teal base pairs brighten in a wave down the helix. Glows in dark mode. The ring turns underneath.</p></div>
+      <div class="stage o3">
+        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r3" d="M200,200 m-180,0 a180,180 0 1,1 360,0 a180,180 0 1,1 -360,0"/></defs><text textLength="1030" lengthAdjust="spacing"><textPath href="#r3" textLength="1030" lengthAdjust="spacing">· Translational Genetics and Genomics Research Laboratory</textPath></text></svg>
+        <div class="lock"><img class="ink lt" src="lock-ink.png" alt=""><img class="ink dk" src="lock-ink-dark.png" alt=""><img class="orange" src="lock-orange.png" alt=""><img class="teal sweep glow" src="lock-teal.png" alt=""><img class="teal sweep" src="lock-teal.png" alt=""></div>
       </div>
-      <div class="ctl"><span></span></div>
+      <div class="ctl"></div>
     </div>
 
     <!-- 4 -->
     <div class="opt">
-      <div><div class="n">Option 4</div><h2>Drawn on</h2><p>On page load the tiger appears in three passes: ink, then stripes, then rungs, then the name and the ring. Once, then still.</p></div>
-      <div class="stage o4" id="o4"><div class="disc"></div>
-        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r4" d="M200,200 m-172,0 a172,172 0 1,1 344,0 a172,172 0 1,1 -344,0"/></defs><text><textPath href="#r4">Translational Genetics and Genomics Research Laboratory · Tel Aviv ·</textPath></text></svg>
-        <div class="tiger"><img class="ink" src="tiger-ink.png" alt=""><img class="orange" src="tiger-orange.png" alt=""><img class="teal" src="tiger-teal.png" alt=""></div><div class="word">TggR</div>
+      <div><div class="n">Option 4</div><h2>Drawn on</h2><p>On page load the lockup appears in three passes, ink, then stripes, then rungs, then the ring fades in and starts to turn. Once, then still.</p></div>
+      <div class="stage o4" id="o4">
+        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r4" d="M200,200 m-180,0 a180,180 0 1,1 360,0 a180,180 0 1,1 -360,0"/></defs><text textLength="1030" lengthAdjust="spacing"><textPath href="#r4" textLength="1030" lengthAdjust="spacing">· Translational Genetics and Genomics Research Laboratory</textPath></text></svg>
+        <div class="lock"><img class="ink lt" src="lock-ink.png" alt=""><img class="ink dk" src="lock-ink-dark.png" alt=""><img class="orange" src="lock-orange.png" alt=""><img class="teal" src="lock-teal.png" alt=""></div>
       </div>
       <div class="ctl"><button type="button" id="replay4">replay</button></div>
     </div>
 
     <!-- 5 -->
     <div class="opt">
-      <div><div class="n">Option 5</div><h2>Follows the pointer</h2><p>The three layers shift at different depths as the pointer moves, the ring leans with it, and the tiger breathes. Move the mouse over it.</p></div>
-      <div class="stage o5" id="o5"><div class="disc"></div>
-        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r5" d="M200,200 m-172,0 a172,172 0 1,1 344,0 a172,172 0 1,1 -344,0"/></defs><text><textPath href="#r5">Translational Genetics and Genomics Research Laboratory · Tel Aviv ·</textPath></text></svg>
-        <div class="tiger"><img class="ink" src="tiger-ink.png" alt=""><img class="orange" src="tiger-orange.png" alt=""><img class="teal" src="tiger-teal.png" alt=""></div><div class="word">TggR</div>
+      <div><div class="n">Option 5</div><h2>Follows the pointer</h2><p>The three layers shift at different depths as the pointer moves, the ring leans with it, and the lockup breathes. Move the mouse over it.</p></div>
+      <div class="stage o5" id="o5">
+        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r5" d="M200,200 m-180,0 a180,180 0 1,1 360,0 a180,180 0 1,1 -360,0"/></defs><text textLength="1030" lengthAdjust="spacing"><textPath href="#r5" textLength="1030" lengthAdjust="spacing">· Translational Genetics and Genomics Research Laboratory</textPath></text></svg>
+        <div class="lock"><img class="ink lt" src="lock-ink.png" alt=""><img class="ink dk" src="lock-ink-dark.png" alt=""><img class="orange" src="lock-orange.png" alt=""><img class="teal" src="lock-teal.png" alt=""></div>
       </div>
-      <div class="ctl"><span></span></div>
+      <div class="ctl"></div>
     </div>
 
     <!-- 6 -->
     <div class="opt">
-      <div><div class="n">Option 6</div><h2>Unzips on hover</h2><p>Hovering pulls the teal rungs out of the helix and the stripes the other way, and the ink fades back. It closes again when you leave.</p></div>
-      <div class="stage o6"><div class="disc"></div>
-        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r6" d="M200,200 m-172,0 a172,172 0 1,1 344,0 a172,172 0 1,1 -344,0"/></defs><text><textPath href="#r6">Translational Genetics and Genomics Research Laboratory · Tel Aviv ·</textPath></text></svg>
-        <div class="tiger"><img class="ink" src="tiger-ink.png" alt=""><img class="orange" src="tiger-orange.png" alt=""><img class="teal" src="tiger-teal.png" alt=""></div><div class="word">TggR</div>
+      <div><div class="n">Option 6</div><h2>Unzips on hover</h2><p>Hovering pulls the rungs out of the helix one way and the stripes the other, and the ink fades back. It closes again when you leave.</p></div>
+      <div class="stage o6">
+        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r6" d="M200,200 m-180,0 a180,180 0 1,1 360,0 a180,180 0 1,1 -360,0"/></defs><text textLength="1030" lengthAdjust="spacing"><textPath href="#r6" textLength="1030" lengthAdjust="spacing">· Translational Genetics and Genomics Research Laboratory</textPath></text></svg>
+        <div class="lock"><img class="ink lt" src="lock-ink.png" alt=""><img class="ink dk" src="lock-ink-dark.png" alt=""><img class="orange" src="lock-orange.png" alt=""><img class="teal" src="lock-teal.png" alt=""></div>
       </div>
-      <div class="ctl"><span></span></div>
+      <div class="ctl"></div>
     </div>
 
     <!-- 7 -->
     <div class="opt">
-      <div><div class="n">Option 7</div><h2>Turns with the page</h2><p>The ring is driven by scrolling: it moves only when the reader does, and stops when they stop. Scroll this page to see it.</p></div>
-      <div class="stage o7" id="o7"><div class="disc"></div>
-        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r7" d="M200,200 m-172,0 a172,172 0 1,1 344,0 a172,172 0 1,1 -344,0"/></defs><text><textPath href="#r7">Translational Genetics and Genomics Research Laboratory · Tel Aviv ·</textPath></text></svg>
-        <div class="tiger"><img src="tiger.png" alt=""></div><div class="word">TggR</div>
+      <div><div class="n">Option 7</div><h2>Turns with the page</h2><p>The ring is driven by scrolling. It moves only when the reader does, and stops when they stop.</p></div>
+      <div class="stage o7" id="o7">
+        <svg class="ring" viewBox="0 0 400 400"><defs><path id="r7" d="M200,200 m-180,0 a180,180 0 1,1 360,0 a180,180 0 1,1 -360,0"/></defs><text textLength="1030" lengthAdjust="spacing"><textPath href="#r7" textLength="1030" lengthAdjust="spacing">· Translational Genetics and Genomics Research Laboratory</textPath></text></svg>
+        <div class="lock"><img class="ink lt" src="lock-ink.png" alt=""><img class="ink dk" src="lock-ink-dark.png" alt=""><img class="orange" src="lock-orange.png" alt=""><img class="teal" src="lock-teal.png" alt=""></div>
       </div>
       <div class="ctl"><span class="hint">scroll the page</span></div>
     </div>
 
     <!-- 8 -->
     <div class="opt">
-      <div><div class="n">Option 8</div><h2>The band turns</h2><p>The solid teal band from the supplied logo, turning around the lockup exactly as drawn. The closest to the logo as it is.</p></div>
-      <div class="stage o8"><img class="band" src="band.png" alt=""><div class="disc"></div><img class="lock" src="logo.png" alt=""></div>
-      <div class="ctl"><span></span></div>
+      <div><div class="n">Option 8</div><h2>The band turns</h2><p>The solid teal band from the supplied logo, turning around the still lockup. The logo as it is, with one moving part.</p></div>
+      <div class="stage o8">
+        <img class="band" src="band.png" alt="">
+        <div class="lock"><img class="ink lt" src="lock-ink.png" alt=""><img class="ink dk" src="lock-ink-dark.png" alt=""><img class="orange" src="lock-orange.png" alt=""><img class="teal" src="lock-teal.png" alt=""></div>
+      </div>
+      <div class="ctl"></div>
     </div>
 
     <!-- 9 -->
     <div class="opt">
-      <div><div class="n">Option 9</div><h2>Band and rungs</h2><p>Option 8 with option 3 inside it: the band turns while the base pairs light up in sequence. Both move, neither fast.</p></div>
-      <div class="stage o9"><img class="band" src="band.png" alt=""><div class="disc"></div>
-        <div class="tiger"><img class="ink" src="tiger-ink.png" alt=""><img class="orange" src="tiger-orange.png" alt=""><img class="teal glow" src="tiger-teal.png" alt=""><img class="teal" src="tiger-teal.png" alt=""></div>
-        <img class="wm" src="wordmark.png" alt="">
+      <div><div class="n">Option 9</div><h2>Band and rungs</h2><p>Option 8 with option 3 inside it. The band turns while the base pairs light up in sequence. Both move, neither fast.</p></div>
+      <div class="stage o9">
+        <img class="band" src="band.png" alt="">
+        <div class="lock"><img class="ink lt" src="lock-ink.png" alt=""><img class="ink dk" src="lock-ink-dark.png" alt=""><img class="orange" src="lock-orange.png" alt=""><img class="teal sweep glow" src="lock-teal.png" alt=""><img class="teal sweep" src="lock-teal.png" alt=""></div>
       </div>
-      <div class="ctl"><span></span></div>
+      <div class="ctl"></div>
     </div>
   </div>
 
-  <p class="notes"><b>Combinations that work:</b> 8 is the logo as supplied, so it is the safe default. 4 then 1 (drawn on once, then the ring keeps turning) is the natural one for a page header. 3 belongs in dark mode. 5 and 6 are for the hero, where there is room to play. 7 suits a small logo in a sticky rail. <b>Cost:</b> the layered version is three images instead of one, about 240 KB, and all of it respects reduced-motion settings.</p>
+  <p class="notes"><b>Geometry:</b> the lockup is 44% of the ring's diameter and sits 1.5% above its centre, measured from the supplied ring file; the band version is centred, as in its file. <b>Dark mode:</b> the ink layer is swapped for a cream copy, so nothing needs a white circle behind it. <b>Combinations:</b> 8 is the logo as supplied with one moving part. 4 then 1 suits a page header. 3 and 9 are for dark pages. 5 and 6 are for a hero. 7 suits a small logo in a sticky rail. All of it stops under a reduced-motion setting.</p>
 </div>
 
 <script>
 (function () {
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // 4 · drawn on: start on load, replay on demand
+  // 4 · drawn on
   var o4 = document.getElementById('o4');
   function go4() { o4.classList.remove('go'); void o4.offsetWidth; o4.classList.add('go'); }
   document.getElementById('replay4').addEventListener('click', go4);
   if (!reduce) setTimeout(go4, 300); else o4.classList.add('go');
 
   // 5 · pointer parallax
-  var o5 = document.getElementById('o5'), l5 = { ink: o5.querySelector('.ink'), orange: o5.querySelector('.orange'), teal: o5.querySelector('.teal') }, ring5 = o5.querySelector('.ring');
-  function move5(e) {
+  var o5 = document.getElementById('o5'), ring5 = o5.querySelector('.ring');
+  var l5 = { ink: o5.querySelectorAll('.ink'), orange: o5.querySelectorAll('.orange'), teal: o5.querySelectorAll('.teal') };
+  function set(list, t) { list.forEach(function (el) { el.style.transform = t; }); }
+  o5.addEventListener('pointermove', function (e) {
+    if (reduce) return;
     var r = o5.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-    l5.ink.style.transform = 'translate(' + (x * 4) + 'px,' + (y * 4) + 'px)';
-    l5.orange.style.transform = 'translate(' + (x * 10) + 'px,' + (y * 8) + 'px)';
-    l5.teal.style.transform = 'translate(' + (x * 18) + 'px,' + (y * 14) + 'px)';
+    set(l5.ink, 'translate(' + (x * 4) + 'px,' + (y * 4) + 'px)');
+    set(l5.orange, 'translate(' + (x * 10) + 'px,' + (y * 8) + 'px)');
+    set(l5.teal, 'translate(' + (x * 18) + 'px,' + (y * 14) + 'px)');
     ring5.style.transform = 'rotate(' + (x * 10) + 'deg)';
-  }
-  function leave5() { for (var k in l5) l5[k].style.transform = ''; ring5.style.transform = ''; }
-  if (!reduce) { o5.addEventListener('pointermove', move5); o5.addEventListener('pointerleave', leave5); }
+  });
+  o5.addEventListener('pointerleave', function () { for (var k in l5) set(l5[k], ''); ring5.style.transform = ''; });
 
   // 7 · scroll-driven ring
   var ring7 = document.querySelector('#o7 .ring');
