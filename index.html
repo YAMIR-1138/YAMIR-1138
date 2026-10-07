@@ -141,7 +141,9 @@
   }
   .crt::after {
     content: "";
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 58%, rgba(0,0,0,.5) 100%);
+    background:
+      radial-gradient(ellipse 55% 38% at 16% 4%, rgba(255,255,255,.045), rgba(255,255,255,0) 70%),
+      radial-gradient(ellipse at center, rgba(0,0,0,0) 58%, rgba(0,0,0,.5) 100%);
   }
   .crt i {
     position: absolute; left: 0; right: 0; top: -20%; height: 18%;
@@ -164,7 +166,9 @@
     100% { transform: none; filter: none; opacity: 1; }
   }
   .still .crt i, .still .crt b, .still .blink { animation: none; }
-  .js .screen { animation: poweron .5s cubic-bezier(.2,.8,.2,1) both; transform-origin: 50% 30vh; }
+  .js .screen { animation: poweron .5s cubic-bezier(.2,.8,.2,1) both, holdslip 53s linear 9s infinite; transform-origin: 50% 30vh; }
+  .still .screen { animation: poweron .5s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes holdslip { 0%, 99.5%, 100% { transform: none; } 99.56% { transform: translateX(10px) skewX(-1.4deg); } 99.66% { transform: translateX(-6px) skewX(.8deg); } 99.76% { transform: translateX(3px) skewX(-.3deg); } 99.88% { transform: translateX(-1px); } }
 
   a { color: var(--hi); text-shadow: var(--glow-hi); text-decoration: none; border-bottom: 1px dashed var(--dim); }
   a:hover { background: var(--fg); color: var(--bg); text-shadow: none; border-bottom-color: transparent; }
@@ -205,6 +209,12 @@
   @keyframes blink { 50% { opacity: 0 } }
   .js main.booting { visibility: hidden; }
 
+  /* the status line, bottom left: NO CARRIER while the connection is down, nothing otherwise */
+  #status { position: fixed; left: 10px; bottom: 10px; z-index: 30; pointer-events: none; font: 9.5px/1.3 var(--mono); letter-spacing: .6px; color: var(--dim); text-shadow: none; opacity: 0; transition: opacity .3s; white-space: pre; }
+  #status.on { opacity: 1; transition-duration: .12s; }
+  #status.warn { color: var(--warn); }
+  html:not(.js) #status { display: none; }
+
   /* the one block cursor Camille hunts */
   #cursor { display: inline-block; color: var(--hi); text-shadow: var(--glow-hi); margin-left: 3px; }
   #cursor.caught { animation: none; opacity: .35; }
@@ -221,7 +231,7 @@
   h1 {
     font-family: var(--display); font-weight: 400;
     font-size: clamp(68px, 15vw, 148px); line-height: .82; margin: 2px 0 14px -3px;
-    letter-spacing: 2px; color: var(--hi); text-shadow: var(--glow-hi);
+    letter-spacing: 2px; color: var(--hi); text-shadow: var(--glow-hi), 0 0 64px rgba(var(--glow-rgb), .22);
   }
   .role { margin: 0 0 4px; font-size: 15px; color: var(--hi); }
   .role .sep, .where .sep { color: var(--dim); }
@@ -264,7 +274,7 @@
 
   /* ---- sections */
   section { margin: 0 0 46px; scroll-margin-top: 16px; }
-  h2 { font-family: var(--display); font-weight: 400; font-size: 32px; line-height: 1.1; margin: 0 0 16px; letter-spacing: 1px; }
+  h2 { font-family: var(--display); font-weight: 400; font-size: 32px; line-height: 1.1; margin: 0 0 16px; letter-spacing: 1px; text-shadow: var(--glow), 0 0 44px rgba(var(--glow-rgb), .16); }
   h2 .ps { color: var(--dim); }
   .out { color: var(--dim); font-size: 13px; margin: 0 0 16px; }
   /* a heading being typed: letters wait hidden, the block marks the next one */
@@ -479,7 +489,7 @@
 
   @media print {
     html, body { background: #fff !important; color: #000 !important; text-shadow: none !important; font-size: 11pt; }
-    .crt, #cat-layer, #tracker, #boot, .bar nav, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
+    .crt, #cat-layer, #tracker, #status, #boot, .bar nav, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
     * { text-shadow: none !important; box-shadow: none !important; animation: none !important; color: #000 !important; }
     .screen { max-width: none; padding: 0; animation: none !important; }
     .js main.booting { visibility: visible; }
@@ -2106,7 +2116,10 @@
       } },
     };
     const TOUR = ['urchin', 'telomere', 'tauceti', 'lv426', 'monolith', 'hal', 'chimaera', 'ebonhawk', 'holocron', 'rama', 'baraddur', 'oblivion', 'blipa', 'nostromo'];
-    const st = { key: 'par2', model: null, cap: '', t0: 0, flash: 0, order: [], idx: -1, next: 0 };
+    const st = { key: 'par2', model: null, cap: '', t0: 0, flash: 0, order: [], idx: -1, next: 0, blank: 0, pending: null };
+    const BLANK = 9;
+    // a change of picture goes through the beam: the frame collapses to a bright line, then the next one opens out of it
+    const switchTo = (key, t) => { if (T.reduceMotion || !T.motion) { show(key, t); draw(t); } else { st.pending = key; st.blank = BLANK; } };
     function show(key, t) {
       st.key = key; const m = M[key];
       st.model = m.build ? m.build() : null;
@@ -2117,7 +2130,7 @@
     function advance(t) {
       if (!st.order.length) { st.order = TOUR.slice().sort(() => Math.random() - .5); st.idx = -1; }
       // the receptor comes back between every other thing
-      if (st.key !== 'par2' && Math.random() < .5) show('par2', t); else { st.idx = (st.idx + 1) % st.order.length; show(st.order[st.idx], t); }
+      if (st.key !== 'par2' && Math.random() < .5) switchTo('par2', t); else { st.idx = (st.idx + 1) % st.order.length; switchTo(st.order[st.idx], t); }
       st.next = t + (st.key === 'par2' ? 20 : 20) * 24;
     }
     par2.style.cursor = 'pointer';
@@ -2131,6 +2144,14 @@
       if (!st.next) st.next = t + (T.debug ? 10 : 150) * 24;
       if (st.click || (T.motion && t >= st.next && !T.reduceMotion)) { st.click = false; advance(t); }
       g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, CW, CH);
+      let sy = 1;
+      if (st.blank > 0) {
+        // first half: the old picture squeezes flat. At the middle the picture changes. Second half: the new one opens
+        const p = st.blank / BLANK; st.blank--;
+        if (st.pending && p <= .5) { show(st.pending, t); st.pending = null; }
+        sy = Math.max(.012, Math.abs(p - .5) * 2);
+        g.save(); g.translate(0, CH / 2 + 2); g.scale(1, sy * sy); g.translate(0, -(CH / 2 + 2));
+      }
       const m = M[st.key], cx = CW / 2, cy = CH / 2 + 2, k = (CH - 28) / 76;
       if (st.flash > 0) { st.flash--; g.fillStyle = ink.faint; for (let i = 0; i < 140; i++) g.fillRect(Math.random() * CW, Math.random() * CH, 2 + Math.random() * 20, 1); }
       if (m.flat) { m.flat(g, still(t - st.t0, 40), k, cx, cy, st); }
@@ -2153,11 +2174,17 @@
         g.shadowBlur = 0;
         if (st.model.eye) { const e = st.model.eye, ex = cx + e[0] * sc, ey = cy + e[1] * sc, rx = (e[2] || 7) * (e[2] ? sc : 1), ry = (e[3] || 3.5) * (e[3] ? sc : 1); g.fillStyle = ink.warn; g.shadowColor = ink.warn; g.shadowBlur = 14; g.beginPath(); g.ellipse(ex, ey, rx, ry, 0, 0, Math.PI * 2); g.fill(); g.shadowBlur = 0; g.fillStyle = '#000'; g.beginPath(); g.ellipse(ex, ey, rx * .12, ry * .85, 0, 0, Math.PI * 2); g.fill(); }
       }
+      if (sy < 1) {
+        g.restore();
+        // the beam itself, brightest when the picture is thinnest
+        g.fillStyle = ink.hi; g.shadowColor = 'rgba(' + ink.glow + ',.9)'; g.shadowBlur = 10 + 20 * (1 - sy);
+        g.globalAlpha = .35 + .65 * (1 - sy); g.fillRect(8, CH / 2 + 1.5, CW - 16, 1.2); g.globalAlpha = 1; g.shadowBlur = 0;
+      }
       if (cap && cap.textContent !== st.cap) cap.textContent = st.cap;
     };
     T.Anim.add(par2, draw, 24);
     T.onTheme(() => draw(0));
-    T.display = { show: (k) => { if (M[k]) { st.click = false; show(k, 0); st.next = 1e9; } }, keys: Object.keys(M) };
+    T.display = { show: (k) => { if (M[k]) { st.click = false; switchTo(k, 0); st.next = 1e9; } }, keys: Object.keys(M) };
   }
 
   // ---- a sequencing trace runs past between the sections. Peaks only, no letters: it is a shape, not a read.
@@ -3922,6 +3949,19 @@ window.CATDATA = {
         const day = (now - rise + 86400000) % 86400000 < (set - rise + 86400000) % 86400000;
         if (T.store.get('phosphor-v2', null) === null) T.setTheme(day ? 'amber' : 'green', false);
       }).catch(() => {});
+  })();
+
+  // ------------------------------------------------------------ the carrier
+  // Bottom left, only when it is true: NO CARRIER while the browser reports no connection. The tracker says the same on a wide screen.
+  (function () {
+    const el = document.createElement('div'); el.id = 'status'; el.setAttribute('aria-hidden', 'true'); document.body.appendChild(el);
+    const carrier = () => {
+      const offline = navigator.onLine === false;
+      el.textContent = offline ? 'NO CARRIER' : ''; el.classList.toggle('on', offline); el.classList.toggle('warn', offline);
+      const w = $('#tracker .w'); if (w && offline) { w.textContent = 'NO CARRIER'; w.classList.add('storm'); w.hidden = false; }
+    };
+    window.addEventListener('online', carrier); window.addEventListener('offline', carrier);
+    T.onReady(carrier);
   })();
 
   // ------------------------------------------------------------ start
