@@ -417,7 +417,7 @@
   #tracker span { display: block; white-space: pre; }
   #tracker .t { color: var(--fg); border-bottom: 1px solid var(--line); margin-bottom: 4px; }
   #tracker .r { min-height: 2.8em; margin-top: 3px; }
-  #tracker .w { color: var(--dim); border-top: 1px solid var(--line); margin-top: 4px; padding-top: 3px; font-size: 9px; }
+  #tracker .w { color: var(--dim); border-top: 1px solid var(--line); margin-top: 4px; padding-top: 3px; font-size: 9px; letter-spacing: .3px; }
   #tracker .w.storm { color: var(--warn); }
   #tracker.hostile { border-color: var(--warn); }
   #tracker.hostile .r { color: var(--warn); text-shadow: 0 0 6px var(--warn); }
@@ -3897,7 +3897,7 @@ window.CATDATA = {
         json('https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json').then((d) => d.find((r) => r.proton_speed != null) || d[0]),
         json('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json').then((d) => d[d.length - 1]),
       ]).then(([wind, kp]) => ({ v: Math.round(wind.proton_speed), n: +wind.proton_density, kp: +(kp.Kp != null ? kp.Kp : kp[1]) })))
-        .then((d) => { if (!d || !d.v) return; w.textContent = 'SOLAR WIND ' + d.v + ' km/s\nKp ' + d.kp.toFixed(0) + (d.kp >= 5 ? ' · STORM' : ''); w.classList.toggle('storm', d.kp >= 5); w.hidden = false; T.spaceWeather = d; })
+        .then((d) => { if (!d || !d.v) return; w.textContent = 'WIND ' + d.v + ' km/s\nKp ' + d.kp.toFixed(0) + (d.kp >= 5 ? ' · STORM' : ''); w.classList.toggle('storm', d.kp >= 5); w.hidden = false; T.spaceWeather = d; })
         .catch(() => {});
       T.onReady(weather); setInterval(weather, 20 * 60 * 1000);
     }
