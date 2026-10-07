@@ -3,6 +3,8 @@
 -  I’m currently working on my PhD
 -  Pronouns: He/Him/They
 
+**→ [yamir-1138.github.io/YAMIR-1138](https://yamir-1138.github.io/YAMIR-1138/)** — my page. Projects, side quests, a terminal, and a cat.
+
 ### Projects
 
 - [Pellaeon](https://tggr-lab.github.io/pellaeon/)
