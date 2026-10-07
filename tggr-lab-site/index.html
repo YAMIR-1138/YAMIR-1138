@@ -1,0 +1,524 @@
+<!doctype html>
+<!--
+  TGGR LAB · landing page for github.com/tggr-lab
+  One file, no build step. Serve it from GitHub Pages at https://tggr-lab.github.io/
+
+  HOW TO EDIT
+    A tool          find its <li class="tool"> below and change the text and links.
+    Add a tool      copy a <li class="tool">. Keep the glyph, body and links parts.
+    Hide a tool     add the word hidden to its <li>.
+    People          the <ul class="people"> list. One <li> per person.
+    The lab text    the #research section.
+    The pedigree    an inline SVG in the hero. Each family member is a <g class="ind">
+                    with a genotype label that shows on hover. Filled = affected,
+                    a dot = carrier, double line = consanguineous, arrow = proband.
+    Theme           light by default, follows the system, and the button in the header
+                    overrides it. Tokens are in the :root block of the stylesheet.
+    Search engines  read the ld+json block in the head. Keep it in step with the page.
+
+  ALSO IN THIS FOLDER
+    404.html    shown by GitHub Pages for a missing page
+    og.png      the picture a shared link shows (made from og.html)
+    README.md   how to publish this
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TGGR Lab</title>
+<meta name="description" content="The Translational Genetics and Genomics Research lab at Tel Aviv Sourasky Medical Center finds the genes behind rare disease in the families who come to the Genetics Institute, and builds open tools on the way: Pellaeon, GPCompaRe and a DIY incubator CO₂ monitor.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TGGR Lab">
+<meta property="og:description" content="Translational Genetics and Genomics Research, Tel Aviv Sourasky Medical Center. Gene discovery in families with rare disease, and the open tools we build on the way.">
+<meta property="og:url" content="https://tggr-lab.github.io/">
+<meta property="og:image" content="https://tggr-lab.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TGGR Lab, in large dark letters on a pale page, beside a three-generation pedigree chart.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://tggr-lab.github.io/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ResearchOrganization",
+  "name": "TGGR Lab",
+  "alternateName": "Translational Genetics and Genomics Research Laboratory",
+  "url": "https://tggr-lab.github.io/",
+  "sameAs": [
+    "https://github.com/tggr-lab",
+    "https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/"
+  ],
+  "parentOrganization": [
+    { "@type": "Organization", "name": "Tel Aviv Sourasky Medical Center" },
+    { "@type": "Organization", "name": "Tel Aviv University" }
+  ],
+  "founder": { "@type": "Person", "name": "Hagit Baris Feldman" },
+  "member": [ { "@type": "Person", "name": "Yam Amir", "url": "https://yamir-1138.github.io/YAMIR-1138/" } ],
+  "knowsAbout": ["Medical genetics", "Rare disease", "Gene discovery", "Exome sequencing", "Clinical genomics", "G protein-coupled receptors"],
+  "address": { "@type": "PostalAddress", "addressLocality": "Tel Aviv", "addressCountry": "IL" }
+}
+</script>
+<meta name="theme-color" content="#f5f7f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1518" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f5f7f9'/%3E%3Crect x='5' y='5' width='9' height='9' fill='none' stroke='%23121c24' stroke-width='2'/%3E%3Ccircle cx='22.5' cy='9.5' r='4.5' fill='none' stroke='%23121c24' stroke-width='2'/%3E%3Cpath d='M14 9.5h4M16 14v4M16 18h-6M16 18h6M10 18v3M22 18v3' stroke='%23121c24' stroke-width='2'/%3E%3Crect x='5' y='21' width='9' height='9' fill='%23a8206a'/%3E%3Ccircle cx='22.5' cy='25.5' r='4.5' fill='none' stroke='%23121c24' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  // the saved theme is applied before first paint
+  try { var t = localStorage.getItem('tggr-theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<style>
+  /* ============================================================
+     Layout: a page set like a clinical report. A narrow rail on the
+     left carries the lab's name and the section list; the content
+     runs down one wide column on the right, sections parted by
+     labelled rules. The hero is the only two-column moment.
+     ============================================================ */
+  :root {
+    --paper: #f5f7f9;      /* cool white, the colour of a report page */
+    --panel: #ffffff;
+    --ink: #121c24;
+    --ink-2: #4a5864;
+    --rule: #d6dde3;
+    --rule-2: #aab6c0;
+    --accent: #a8206a;     /* Giemsa magenta, the stain that bands a chromosome */
+    --accent-ink: #7d144f;
+    --accent-soft: #f6e3ee;
+    --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --measure: 62ch;
+    --gutter: clamp(16px, 4vw, 48px);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0f1518; --panel: #161e23; --ink: #e9eef1; --ink-2: #9fadb7; --rule: #26313a; --rule-2: #3f4e59;
+      --accent: #e879b8; --accent-ink: #f3a8d2; --accent-soft: #2b1a25; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0f1518; --panel: #161e23; --ink: #e9eef1; --ink-2: #9fadb7; --rule: #26313a; --rule-2: #3f4e59;
+    --accent: #e879b8; --accent-ink: #f3a8d2; --accent-soft: #2b1a25; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 400 18px/1.6 var(--serif); font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-ink); text-decoration-thickness: 1px; text-underline-offset: .15em; }
+  a:hover { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+  h1, h2, h3 { font-family: var(--display); font-optical-sizing: auto; text-wrap: balance; margin: 0; }
+  p { margin: 0; max-width: var(--measure); }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  .mono { font-family: var(--mono); font-size: 13px; letter-spacing: .02em; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+  .skip { position: absolute; left: 16px; top: -48px; background: var(--ink); color: var(--paper); padding: 8px 12px; font-family: var(--mono); font-size: 13px; }
+  .skip:focus { top: 16px; z-index: 10; }
+
+  /* ---- frame: rail + column ---- */
+  .frame { display: grid; grid-template-columns: 1fr; gap: 0; min-height: 100vh; padding-inline: var(--gutter); }
+  @media (min-width: 900px) { .frame { grid-template-columns: 220px minmax(0, 1fr); column-gap: clamp(32px, 5vw, 80px); } }
+
+  .rail { padding-block: 28px 16px; border-bottom: 1px solid var(--rule); display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
+  @media (min-width: 900px) {
+    .rail { position: sticky; top: 0; align-self: start; height: 100vh; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding-block: 36px; border-bottom: 0; border-right: 1px solid var(--rule); padding-right: 24px; }
+  }
+  .mark { display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; }
+  .mark svg { width: 34px; height: 34px; flex: none; }
+  .mark b { font: 700 20px/1 var(--display); letter-spacing: -.01em; }
+  .mark small { display: block; font: 400 12px/1.3 var(--mono); color: var(--ink-2); margin-top: 4px; }
+  .rail nav { display: flex; gap: 4px 18px; flex-wrap: wrap; }
+  @media (min-width: 900px) { .rail nav { flex-direction: column; gap: 6px; margin-top: 44px; } }
+  .rail nav a { font-family: var(--mono); font-size: 13px; color: var(--ink-2); text-decoration: none; padding: 4px 0; border-left: 2px solid transparent; }
+  @media (min-width: 900px) { .rail nav a { padding-left: 12px; margin-left: -13px; } }
+  .rail nav a:hover, .rail nav a[aria-current="true"] { color: var(--ink); border-left-color: var(--accent); }
+  .rail .foot { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  @media (min-width: 900px) { .rail .foot { margin: auto 0 0; flex-direction: column; align-items: stretch; gap: 14px; } }
+  #theme { font: 500 12px/1 var(--mono); letter-spacing: .04em; color: var(--ink-2); background: none; border: 1px solid var(--rule-2); border-radius: 999px; padding: 7px 12px; cursor: pointer; }
+  #theme:hover { color: var(--ink); border-color: var(--ink); }
+  .rail .gh { font-family: var(--mono); font-size: 12px; color: var(--ink-2); text-decoration: none; }
+  .rail .gh:hover { color: var(--ink); }
+
+  main { padding-block: 40px 64px; min-width: 0; }
+  @media (min-width: 900px) { main { padding-block: 64px 96px; } }
+
+  /* ---- hero ---- */
+  .hero { display: grid; grid-template-columns: 1fr; gap: 36px 56px; align-items: end; }
+  @media (min-width: 1100px) { .hero { grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr); } }
+  .hero h1 { font-size: clamp(64px, 11vw, 132px); font-weight: 700; line-height: .9; letter-spacing: -.035em; margin: 14px 0 22px -.04em; }
+  .hero h1 span { display: block; font-size: .28em; font-weight: 500; letter-spacing: -.01em; line-height: 1.15; margin-top: 14px; color: var(--ink-2); }
+  .hero .lede { font-size: clamp(19px, 2vw, 23px); line-height: 1.5; max-width: 30em; }
+  .hero .lede em { font-style: italic; color: var(--accent-ink); }
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; font: 500 14px/1 var(--mono); letter-spacing: .02em; text-decoration: none; padding: 12px 16px; border: 1px solid var(--ink); border-radius: 3px; color: var(--ink); }
+  .btn.primary { background: var(--ink); color: var(--paper); }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn svg { width: 15px; height: 15px; }
+
+  /* ---- pedigree ---- */
+  .ped { margin: 0; }
+  .ped svg { display: block; width: 100%; max-width: 520px; height: auto; overflow: visible; }
+  .ped .lines line, .ped .lines polyline { stroke: var(--ink); stroke-width: 1.6; fill: none; stroke-linecap: square; }
+  .ped .lines .double { stroke-width: 1.4; }
+  .ped .ind rect, .ped .ind circle { fill: var(--paper); stroke: var(--ink); stroke-width: 1.8; transition: fill .2s; }
+  .ped .ind.aff rect, .ped .ind.aff circle { fill: var(--ink); }
+  .ped .ind .dot { fill: var(--ink); stroke: none; }
+  .ped .ind .dec { stroke: var(--ink); stroke-width: 1.6; }
+  .ped .ind .gt { font: 500 10.5px var(--mono); fill: var(--accent-ink); text-anchor: middle; opacity: 0; transition: opacity .15s; }
+  .ped .ind { cursor: default; outline: none; }
+  .ped .ind:hover rect, .ped .ind:hover circle, .ped .ind:focus-visible rect, .ped .ind:focus-visible circle { stroke: var(--accent); }
+  .ped .ind.aff:hover rect, .ped .ind.aff:hover circle, .ped .ind.aff:focus-visible rect, .ped .ind.aff:focus-visible circle { fill: var(--accent); }
+  .ped .ind:hover .gt, .ped .ind:focus-visible .gt, .ped.show-gt .ind .gt { opacity: 1; }
+  .ped .gen { font: 500 11px var(--mono); fill: var(--ink-2); }
+  .ped .arrow { fill: none; stroke: var(--accent); stroke-width: 1.8; }
+  .ped .arrow-head { fill: var(--accent); }
+  .ped figcaption { margin-top: 14px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); max-width: 520px; }
+  .ped figcaption button { font: inherit; color: var(--accent-ink); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: .15em; }
+  .ped figcaption button:hover { color: var(--accent); }
+  .key { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; max-width: 520px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .key span { display: inline-flex; align-items: center; gap: 7px; }
+  .key svg { width: 14px; height: 14px; overflow: visible; }
+  .key rect, .key circle { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+  .key .f { fill: var(--ink); }
+  .key line { stroke: var(--ink); stroke-width: 1.4; }
+  /* the family draws itself in: lines first, then each generation */
+  @media (prefers-reduced-motion: no-preference) {
+    .ped .lines line, .ped .lines polyline { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .7s ease-out forwards; }
+    .ped .lines .g1 { animation-delay: .25s; } .ped .lines .g2 { animation-delay: .7s; } .ped .lines .g3 { animation-delay: 1.15s; }
+    .ped .ind, .ped .gen, .ped .arrow, .ped .arrow-head { opacity: 0; animation: appear .5s ease-out forwards; }
+    .ped .ind.gen1, .ped .gen.gen1 { animation-delay: .05s; }
+    .ped .ind.gen2, .ped .gen.gen2 { animation-delay: .75s; }
+    .ped .ind.gen3, .ped .gen.gen3 { animation-delay: 1.45s; }
+    .ped .arrow, .ped .arrow-head { animation-delay: 2s; }
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes appear { to { opacity: 1; } }
+
+  /* ---- meta strip ---- */
+  .strip { max-width: none; margin-top: 48px; padding-block: 14px; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 6px 28px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); }
+  .strip b { font-weight: 500; color: var(--ink); }
+
+  /* ---- sections ---- */
+  section { padding-top: 72px; scroll-margin-top: 24px; }
+  .head { display: grid; grid-template-columns: 1fr; gap: 10px 32px; align-items: baseline; padding-bottom: 18px; border-bottom: 1px solid var(--ink); margin-bottom: 36px; }
+  @media (min-width: 700px) { .head { grid-template-columns: 180px minmax(0, 1fr); } }
+  .head h2 { font-size: clamp(30px, 4vw, 42px); font-weight: 700; letter-spacing: -.025em; line-height: 1.05; }
+  .head p { font-size: 17px; color: var(--ink-2); margin-top: 10px; }
+  @media (min-width: 700px) { .head p { grid-column: 2; margin-top: 0; } }
+
+  /* tools */
+  .tool { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px 24px; padding-block: 30px; border-top: 1px solid var(--rule); }
+  .tool:first-child { border-top: 0; padding-top: 0; }
+  @media (min-width: 900px) { .tool { grid-template-columns: 64px minmax(0, 1fr) 200px; } }
+  .tool .glyph { width: 56px; height: 56px; border: 1px solid var(--rule-2); border-radius: 4px; display: grid; place-items: center; background: var(--panel); }
+  .tool .glyph svg { width: 36px; height: 36px; fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .tool .glyph .acc { stroke: var(--accent); }
+  .tool .glyph .fill { fill: var(--accent); stroke: none; }
+  .tool h3 { font-size: 28px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+  .tool .kind { margin: 6px 0 12px; }
+  .tool .what { font-size: 18px; }
+  .tool .facts { display: flex; flex-wrap: wrap; gap: 6px 0; margin-top: 14px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); }
+  .tool .facts li + li::before { content: "·"; margin: 0 10px; color: var(--rule-2); }
+  .tool .note { margin-top: 12px; font-size: 15px; font-style: italic; color: var(--ink-2); }
+  .tool .links { max-width: none; grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; align-content: start; }
+  @media (min-width: 900px) { .tool .links { grid-column: 3; flex-direction: column; } }
+  .tool .links a { font: 500 13px/1 var(--mono); text-decoration: none; color: var(--ink); border: 1px solid var(--rule-2); border-radius: 3px; padding: 9px 12px; display: inline-flex; justify-content: space-between; gap: 12px; }
+  .tool .links a:hover { border-color: var(--accent); color: var(--accent); }
+  .tool .links a.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .tool .links a.primary:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .more { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--rule); font-size: 16px; color: var(--ink-2); }
+
+  /* research */
+  .prose { display: grid; gap: 18px; }
+  .prose p { font-size: 18px; }
+  .flow { counter-reset: step; display: grid; grid-template-columns: 1fr; gap: 0; margin-top: 36px; border-top: 1px solid var(--rule); }
+  @media (min-width: 700px) { .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1100px) { .flow { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .flow li { counter-increment: step; padding: 20px 20px 24px 0; border-bottom: 1px solid var(--rule); }
+  @media (min-width: 700px) { .flow li { border-right: 1px solid var(--rule); padding-left: 20px; } .flow li:first-child { padding-left: 0; } }
+  @media (min-width: 700px) and (max-width: 1099px) { .flow li:nth-child(2n) { border-right: 0; } }
+  @media (min-width: 1100px) { .flow li:last-child { border-right: 0; } }
+  .flow .n { font: 500 12px var(--mono); color: var(--accent-ink); letter-spacing: .08em; }
+  .flow h3 { font-size: 21px; font-weight: 700; letter-spacing: -.015em; margin: 8px 0 8px; }
+  .flow p { font-size: 15.5px; color: var(--ink-2); line-height: 1.55; }
+  .topics { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 30px; }
+  .topics li { font: 400 13px/1 var(--mono); padding: 8px 12px; border: 1px solid var(--rule-2); border-radius: 999px; color: var(--ink-2); }
+
+  /* people */
+  .people { display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--rule); }
+  @media (min-width: 700px) { .people { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 40px; } }
+  .people li { padding-block: 22px; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; }
+  .people .ini { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); display: grid; place-items: center; font: 700 15px var(--display); letter-spacing: -.02em; }
+  .people h3 { font-size: 21px; font-weight: 700; letter-spacing: -.015em; }
+  .people .role { font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); margin: 4px 0 8px; }
+  .people p { font-size: 16px; }
+  .people .links { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 14px; font-family: var(--mono); font-size: 13px; }
+  .join { margin-top: 28px; font-size: 16px; color: var(--ink-2); }
+
+  /* contact */
+  .contact { display: grid; grid-template-columns: 1fr; gap: 28px 48px; }
+  @media (min-width: 900px) { .contact { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .contact dl { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 22px; font-size: 16px; }
+  .contact dt { font-family: var(--mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); padding-top: 4px; }
+  .contact dd { margin: 0; }
+
+  footer { margin-top: 80px; padding-top: 20px; border-top: 1px solid var(--ink); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+<a class="skip" href="#tools">Skip to the tools</a>
+<div class="frame">
+  <header class="rail">
+    <a class="mark" href="#top" aria-label="TGGR Lab, top of page">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 8h6M16 13v5M16 18H8M16 18h8M8 18v3M24 18v3" stroke="currentColor" stroke-width="2" fill="none"/><rect x="3" y="21" width="10" height="10" fill="#a8206a"/><circle cx="24" cy="26" r="5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      <span><b>TGGR Lab</b><small>Tel Aviv Sourasky Medical Center</small></span>
+    </a>
+    <nav aria-label="Sections">
+      <a href="#tools">Tools</a>
+      <a href="#research">Research</a>
+      <a href="#people">People</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="foot">
+      <a class="gh" href="https://github.com/tggr-lab">github.com/tggr-lab</a>
+      <button id="theme" type="button" aria-label="Switch between light and dark">theme: auto</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="hero">
+      <div>
+        <p class="eyebrow">Translational Genetics and Genomics Research</p>
+        <h1>TGGR<span>A medical genetics lab inside a hospital, and the code that comes out of it.</span></h1>
+        <p class="lede">We look for the genes behind rare disease in the families who come to the Genetics Institute at Tel Aviv Sourasky Medical Center, then work out what those genes do. <em>Along the way we build tools, and we put them here.</em></p>
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/tggr-lab"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>Our code on GitHub</a>
+          <a class="btn" href="https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/">The lab at Ichilov</a>
+        </div>
+      </div>
+
+      <figure class="ped" id="ped">
+        <svg viewBox="0 0 360 232" role="img" aria-labelledby="ped-title ped-desc">
+          <title id="ped-title">A three-generation pedigree</title>
+          <desc id="ped-desc">Two unrelated couples in generation one each have a child. Those two children, first cousins, marry; the double line marks the consanguineous union. Of their four children, two are affected, shown filled, and one is the proband, marked with an arrow. Hovering a person shows their genotype for the variant.</desc>
+          <g class="lines">
+            <!-- generation I marriages and their drops -->
+            <line class="g1" x1="89" y1="40" x2="141" y2="40" pathLength="1"/>
+            <line class="g1" x1="239" y1="40" x2="291" y2="40" pathLength="1"/>
+            <polyline class="g1" points="115,40 115,80 115,111" pathLength="1"/>
+            <polyline class="g1" points="265,40 265,80 265,111" pathLength="1"/>
+            <!-- generation II: a consanguineous marriage is drawn with a double line -->
+            <line class="g2 double" x1="124" y1="118" x2="256" y2="118" pathLength="1"/>
+            <line class="g2 double" x1="124" y1="122" x2="256" y2="122" pathLength="1"/>
+            <polyline class="g2" points="190,122 190,160" pathLength="1"/>
+            <line class="g3" x1="120" y1="160" x2="270" y2="160" pathLength="1"/>
+            <polyline class="g3" points="120,160 120,191" pathLength="1"/>
+            <polyline class="g3" points="170,160 170,191" pathLength="1"/>
+            <polyline class="g3" points="220,160 220,191" pathLength="1"/>
+            <polyline class="g3" points="270,160 270,191" pathLength="1"/>
+          </g>
+          <text class="gen gen1" x="22" y="44">I</text>
+          <text class="gen gen2" x="22" y="124">II</text>
+          <text class="gen gen3" x="22" y="204">III</text>
+
+          <!-- generation I -->
+          <g class="ind gen1" tabindex="0"><title>I-1, male, carrier</title><rect x="71" y="31" width="18" height="18"/><circle class="dot" cx="80" cy="40" r="2.6"/><text class="gt" x="80" y="63">+/−</text></g>
+          <g class="ind gen1" tabindex="0"><title>I-2, female, unaffected</title><circle cx="150" cy="40" r="9"/><text class="gt" x="150" y="63">+/+</text></g>
+          <g class="ind gen1" tabindex="0"><title>I-3, male, unaffected</title><rect x="221" y="31" width="18" height="18"/><text class="gt" x="230" y="63">+/+</text></g>
+          <g class="ind gen1" tabindex="0"><title>I-4, female, carrier, deceased</title><circle cx="300" cy="40" r="9"/><circle class="dot" cx="300" cy="40" r="2.6"/><line class="dec" x1="290" y1="51" x2="310" y2="29"/><text class="gt" x="300" y="63">+/−</text></g>
+          <!-- generation II: first cousins -->
+          <g class="ind gen2" tabindex="0"><title>II-1, female, carrier</title><circle cx="115" cy="120" r="9"/><circle class="dot" cx="115" cy="120" r="2.6"/><text class="gt" x="115" y="143">+/−</text></g>
+          <g class="ind gen2" tabindex="0"><title>II-2, male, carrier</title><rect x="256" y="111" width="18" height="18"/><circle class="dot" cx="265" cy="120" r="2.6"/><text class="gt" x="265" y="143">+/−</text></g>
+          <!-- generation III -->
+          <g class="ind gen3" tabindex="0"><title>III-1, male, unaffected</title><rect x="111" y="191" width="18" height="18"/><text class="gt" x="120" y="223">+/+</text></g>
+          <g class="ind gen3 aff" tabindex="0"><title>III-2, female, affected, proband</title><circle cx="170" cy="200" r="9"/><text class="gt" x="170" y="223">−/−</text></g>
+          <g class="ind gen3 aff" tabindex="0"><title>III-3, male, affected</title><rect x="211" y="191" width="18" height="18"/><text class="gt" x="220" y="223">−/−</text></g>
+          <g class="ind gen3" tabindex="0"><title>III-4, female, carrier</title><circle cx="270" cy="200" r="9"/><circle class="dot" cx="270" cy="200" r="2.6"/><text class="gt" x="270" y="223">+/−</text></g>
+          <!-- proband arrow -->
+          <line class="arrow" x1="146" y1="222" x2="158" y2="210"/>
+          <polygon class="arrow-head" points="160,208 152,210 158,216"/>
+        </svg>
+        <figcaption>
+          <span>Fig. 1 · Autosomal recessive inheritance in a consanguineous family</span>
+          <button type="button" id="gt-toggle" aria-pressed="false">show genotypes</button>
+        </figcaption>
+        <div class="key" aria-label="Key">
+          <span><svg viewBox="0 0 14 14"><rect x="1" y="1" width="12" height="12"/></svg>male</span>
+          <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="6"/></svg>female</span>
+          <span><svg viewBox="0 0 14 14"><rect class="f" x="1" y="1" width="12" height="12"/></svg>affected</span>
+          <span><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="6"/><circle class="f" cx="7" cy="7" r="1.8"/></svg>carrier</span>
+          <span><svg viewBox="0 0 14 14"><line x1="0" y1="5" x2="14" y2="5"/><line x1="0" y1="9" x2="14" y2="9"/></svg>consanguineous</span>
+        </div>
+      </figure>
+    </div>
+
+    <p class="strip"><span><b>Genetics Institute</b>, Tel Aviv Sourasky Medical Center</span><span><b>Faculty of Medicine</b>, Tel Aviv University</span><span>Head: <b>Prof. Hagit Baris Feldman</b></span></p>
+
+    <!-- ============================ TOOLS ============================ -->
+    <section id="tools" aria-labelledby="h-tools">
+      <div class="head">
+        <h2 id="h-tools">Tools</h2>
+        <p>Three things the lab needed and could not buy. All of them are open source and in use on our own bench.</p>
+      </div>
+      <ul>
+        <li class="tool">
+          <div class="glyph" aria-hidden="true"><svg viewBox="0 0 36 36"><path d="M6 8h24v16H16l-6 5v-5H6z"/><path class="acc" d="M12 13h12M12 18h7"/></svg></div>
+          <div>
+            <h3>Pellaeon</h3>
+            <p class="kind eyebrow">ChimeraX plugin · Python</p>
+            <p class="what">Talk to UCSF ChimeraX in plain English. A chat panel inside ChimeraX turns what you type into commands, shows every command it ran, and asks before anything destructive. Open a structure, compare conformations, map ClinVar variants or conservation onto it, and save a figure with the script that made it.</p>
+            <ul class="facts"><li>on the ChimeraX Toolshed</li><li>ChimeraX 1.9 or newer</li><li>free, paid or local models</li><li>keys stay on your machine</li><li>MIT</li></ul>
+            <p class="note">Named after the captain of the Chimaera. Not affiliated with UCSF.</p>
+          </div>
+          <p class="links"><a class="primary" href="https://tggr-lab.github.io/pellaeon/">Site and tutorial <span aria-hidden="true">→</span></a><a href="https://github.com/tggr-lab/pellaeon">Source <span aria-hidden="true">→</span></a><a href="https://cxtoolshed.rbvi.ucsf.edu/apps/chimeraxpellaeon">Toolshed <span aria-hidden="true">→</span></a></p>
+        </li>
+        <li class="tool">
+          <div class="glyph" aria-hidden="true"><svg viewBox="0 0 36 36"><path d="M7 6v24M11.5 6v24M16 6v24M20.5 6v24M25 6v24M29.5 6v24"/><circle class="fill" cx="16" cy="14" r="2.4"/><circle class="fill" cx="25" cy="21" r="2.4"/><path class="acc" d="M16 14l9 7"/></svg></div>
+          <div>
+            <h3>GPCompaRe</h3>
+            <p class="kind eyebrow">Database and reports · structural bioinformatics</p>
+            <p class="what">What changes when a receptor switches on. Residue to residue contacts in the inactive and active states of human Class A G protein-coupled receptors, compared receptor by receptor, with a report page for each one and summary statistics across the family.</p>
+            <ul class="facts"><li>283 human Class A GPCRs</li><li>active and inactive conformations</li><li>contact gained, lost or kept</li><li>MIT</li></ul>
+          </div>
+          <p class="links"><a class="primary" href="https://tggr-lab.github.io/GPCompaRe/">Browse receptors <span aria-hidden="true">→</span></a><a href="https://github.com/tggr-lab/GPCompaRe">Source <span aria-hidden="true">→</span></a></p>
+        </li>
+        <li class="tool">
+          <div class="glyph" aria-hidden="true"><svg viewBox="0 0 36 36"><rect x="5" y="7" width="26" height="18" rx="2"/><path class="acc" d="M9 20l4-5 3 3 4-7 3 4 4-2"/><path d="M13 30h10M18 25v5"/></svg></div>
+          <div>
+            <h3>Incubator CO₂ monitor</h3>
+            <p class="kind eyebrow">Hardware · ESP32 · C++</p>
+            <p class="what">A CO₂ and temperature monitor for a cell culture incubator that you build yourself from three parts and six wires. It reads 0 to 10 % CO₂, where ordinary meters stop at 0.5 %, shows both readings on a touchscreen, logs to an SD card and serves a page over Wi-Fi. The guide has the parts list, the wiring, the calibration and ten days of real data.</p>
+            <ul class="facts"><li>ESP32-2432S028R board</li><li>Winsen MH-Z16 sensor</li><li>DS18B20 probe</li><li>MIT firmware, CC BY 4.0 guide</li></ul>
+            <p class="note">A home-built instrument, not a certified one. Calibrate it before you rely on it.</p>
+          </div>
+          <p class="links"><a class="primary" href="https://tggr-lab.github.io/incubator-co2-monitor/">Build guide <span aria-hidden="true">→</span></a><a href="https://github.com/tggr-lab/incubator-co2-monitor">Source <span aria-hidden="true">→</span></a></p>
+        </li>
+      </ul>
+      <p class="more">Issues and pull requests are welcome on every repository. Everything else the lab publishes lives at <a href="https://github.com/tggr-lab">github.com/tggr-lab</a>.</p>
+    </section>
+
+    <!-- ============================ RESEARCH ============================ -->
+    <section id="research" aria-labelledby="h-research">
+      <div class="head">
+        <h2 id="h-research">Research</h2>
+        <p>From a family in clinic to a gene, and from the gene back to the family.</p>
+      </div>
+      <div class="prose">
+        <p>The lab discovers new disease-causing genes and studies how they cause disease. The starting point is always a family: people referred to the Genetics Institute with a rare, often inherited condition that existing tests could not explain.</p>
+        <p>Sequencing and bioinformatics find the candidate. Functional work, tailored to each gene, pathway and phenotype, shows what the variant does. The result is a diagnosis for the family, a mechanism for the field, and sometimes a target for treatment.</p>
+      </div>
+      <ol class="flow" aria-label="How a project runs">
+        <li><span class="n">STEP 1</span><h3>Families</h3><p>Referred to the Genetics Institute at Ichilov, with consent to take their question into the lab. Many are consanguineous, which makes recessive disease easier to map.</p></li>
+        <li><span class="n">STEP 2</span><h3>Sequencing</h3><p>Exome and genome sequencing run in house, with the bioinformatic analysis to find the variants that segregate with disease and rule out the ones that do not.</p></li>
+        <li><span class="n">STEP 3</span><h3>Function</h3><p>Cell culture and animal models, protein structure, and assays designed for the gene in question, to show that the variant breaks something and how.</p></li>
+        <li><span class="n">STEP 4</span><h3>Back to clinic</h3><p>A molecular diagnosis, genetic counselling for the family, a new gene in the literature, and where the mechanism allows it, a candidate for personalised therapy.</p></li>
+      </ol>
+      <ul class="topics" aria-label="Topics">
+        <li>rare monogenic disease</li><li>novel gene discovery</li><li>exome and genome sequencing</li><li>functional genomics</li><li>GPCR activation and structure</li><li>clinical genomics</li><li>lab instruments we build ourselves</li>
+      </ul>
+    </section>
+
+    <!-- ============================ PEOPLE ============================ -->
+    <section id="people" aria-labelledby="h-people">
+      <div class="head">
+        <h2 id="h-people">People</h2>
+        <p>The lab is part of the Genetics Institute, so most of us also see patients, run the diagnostic pipeline, or both.</p>
+      </div>
+      <ul class="people">
+        <li>
+          <span class="ini" aria-hidden="true">HB</span>
+          <div>
+            <h3>Prof. Hagit Baris Feldman</h3>
+            <p class="role">Head of the lab · Director, Genetics Institute and Genomics Center</p>
+            <p>Medical geneticist. Established the Genomic Center and the Gaucher Disease Center at Tel Aviv Sourasky Medical Center, and chairs the Israel Medical Genetics Association. Faculty of Medicine, Tel Aviv University.</p>
+            <p class="links"><a href="https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/">Lab page</a></p>
+          </div>
+        </li>
+        <li>
+          <span class="ini" aria-hidden="true">YA</span>
+          <div>
+            <h3>Yam Amir</h3>
+            <p class="role">PhD student · structural bioinformatics and genomics</p>
+            <p>How GPCRs switch on, how one gene can sit inside another, and what rare variants do in the clinic. Writes most of the software on this page and the odd piece of hardware.</p>
+            <p class="links"><a href="https://yamir-1138.github.io/YAMIR-1138/">Personal page</a><a href="https://github.com/YAMIR-1138">GitHub</a><a href="https://orcid.org/0000-0002-4900-6345">ORCID</a></p>
+          </div>
+        </li>
+        <!-- Add a person: copy an <li> above. The two letters in .ini are initials. -->
+      </ul>
+      <p class="join">Students and clinicians interested in gene discovery, functional genomics or scientific software are welcome to get in touch through the lab page.</p>
+    </section>
+
+    <!-- ============================ CONTACT ============================ -->
+    <section id="contact" aria-labelledby="h-contact">
+      <div class="head">
+        <h2 id="h-contact">Contact</h2>
+        <p>Where to find us, on the ground and online.</p>
+      </div>
+      <div class="contact">
+        <dl>
+          <dt>Lab</dt><dd>Translational Genetics and Genomics Research Laboratory, Genetics Institute</dd>
+          <dt>Hospital</dt><dd>Tel Aviv Sourasky Medical Center (Ichilov), 6 Weizmann Street, Tel Aviv, Israel</dd>
+          <dt>University</dt><dd>Faculty of Medicine, Tel Aviv University</dd>
+        </dl>
+        <dl>
+          <dt>Code</dt><dd><a href="https://github.com/tggr-lab">github.com/tggr-lab</a></dd>
+          <dt>Lab page</dt><dd><a href="https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/">tasmc.org.il, research laboratories</a></dd>
+          <dt>Bugs</dt><dd>Open an issue on the repository concerned. For Pellaeon, the <a href="https://github.com/tggr-lab/pellaeon/issues">issue tracker</a> is the fastest route.</dd>
+        </dl>
+      </div>
+    </section>
+
+    <footer>
+      <span>© <span id="year">2026</span> TGGR Lab · Tel Aviv Sourasky Medical Center</span>
+      <span>Pedigree symbols follow the standard nomenclature (Bennett et al., 2008) · <a href="https://github.com/tggr-lab/tggr-lab.github.io">source</a></span>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ---- theme: auto, then light, then dark, then auto again
+  var root = document.documentElement, btn = document.getElementById('theme');
+  function label() { btn.textContent = 'theme: ' + (root.dataset.theme || 'auto'); }
+  btn.addEventListener('click', function () {
+    var next = { undefined: 'light', light: 'dark', dark: '' }[root.dataset.theme];
+    if (next) root.dataset.theme = next; else delete root.dataset.theme;
+    try { if (next) localStorage.setItem('tggr-theme', next); else localStorage.removeItem('tggr-theme'); } catch (e) {}
+    label();
+  });
+  label();
+
+  // ---- pedigree: a button for people without a mouse to hover
+  var ped = document.getElementById('ped'), gt = document.getElementById('gt-toggle');
+  gt.addEventListener('click', function () {
+    var on = ped.classList.toggle('show-gt');
+    gt.setAttribute('aria-pressed', on);
+    gt.textContent = on ? 'hide genotypes' : 'show genotypes';
+  });
+
+  // ---- the rail marks the section in view
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail nav a'));
+  var sections = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  if ('IntersectionObserver' in window) {
+    var current = null;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) current = e.target; });
+      links.forEach(function (a, i) { a.setAttribute('aria-current', sections[i] === current ? 'true' : 'false'); });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(function (s) { if (s) io.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>
