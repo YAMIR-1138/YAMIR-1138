@@ -467,7 +467,9 @@
   }
   /* room for a thumb, on anything touched or narrow: every link and button at least 32px tall, and no text under 12px */
   @media (pointer: coarse), (max-width: 760px) {
-    .bar nav a, .where a, .callsign a, .card .links a, .profile a, .kv a, footer a { display: inline-block; padding: 7px 2px; margin: -7px -2px; }
+    .bar nav a, .where a, .callsign a, .kv a, footer a { position: relative; }
+    .bar nav a::after, .where a::after, .callsign a::after, .kv a::after, footer a::after { content: ""; position: absolute; left: -2px; right: -2px; top: -8px; bottom: -8px; }
+    .card .links a { display: inline-block; padding: 6px 0; margin: -6px 0; }   /* no border of its own, so padding is safe here */
     .bar .btn { padding-top: 7px; padding-bottom: 7px; }
     .card .path { font-size: 12px; }
     #cmd { min-height: 32px; }
