@@ -10,3 +10,7 @@ Four directions for the lab page, each a self-contained HTML file. Open any of t
 | `e-plate.html` | The plate. A natural-history plate in the wordmark's serif, with the tiger inside its slowly turning ring of text. Light and dark. |
 
 `logo.png`, `tiger.png`, `wordmark.png` and `ring.png` are crops of the lab logo for the mockups to share.
+
+## Logo motion
+
+`logo-motion.html` shows seven ways the logo could move. `tiger-ink.png`, `tiger-teal.png` and `tiger-orange.png` are the tiger split into its three colours so the layers can move independently.
