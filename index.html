@@ -338,7 +338,6 @@
   #term summary:hover { color: var(--fg); }
   #term summary .hint { margin-left: auto; font-size: 11px; color: var(--faint); }
   #term[open] summary .hint { visibility: hidden; }
-  @media (pointer: coarse) { #term summary .hint { display: none; } }
   #term summary:focus-visible { outline: 2px solid var(--hi); outline-offset: -3px; }
   #term[open] summary { border-bottom: 1px solid var(--line); }
   #term .body { padding: 12px 14px 14px; }
@@ -458,11 +457,23 @@
     .hero { grid-template-columns: minmax(0, 1fr); }
     #helix { justify-self: center; }
     .split .par2 { justify-self: center; }
-    .split { grid-template-columns: minmax(0, 1fr); }
+    .split { grid-template-columns: minmax(0, 1fr); gap: 8px; }
     .card--featured { grid-template-columns: minmax(0, 1fr); }
-    .bar { font-size: 11.5px; }
+    .bar { font-size: 12px; }
+    .bar nav { gap: 2px 10px; }
     h2 { font-size: 28px; }
+    .card--empty { min-height: 72px; }
+    .ribo { margin-top: 12px; }
   }
+  /* room for a thumb, on anything touched or narrow: every link and button at least 32px tall, and no text under 12px */
+  @media (pointer: coarse), (max-width: 760px) {
+    .bar nav a, .where a, .callsign a, .card .links a, .profile a, .kv a, footer a { display: inline-block; padding: 7px 2px; margin: -7px -2px; }
+    .bar .btn { padding-top: 7px; padding-bottom: 7px; }
+    .card .path { font-size: 12px; }
+    #cmd { min-height: 32px; }
+  }
+  /* a finger, not a mouse: the terminal hint says so */
+  @media (pointer: coarse) { #term summary .hint { display: inline; font-size: 0; } #term summary .hint::after { content: "tap to open"; font-size: 11px; } }
 
   @media print {
     html, body { background: #fff !important; color: #000 !important; text-shadow: none !important; font-size: 11pt; }
