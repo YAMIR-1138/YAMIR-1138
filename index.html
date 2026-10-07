@@ -417,6 +417,8 @@
   #tracker span { display: block; white-space: pre; }
   #tracker .t { color: var(--fg); border-bottom: 1px solid var(--line); margin-bottom: 4px; }
   #tracker .r { min-height: 2.8em; margin-top: 3px; }
+  #tracker .w { color: var(--dim); border-top: 1px solid var(--line); margin-top: 4px; padding-top: 3px; font-size: 9px; }
+  #tracker .w.storm { color: var(--warn); }
   #tracker.hostile { border-color: var(--warn); }
   #tracker.hostile .r { color: var(--warn); text-shadow: 0 0 6px var(--warn); }
   #tracker.contact .r { color: var(--hi); text-shadow: var(--glow-hi); }
@@ -629,7 +631,7 @@
       <dl class="kv">
         <dt>role</dt><dd>PhD student at the TGGR Lab (Translational Genetics and Genomics Research), Tel Aviv Sourasky Medical Center &amp; Tel Aviv University</dd>
         <dt>work</dt><dd>GPCR activation and protein structure, nested genes, clinical genomics, the odd piece of lab hardware</dd>
-        <dt>papers</dt><dd>13 publications, 2020 to 2025, listed on <a href="https://orcid.org/0000-0002-4900-6345">ORCID</a></dd>
+        <dt>papers</dt><dd id="papers"><span class="n">13 publications, 2020 to 2025</span>, listed on <a href="https://orcid.org/0000-0002-4900-6345">ORCID</a></dd>
         <dt>toolkit</dt><dd>Linux · R · Arduino and ESP32 · Claude Code · GraphPad Prism</dd>
         <dt>find me</dt><dd><a href="https://github.com/YAMIR-1138">GitHub</a> · <a href="https://orcid.org/0000-0002-4900-6345">ORCID</a> · <a href="https://scholar.google.com/citations?user=P9F-wMgAAAAJ">Scholar</a> · <a href="https://www.researchgate.net/profile/Yam-Amir">ResearchGate</a> · <a href="https://il.linkedin.com/in/yam-amir-640823191">LinkedIn</a> · <a href="https://github.com/tggr-lab">TGGR Lab</a></dd>
       </dl>
@@ -1370,7 +1372,7 @@
   COMMANDS.replicate = function () { print(T.helix && T.helix.replicate() ? 'the helix opens.' : 'replicate: not now.', T.helix && T.helix.rep ? '' : 'err'); };
   COMMANDS.vim = COMMANDS.vi = function () { print('you are in vim. to leave, close the tab. it is the only way.', 'err'); };
   COMMANDS.rm = function () { print('rm: refusing. the cat is sitting on it.', 'err'); };
-  COMMANDS.make = function (arg) { print(/bread|dough|loaf/.test(arg || '') ? 'make: see side/DOUGH_FORMULATOR' : 'make: nothing to be done. it is one html file.'); };
+  COMMANDS.make = function (arg) { print(/cake/.test(arg || '') ? 'make: *** No rule to make target \'cake\'. The cake is a lie.  Stop.' : /bread|dough|loaf/.test(arg || '') ? 'make: see side/DOUGH_FORMULATOR' : 'make: nothing to be done. it is one html file.', /cake/.test(arg || '') ? 'err' : ''); };
   T.t0 = performance.now();
   const HIST = []; let hi = 0, draft = '';
   form.addEventListener('submit', (e) => {
@@ -3784,7 +3786,7 @@ window.CATDATA = {
     const box = document.createElement('button');
     box.id = 'tracker'; box.type = 'button';
     box.setAttribute('aria-label', 'Motion tracker. Press to go to the cat.');
-    box.innerHTML = '<span class="t">TRACKER</span><canvas></canvas><span class="r">NO CONTACT</span>';
+    box.innerHTML = '<span class="t">TRACKER</span><canvas></canvas><span class="r">NO CONTACT</span><span class="w" hidden></span>';
     document.body.appendChild(box);
     const cv = $('canvas', box), read = $('.r', box), g = cv.getContext('2d'), MW = 80, MH = 124, X0 = 15, X1 = MW - 3;
     const decks = [$('.hero')].concat($$('main section[id]')).filter(Boolean);
@@ -3870,6 +3872,43 @@ window.CATDATA = {
     };
     size(); show(on);
     return { draw, box };
+  })();
+
+  // ------------------------------------------------------------ what the ship can see outside
+  // Three public feeds, none of them needing a key, each remembered for a while so a page load is not a request.
+  (function () {
+    if (!window.fetch) return;
+    const cached = (key, hours, get) => {
+      const kept = T.store.get(key, null), fresh = kept && typeof kept.at === 'number' && Date.now() - kept.at < hours * 3600 * 1000;
+      if (fresh) return Promise.resolve(kept.data);
+      return get().then((data) => { T.store.set(key, { at: Date.now(), data }); return data; });
+    };
+    const json = (url, headers) => fetch(url, { headers: headers || {} }).then((r) => (r.ok ? r.json() : Promise.reject(r.status)));
+    // ORCID: how many works, and up to which year. The number on the page is only as stale as the last visit
+    const papers = $('#papers .n');
+    if (papers) cached('orcid-v1', 24, () => json('https://pub.orcid.org/v3.0/0000-0002-4900-6345/works', { Accept: 'application/json' }).then((d) => {
+      const years = d.group.map((g) => { const w = g['work-summary'][0], y = w['publication-date'] && w['publication-date'].year; return y ? +y.value : 0; }).filter(Boolean);
+      return { n: d.group.length, from: Math.min.apply(null, years), to: Math.max.apply(null, years) };
+    })).then((p) => { if (p && p.n) papers.textContent = p.n + ' publications, ' + p.from + ' to ' + p.to; }).catch(() => {});
+    // NOAA space weather: the solar wind at L1 and the planetary K index, on the tracker, below the contact
+    const w = $('#tracker .w');
+    if (w) {
+      const weather = () => cached('swpc-v1', .25, () => Promise.all([
+        json('https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json').then((d) => d.find((r) => r.proton_speed != null) || d[0]),
+        json('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json').then((d) => d[d.length - 1]),
+      ]).then(([wind, kp]) => ({ v: Math.round(wind.proton_speed), n: +wind.proton_density, kp: +(kp.Kp != null ? kp.Kp : kp[1]) })))
+        .then((d) => { if (!d || !d.v) return; w.textContent = 'SOLAR WIND ' + d.v + ' km/s\nKp ' + d.kp.toFixed(0) + (d.kp >= 5 ? ' · STORM' : ''); w.classList.toggle('storm', d.kp >= 5); w.hidden = false; T.spaceWeather = d; })
+        .catch(() => {});
+      T.onReady(weather); setInterval(weather, 20 * 60 * 1000);
+    }
+    // the sun at the lab: amber by day, green after dark, unless the visitor has chosen
+    if (T.store.get('phosphor-v2', null) === null) cached('sun-v1', 12, () => json('https://api.sunrise-sunset.org/json?lat=32.08&lng=34.78&formatted=0').then((d) => ({ rise: d.results.sunrise, set: d.results.sunset })))
+      .then((sun) => {
+        const now = Date.now(), rise = Date.parse(sun.rise), set = Date.parse(sun.set);
+        // the times are for today at the lab; a visitor at another hour of the world still gets the lab's sky
+        const day = (now - rise + 86400000) % 86400000 < (set - rise + 86400000) % 86400000;
+        if (T.store.get('phosphor-v2', null) === null) T.setTheme(day ? 'amber' : 'green', false);
+      }).catch(() => {});
   })();
 
   // ------------------------------------------------------------ start
