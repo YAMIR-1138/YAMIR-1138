@@ -12,6 +12,5 @@
 - [GPCompaRe](https://tggr-lab.github.io/GPCompaRe/)
 - [GeNest](https://yamir-1138.github.io/genest-website/)
 - [Sourdough Calculator](https://yamir-1138.github.io/dough_formulator/)
-- [STATSHEET](https://yamir-1138.github.io/YAMIR-1138/stats/) a live biostatistics cheat sheet
 - [BenchMate](https://yamir-1138.github.io/benchmate/)
 
