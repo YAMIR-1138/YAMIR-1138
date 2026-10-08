@@ -1,0 +1,141 @@
+<!doctype html>
+<!--
+  STATSHEET · a live cheat sheet for biostatistics
+  Static site, no build step. Open index.html or serve the folder.
+
+  HOW TO EDIT
+    A converter       js/convert.js  — one object per card: inputs + compute()
+    The chooser       js/chooser.js  — TESTS catalog, questions(), recommend()
+    Reference tables  js/reference.js
+    Maths             js/stats.js    — distributions, conversions (tested)
+    Formatting        js/format.js   — numbers to text, text to numbers
+    Looks             css/style.css
+    Tests             node tests/run.js, or open tests.html
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STATSHEET · biostatistics cheat sheet</title>
+<meta name="description" content="Which test to use, what the model means, and converters that turn odds ratios, hazard ratios, log fold changes, p-values and scientific notation into plain language.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#faf9f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121518" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f766e'/%3E%3Cpath d='M5 25 L12 14 L17 20 L27 7' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='27' cy='7' r='2.5' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script>
+  // Apply a saved theme before first paint, so there is no flash.
+  try { var t = localStorage.getItem('statsheet-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+</script>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top__row">
+    <a class="brand" href="#top" aria-label="STATSHEET home">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__name">STAT<b>SHEET</b></span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#chooser">Which test</a>
+      <a href="#convert">Converters</a>
+      <a href="#models">Models</a>
+      <a href="#reference">Reference</a>
+    </nav>
+    <div class="top__tools">
+      <label class="search">
+        <span class="sr-only">Search the sheet</span>
+        <input id="search" type="search" placeholder="Search…  ( / )" autocomplete="off" spellcheck="false">
+        <span class="search__count" id="search-count" aria-live="polite"></span>
+      </label>
+      <button id="theme" class="btn btn--icon" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path class="sun" d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0-15v3m0 14v3M2 12h3m14 0h3M4.9 4.9l2.1 2.1m10 10 2.1 2.1m0-14.2-2.1 2.1m-10 10-2.1 2.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="moon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top" class="wrap">
+
+  <section class="hero" aria-label="About">
+    <h1>A live cheat sheet for biostatistics.</h1>
+    <p>Which test or model fits the question, and what the numbers you get back actually mean. Every converter here turns something unintuitive (an odds ratio, a hazard ratio, a log₂ fold change, 3.2e-5) into something a person can picture. Nothing leaves your browser.</p>
+  </section>
+
+  <!-- ============================================================ chooser -->
+  <section id="chooser" class="section" aria-labelledby="h-chooser">
+    <div class="section__head">
+      <h2 id="h-chooser">Which test or model?</h2>
+      <p>Answer a few questions. The pick comes with its assumptions, the effect size to report, a sentence you can adapt, and the code.</p>
+    </div>
+    <div class="chooser">
+      <form id="chooser-form" class="chooser__form" aria-label="Questions"></form>
+      <div id="chooser-result" class="chooser__result" aria-live="polite"></div>
+    </div>
+    <details class="catalog" id="catalog">
+      <summary>Browse the whole catalog</summary>
+      <div id="catalog-list"></div>
+    </details>
+  </section>
+
+  <!-- ========================================================= converters -->
+  <section id="convert" class="section" aria-labelledby="h-convert">
+    <div class="section__head">
+      <h2 id="h-convert">Converters</h2>
+      <p>Type a number, read a sentence. Each card can be shared as a link with its numbers filled in.</p>
+    </div>
+    <div id="converters"></div>
+  </section>
+
+  <!-- ============================================================= models -->
+  <section id="models" class="section" aria-labelledby="h-models">
+    <div class="section__head">
+      <h2 id="h-models">Regression models</h2>
+      <p>Pick the row by what the outcome is. The coefficient column is what you report after exponentiating where needed.</p>
+    </div>
+    <div class="table-wrap" id="models-table"></div>
+  </section>
+
+  <!-- ========================================================== reference -->
+  <section id="reference" class="section" aria-labelledby="h-reference">
+    <div class="section__head">
+      <h2 id="h-reference">Reference</h2>
+      <p>What the numbers mean and do not mean, rules of thumb, the mistakes everybody makes, and how to write it up.</p>
+    </div>
+
+    <h3 id="ref-phrases">Saying it right</h3>
+    <div class="table-wrap" id="phrases-table"></div>
+
+    <h3 id="ref-benchmarks">Effect-size rules of thumb</h3>
+    <div class="table-wrap" id="benchmarks-table"></div>
+    <p class="note" id="benchmarks-note"></p>
+
+    <h3 id="ref-assumptions">Assumptions: how to check, what to do</h3>
+    <div class="table-wrap" id="assumptions-table"></div>
+
+    <h3 id="ref-pitfalls">Pitfalls</h3>
+    <div class="cards cards--text" id="pitfalls"></div>
+
+    <h3 id="ref-reporting">Reporting templates</h3>
+    <div class="cards cards--text" id="reporting"></div>
+
+    <h3 id="ref-distributions">Distributions</h3>
+    <div class="table-wrap" id="distributions-table"></div>
+
+    <h3 id="ref-glossary">Glossary</h3>
+    <dl class="glossary" id="glossary"></dl>
+  </section>
+
+  <p id="no-results" class="no-results" hidden>Nothing matches. Try a different word, or clear the search.</p>
+</main>
+
+<footer class="foot wrap">
+  <p>STATSHEET · a side quest by <a href="https://yamir-1138.github.io/YAMIR-1138/">Yam Amir</a> · <a href="https://github.com/YAMIR-1138/YAMIR-1138/tree/main/stats">source</a> · runs entirely in your browser. Formulas are referenced under each card; check anything you publish.</p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

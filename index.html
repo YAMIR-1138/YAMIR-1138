@@ -7,7 +7,7 @@
     A project        find its <li class="card"> below and change the text and links.
     Hide a project   add the word hidden to its <li>. Show it again by removing the word.
     Add a project    copy a card. Give it data-project, data-dir and data-site.
-                     For an icon, use one of: kite gpcr rotor nest co2 wheat.
+                     For an icon, use one of: kite gpcr rotor nest co2 wheat bell.
     About and links  edit the <dl class="kv"> and the <ul class="profile">.
     The terminal     lives at the bottom, closed. / or ~ opens it.
     Boot log         the BOOT list in the first script.
@@ -21,6 +21,7 @@
     404.html   shown by GitHub Pages for a missing page
     og.png     the picture a shared link shows
     riders.png, riders-fill.png   the sprite frames of the visitors who come through the cat's portals
+    stats/     STATSHEET, the biostatistics cheat sheet. Its own page, its own README.
 -->
 <html lang="en" data-theme="amber">
 <head>
@@ -639,6 +640,14 @@
           <p>A retro sourdough calculator built on true baker's percentages.</p>
           <p class="quip">Calculate. Ferment. Ascend.</p>
           <p class="links"><a class="primary" href="https://yamir-1138.github.io/dough_formulator/">open app</a><a href="https://github.com/YAMIR-1138/dough_formulator">repo</a></p>
+        </li>
+        <li class="card card--tool" data-project="STATSHEET" data-alias="stats" data-dir="side" data-site="https://yamir-1138.github.io/YAMIR-1138/stats/">
+          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="bell" data-scale="2"></canvas></figure>
+          <p class="path">Web app</p>
+          <h3>STATSHEET</h3>
+          <p>A live biostatistics cheat sheet: which test to run, what the model means, and odds ratios or log fold changes in plain language.</p>
+          <p class="quip">p is not the number you think it is.</p>
+          <p class="links"><a class="primary" href="https://yamir-1138.github.io/YAMIR-1138/stats/">open app</a><a href="https://github.com/YAMIR-1138/YAMIR-1138/tree/main/stats">source</a></p>
         </li>
         <li class="card card--empty" aria-label="Empty slot">
           <p>next strange thing ..... [ <span id="slot">pending</span> ]</p>
@@ -1678,6 +1687,21 @@
       p.disc(cx, cy, 7, K).ring(cx, cy, 6, 7.4, FG);
       p.stamp(['.##', '#..', '#..', '#..', '.##'], cx - 1, cy - 2, { '#': HI });
       ox.forEach((x) => { p.disc(x, cy, 9.4, K).ring(x, cy, 8.2, 9.8, HI).stamp(['.#.', '#.#', '#.#', '#.#', '.#.'], x - 1, cy - 2, { '#': HI }); });
+    } },
+    // STATSHEET: a bell curve. A cut-off walks the axis, and the tail beyond it, the p-value, fills in.
+    bell: { w: 64, h: 44, fps: 8, frames: 48, draw(p, t) {
+      const by = 36, cx = 32, sg = 9, A = 28;
+      const curve = (x) => by - A * Math.exp(-(((x - cx) / sg) ** 2) / 2);
+      // the cut-off eases out to the tail and back, pausing at each end
+      const k = (1 - Math.cos(t / 48 * Math.PI * 2)) / 2, mx = Math.round(cx + 2 + k * 18);
+      p.fill((x, y) => x >= mx && y >= curve(x) && y <= by, FAINT, undefined, [mx, by - A, 62, by]);
+      p.fill((x, y) => x >= mx && y >= curve(x) && y <= by && (((x | 0) + (y | 0)) % 2 === 0), DIM, undefined, [mx, by - A, 62, by]);
+      const pts = []; for (let x = 3; x <= 61; x += .5) pts.push([x, curve(x)]);
+      p.path(pts, FG, 1.1, .7);
+      p.rect(3, by, 59, 1, DIM);
+      [cx - 2 * sg, cx - sg, cx, cx + sg, cx + 2 * sg].forEach((x) => p.rect(x, by + 1, 1, 2, DIM));
+      p.rect(mx, by - A - 3, 1, A + 5, HI);
+      p.stamp(['###', '#.#', '###', '#..', '#..'], mx + 3, by - A - 3, { '#': HI });
     } },
   };
 
