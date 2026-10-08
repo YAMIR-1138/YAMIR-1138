@@ -1,9 +1,13 @@
+# [**yamir-1138.github.io/YAMIR-1138 →**](https://yamir-1138.github.io/YAMIR-1138/)
+
+**My homepage:** selected work, side quests, a terminal, and a cat. Everything below lives there too.
+
+---
+
 -  Hey! I’m @YAMIR-1138
 -  I’m interested in genetics and bioinformatics
 -  I’m currently working on my PhD
 -  Pronouns: He/Him/They
-
-- **[yamir-1138.github.io/YAMIR-1138](https://yamir-1138.github.io/YAMIR-1138/)** my homepage. Projects, side quests, a terminal, and a cat.
 
 ### Projects
 
