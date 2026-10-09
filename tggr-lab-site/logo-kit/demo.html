@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TGGR logo kit</title>
+<style>
+  :root { --paper: #f7f3ea; --ink: #15302e; --ink-2: #5a6b68; --rule: #d6cfbd; --orange: #b8650f; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --paper: #0f1f1e; --ink: #ece6d6; --ink-2: #a9b3ae; --rule: #2d4542; --orange: #f0a040; color-scheme: dark; } }
+  :root[data-theme="dark"] { --paper: #0f1f1e; --ink: #ece6d6; --ink-2: #a9b3ae; --rule: #2d4542; --orange: #f0a040; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 32px 16px 80px; background: var(--paper); color: var(--ink); font: 16px/1.5 ui-sans-serif, system-ui, sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--ink); padding-bottom: 14px; }
+  h1 { margin: 0; font-size: 28px; }
+  p { margin: 6px 0 0; color: var(--ink-2); max-width: 70ch; }
+  button { font: 13px ui-monospace, Menlo, monospace; color: var(--ink); background: none; border: 1px solid var(--rule); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 28px; margin-top: 28px; }
+  figure { margin: 0; display: grid; gap: 10px; justify-items: center; padding-top: 14px; border-top: 1px solid var(--rule); }
+  figcaption { justify-self: stretch; font: 13px/1.45 ui-monospace, Menlo, monospace; color: var(--ink-2); }
+  figcaption b { color: var(--orange); font-weight: 600; }
+  tggr-logo { width: 100%; max-width: 240px; }
+  h2 { font-size: 18px; margin: 40px 0 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; margin-top: 16px; }
+  .row img { width: 160px; height: auto; }
+</style>
+<script src="tggr-logo.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>TGGR logo kit</h1><p>Every motion of the &lt;tggr-logo&gt; element, and the plain SVG versions underneath. The first one is the chosen default.</p></div>
+    <button type="button" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">light / dark</button>
+  </header>
+
+  <div class="grid">
+    <figure><tggr-logo></tggr-logo><figcaption><b>default</b> · motion="turn"<br>the ring turns, pauses under the pointer</figcaption></figure>
+    <figure><tggr-logo ring="double"></tggr-logo><figcaption>ring="double"<br>two rings, opposite ways</figcaption></figure>
+    <figure><tggr-logo motion="rungs"></tggr-logo><figcaption>motion="rungs"<br>the base pairs light up</figcaption></figure>
+    <figure><tggr-logo motion="drawn" id="drawn"></tggr-logo><figcaption>motion="drawn"<br>drawn on once when it scrolls into view · <a href="#" onclick="document.getElementById('drawn').replay();return false">replay</a></figcaption></figure>
+    <figure><tggr-logo motion="pointer"></tggr-logo><figcaption>motion="pointer"<br>layers follow the pointer, the lockup breathes</figcaption></figure>
+    <figure><tggr-logo motion="unzip"></tggr-logo><figcaption>motion="unzip"<br>hover pulls the helix apart</figcaption></figure>
+    <figure><tggr-logo motion="scroll"></tggr-logo><figcaption>motion="scroll"<br>the ring turns with the page</figcaption></figure>
+    <figure><tggr-logo ring="band"></tggr-logo><figcaption>ring="band"<br>the solid teal band turns</figcaption></figure>
+    <figure><tggr-logo ring="band" motion="rungs"></tggr-logo><figcaption>ring="band" motion="rungs"</figcaption></figure>
+    <figure><tggr-logo motion="still"></tggr-logo><figcaption>motion="still"</figcaption></figure>
+    <figure><tggr-logo ring="none" style="width:110px"></tggr-logo><figcaption>ring="none" · the lockup alone, for headers</figcaption></figure>
+  </div>
+
+  <h2>Plain SVG, no script</h2>
+  <p>tggr-logo.svg follows the viewer's light or dark setting; the -light and -dark files are fixed. All three turn, and stop under reduced motion.</p>
+  <div class="row">
+    <img src="tggr-logo.svg" alt="TGGR Lab">
+    <img src="tggr-logo-light.svg" alt="TGGR Lab, light version" style="background:#f7f3ea;border-radius:8px">
+    <img src="tggr-logo-dark.svg" alt="TGGR Lab, dark version" style="background:#0f1f1e;border-radius:8px">
+  </div>
+</div>
+</body>
+</html>
