@@ -1,10 +1,11 @@
 # TGGR Lab landing page
 
-The site behind **https://tggr-lab.github.io/**. One HTML file, no build step.
+The site behind **https://tggr-lab.github.io/**. One HTML file and the logo kit, no build step.
 
 | File | What it is |
 |---|---|
 | `index.html` | The page. Everything editable is marked in the comment at the top. |
+| `logo-kit/` | The animated logo the page uses, packaged for reuse. Its own README explains it. |
 | `404.html` | Shown by GitHub Pages for a missing address. |
 | `og.png` | The picture a shared link shows. Made from `og.html`. |
 | `og.html` | The source of `og.png`, a 1200 × 630 page. |
@@ -14,7 +15,7 @@ The site behind **https://tggr-lab.github.io/**. One HTML file, no build step.
 ## Publish it
 
 1. In the `tggr-lab` organization, create a public repository named exactly **`tggr-lab.github.io`**.
-2. Copy `index.html`, `404.html`, `og.png`, `og.html` and `.nojekyll` into its root and push to `main`.
+2. Copy `index.html`, `404.html`, `og.png`, `og.html`, `.nojekyll` and the `logo-kit/` folder into its root and push to `main`. The `mockups/` folder stays out.
 3. In that repository, open **Settings → Pages**, set the source to *Deploy from a branch*, branch `main`, folder `/ (root)`.
 4. A minute later the page is live at https://tggr-lab.github.io/.
 
@@ -22,7 +23,7 @@ Because the repository is the organization's own `*.github.io`, the existing pro
 
 ## The organization profile
 
-GitHub shows a README at the top of https://github.com/tggr-lab when the organization has a **public** repository named **`.github`** with the file `profile/README.md`. Create that repository and copy `profile/README.md` into it, keeping the folder name.
+GitHub shows a README at the top of https://github.com/tggr-lab when the organization has a **public** repository named **`.github`** with the file `profile/README.md`. Create that repository and copy `profile/README.md` into it, keeping the folder name. Its logo is loaded from the published site, so publish the site first.
 
 ## Remake the share picture
 
