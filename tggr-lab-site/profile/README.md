@@ -18,6 +18,6 @@ The lab studies rare, mostly monogenic disease in families referred to the Genet
 | [**Pellaeon**](https://tggr-lab.github.io/pellaeon/) | Talk to UCSF ChimeraX in plain English. A chat panel that runs the commands for you and shows every one it ran. On the ChimeraX Toolshed. |
 | [**GPCompaRe**](https://tggr-lab.github.io/GPCompaRe/) | What changes when a receptor switches on: residue contacts compared between the active and inactive states of 283 human Class A GPCRs. |
 | [**Incubator CO₂ monitor**](https://tggr-lab.github.io/incubator-co2-monitor/) | A DIY CO₂ and temperature monitor for cell culture incubators, built on an ESP32. Three parts, six wires, full build guide. |
-| [**Bench Mate**](https://yamir-1138.github.io/benchmate/) | Bench tools for molecular biology on your phone: dilutions, ladders, plate maps, NanoDrop, BCA, protocols as worksheets. Works offline. |
+| [**GeNest**](https://yamir-1138.github.io/genest-website/) | Finds and reports nested genes, genes that sit inside other genes, across a genome. Reports for human, mouse and *C. elegans*. |
 
 Issues and pull requests are welcome on every repository.

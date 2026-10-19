@@ -51,23 +51,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600&display=swap" rel="stylesheet">
 <style>
   /* One narrow column, set left of centre. One typeface in two weights, two sizes.
-     The only colour on the page is the logo's; links take its teal. */
+     The logo's two colours: teal for links and rules, orange for labels and hovers. */
   :root {
-    --bg: #fafaf8; --fg: #15302e; --muted: #66726f; --rule: #e3e6e1; --link: #0b7478;
+    --bg: #fafaf8; --fg: #15302e; --muted: #66726f; --rule: #cfe0de; --link: #0b7478; --accent: #a85a0c;
     --font: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-    --bg: #0f1a19; --fg: #ece6d6; --muted: #98a39f; --rule: #24302e; --link: #6cc7cb; color-scheme: dark; } }
+    --bg: #0f1a19; --fg: #ece6d6; --muted: #98a39f; --rule: #1f3a38; --link: #6cc7cb; --accent: #f0a040; color-scheme: dark; } }
   :root[data-theme="dark"] {
-    --bg: #0f1a19; --fg: #ece6d6; --muted: #98a39f; --rule: #24302e; --link: #6cc7cb; color-scheme: dark; }
+    --bg: #0f1a19; --fg: #ece6d6; --muted: #98a39f; --rule: #1f3a38; --link: #6cc7cb; --accent: #f0a040; color-scheme: dark; }
 
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg); font: 400 16px/1.6 var(--font); -webkit-font-smoothing: antialiased; }
   main { max-width: 600px; margin-left: clamp(16px, 14vw, 240px); margin-right: 16px; padding-block: clamp(40px, 9vh, 96px) 64px; display: grid; gap: 56px; }
   h1, h2, p, ul { margin: 0; }
   a { color: var(--link); text-decoration: none; }
-  a:hover { text-decoration: underline; text-underline-offset: .2em; }
+  a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: .2em; }
   :focus-visible { outline: 2px solid var(--link); outline-offset: 3px; border-radius: 2px; }
 
   tggr-logo { display: block; width: 184px; aspect-ratio: 1; margin-left: -8px; }
@@ -76,11 +76,11 @@
   .muted { color: var(--muted); }
   header p { max-width: 46ch; }
 
-  h2 { font-size: 13px; font-weight: 400; color: var(--muted); letter-spacing: .04em; margin-bottom: 12px; }
+  h2 { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: .04em; margin-bottom: 12px; }
   ul { list-style: none; padding: 0; }
   li { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 24px; padding-block: 10px; border-top: 1px solid var(--rule); }
   li:last-child { border-bottom: 1px solid var(--rule); }
-  @media (min-width: 560px) { li { grid-template-columns: 9.5rem minmax(0, 1fr); } }
+  @media (min-width: 560px) { li { grid-template-columns: 13rem minmax(0, 1fr); } }
   li > * { min-width: 0; }
 
   footer { display: flex; flex-wrap: wrap; gap: 4px 24px; font-size: 14px; }
@@ -103,7 +103,7 @@
       <li><a href="https://tggr-lab.github.io/pellaeon/">Pellaeon</a><span class="muted">Talk to UCSF ChimeraX in plain English.</span></li>
       <li><a href="https://tggr-lab.github.io/GPCompaRe/">GPCompaRe</a><span class="muted">Residue contacts in active and inactive states of 283 human Class A GPCRs.</span></li>
       <li><a href="https://tggr-lab.github.io/incubator-co2-monitor/">CO₂ monitor</a><span class="muted">A CO₂ and temperature monitor for cell culture incubators, built on an ESP32.</span></li>
-      <li><a href="https://yamir-1138.github.io/benchmate/">Bench Mate</a><span class="muted">Bench calculators and protocols for molecular biology, on your phone.</span></li>
+      <li><a href="https://yamir-1138.github.io/genest-website/">GeNest</a><span class="muted">Finds and reports nested genes, genes that sit inside other genes, across a genome.</span></li>
     </ul>
   </section>
 
@@ -111,7 +111,11 @@
     <h2 id="people">People</h2>
     <ul>
       <li><span>Prof. Hagit Baris Feldman</span><span class="muted">Head of the lab</span></li>
+      <li><span>Dr. Hofit Gadot</span><span class="muted">Lab manager</span></li>
+      <li><span>Alina Kurolap, RN, PhD</span><span class="muted">Researcher</span></li>
       <li><a href="https://yamir-1138.github.io/YAMIR-1138/">Yam Amir</a><span class="muted">PhD student</span></li>
+      <li><span>Doha Khair</span><span class="muted">PhD student</span></li>
+      <li><span>Bar Levi Lando</span><span class="muted">PhD student</span></li>
     </ul>
   </section>
 
