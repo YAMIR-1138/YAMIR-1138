@@ -1,0 +1,130 @@
+<!doctype html>
+<!--
+  TGGR LAB · landing page for github.com/tggr-lab · https://tggr-lab.github.io/
+  One file plus logo-kit/. No build step.
+
+  To add a tool, copy one <li> in the tools list. To add a person, copy one <li> in the people list.
+  Colours are the tokens in the first :root block. The logo is <tggr-logo>; see logo-kit/README.md.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TGGR Lab</title>
+<meta name="description" content="Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center. Gene discovery in families with rare inherited disease, and the software and hardware the lab has released.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TGGR Lab">
+<meta property="og:description" content="Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center.">
+<meta property="og:url" content="https://tggr-lab.github.io/">
+<meta property="og:image" content="https://tggr-lab.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The TGGR Lab logo, a tiger and a DNA helix inside a ring of text, beside the lab's full name.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://tggr-lab.github.io/">
+<link rel="icon" type="image/png" href="../logo-kit/png/lockup-light.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ResearchOrganization",
+  "name": "TGGR Lab",
+  "alternateName": "Translational Genetics and Genomics Research Laboratory",
+  "url": "https://tggr-lab.github.io/",
+  "logo": "https://tggr-lab.github.io/logo-kit/png/tggr-logo-light-512.png",
+  "sameAs": [
+    "https://github.com/tggr-lab",
+    "https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/"
+  ],
+  "parentOrganization": [
+    { "@type": "Organization", "name": "Tel Aviv Sourasky Medical Center" },
+    { "@type": "Organization", "name": "Tel Aviv University" }
+  ],
+  "founder": { "@type": "Person", "name": "Hagit Baris Feldman" },
+  "member": [ { "@type": "Person", "name": "Yam Amir", "url": "https://yamir-1138.github.io/YAMIR-1138/" } ],
+  "address": { "@type": "PostalAddress", "streetAddress": "6 Weizmann Street", "addressLocality": "Tel Aviv", "addressCountry": "IL" }
+}
+</script>
+<meta name="theme-color" content="#fafaf8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1a19" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* One narrow column, set left of centre. One typeface in two weights, two sizes.
+     The logo's two colours: teal for links and rules, orange for labels and hovers. */
+  :root {
+    --bg: #fafaf8; --fg: #15302e; --muted: #66726f; --rule: #cfe0de; --link: #0b7478; --accent: #a85a0c;
+    --font: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0f1a19; --fg: #ece6d6; --muted: #98a39f; --rule: #1f3a38; --link: #6cc7cb; --accent: #f0a040; color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #0f1a19; --fg: #ece6d6; --muted: #98a39f; --rule: #1f3a38; --link: #6cc7cb; --accent: #f0a040; color-scheme: dark; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 400 16px/1.6 var(--font); -webkit-font-smoothing: antialiased; }
+  main { max-width: 600px; margin-left: clamp(16px, 14vw, 240px); margin-right: 16px; padding-block: clamp(40px, 9vh, 96px) 64px; display: grid; gap: 56px; }
+  h1, h2, p, ul { margin: 0; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: .2em; }
+  :focus-visible { outline: 2px solid var(--link); outline-offset: 3px; border-radius: 2px; }
+
+  tggr-logo { display: block; width: 184px; aspect-ratio: 1; margin-left: -8px; }
+  header { display: grid; gap: 28px; }
+  h1 { font-size: 16px; font-weight: 600; }
+  .muted { color: var(--muted); }
+  header p { max-width: 46ch; }
+
+  h2 { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: .04em; margin-bottom: 12px; }
+  ul { list-style: none; padding: 0; }
+  li { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 24px; padding-block: 10px; border-top: 1px solid var(--rule); }
+  li:last-child { border-bottom: 1px solid var(--rule); }
+  @media (min-width: 560px) { li { grid-template-columns: 13rem minmax(0, 1fr); } }
+  li > * { min-width: 0; }
+
+  footer { display: flex; flex-wrap: wrap; gap: 4px 24px; font-size: 14px; }
+  footer .muted { flex-basis: 100%; margin-top: 8px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <tggr-logo label="TGGR Lab logo"></tggr-logo>
+    <div>
+      <h1>TGGR Lab</h1>
+      <p class="muted">Translational Genetics and Genomics Research Laboratory<br>Genetics Institute, Tel Aviv Sourasky Medical Center</p>
+    </div>
+  </header>
+
+  <section aria-labelledby="tools">
+    <h2 id="tools">Tools</h2>
+    <ul>
+      <li><a href="https://tggr-lab.github.io/pellaeon/">Pellaeon</a><span class="muted">Talk to UCSF ChimeraX in plain English.</span></li>
+      <li><a href="https://tggr-lab.github.io/GPCompaRe/">GPCompaRe</a><span class="muted">Residue contacts in active and inactive states of 283 human Class A GPCRs.</span></li>
+      <li><a href="https://tggr-lab.github.io/incubator-co2-monitor/">CO₂ monitor</a><span class="muted">A CO₂ and temperature monitor for cell culture incubators, built on an ESP32.</span></li>
+      <li><a href="https://yamir-1138.github.io/genest-website/">GeNest</a><span class="muted">Finds and reports nested genes, genes that sit inside other genes, across a genome.</span></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="people">
+    <h2 id="people">People</h2>
+    <ul>
+      <li><span>Prof. Hagit Baris Feldman</span><span class="muted">Head of the lab</span></li>
+      <li><span>Dr. Hofit Gadot</span><span class="muted">Lab manager</span></li>
+      <li><span>Alina Kurolap, RN, PhD</span><span class="muted">Researcher</span></li>
+      <li><a href="https://yamir-1138.github.io/YAMIR-1138/">Yam Amir</a><span class="muted">PhD student</span></li>
+      <li><span>Doha Khair</span><span class="muted">PhD student</span></li>
+      <li><span>Bar Levi Lando</span><span class="muted">PhD student</span></li>
+    </ul>
+  </section>
+
+  <footer>
+    <a href="https://github.com/tggr-lab">GitHub</a>
+    <a href="https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/">Lab page at TASMC</a>
+    <p class="muted">Tel Aviv Sourasky Medical Center · Faculty of Medicine, Tel Aviv University</p>
+  </footer>
+</main>
+<script src="../logo-kit/tggr-logo.js"></script>
+</body>
+</html>

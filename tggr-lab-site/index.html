@@ -1,17 +1,19 @@
 <!doctype html>
 <!--
   TGGR LAB · landing page for github.com/tggr-lab · https://tggr-lab.github.io/
-  One file plus logo-kit/. No build step.
+  One file plus logo-kit/. No build step. Little text; the interface does the work.
 
-  To add a tool, copy one <li> in the tools list. To add a person, copy one <li> in the people list.
+  To add a tool, copy one <li> in .tools (each card has its own small animated SVG).
+  To add a person, copy one <li> in .people; the monogram is the two letters in <text>.
   Colours are the tokens in the first :root block. The logo is <tggr-logo>; see logo-kit/README.md.
+  The helix behind the logo is drawn on the <canvas id="helix"> by the script at the bottom.
 -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TGGR Lab</title>
-<meta name="description" content="Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center. Gene discovery in families with rare inherited disease, and the software and hardware the lab has released.">
+<meta name="description" content="Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center. Software and hardware from the lab: Pellaeon, GPCompaRe, an incubator CO₂ monitor and GeNest.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="TGGR Lab">
 <meta property="og:description" content="Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center.">
@@ -40,91 +42,355 @@
     { "@type": "Organization", "name": "Tel Aviv University" }
   ],
   "founder": { "@type": "Person", "name": "Hagit Baris Feldman" },
-  "member": [ { "@type": "Person", "name": "Yam Amir", "url": "https://yamir-1138.github.io/YAMIR-1138/" } ],
+  "member": [
+    { "@type": "Person", "name": "Hofit Gadot" },
+    { "@type": "Person", "name": "Alina Kurolap" },
+    { "@type": "Person", "name": "Yam Amir", "url": "https://yamir-1138.github.io/YAMIR-1138/" },
+    { "@type": "Person", "name": "Doha Khair" },
+    { "@type": "Person", "name": "Bar Levi Lando" }
+  ],
   "address": { "@type": "PostalAddress", "streetAddress": "6 Weizmann Street", "addressLocality": "Tel Aviv", "addressCountry": "IL" }
 }
 </script>
-<meta name="theme-color" content="#fafaf8" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f1a19" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f5f7f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1615" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Atkinson+Hyperlegible+Next:wght@400;600&family=Atkinson+Hyperlegible+Mono:wght@500&display=swap" rel="stylesheet">
+<script>try { var t = localStorage.getItem('tggr-theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <style>
-  /* One narrow column, set left of centre. One typeface in two weights, two sizes.
-     The logo's two colours: teal for links and rules, orange for labels and hovers. */
+  /* Layout: a full-width hero where a live helix runs behind the turning logo, then two
+     quiet sections of interactive tiles. Text is kept to names and one line each.
+     Colour: the logo's teal and orange on a pale or deep teal ground. Teal is structure
+     and links, orange is the highlight that follows the pointer. */
   :root {
-    --bg: #fafaf8; --fg: #15302e; --muted: #66726f; --rule: #cfe0de; --link: #0b7478; --accent: #a85a0c;
-    --font: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --bg: #f5f7f4; --surface: #ffffff; --fg: #15302e; --muted: #5f6d6a; --rule: #d5e2df;
+    --teal: #0b7478; --orange: #d07414; --orange-text: #a85a0c;
+    --display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --body: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Atkinson Hyperlegible Mono", ui-monospace, Menlo, Consolas, monospace;
+    --gutter: clamp(16px, 5vw, 56px); --shadow: 0 1px 2px rgba(21, 48, 46, .06), 0 12px 32px -12px rgba(21, 48, 46, .18);
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-    --bg: #0f1a19; --fg: #ece6d6; --muted: #98a39f; --rule: #1f3a38; --link: #6cc7cb; --accent: #f0a040; color-scheme: dark; } }
+    --bg: #0b1615; --surface: #11201e; --fg: #ece6d6; --muted: #97a6a2; --rule: #1f3835;
+    --teal: #5cc4c9; --orange: #f0a040; --orange-text: #f0a040;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 18px 40px -16px rgba(0, 0, 0, .6); color-scheme: dark; } }
   :root[data-theme="dark"] {
-    --bg: #0f1a19; --fg: #ece6d6; --muted: #98a39f; --rule: #1f3a38; --link: #6cc7cb; --accent: #f0a040; color-scheme: dark; }
+    --bg: #0b1615; --surface: #11201e; --fg: #ece6d6; --muted: #97a6a2; --rule: #1f3835;
+    --teal: #5cc4c9; --orange: #f0a040; --orange-text: #f0a040;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 18px 40px -16px rgba(0, 0, 0, .6); color-scheme: dark; }
 
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg); font: 400 16px/1.6 var(--font); -webkit-font-smoothing: antialiased; }
-  main { max-width: 600px; margin-left: clamp(16px, 14vw, 240px); margin-right: 16px; padding-block: clamp(40px, 9vh, 96px) 64px; display: grid; gap: 56px; }
-  h1, h2, p, ul { margin: 0; }
-  a { color: var(--link); text-decoration: none; }
-  a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: .2em; }
-  :focus-visible { outline: 2px solid var(--link); outline-offset: 3px; border-radius: 2px; }
-
-  tggr-logo { display: block; width: 184px; aspect-ratio: 1; margin-left: -8px; }
-  header { display: grid; gap: 28px; }
-  h1 { font-size: 16px; font-weight: 600; }
-  .muted { color: var(--muted); }
-  header p { max-width: 46ch; }
-
-  h2 { font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: .04em; margin-bottom: 12px; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 400 16px/1.55 var(--body); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+  h1, h2, h3, p, ul { margin: 0; }
   ul { list-style: none; padding: 0; }
-  li { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 24px; padding-block: 10px; border-top: 1px solid var(--rule); }
-  li:last-child { border-bottom: 1px solid var(--rule); }
-  @media (min-width: 560px) { li { grid-template-columns: 13rem minmax(0, 1fr); } }
-  li > * { min-width: 0; }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--orange); outline-offset: 4px; border-radius: 6px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-  footer { display: flex; flex-wrap: wrap; gap: 4px 24px; font-size: 14px; }
-  footer .muted { flex-basis: 100%; margin-top: 8px; }
+  /* ---------- top bar: the small lockup appears once the hero has gone ---------- */
+  .bar { position: fixed; inset: 0 0 auto; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: calc(env(safe-area-inset-top, 0px) + 12px) var(--gutter) 12px; pointer-events: none; transition: background .35s, box-shadow .35s, backdrop-filter .35s; }
+  .bar > * { pointer-events: auto; }
+  .bar.solid { background: color-mix(in srgb, var(--bg) 78%, transparent); -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3); box-shadow: 0 1px 0 var(--rule); }
+  .mini { display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateY(-6px); transition: opacity .35s, transform .35s; }
+  .bar.solid .mini { opacity: 1; transform: none; }
+  .mini tggr-logo { width: 22px; }
+  .mini span { font: 600 15px var(--body); letter-spacing: .02em; }
+  .icons { display: flex; gap: 6px; }
+  .icon { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--rule); background: color-mix(in srgb, var(--surface) 70%, transparent); color: var(--fg); cursor: pointer; transition: border-color .2s, color .2s, transform .2s; }
+  .icon:hover { border-color: var(--orange); color: var(--orange); transform: rotate(-12deg); }
+  .icon svg { width: 18px; height: 18px; }
+
+  /* ---------- hero ---------- */
+  .hero { position: relative; min-height: max(560px, 88svh); display: grid; place-items: center; padding: 72px var(--gutter) 40px; isolation: isolate; }
+  #helix { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+  .hero-in { display: grid; justify-items: center; gap: 22px; text-align: center; }
+  .tilt { perspective: 900px; }
+  .tilt tggr-logo { display: block; width: min(76vw, 400px); transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+  .where { font: 500 12.5px/1.5 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .where b { color: var(--orange-text); font-weight: 500; }
+  .cue { position: absolute; bottom: 22px; left: 50%; width: 1px; height: 44px; background: linear-gradient(var(--rule), transparent); overflow: hidden; }
+  .cue::after { content: ""; position: absolute; left: 0; top: -40%; width: 1px; height: 40%; background: var(--orange); animation: drip 2.4s cubic-bezier(.6, 0, .4, 1) infinite; }
+  @keyframes drip { to { top: 100%; } }
+
+  /* ---------- sections ---------- */
+  main { padding-inline: var(--gutter); }
+  section { max-width: 1120px; margin: 0 auto; padding-block: 72px; }
+  .kicker { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; font: 500 12.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--orange-text); }
+  .kicker::after { content: ""; flex: 0 0 48px; height: 1px; background: var(--teal); }
+
+  /* tools: cards with a pointer spotlight, a glowing edge and a small working diagram */
+  .tools { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  @media (min-width: 760px) { .tools { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .tools li { perspective: 1200px; }
+  .card { position: relative; display: grid; grid-template-rows: auto 1fr; gap: 18px; height: 100%; padding: 26px 28px 28px; border-radius: 22px; background: var(--surface); border: 1px solid var(--rule); box-shadow: var(--shadow); overflow: hidden;
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .45s cubic-bezier(.2, .8, .2, 1), border-color .3s; --x: 50%; --y: 0%; }
+  .card::before { content: ""; position: absolute; inset: 0; background: radial-gradient(420px circle at var(--x) var(--y), color-mix(in srgb, var(--teal) 16%, transparent), transparent 65%); opacity: 0; transition: opacity .35s; pointer-events: none; }
+  .card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; background: radial-gradient(260px circle at var(--x) var(--y), var(--orange), transparent 70%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); opacity: 0; transition: opacity .35s; pointer-events: none; }
+  .card:hover::before, .card:hover::after, .card:focus-visible::before { opacity: 1; }
+  .fig { height: 120px; border-radius: 14px; background: color-mix(in srgb, var(--teal) 6%, var(--bg)); display: grid; place-items: center; overflow: hidden; }
+  .fig svg { width: 200px; height: 120px; overflow: visible; fill: none; stroke: var(--teal); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .fig .o { stroke: var(--orange); } .fig .fo { fill: var(--orange); stroke: none; } .fig .ft { fill: var(--teal); stroke: none; }
+  .fig * { transition: transform .8s cubic-bezier(.2, .8, .2, 1), stroke .4s, fill .4s, opacity .4s, stroke-dashoffset 1.2s ease; transform-box: fill-box; }
+  .name { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+  .card h3 { font: 600 clamp(32px, 3.4vw, 40px)/1 var(--display); letter-spacing: -.005em; }
+  .card p { color: var(--muted); font-size: 15.5px; margin-top: 8px; max-width: 40ch; }
+  .arrow { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--rule); color: var(--teal); transition: transform .45s cubic-bezier(.2, .8, .2, 1), background .3s, color .3s, border-color .3s; }
+  .arrow svg { width: 16px; height: 16px; }
+  .card:hover .arrow, .card:focus-visible .arrow { transform: rotate(45deg); background: var(--orange); border-color: var(--orange); color: var(--surface); }
+
+  /* Pellaeon: the molecule turns inside the chat bubble */
+  .card:hover .mol { transform: rotate(120deg); }
+  /* GPCompaRe: helix 6 swings out, as it does when a receptor activates */
+  .tm6 { transform-origin: 50% 0%; }
+  .card:hover .tm6 { transform: rotate(-15deg); stroke: var(--orange); }
+  .card:hover .tm7 { transform: translateX(20px); }
+  /* CO2 monitor: the trace draws, the dot pulses */
+  .trace { stroke-dasharray: 220; stroke-dashoffset: 0; }
+  .card:hover .trace { animation: trace 1.6s ease forwards; }
+  @keyframes trace { from { stroke-dashoffset: 220; } to { stroke-dashoffset: 0; } }
+  .live { animation: pulse 1.8s ease-in-out infinite; transform-origin: 50% 50%; }
+  @keyframes pulse { 50% { opacity: .25; } }
+  .read { font: 500 19px var(--mono); fill: var(--fg); stroke: none; }
+  .unit { font: 500 11px var(--mono); fill: var(--muted); stroke: none; }
+  /* GeNest: the nested gene lifts out of its host's intron */
+  .card:hover .nest { transform: translateY(-14px); }
+  .card:hover .slot { opacity: 1; }
+  .slot { opacity: 0; stroke-dasharray: 3 4; }
+
+  /* people: monograms whose ring draws on hover */
+  .people { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)); gap: 14px; }
+  .person { display: grid; justify-items: center; gap: 12px; padding: 22px 12px 20px; border-radius: 18px; text-align: center; transition: background .3s, transform .4s cubic-bezier(.2, .8, .2, 1); }
+  .person:hover, a.person:focus-visible { background: var(--surface); transform: translateY(-4px); box-shadow: var(--shadow); }
+  .mono { width: 76px; height: 76px; }
+  .mono circle { fill: none; stroke-width: 1.5; }
+  .mono .base { stroke: var(--rule); }
+  .mono .draw { stroke: var(--teal); stroke-dasharray: 220; stroke-dashoffset: 220; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 1s cubic-bezier(.2, .8, .2, 1); }
+  .mono text { font: 500 26px var(--display); fill: var(--fg); transition: fill .3s; }
+  .person:hover .draw, a.person:focus-visible .draw { stroke-dashoffset: 0; }
+  .person:hover text { fill: var(--orange-text); }
+  .lead .draw { stroke: var(--orange); stroke-dashoffset: 0; }
+  .person h3 { font: 600 15.5px/1.3 var(--body); }
+  .person p { font: 500 11.5px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  a.person h3::after { content: " ↗"; color: var(--teal); }
+
+  /* footer */
+  footer { max-width: 1120px; margin: 0 auto; padding: 40px 0 calc(env(safe-area-inset-bottom, 0px) + 48px); display: grid; gap: 22px; border-top: 1px solid var(--rule); }
+  .go { display: flex; flex-wrap: wrap; gap: 12px; }
+  .go a { display: inline-flex; align-items: center; gap: 10px; padding: 12px 18px 12px 20px; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); font-weight: 600; font-size: 15px; transition: border-color .3s, transform .3s, box-shadow .3s; }
+  .go a svg { width: 14px; height: 14px; color: var(--teal); transition: transform .35s; }
+  .go a:hover { border-color: var(--orange); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .go a:hover svg { transform: translate(2px, -2px); color: var(--orange); }
+  footer small { font: 500 12px/1.5 var(--mono); letter-spacing: .06em; color: var(--muted); }
+
+  /* scroll-driven entrances, where the browser supports them; everything is visible otherwise */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .rise { animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 70%; }
+      @keyframes rise { from { opacity: 0; transform: translateY(40px) scale(.97); } }
+      .hero-in { animation: away linear both; animation-timeline: view(); animation-range: exit 0% exit 90%; }
+      @keyframes away { to { opacity: 0; transform: translateY(-60px) scale(.92); } }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <header>
-    <tggr-logo label="TGGR Lab logo"></tggr-logo>
-    <div>
-      <h1>TGGR Lab</h1>
-      <p class="muted">Translational Genetics and Genomics Research Laboratory<br>Genetics Institute, Tel Aviv Sourasky Medical Center</p>
-    </div>
-  </header>
+<header class="bar" id="bar">
+  <a class="mini" href="#top" aria-label="TGGR Lab, back to top" tabindex="-1"><tggr-logo ring="none" motion="still" label="TGGR Lab"></tggr-logo><span>TGGR Lab</span></a>
+  <div class="icons">
+    <a class="icon" href="https://github.com/tggr-lab" aria-label="TGGR Lab on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+    <button class="icon" id="theme" type="button" aria-label="Switch to dark theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button>
+  </div>
+</header>
 
-  <section aria-labelledby="tools">
-    <h2 id="tools">Tools</h2>
-    <ul>
-      <li><a href="https://tggr-lab.github.io/pellaeon/">Pellaeon</a><span class="muted">Talk to UCSF ChimeraX in plain English.</span></li>
-      <li><a href="https://tggr-lab.github.io/GPCompaRe/">GPCompaRe</a><span class="muted">Residue contacts in active and inactive states of 283 human Class A GPCRs.</span></li>
-      <li><a href="https://tggr-lab.github.io/incubator-co2-monitor/">CO₂ monitor</a><span class="muted">A CO₂ and temperature monitor for cell culture incubators, built on an ESP32.</span></li>
-      <li><a href="https://yamir-1138.github.io/genest-website/">GeNest</a><span class="muted">Finds and reports nested genes, genes that sit inside other genes, across a genome.</span></li>
+<div class="hero" id="top">
+  <canvas id="helix" aria-hidden="true"></canvas>
+  <div class="hero-in">
+    <h1 class="sr">TGGR Lab, Translational Genetics and Genomics Research Laboratory</h1>
+    <div class="tilt" id="tilt"><tggr-logo motion="drawn" label="TGGR Lab logo"></tggr-logo></div>
+    <p class="where">Genetics Institute <b>·</b> Tel Aviv Sourasky Medical Center</p>
+  </div>
+  <span class="cue" aria-hidden="true"></span>
+</div>
+
+<main>
+  <section aria-labelledby="tools-h">
+    <h2 class="kicker" id="tools-h">Tools</h2>
+    <ul class="tools">
+      <li class="rise"><a class="card" href="https://tggr-lab.github.io/pellaeon/">
+        <div class="fig" aria-hidden="true"><svg viewBox="0 0 200 120">
+          <path d="M44 22h112a14 14 0 0 1 14 14v38a14 14 0 0 1-14 14H82l-20 16V88H44a14 14 0 0 1-14-14V36a14 14 0 0 1 14-14z"/>
+          <g class="mol"><path class="o" d="M80 64 100 44 120 64z"/><circle class="ft" cx="100" cy="44" r="7"/><circle class="fo" cx="80" cy="64" r="6"/><circle class="fo" cx="120" cy="64" r="6"/></g>
+        </svg></div>
+        <div><div class="name"><h3>Pellaeon</h3><span class="arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12 12 4M5 4h7v7"/></svg></span></div>
+        <p>Talk to UCSF ChimeraX in plain English.</p></div>
+      </a></li>
+
+      <li class="rise"><a class="card" href="https://tggr-lab.github.io/GPCompaRe/">
+        <div class="fig" aria-hidden="true"><svg viewBox="0 0 200 120">
+          <path class="o" d="M20 30h160M20 90h160" stroke-dasharray="2 6" stroke-width="1.6"/>
+          <rect x="40" y="22" width="12" height="76" rx="6"/><rect x="58" y="22" width="12" height="76" rx="6"/><rect x="76" y="22" width="12" height="76" rx="6"/><rect x="94" y="22" width="12" height="76" rx="6"/>
+          <rect class="tm5" x="112" y="22" width="12" height="76" rx="6"/><rect class="tm6" x="130" y="22" width="12" height="76" rx="6"/><rect class="tm7" x="148" y="22" width="12" height="76" rx="6"/>
+        </svg></div>
+        <div><div class="name"><h3>GPCompaRe</h3><span class="arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12 12 4M5 4h7v7"/></svg></span></div>
+        <p>Inactive and active contacts across 283 human Class A GPCRs.</p></div>
+      </a></li>
+
+      <li class="rise"><a class="card" href="https://tggr-lab.github.io/incubator-co2-monitor/">
+        <div class="fig" aria-hidden="true"><svg viewBox="0 0 200 120">
+          <rect x="30" y="18" width="140" height="84" rx="10"/>
+          <text class="read" x="46" y="50">5.0</text><text class="unit" x="84" y="50">% CO₂</text>
+          <circle class="fo live" cx="154" cy="34" r="4"/>
+          <path class="trace o" d="M42 86c10-2 14-14 24-14s12 8 22 8 12-18 24-18 12 10 22 10 10-6 20-6"/>
+        </svg></div>
+        <div><div class="name"><h3>CO₂ monitor</h3><span class="arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12 12 4M5 4h7v7"/></svg></span></div>
+        <p>An incubator CO₂ and temperature monitor you build on an ESP32.</p></div>
+      </a></li>
+
+      <li class="rise"><a class="card" href="https://yamir-1138.github.io/genest-website/">
+        <div class="fig" aria-hidden="true"><svg viewBox="0 0 200 120">
+          <path d="M20 76h160"/>
+          <rect class="ft" x="20" y="66" width="24" height="20" rx="3"/><rect class="ft" x="64" y="66" width="18" height="20" rx="3"/><rect class="ft" x="156" y="66" width="24" height="20" rx="3"/>
+          <path class="o slot" d="M96 62h50"/>
+          <g class="nest"><path class="o" d="M96 52h50"/><rect class="fo" x="96" y="45" width="12" height="14" rx="2"/><rect class="fo" x="128" y="45" width="18" height="14" rx="2"/><path class="o" d="M104 38l-8 4 8 4" stroke-width="1.8"/></g>
+        </svg></div>
+        <div><div class="name"><h3>GeNest</h3><span class="arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12 12 4M5 4h7v7"/></svg></span></div>
+        <p>Finds genes that sit inside other genes, across a genome.</p></div>
+      </a></li>
     </ul>
   </section>
 
-  <section aria-labelledby="people">
-    <h2 id="people">People</h2>
-    <ul>
-      <li><span>Prof. Hagit Baris Feldman</span><span class="muted">Head of the lab</span></li>
-      <li><span>Dr. Hofit Gadot</span><span class="muted">Lab manager</span></li>
-      <li><span>Alina Kurolap, RN, PhD</span><span class="muted">Researcher</span></li>
-      <li><a href="https://yamir-1138.github.io/YAMIR-1138/">Yam Amir</a><span class="muted">PhD student</span></li>
-      <li><span>Doha Khair</span><span class="muted">PhD student</span></li>
-      <li><span>Bar Levi Lando</span><span class="muted">PhD student</span></li>
+  <section aria-labelledby="people-h">
+    <h2 class="kicker" id="people-h">People</h2>
+    <ul class="people">
+      <li class="rise"><div class="person lead"><svg class="mono" viewBox="0 0 76 76" aria-hidden="true"><circle class="base" cx="38" cy="38" r="35"/><circle class="draw" cx="38" cy="38" r="35"/><text x="38" y="47" text-anchor="middle">HB</text></svg><div><h3>Prof. Hagit Baris Feldman</h3><p>Head of the lab</p></div></div></li>
+      <li class="rise"><div class="person"><svg class="mono" viewBox="0 0 76 76" aria-hidden="true"><circle class="base" cx="38" cy="38" r="35"/><circle class="draw" cx="38" cy="38" r="35"/><text x="38" y="47" text-anchor="middle">HG</text></svg><div><h3>Dr. Hofit Gadot</h3><p>Lab manager</p></div></div></li>
+      <li class="rise"><div class="person"><svg class="mono" viewBox="0 0 76 76" aria-hidden="true"><circle class="base" cx="38" cy="38" r="35"/><circle class="draw" cx="38" cy="38" r="35"/><text x="38" y="47" text-anchor="middle">AK</text></svg><div><h3>Alina Kurolap, RN, PhD</h3><p>Researcher</p></div></div></li>
+      <li class="rise"><a class="person" href="https://yamir-1138.github.io/YAMIR-1138/"><svg class="mono" viewBox="0 0 76 76" aria-hidden="true"><circle class="base" cx="38" cy="38" r="35"/><circle class="draw" cx="38" cy="38" r="35"/><text x="38" y="47" text-anchor="middle">YA</text></svg><div><h3>Yam Amir</h3><p>PhD student</p></div></a></li>
+      <li class="rise"><div class="person"><svg class="mono" viewBox="0 0 76 76" aria-hidden="true"><circle class="base" cx="38" cy="38" r="35"/><circle class="draw" cx="38" cy="38" r="35"/><text x="38" y="47" text-anchor="middle">DK</text></svg><div><h3>Doha Khair</h3><p>PhD student</p></div></div></li>
+      <li class="rise"><div class="person"><svg class="mono" viewBox="0 0 76 76" aria-hidden="true"><circle class="base" cx="38" cy="38" r="35"/><circle class="draw" cx="38" cy="38" r="35"/><text x="38" y="47" text-anchor="middle">BL</text></svg><div><h3>Bar Levi Lando</h3><p>PhD student</p></div></div></li>
     </ul>
   </section>
 
   <footer>
-    <a href="https://github.com/tggr-lab">GitHub</a>
-    <a href="https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/">Lab page at TASMC</a>
-    <p class="muted">Tel Aviv Sourasky Medical Center · Faculty of Medicine, Tel Aviv University</p>
+    <div class="go">
+      <a href="https://github.com/tggr-lab">GitHub <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a>
+      <a href="https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/">Lab page at TASMC <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a>
+    </div>
+    <small>Tel Aviv Sourasky Medical Center · Faculty of Medicine, Tel Aviv University</small>
   </footer>
 </main>
+
 <script src="logo-kit/tggr-logo.js"></script>
+<script>
+(function () {
+  var root = document.documentElement;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  var sysDark = matchMedia('(prefers-color-scheme: dark)');
+  function isDark() { return root.dataset.theme ? root.dataset.theme === 'dark' : sysDark.matches; }
+
+  // ---- theme: one button flips light and dark, remembered in this browser ----
+  var btn = document.getElementById('theme');
+  function label() { btn.setAttribute('aria-label', isDark() ? 'Switch to light theme' : 'Switch to dark theme'); }
+  btn.addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem('tggr-theme', next); } catch (e) {}
+    label(); readColors(); if (!running) draw();
+  });
+  label();
+
+  // ---- top bar turns solid once the hero is out of view ----
+  var bar = document.getElementById('bar'), hero = document.getElementById('top');
+  var heroVisible = true;
+  new IntersectionObserver(function (es) {
+    heroVisible = es[0].isIntersecting && es[0].intersectionRatio > .25;
+    bar.classList.toggle('solid', !heroVisible);
+    bar.querySelector('.mini').tabIndex = heroVisible ? -1 : 0;
+    if (heroVisible) start(); else stop();
+  }, { threshold: [0, .25, .5] }).observe(hero);
+
+  // ---- the logo tilts toward the pointer ----
+  var tilt = document.getElementById('tilt').firstElementChild;
+  hero.addEventListener('pointermove', function (e) {
+    if (reduce.matches || e.pointerType !== 'mouse') return;
+    var r = hero.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    tilt.style.setProperty('--ry', (x * 14) + 'deg'); tilt.style.setProperty('--rx', (-y * 10) + 'deg');
+    target.x = x; target.y = y;
+  });
+  hero.addEventListener('pointerleave', function () { tilt.style.removeProperty('--ry'); tilt.style.removeProperty('--rx'); target.x = 0; target.y = 0; });
+
+  // ---- cards: spotlight and edge glow follow the pointer, and the card leans ----
+  document.querySelectorAll('.card').forEach(function (c) {
+    c.addEventListener('pointermove', function (e) {
+      var r = c.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      c.style.setProperty('--x', x + 'px'); c.style.setProperty('--y', y + 'px');
+      if (reduce.matches || e.pointerType !== 'mouse') return;
+      c.style.setProperty('--ry', ((x / r.width - .5) * 6) + 'deg'); c.style.setProperty('--rx', ((.5 - y / r.height) * 6) + 'deg');
+    });
+    c.addEventListener('pointerleave', function () { c.style.removeProperty('--rx'); c.style.removeProperty('--ry'); });
+  });
+
+  // ---- the helix: two strands of teal and orange beads running behind the logo ----
+  var cv = document.getElementById('helix'), ctx = cv.getContext('2d');
+  var narrow = false, W = 0, H = 0, cy = 0, cx = 0, hole = 0, colors = {}, t = 0, last = 0, raf = 0, running = false;
+  var target = { x: 0, y: 0 }, p = { x: 0, y: 0 };
+  function readColors() { var cs = getComputedStyle(root); colors.a = cs.getPropertyValue('--teal').trim(); colors.b = cs.getPropertyValue('--orange').trim(); }
+  function size() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var hr = hero.getBoundingClientRect(), lr = tilt.getBoundingClientRect();
+    cx = lr.left - hr.left + lr.width / 2; cy = lr.top - hr.top + lr.height / 2; hole = lr.width * .5;
+    narrow = W < 700;
+    if (narrow) { cy = Math.min(H - 70, lr.bottom - hr.top + 130); hole = 0; } // on a phone the helix runs beneath the logo
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    var A = (narrow ? 34 : Math.min(H * .2, 120)) * (1 + p.y * .35), lambda = Math.max(360, W * .45), k = 2 * Math.PI / lambda, step = W < 600 ? 12 : 15;
+    var dark = isDark();
+    for (var x = -step, i = 0; x < W + step; x += step, i++) {
+      var th = x * k + t + p.x * 1.6, s = Math.sin(th), c = Math.cos(th);
+      var d = hole ? Math.abs(x - cx) / hole : 9, f = Math.min(1, Math.max(0, (d - 1.05) / .7)); // clear behind the logo
+      var edge = Math.min(1, Math.min(x, W - x) / (narrow ? 40 : 120)); f *= Math.max(0, edge);
+      if (f <= 0) continue;
+      var y1 = cy + A * s, y2 = cy - A * s, z1 = (c + 1) / 2, z2 = 1 - z1;
+      if (i % 2 === 0) {
+        ctx.globalAlpha = (dark ? .22 : .16) * f; ctx.strokeStyle = colors.a; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x, y1); ctx.lineTo(x, y2); ctx.stroke();
+      }
+      var beads = [[y2, z2, colors.b], [y1, z1, colors.a]];
+      if (z2 > z1) beads.reverse();
+      for (var j = 0; j < 2; j++) {
+        var b = beads[j];
+        ctx.globalAlpha = (.18 + .62 * b[1]) * f * (dark ? 1 : .85); ctx.fillStyle = b[2];
+        ctx.beginPath(); ctx.arc(x, b[0], 1.4 + 2.8 * b[1], 0, 6.2832); ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  function tick(now) {
+    var dt = Math.min(50, now - (last || now)); last = now;
+    t += dt * .00042; p.x += (target.x - p.x) * .05; p.y += (target.y - p.y) * .05;
+    draw(); raf = requestAnimationFrame(tick);
+  }
+  function start() { if (running || reduce.matches || document.hidden) return; running = true; last = 0; raf = requestAnimationFrame(tick); }
+  function stop() { running = false; cancelAnimationFrame(raf); }
+  readColors(); size(); draw(); start();
+  addEventListener('resize', function () { size(); draw(); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else if (heroVisible) start(); });
+  new MutationObserver(function () { readColors(); label(); if (!running) draw(); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  sysDark.addEventListener('change', function () { readColors(); label(); if (!running) draw(); });
+  reduce.addEventListener('change', function () { if (reduce.matches) { stop(); draw(); } else start(); });
+  if (document.fonts) document.fonts.ready.then(function () { size(); draw(); });
+})();
+</script>
 </body>
 </html>
