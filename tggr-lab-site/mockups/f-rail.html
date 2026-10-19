@@ -1,0 +1,357 @@
+<!doctype html>
+<!--
+  TGGR LAB · landing page for github.com/tggr-lab
+  One file plus the logo kit, no build step. Serve it from GitHub Pages at https://tggr-lab.github.io/
+
+  HOW TO EDIT
+    A tool          find its <article class="tool"> below and change the text and links.
+    Add a tool      copy an <article class="tool">. Keep the meta, body and links parts.
+    People          the <ul class="people"> list. One <li> per person.
+    Research        the #how section. The four steps are a real sequence, so they are numbered.
+    Logo            <tggr-logo> in the rail, from logo-kit/. See logo-kit/README.md.
+    Theme           follows the system; the button in the rail overrides it and remembers.
+                    Colours are the tokens in the first :root block.
+    Search engines  read the ld+json block in the head. Keep it in step with the page.
+
+  ALSO IN THIS FOLDER
+    logo-kit/   the animated logo, with its own README
+    404.html    shown by GitHub Pages for a missing page
+    og.png      the picture a shared link shows (made from og.html)
+    README.md   how to publish this
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TGGR Lab</title>
+<meta name="description" content="Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center. Gene discovery in families with rare monogenic disease, and the software and hardware the lab has released: Pellaeon, GPCompaRe, an incubator CO₂ monitor and Bench Mate.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TGGR Lab">
+<meta property="og:description" content="Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center. Rare disease gene discovery, and the software and hardware the lab has released.">
+<meta property="og:url" content="https://tggr-lab.github.io/">
+<meta property="og:image" content="https://tggr-lab.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The TGGR Lab logo, a tiger and a DNA helix inside a ring of text, beside the lab's full name.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://tggr-lab.github.io/">
+<link rel="icon" type="image/png" href="../logo-kit/png/lockup-light.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ResearchOrganization",
+  "name": "TGGR Lab",
+  "alternateName": "Translational Genetics and Genomics Research Laboratory",
+  "url": "https://tggr-lab.github.io/",
+  "logo": "https://tggr-lab.github.io/logo-kit/png/tggr-logo-light-512.png",
+  "sameAs": [
+    "https://github.com/tggr-lab",
+    "https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/"
+  ],
+  "parentOrganization": [
+    { "@type": "Organization", "name": "Tel Aviv Sourasky Medical Center" },
+    { "@type": "Organization", "name": "Tel Aviv University" }
+  ],
+  "founder": { "@type": "Person", "name": "Hagit Baris Feldman" },
+  "member": [ { "@type": "Person", "name": "Yam Amir", "url": "https://yamir-1138.github.io/YAMIR-1138/" } ],
+  "knowsAbout": ["Medical genetics", "Rare disease", "Gene discovery", "Exome sequencing", "Clinical genomics", "G protein-coupled receptors"],
+  "address": { "@type": "PostalAddress", "streetAddress": "6 Weizmann Street", "addressLocality": "Tel Aviv", "addressCountry": "IL" }
+}
+</script>
+<meta name="theme-color" content="#f4f5f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1f1e" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,600;1,400&family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>try { var t = localStorage.getItem('tggr-theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<style>
+  /* Layout: a sticky rail on the left holds the turning logo and the index; the lab's record
+     scrolls beside it. On a phone the rail becomes the top of the page.
+     Colour: the logo's own ink, teal and orange on a pale, slightly green paper. Teal is for
+     links, orange only for small labels. The logo is the one bold thing on the page. */
+  :root {
+    --paper: #f4f5f0; --paper-2: #e9ece4; --ink: #15302e; --ink-2: #55615e; --rule: #d3d9d1;
+    --teal: #0b7478; --orange: #a85a0c;
+    --display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --gutter: clamp(16px, 4vw, 48px);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --paper: #0f1f1e; --paper-2: #152a28; --ink: #ece6d6; --ink-2: #a9b3ae; --rule: #2a403d;
+    --teal: #4fc0c6; --orange: #f0a040; color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --paper: #0f1f1e; --paper-2: #152a28; --ink: #ece6d6; --ink-2: #a9b3ae; --rule: #2a403d;
+    --teal: #4fc0c6; --orange: #f0a040; color-scheme: dark; }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 400 17px/1.6 var(--body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  a { color: var(--teal); text-decoration-thickness: 1px; text-underline-offset: .2em; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 2px; }
+  .skip { position: absolute; left: 16px; top: -60px; background: var(--ink); color: var(--paper); padding: 8px 12px; border-radius: 4px; z-index: 2; }
+  .skip:focus { top: 12px; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 600; line-height: 1.05; text-wrap: balance; margin: 0; }
+  p { margin: 0; }
+  .label { font: 500 12px/1.3 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+
+  /* ---------- the frame ---------- */
+  .page { max-width: 1200px; margin: 0 auto; padding-inline: var(--gutter); display: grid; grid-template-columns: minmax(0, 1fr); }
+  .rail { display: grid; justify-items: center; gap: 20px; padding-block: 32px 8px; text-align: center; }
+  .rail tggr-logo { display: block; width: min(64vw, 260px); aspect-ratio: 1; }
+  .rail .where { font-size: 14px; line-height: 1.45; color: var(--ink-2); max-width: 30ch; }
+  .index { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; list-style: none; margin: 0; padding: 0; font: 500 13px/1.3 var(--mono); letter-spacing: .06em; }
+  .index a { color: var(--ink-2); text-decoration: none; display: inline-block; padding: 4px 0; border-bottom: 1px solid transparent; }
+  .index a:hover, .index a[aria-current="true"] { color: var(--ink); border-bottom-color: var(--orange); }
+  .theme { font: 500 12px var(--mono); letter-spacing: .06em; color: var(--ink-2); background: none; border: 1px solid var(--rule); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+  .theme:hover { color: var(--ink); border-color: var(--ink-2); }
+  main { min-width: 0; }
+
+  @media (min-width: 980px) {
+    .page { grid-template-columns: 300px minmax(0, 1fr); gap: clamp(48px, 6vw, 96px); }
+    .rail { position: sticky; top: env(safe-area-inset-top, 0px); align-self: start; min-height: 100vh; align-content: start; justify-items: start; text-align: left; padding-block: 48px; }
+    .rail tggr-logo { width: 100%; max-width: 300px; }
+    .index { display: grid; justify-content: start; gap: 2px; border-top: 1px solid var(--rule); padding-top: 14px; width: 100%; }
+    .rail .foot { margin-top: auto; }
+  }
+
+  /* ---------- the record ---------- */
+  section { padding-block: 56px; border-top: 1px solid var(--rule); }
+  .head { display: grid; gap: 8px; margin-bottom: 32px; }
+  h2 { font-size: clamp(34px, 4vw, 44px); }
+  .head p { color: var(--ink-2); max-width: 62ch; }
+
+  .intro { padding-block: 32px 56px; border-top: 0; }
+  @media (min-width: 980px) { .intro { padding-top: 76px; } }
+  .intro .label { color: var(--orange); }
+  .intro h1 { font-size: clamp(40px, 5.6vw, 68px); line-height: 1; letter-spacing: -.01em; margin: 14px 0 22px; max-width: 19ch; }
+  .intro .lead { font-size: 19px; max-width: 60ch; }
+  .intro .lead + .lead { margin-top: 14px; color: var(--ink-2); font-size: 17px; }
+  .out { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 28px; font: 500 14px var(--mono); }
+  .out a { display: inline-flex; gap: 8px; align-items: center; }
+
+  /* tools: a register, one entry per repository */
+  .tools { display: grid; }
+  .tool { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px 40px; padding-block: 28px; border-top: 1px solid var(--rule); }
+  .tool:first-child { border-top: 0; padding-top: 0; }
+  @media (min-width: 720px) { .tool { grid-template-columns: 170px minmax(0, 1fr); } }
+  .meta { display: grid; gap: 4px; align-content: start; font: 400 13px/1.5 var(--mono); color: var(--ink-2); }
+  .meta .repo { color: var(--ink); font-weight: 500; overflow-wrap: anywhere; }
+  .body { min-width: 0; display: grid; gap: 10px; }
+  .title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+  h3 { font-size: 34px; }
+  .chip { font: 500 11.5px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--orange); border: 1px solid currentColor; border-radius: 999px; padding: 5px 9px 4px; white-space: nowrap; }
+  .what { font-size: 18px; font-weight: 600; }
+  .body > p { max-width: 62ch; }
+  .facts { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 4px 0 0; padding: 0; }
+  .facts li { font: 400 12.5px/1.3 var(--mono); color: var(--ink-2); background: var(--paper-2); border-radius: 4px; padding: 5px 8px; }
+  .links { display: flex; flex-wrap: wrap; gap: 6px 22px; font: 500 14px var(--mono); margin-top: 4px; }
+  .note { font-size: 14.5px; color: var(--ink-2); font-style: italic; }
+  .after { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--rule); color: var(--ink-2); max-width: 62ch; }
+
+  /* how a project runs: a real sequence, so it is numbered */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px 32px; counter-reset: step; }
+  @media (min-width: 720px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .steps li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px 12px; }
+  .steps li::before { content: counter(step); grid-row: span 2; font: 500 44px/.9 var(--display); color: var(--teal); }
+  .steps h3 { font-size: 26px; align-self: end; }
+  .steps p { color: var(--ink-2); font-size: 16px; }
+  .topics { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 36px 0 0; padding: 0; }
+  .topics li { font: 400 13px/1.3 var(--mono); border: 1px solid var(--rule); border-radius: 999px; padding: 6px 11px; color: var(--ink-2); }
+
+  /* people */
+  .people { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px 40px; }
+  @media (min-width: 720px) { .people { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .people li { display: grid; gap: 8px; align-content: start; }
+  .people h3 { font-size: 30px; }
+  .people .role { font: 500 13px/1.45 var(--mono); color: var(--ink-2); }
+  .people p { font-size: 16px; }
+  .join { margin-top: 32px; color: var(--ink-2); }
+
+  /* contact */
+  .where-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; margin: 0; }
+  .where-list div { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px 32px; padding-block: 14px; border-top: 1px solid var(--rule); }
+  .where-list div:first-child { border-top: 0; padding-top: 0; }
+  @media (min-width: 720px) { .where-list div { grid-template-columns: 170px minmax(0, 1fr); } }
+  .where-list dt { font: 500 13px/1.6 var(--mono); color: var(--ink-2); letter-spacing: .04em; }
+  .where-list dd { margin: 0; overflow-wrap: anywhere; }
+
+  footer { border-top: 1px solid var(--ink); padding-block: 22px 48px; display: flex; flex-wrap: wrap; gap: 8px 28px; justify-content: space-between; font: 400 13px/1.5 var(--mono); color: var(--ink-2); }
+  footer p { max-width: 60ch; }
+</style>
+</head>
+<body>
+<a class="skip" href="#tools">Skip to the tools</a>
+<div class="page">
+
+  <aside class="rail" aria-label="TGGR Lab">
+    <tggr-logo label="TGGR Lab logo: a tiger and a DNA helix inside a ring reading Translational Genetics and Genomics Research Laboratory"></tggr-logo>
+    <p class="where">Genetics Institute, Tel Aviv Sourasky Medical Center, and the Faculty of Medicine, Tel Aviv University</p>
+    <nav aria-label="Sections">
+      <ul class="index">
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#how">How a project runs</a></li>
+        <li><a href="#people">People</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="foot"><button class="theme" type="button" id="theme" aria-live="polite">theme: auto</button></div>
+  </aside>
+
+  <main>
+    <section class="intro" aria-labelledby="name">
+      <p class="label">TGGR Lab · github.com/tggr-lab</p>
+      <h1 id="name">Translational Genetics and Genomics Research Laboratory</h1>
+      <p class="lead">The lab studies rare, mostly monogenic disease in families referred to the Genetics Institute. It finds the causative gene by exome and genome sequencing, then works out what the gene does.</p>
+      <p class="lead">This page lists the software and hardware the lab has released. Head of the lab: Prof.&nbsp;Hagit Baris Feldman.</p>
+      <p class="out">
+        <a href="https://github.com/tggr-lab">github.com/tggr-lab</a>
+        <a href="https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/">Lab page at TASMC</a>
+      </p>
+    </section>
+
+    <section id="tools" aria-labelledby="tools-h">
+      <div class="head">
+        <h2 id="tools-h">Tools</h2>
+        <p>Software and hardware from the lab. All of it is open source.</p>
+      </div>
+
+      <div class="tools">
+        <article class="tool">
+          <div class="meta"><span class="repo">tggr-lab/pellaeon</span><span>ChimeraX plugin</span><span>Python · MIT</span></div>
+          <div class="body">
+            <div class="title"><h3>Pellaeon</h3><span class="chip">On the Toolshed</span></div>
+            <p class="what">Talk to UCSF ChimeraX in plain English.</p>
+            <p>A chat panel inside ChimeraX turns what you type into commands, shows every command it ran, and asks before anything destructive. Open a structure, compare conformations, map ClinVar variants or conservation onto it, and save a figure with the script that made it.</p>
+            <ul class="facts"><li>ChimeraX 1.9 or newer</li><li>free, paid or local models</li><li>API keys stay on your machine</li></ul>
+            <p class="links"><a href="https://tggr-lab.github.io/pellaeon/">Site and tutorial</a><a href="https://github.com/tggr-lab/pellaeon">Source</a><a href="https://cxtoolshed.rbvi.ucsf.edu/apps/chimeraxpellaeon">Toolshed</a></p>
+            <p class="note">Named after the captain of the Chimaera. Not affiliated with UCSF.</p>
+          </div>
+        </article>
+
+        <article class="tool">
+          <div class="meta"><span class="repo">tggr-lab/GPCompaRe</span><span>Database and reports</span><span>MIT</span></div>
+          <div class="body">
+            <div class="title"><h3>GPCompaRe</h3><span class="chip">Beta</span></div>
+            <p class="what">What changes when a receptor switches on.</p>
+            <p>Residue to residue contacts in the inactive and active states of human Class A G protein-coupled receptors, compared receptor by receptor, with a report page for each one and summary statistics across the family.</p>
+            <ul class="facts"><li>283 human Class A GPCRs</li><li>active and inactive states</li><li>contacts gained, lost or kept</li></ul>
+            <p class="links"><a href="https://tggr-lab.github.io/GPCompaRe/">Browse receptors</a><a href="https://github.com/tggr-lab/GPCompaRe">Source</a></p>
+          </div>
+        </article>
+
+        <article class="tool">
+          <div class="meta"><span class="repo">tggr-lab/incubator-co2-monitor</span><span>Hardware · ESP32</span><span>C++ · MIT firmware</span><span>CC BY 4.0 guide</span></div>
+          <div class="body">
+            <div class="title"><h3>Incubator CO₂ monitor</h3><span class="chip">Calibrate first</span></div>
+            <p class="what">A CO₂ and temperature monitor for a cell culture incubator.</p>
+            <p>You build it yourself from three parts and six wires. It reads 0 to 10&nbsp;% CO₂, where ordinary meters stop at 0.5&nbsp;%, shows both readings on a touchscreen, logs to an SD card and serves a page over Wi-Fi. The guide has the parts list, the wiring, the calibration and ten days of real data.</p>
+            <ul class="facts"><li>ESP32-2432S028R board</li><li>Winsen MH-Z16 sensor</li><li>DS18B20 probe</li></ul>
+            <p class="links"><a href="https://tggr-lab.github.io/incubator-co2-monitor/">Build guide</a><a href="https://github.com/tggr-lab/incubator-co2-monitor">Source</a></p>
+            <p class="note">A home-built instrument, not a certified one. Calibrate it before you rely on it.</p>
+          </div>
+        </article>
+
+        <article class="tool">
+          <div class="meta"><span class="repo">YAMIR-1138/benchmate</span><span>Web app</span><span>TypeScript</span></div>
+          <div class="body">
+            <div class="title"><h3>Bench Mate</h3><span class="chip">Works offline</span></div>
+            <p class="what">Bench tools for molecular biology, on your phone.</p>
+            <p>Dilutions, molarity, timers, DNA, RNA and protein ladders, cell counts to seeding, plate maps for qPCR and cell culture, NanoDrop and BCA, and protocols as worksheets you fill in. It installs from the browser and needs no account.</p>
+            <ul class="facts"><li>installable web app</li><li>no ads, no accounts</li><li>a bench log with a text export</li></ul>
+            <p class="links"><a href="https://yamir-1138.github.io/benchmate/">Open the app</a><a href="https://github.com/YAMIR-1138/benchmate">Source</a></p>
+          </div>
+        </article>
+      </div>
+
+      <p class="after">Issues and pull requests are welcome on every repository. Everything else the lab publishes is at <a href="https://github.com/tggr-lab">github.com/tggr-lab</a>.</p>
+    </section>
+
+    <section id="how" aria-labelledby="how-h">
+      <div class="head">
+        <h2 id="how-h">How a project runs</h2>
+        <p>The lab identifies new disease-causing genes and studies how they cause disease. A project usually follows one family from the clinic and back.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>Families</h3><p>Referred to the Genetics Institute with a rare, often inherited condition that standard testing did not explain. Many are consanguineous, which makes recessive disease easier to map.</p></li>
+        <li><h3>Sequencing</h3><p>Exome and genome sequencing in house, and the analysis that finds the variants segregating with disease and rules out the ones that do not.</p></li>
+        <li><h3>Function</h3><p>Cell culture and animal models, protein structure, and assays designed for the gene in question, to show that the variant breaks something and how.</p></li>
+        <li><h3>Back to clinic</h3><p>A molecular diagnosis and counselling for the family, a new gene in the literature, and where the mechanism allows it, a candidate for treatment.</p></li>
+      </ol>
+      <ul class="topics" aria-label="Research topics">
+        <li>rare monogenic disease</li><li>novel gene discovery</li><li>exome and genome sequencing</li><li>functional genomics</li><li>GPCR activation and structure</li><li>clinical genomics</li><li>lab instruments</li>
+      </ul>
+    </section>
+
+    <section id="people" aria-labelledby="people-h">
+      <div class="head">
+        <h2 id="people-h">People</h2>
+        <p>The lab is part of the Genetics Institute at Tel Aviv Sourasky Medical Center.</p>
+      </div>
+      <ul class="people">
+        <li>
+          <h3>Prof. Hagit Baris Feldman</h3>
+          <p class="role">Head of the lab · Director, Genetics Institute and Genomics Center</p>
+          <p>Medical geneticist. Established the Genomics Center and the Gaucher Disease Center at Tel Aviv Sourasky Medical Center, and chairs the Israel Medical Genetics Association. Faculty of Medicine, Tel Aviv University.</p>
+          <p class="links"><a href="https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/">Lab page</a></p>
+        </li>
+        <li>
+          <h3>Yam Amir</h3>
+          <p class="role">PhD student · structural bioinformatics and genomics</p>
+          <p>How GPCRs switch on, how one gene can sit inside another, and what rare variants do in the clinic. Writes most of the software on this page and some of the hardware.</p>
+          <p class="links"><a href="https://yamir-1138.github.io/YAMIR-1138/">Personal page</a><a href="https://github.com/YAMIR-1138">GitHub</a><a href="https://orcid.org/0000-0002-4900-6345">ORCID</a></p>
+        </li>
+      </ul>
+      <p class="join">Enquiries about joining the lab go through the lab page at TASMC.</p>
+    </section>
+
+    <section id="contact" aria-labelledby="contact-h">
+      <div class="head"><h2 id="contact-h">Contact</h2></div>
+      <dl class="where-list">
+        <div><dt>Lab</dt><dd>Translational Genetics and Genomics Research Laboratory, Genetics Institute</dd></div>
+        <div><dt>Hospital</dt><dd>Tel Aviv Sourasky Medical Center (Ichilov), 6 Weizmann Street, Tel Aviv, Israel</dd></div>
+        <div><dt>University</dt><dd>Faculty of Medicine, Tel Aviv University</dd></div>
+        <div><dt>Code</dt><dd><a href="https://github.com/tggr-lab">github.com/tggr-lab</a></dd></div>
+        <div><dt>Bugs</dt><dd>Open an issue on the repository concerned. For Pellaeon, <a href="https://github.com/tggr-lab/pellaeon/issues">its issue tracker</a> is the fastest route.</dd></div>
+      </dl>
+    </section>
+
+    <footer>
+      <p>© 2026 TGGR Lab · Tel Aviv Sourasky Medical Center</p>
+      <p>TGGR is also a DNA sequence in IUPAC code: TGG, the codon for tryptophan, then R, any purine.</p>
+    </footer>
+  </main>
+</div>
+
+<script src="../logo-kit/tggr-logo.js"></script>
+<script>
+(function () {
+  // theme: auto, then light, then dark; remembered in this browser
+  var root = document.documentElement, btn = document.getElementById('theme');
+  function label() { btn.textContent = 'theme: ' + (root.dataset.theme || 'auto'); }
+  btn.addEventListener('click', function () {
+    var next = { '': 'light', light: 'dark', dark: '' }[root.dataset.theme || ''];
+    if (next) root.dataset.theme = next; else delete root.dataset.theme;
+    try { if (next) localStorage.setItem('tggr-theme', next); else localStorage.removeItem('tggr-theme'); } catch (e) {}
+    label();
+  });
+  label();
+
+  // mark the section being read in the index
+  var links = {}; document.querySelectorAll('.index a').forEach(function (a) { links[a.hash.slice(1)] = a; });
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      var a = links[e.target.id]; if (!a || !e.isIntersecting) return;
+      for (var k in links) links[k].removeAttribute('aria-current');
+      a.setAttribute('aria-current', 'true');
+    });
+  }, { rootMargin: '-35% 0px -60% 0px' });
+  Object.keys(links).forEach(function (id) { var s = document.getElementById(id); if (s) io.observe(s); });
+})();
+</script>
+</body>
+</html>

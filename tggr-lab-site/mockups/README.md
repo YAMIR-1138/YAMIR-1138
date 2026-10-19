@@ -4,6 +4,7 @@ Four directions for the lab page, each a self-contained HTML file. Open any of t
 
 | File | Direction |
 |---|---|
+| `f-rail.html` | The previous full draft: the turning logo in a sticky side rail, every tool with its details, research steps, people, contact. |
 | `b-brand.html` | House style. BenchMate's stripe, key colours and nameplates, the monitor's Chakra Petch, on a pale ground with a report structure. Light and dark. |
 | `c-night.html` | Night ward. One dark theme in the logo's own ink. Teal for research, orange for code. The hero plays Mendelian segregation; the repo list would come from the GitHub API. |
 | `d-bench.html` | The bench. The full BenchMate instrument costume: cream case, keycaps, LCD readout, a protocol sheet, a nameplate. Light and dark. |
