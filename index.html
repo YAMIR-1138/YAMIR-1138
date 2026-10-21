@@ -22,6 +22,7 @@
     og.png     the picture a shared link shows
     riders.png, riders-fill.png   the sprite frames of the visitors who come through the cat's portals
     guen.png, guen-fill.png       the frames of the panther in the onyx figurine, fetched only when someone calls her
+    droids.png, droids-fill.png   the frames of the two droids on the ship's screens, fetched only when one is called
 -->
 <html lang="en" data-theme="amber">
 <head>
@@ -1181,6 +1182,7 @@
     const proj = projects().find((x) => q.indexOf(norm(x.name).slice(0, 5)) >= 0 || (x.alias && q.indexOf(x.alias) >= 0));
     let a;
     if (/937|special order|priority/.test(q)) a = ['SPECIAL ORDER 1138', 'SCIENCE OFFICER EYES ONLY', 'PRIORITY ONE', 'INSURE RETURN OF SOURDOUGH STARTER FOR ANALYSIS', 'ALL OTHER CONSIDERATIONS SECONDARY', 'CREW EXPENDABLE', 'CAT NOT EXPENDABLE'];
+    else if (T.motherAlso && T.motherAlso(q)) a = T.motherAlso(q);
     else if (/cat|camille/.test(q)) a = ['CREW MEMBER: CAMILLE', 'RANK: CAT', 'STATUS: ' + (T.catStatus ? T.catStatus().split(' · ')[1] : 'unknown').toUpperCase(), 'NOT EXPENDABLE'];
     else if (proj) a = [proj.name.toUpperCase(), proj.desc.replace(/\s+/g, ' ').trim().toUpperCase()];
     else if (/crew|aboard|manifest|visitor|uninvited|hunt/.test(q)) a = ['CREW MANIFEST', (T.crew ? T.crew() : '1 human · 1 cat').toUpperCase()].concat(T.crew && /UNINVITED/.test(T.crew()) ? ['INTRUDERS ABOARD', 'SHIP\'S CAT ENGAGED', 'ALL OTHER CONSIDERATIONS SECONDARY'] : []);
@@ -2689,6 +2691,11 @@ window.CATDATA = {
   // Her sheets (guen.png, guen-fill.png) are only fetched the first time someone calls her.
   const GUENDATA = {"groups":{"P_APPEAR":{"n":6,"ms":145},"P_IDLE":{"n":3,"ms":330},"P_CROUCH":{"n":4,"ms":160},"P_WALK":{"n":8,"ms":105},"P_RUN":{"n":6,"ms":92},"P_LEAP":{"n":6,"ms":110},"P_VANISH":{"n":6,"ms":145},"P_SIT":{"n":3,"ms":300},"F_FIG":{"n":6,"ms":160},"F_MIST":{"n":8,"ms":110}},"frames":{"P_APPEAR0":[378,272,81,69,1,69,34,72.3,71.3],"P_APPEAR1":[871,109,144,76,1,132,12,73.3,78.3],"P_APPEAR2":[150,195,150,74,1,134,0,76.3,73.3],"P_APPEAR3":[0,195,149,76,1,131,12,74.3,76.3],"P_APPEAR4":[301,195,151,74,1,133,5,74.3,73.3],"P_APPEAR5":[582,195,149,73,1,132,5,75.3,72.3],"P_IDLE0":[0,272,147,72,1,130,5,73.3,71.3],"P_IDLE1":[572,109,147,80,1,129,1,74.3,79.3],"P_IDLE2":[402,345,148,65,1,132,5,74.3,65.3],"P_CROUCH0":[720,109,150,78,1,132,5,74.3,78.3],"P_CROUCH1":[551,345,155,64,1,138,8,77.3,63.3],"P_CROUCH2":[0,476,153,53,1,136,10,76.3,53.3],"P_CROUCH3":[440,476,147,49,1,130,3,73.3,49.3],"P_WALK0":[460,272,148,68,1,131,4,75.5,67.3],"P_WALK1":[757,272,149,66,1,133,4,76.1,65.3],"P_WALK2":[609,272,147,68,1,131,5,74.4,67.3],"P_WALK3":[151,412,147,61,1,131,5,76.6,60.3],"P_WALK4":[707,345,147,64,1,130,5,75.2,63.3],"P_WALK5":[449,412,149,59,1,131,4,77.2,59.3],"P_WALK6":[299,412,149,60,1,132,5,77.1,59.3],"P_WALK7":[0,412,150,63,1,133,5,76.7,62.3],"P_RUN0":[855,345,151,64,1,132,5,73.8,63.3],"P_RUN1":[599,412,163,59,1,143,13,77.5,73.3],"P_RUN2":[216,272,161,71,1,143,12,84.5,70.3],"P_RUN3":[0,109,136,85,1,119,29,74.1,84.3],"P_RUN4":[302,476,137,51,1,123,4,69.1,71.3],"P_RUN5":[0,345,144,66,1,129,4,72.9,65.3],"P_LEAP0":[154,476,147,52,1,131,8,74.3,51.3],"P_LEAP1":[137,109,151,85,1,130,0,75.3,84.3],"P_LEAP2":[464,0,151,90,1,133,0,75.3,102.3],"P_LEAP3":[814,412,157,58,1,138,2,78.3,95.3],"P_LEAP4":[0,0,133,108,1,117,58,66.3,107.3],"P_LEAP5":[145,345,141,66,1,125,8,71.3,65.3],"P_VANISH0":[732,195,146,73,1,129,4,74.3,72.3],"P_VANISH1":[424,109,147,81,1,131,26,71.3,80.3],"P_VANISH2":[759,0,142,86,1,125,37,72.3,85.3],"P_VANISH3":[616,0,142,89,1,126,36,70.3,88.3],"P_VANISH4":[289,109,134,83,1,120,29,64.3,82.3],"P_VANISH5":[453,195,128,74,1,118,28,63.3,73.3],"P_SIT0":[134,0,109,106,1,94,1,57.3,105.9],"P_SIT1":[244,0,109,106,1,94,1,57.3,105.9],"P_SIT2":[354,0,109,105,1,94,0,57.3,104.9],"F_FIG0":[683,476,43,19,1,37,1,21.6,18.9],"F_FIG1":[727,476,43,19,1,37,1,21.6,18.9],"F_FIG2":[771,476,43,19,1,37,1,21.6,18.9],"F_FIG3":[815,476,43,19,1,37,1,21.6,18.9],"F_MIST0":[643,476,39,22,2,33,14,19.7,24.2],"F_MIST1":[588,476,38,38,2,32,17,18.7,39.2],"F_MIST2":[763,412,50,59,2,44,18,25.7,60.2],"F_MIST3":[148,272,67,72,2,58,25,32.7,73.2],"F_MIST4":[287,345,62,66,2,54,27,29.7,68.2],"F_MIST5":[350,345,51,66,2,44,5,25.7,69.2],"F_MIST6":[972,412,32,54,2,27,38,15.7,57.2],"F_MIST7":[627,476,15,24,2,11,13,7.7,27.2],"F_FIG4":[771,476,43,19,1,37,1,21.6,18.9],"F_FIG5":[727,476,43,19,1,37,1,21.6,18.9]}};
   root.GUEN = () => root.GUEN.rig || (root.GUEN.rig = spriteRig(GUENDATA, 'guen.png', 'guen-fill.png', 270, 240, 135, 236, 1.6));
+  // The droids, from the same draft kit, small enough for the ship's screens: HK-47 about 50 px tall for the tracker, T3-M4
+  // about 56 px for the CO2 monitor's emblem. Two frames of each idle and the four middle frames of each action (the kit's
+  // first and last are the idle again). droids.png and droids-fill.png are only fetched when one of them is called.
+  const DROIDDATA = {"groups":{"HK_IDLE":{"n":2,"ms":600},"HK_LOOK":{"n":4,"ms":170},"T3_IDLE":{"n":2,"ms":500},"T3_SCAN":{"n":4,"ms":170}},"frames":{"HK_IDLE0":[364,0,31,50,1,12,0,14.8,49.8],"HK_IDLE1":[396,0,31,50,1,12,1,14.8,49.8],"HK_LOOK0":[331,0,32,51,1,12,1,13.8,49.8],"HK_LOOK1":[462,0,33,49,1,14,0,14.8,48.8],"HK_LOOK2":[0,57,33,49,1,14,0,14.8,48.8],"HK_LOOK3":[428,0,33,50,1,13,1,14.8,49.8],"T3_IDLE0":[109,0,55,55,1,17,0,31.4,55.6],"T3_IDLE1":[165,0,55,55,1,18,0,30.4,55.6],"T3_SCAN0":[0,0,54,56,1,18,0,30.4,56.6],"T3_SCAN1":[55,0,53,56,1,19,1,30.4,56.6],"T3_SCAN2":[221,0,54,55,1,18,0,30.4,55.6],"T3_SCAN3":[276,0,54,55,1,17,0,30.4,55.6]}};
+  root.DROIDS = () => root.DROIDS.rig || (root.DROIDS.rig = spriteRig(DROIDDATA, 'droids.png', 'droids-fill.png', 64, 64, 32, 62, 1));
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 
@@ -3851,6 +3858,7 @@ window.CATDATA = {
     if (cursor.isConnected && cursor.style.visibility !== 'hidden' && cool('chase', 80) && rectVisible(rel(cursor.getBoundingClientRect()))) opts.push([3, chase]);
     if (C.annoy < 3 && cool('box', 150) && ledges.some((l) => l.kind === 'box' && vis(l))) opts.push([4, box]);
     if (T.blipA && cool('blipa', 900) && Math.random() < .15) { mark('blipa'); T.blipA(); }
+    if (T.hk47 && cool('hk47', 1500) && Math.random() < .04) { mark('hk47'); T.hk47(false); }
     if (T.helix && !T.helix.rep && cool('climb', 150) && rectVisible(rel(T.helix.el.getBoundingClientRect()))) opts.push([4, climb]);
     if (C.onstage && C.ledge && cool('portal', 200)) opts.push([3, portal]);
     if (T.toy && T.toy.balanced() && cool('meddle', 240) && rectVisible(rel(T.toy.canvas.getBoundingClientRect()))) opts.push([2, meddle]);
@@ -3991,6 +3999,30 @@ window.CATDATA = {
       const log = $('#log'); log.appendChild(pic); P('Guenhwyvar sits by the prompt, the figurine at her feet, looking past the cat.');
     });
   };
+  // HK-47 on the motion tracker. Not in help. On a screen too narrow for the tracker, or with motion off, the log reads him out
+  T.COMMANDS.hk47 = T.COMMANDS['hk-47'] = T.COMMANDS.hk = function () {
+    if (T.hkHere && T.hkHere()) { P('tracker: he is on it already.'); return; }
+    if (T.hk47 && T.hk47(true)) { P('tracker: UNKNOWN contact. closing.', 'err'); return; }
+    const K = window.DROIDS(); T.hkSeen = Date.now();
+    P('tracker: ' + (T.motion ? 'not on this screen.' : 'holding still.') + ' reading the contact out instead.');
+    P('contact ............. [ UNKNOWN · identified: HK-47 · FRIENDLY (probably) ]', 'mu');
+    K.ready(() => {
+      const pic = document.createElement('canvas'), k = 2 * Math.min(3, window.devicePixelRatio || 1);
+      pic.width = K.BW * k; pic.height = K.BH * k; pic.style.width = K.BW * 1.5 + 'px'; pic.setAttribute('aria-hidden', 'true'); pic.className = 'droid';
+      K.draw(pic.getContext('2d'), 'HK_IDLE0', k, COL);
+      $('#log').appendChild(pic);
+      P('HK-47: Statement: greetings, meatbag. Observation: your cat is staring at me. Query: may I stare back?');
+    });
+  };
+  // the ship's computer knows the droids too: mother where is hk47
+  T.motherAlso = (q) => {
+    if (/\bhk|\b47\b|assassin/.test(q)) {
+      const ago = T.hkSeen ? Math.round((Date.now() - T.hkSeen) / 60000) : -1;
+      return ['UNIT: HK-47', 'CLASS: ASSASSIN DROID', 'LOCATION: ' + (T.hkHere && T.hkHere() ? 'ON THE MOTION TRACKER' : ago < 0 ? 'UNKNOWN' : 'LAST CONTACT ' + (ago < 1 ? 'UNDER A MINUTE' : ago + ' MIN') + ' AGO'),
+        'THREAT TO CREW: LOW', 'THREAT TO CAT: DENIED'];
+    }
+    return null;
+  };
   T.COMMANDS.zoomies = function () {
     if (!T.motion) { P('zoomies: motion is off.', 'err'); return; }
     if (C.energy < 30 && !DEBUG) { P('Camille is out of charge. she needs a nap first.'); return; }
@@ -4018,6 +4050,22 @@ window.CATDATA = {
     // a contact that comes in from the edge, stops beside you, says hello in chords, and goes. Grace called it Blip-A
     let blip = null;
     T.blipA = () => { if (!blip) blip = { t0: now(), said: false }; };
+    // HK-47 comes in as an UNKNOWN and the tracker goes red; then it makes him out: friendly, probably. He stands in the corner
+    // of the screen a while, looks about, and goes. The phases end at these many seconds: closing, identifying, there, leaving
+    let hk = null;
+    const HK_AT = [7, 9.5, 21, 25];
+    const hkAge = () => (now() - hk.t0) / 1000 * FAST;
+    T.hk47 = (loud) => {
+      if (hk || !on || !seenCat || !seen() || !T.motion) return false;
+      hk = { t0: now(), loud: !!loud, said: false, rig: window.DROIDS() }; T.hkSeen = Date.now(); T.sfx('ping');
+      return true;
+    };
+    T.hkHere = () => !!hk;
+    const hkLine = () => {
+      const a = hkAge();
+      return a < HK_AT[0] ? '1 UNKNOWN\nRANGE ' + Math.max(4, Math.round(60 - a * 8)) + ' M' : a < HK_AT[1] ? 'UNKNOWN\nIDENTIFYING' + '...'.slice(0, 1 + Math.floor(a * 3) % 3)
+        : a < HK_AT[2] ? 'FRIENDLY\n(PROBABLY)' : 'HK-47\nLEAVING';
+    };
     const show = (v) => { on = v; box.classList.toggle('on', on && seenCat); };
     const seen = () => box.getClientRects().length > 0;          // a narrow window has no margin to put it in
     function size() {
@@ -4029,7 +4077,7 @@ window.CATDATA = {
       if (C.onstage) seenCat = true;
       if (seenCat !== box.classList.contains('on')) box.classList.toggle('on', seenCat && on);
       if (!on || !seenCat || !seen()) return;
-      if (!ink) { const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(); ink = { faint: v('--faint'), dim: v('--dim'), fg: v('--fg'), hi: v('--hi'), glow: v('--glow-rgb') }; }
+      if (!ink) { const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(); ink = { faint: v('--faint'), dim: v('--dim'), fg: v('--fg'), hi: v('--hi'), glow: v('--glow-rgb'), fur: v('--fur'), alarm: v('--warn') }; }
       const top = window.pageYOffset, k = (MH - 6) / Math.max(1, document.documentElement.scrollHeight), col = $('.screen').getBoundingClientRect();
       const my = (y) => 3 + y * k, mx = (x) => clamp(X0 + (x - col.left) / col.width * (X1 - X0), X0 - 4, X1 + 2);
       g.clearRect(0, 0, MW, MH);
@@ -4060,6 +4108,31 @@ window.CATDATA = {
         if (age >= 18 && !blip.said) { blip.said = true; T.sfx('rocky'); if ($('#term').open) { T.print('tracker: contact BLIP-A alongside. it says hello. in chords.', 'mu'); } }
         if (age > 44) blip = null;
       }
+      // HK-47: a contact from the edge that the tracker cannot make out, and then can, with his picture in the corner
+      if (hk && hkAge() > HK_AT[3]) hk = null;
+      if (hk) {
+        const a = hkAge(), come = Math.min(1, a / HK_AT[0]), ease = 1 - Math.pow(1 - come, 2), out = Math.max(0, (a - HK_AT[2]) / (HK_AT[3] - HK_AT[2]));
+        const hx = X1 + 8 - (X1 + 8 - (X0 + X1) / 2) * ease + out * 40, hy = my(top) + window.innerHeight * k * (.95 - .35 * ease);
+        const known = a >= HK_AT[1], c = known ? ink.hi : ink.alarm, ring = T.motion ? (a * 1.5) % 1 : 0;
+        g.strokeStyle = c; g.globalAlpha = .7 * (1 - ring); g.beginPath(); g.arc(hx, hy, 2.5 + ring * 8, 0, Math.PI * 2); g.stroke(); g.globalAlpha = 1;
+        g.fillStyle = c; g.shadowColor = c; g.shadowBlur = 5; g.fillRect(Math.round(hx) - 1.5, Math.round(hy) - 1.5, 3, 3); g.shadowBlur = 0;
+        if (known && a < HK_AT[2]) {
+          // his picture: he looks about when he is made out, and again now and then
+          const r = Math.min(3, window.devicePixelRatio || 1), K = hk.rig, since = a - HK_AT[1], cyc = since % 5;
+          const frame = cyc < .68 ? 'HK_LOOK' + Math.floor(cyc / .17) : 'HK_IDLE' + (Math.floor(since / .6) % 2);
+          const bx = X0, by = MH - 58, bw = X1 - X0, bh = 56;
+          g.fillStyle = 'rgba(0,0,0,.82)'; g.fillRect(bx, by, bw, bh); g.strokeStyle = ink.faint; g.strokeRect(bx + .5, by + .5, bw - 1, bh - 1);
+          g.font = '7px monospace'; g.textAlign = 'left'; g.fillStyle = ink.hi; g.fillText('HK-47', bx + 3, by + 2);
+          g.save(); g.setTransform(1, 0, 0, 1, 0, 0);
+          g.translate(Math.round((bx + bw / 2) * r - K.GX * r), Math.round((by + bh - 3) * r - K.GY * r));
+          K.draw(g, frame, r, { line: ink.fg, body: ink.fur, eye: ink.hi, warn: ink.alarm });
+          g.restore();
+        }
+        if (known && !hk.said) {
+          hk.said = true;
+          if (hk.loud || $('#term').open) { T.print('tracker: contact identified. HK-47. friendly, probably.', 'mu'); T.print('HK-47: Statement: greetings, meatbag. Observation: your cat is staring at me. Query: may I stare back?'); }
+        }
+      }
       // other contacts: anyone who came through a portal
       riders.forEach((r) => { const x = mx(r.x + r.w / 2), ry = my(r.y + RH() * .7); g.fillStyle = ink.warn; g.shadowColor = ink.warn; g.shadowBlur = 4; g.fillRect(Math.round(x) - 1.5, Math.round(ry) - 1.5, 3, 3); g.shadowBlur = 0; });
       // the contact
@@ -4072,6 +4145,7 @@ window.CATDATA = {
         const hostile = riders.filter((r) => r.kind === 'hunt').length;
         let line = (riders.length ? (riders.length + 1) + ' CONTACTS' + (hostile ? '\n' + hostile + ' UNKNOWN' : '') : 'CONTACT') + '\n' + (deck >= 0 ? 'DECK ' + 'ABCDEFGH'[deck] + ' · ' : '') + Math.round(far) + ' M';
         if (blip) { const age = (now() - blip.t0) / 1000 * FAST; line = 'BLIP-A\n' + (age < 18 ? 'RANGE ' + Math.round(140 - age * 7) + ' M' : age < 34 ? '♪ ♫ ♪  HELLO' : 'LEAVING'); }
+        if (hk) line = hkLine();
         if (line !== text) read.textContent = text = line;
         if (!had) T.sfx('ping');
       } else {
@@ -4079,9 +4153,10 @@ window.CATDATA = {
         const hostile = riders.filter((r) => r.kind === 'hunt').length;
         let line = riders.length ? riders.length + ' CONTACT' + (riders.length > 1 ? 'S' : '') + (hostile ? '\n' + hostile + ' UNKNOWN' : '') : 'NO CONTACT';
         if (blip) { const age = (now() - blip.t0) / 1000 * FAST; line = 'BLIP-A\n' + (age < 18 ? 'RANGE ' + Math.round(140 - age * 7) + ' M' : age < 34 ? '♪ ♫ ♪  HELLO' : 'LEAVING'); }
+        if (hk) line = hkLine();
         if (line !== text) read.textContent = text = line;
       }
-      had = C.onstage; box.classList.toggle('contact', had); box.classList.toggle('hostile', riders.some((r) => r.kind === 'hunt'));
+      had = C.onstage; box.classList.toggle('contact', had); box.classList.toggle('hostile', riders.some((r) => r.kind === 'hunt') || (!!hk && hkAge() < HK_AT[1]));
     }
     box.addEventListener('click', () => {
       if (C.onstage) window.scrollTo({ top: Math.max(0, C.y + H / 2 - window.innerHeight / 2), behavior: T.motion ? 'smooth' : 'auto' });
