@@ -306,14 +306,14 @@
     ],
     end_light: [
       { who: 'n', t: 'The recording stops. For one frame, before it goes, the blur lifts off its face.' },
-      { who: 'n', t: 'It is your face. Younger. It looks relieved.', reveal: true },
+      { who: 'n', pt: 'archive', t: 'It is your face. Younger. It looks relieved.', reveal: true },
       { who: 'hk', t: 'Statement: You won it fairly, master. Twice now. ...I will continue to call you meatbag. I find that I prefer it.' },
       { who: 'n', t: 'Camille climbs into your lap and goes to sleep on your hand of cards. That is the closest thing to an ending this ship has.' },
       { who: 'n', t: 'THE LONG TABLE · END OF TRANSMISSION. The table stays open. It always does.' },
     ],
     end_dark: [
       { who: 'n', t: 'The recording stops. For one frame, before it goes, the blur lifts off its face.' },
-      { who: 'n', t: 'It is your face. Younger. It is smiling, and you remember why.', reveal: true },
+      { who: 'n', pt: 'archive', t: 'It is your face. Younger. It is smiling, and you remember why.', reveal: true },
       { who: 'hk', t: 'Statement: Welcome back, master. Shall we find some new meatbags? I have kept a list.' },
       { who: 'n', t: 'The table is yours again. So is the droid. Camille leaves the hold and does not come back for an hour.' },
       { who: 'n', t: 'THE LONG TABLE · END OF TRANSMISSION. The table stays open. It always does.' },
@@ -515,10 +515,11 @@
         }
         row.style.flexDirection = '';
         const who = WHO(L.who);
-        pt.style.display = who ? '' : 'none';
+        pt.style.display = who || L.pt ? '' : 'none';
         nm.textContent = who ? who.name : 'THE TERMINAL';
         tx.style.color = who ? '' : 'var(--dim)';
         if (who) { drawPortrait(pt, L.who, { reveal: L.reveal }); sfx(who.voice); }
+        else if (L.pt) drawPortrait(pt, L.pt, { reveal: L.reveal });
         if (L.reveal) { fx('flash', { color: 'hi', alpha: .5 }); fx('scan', {}); }
         const btn = document.createElement('button'); btn.className = 'btn pri'; btn.type = 'button'; btn.textContent = queue.length ? 'continue ›' : 'done';
         btn.onclick = () => { if (typing) { finish(); return; } next(); };
@@ -559,6 +560,7 @@
   const oppKey = () => G.cfg.opp;
   const O = () => G.cfg.mode === 'hotseat' ? P2 : OPP[G.cfg.opp];
   const seatName = (seat) => G.cfg.mode === 'hotseat' ? 'PLAYER ' + (seat + 1) : seat === 0 ? 'YOU' : O().name;
+  const verb = (seat, he, you) => seatName(seat) === 'YOU' ? you : he;
   const speed = () => (S.set.fast ? .5 : 1) * (S.set.motion ? 1 : .6);
   const pause = (ms) => wait(ms * speed());
   const saveMatch = () => { if (G && G.m.phase !== 'matchOver') store.set('pazaak-match', G); else store.del('pazaak-match'); };
@@ -607,7 +609,7 @@
     $('#opp-title').textContent = hot ? 'waiting for the device' : O().title;
     drawPortrait($('#opp-pt'), hot ? 'p2' : oppKey(), {});
     for (let s = 0; s < 2; s++) {
-      $('#who-' + s).textContent = seatName(s);
+      $('#who-' + s).textContent = seatName(s) + (hot && s === shownSeat ? ' · YOU' : '');
       const b = $('#board-' + s); b.innerHTML = '';
       for (let i = 0; i < 9; i++) { const sl = document.createElement('div'); sl.className = 'slot'; b.appendChild(sl); }
       m.boards[s].forEach((c, i) => { const el = cardEl({ card: c }); el.dataset.id = c.id; b.children[i].appendChild(el); });
@@ -653,7 +655,7 @@
         c.setAttribute('aria-label', 'side card ' + name + ', key ' + (i + 1));
         c.dataset.i = i;
         c.addEventListener('click', () => choose(i));
-        c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(i); } });
+        c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); choose(i); } });
         sl.appendChild(c);
       }
       h.appendChild(sl);
@@ -676,17 +678,14 @@
     }
     advisor();
   }
-  function advisor() {
-    const a = $('#advisor'), on = S.set.advisor && G && G.cfg.mode !== 'daily';
-    $('#b-adv').setAttribute('aria-pressed', S.set.advisor ? 'true' : 'false');
-    a.hidden = !on;
-    if (!on) return;
-    if (!myTurn()) { a.innerHTML = '<span>T3 ADVISOR · standing by</span>'; return; }
+  // the advisor shares the row above the hand with the card choices: it speaks while no card is picked
+  function advisor() { $('#b-adv').setAttribute('aria-pressed', S.set.advisor ? 'true' : 'false'); choices(); }
+  function advisorHTML() {
     const m = G.m, s = shownSeat, adv = E.advise(m, s), counts = E.deckCounts(m), t = E.total(m, s), max = Math.max(1, ...counts.slice(1));
-    const risk = Math.round((adv.bustRisk || 0) * 100);
-    a.innerHTML = '<span>T3 ADVISOR</span><span>bust on next card <b class="risk' + (risk >= 40 ? ' bad' : '') + '">' + risk + '%</b></span>' +
-      '<span class="hist" title="cards left in the main deck, 1 to 10">' + counts.slice(1).map((n, i) => '<i style="height:' + (2 + 16 * n / max).toFixed(0) + 'px"' + (t + i + 1 > 20 ? ' class="bust"' : '') + '></i>').join('') + '</span>' +
-      '<span>→ <b>' + esc(adv.reason || adv.suggestion || '') + '</b></span>';
+    const risk = Math.round((adv.bustRisk || 0) * 100), sug = { stand: 'STAND', end: 'END TURN', play: adv.bestPlay ? 'PLAY ' + (adv.bestPlay.choice === null || adv.bestPlay.choice === undefined ? adv.bestPlay.label : signed(adv.bestPlay.choice)) : 'PLAY' }[adv.suggestion] || '';
+    return '<div class="advisor"><span>T3</span><span>bust <b class="risk' + (risk >= 40 ? ' bad' : '') + '">' + risk + '%</b></span>' +
+      '<span class="hist" title="cards left in the main deck, 1 to 10. red ones bust you">' + counts.slice(1).map((n, i) => '<i style="height:' + (2 + 20 * n / max).toFixed(0) + 'px"' + (t + i + 1 > 20 ? ' class="bust"' : '') + '></i>').join('') + '</span>' +
+      '<span>→ <b class="why">' + esc(adv.reason || sug) + '</b><b class="sug">' + esc(sug) + '</b></span></div>';
   }
   // picking a side card: the choices it offers appear above the hand, each with the total it would make
   function choose(i) {
@@ -697,7 +696,12 @@
   function choices() {
     const box = $('#choices'); box.innerHTML = '';
     $$('#hand .pc').forEach((c) => c.classList.toggle('sel', +c.dataset.i === sel));
-    if (sel < 0 || !G) { if (G && myTurn() && !G.m.played[shownSeat] && G.m.hands[shownSeat].some(Boolean)) box.innerHTML = '<span class="hint">tap a card in your hand to play it · 1–4</span>'; return; }
+    if (sel < 0 || !G) {
+      if (!G || !myTurn()) return;
+      if (S.set.advisor && G.cfg.mode !== 'daily') box.innerHTML = advisorHTML();
+      else if (!G.m.played[shownSeat] && G.m.hands[shownSeat].some(Boolean)) box.innerHTML = '<span class="hint">tap a card to play it · keys 1–4, then + − or Enter</span>';
+      return;
+    }
     const plays = E.legalPlays(G.m, shownSeat).filter((p) => p.handIndex === sel);
     plays.forEach((p) => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn' + (p.after === 20 ? ' twenty' : p.after > 20 ? ' bad' : '');
@@ -769,7 +773,7 @@
         await fly(el, center($('#deck')), { flipFrom: true, rot: ev.seat ? 12 : -12 });
         sfx('place'); setTotal(ev.seat, true);
         const c = center(el); fx('burst', c.x, c.y, { count: 10, color: 'fg', speed: .6, life: 450 });
-        log(seatName(ev.seat) + ' draws ' + ev.card.v + ' → ' + boardTotal(ev.seat), ev.seat === 0 ? 'y' : '');
+        log(seatName(ev.seat) + verb(ev.seat, ' draws ', ' draw ') + ev.card.v + ' → ' + boardTotal(ev.seat), ev.seat === 0 ? 'y' : '');
         await pause(220);
         break;
       }
@@ -786,7 +790,7 @@
         fx('burst', c.x, c.y, { count: type === 'gold' ? 46 : 26, color: colorFor(type), glyphs: type === 'gold', speed: 1 });
         if (type === 'gold') { fx('shockwave', c.x, c.y, { color: '#ffd36b', radius: 140 }); buzz(30); }
         setTotal(ev.seat, true);
-        log(seatName(ev.seat) + ' plays [' + ev.name + ']' + (ev.choice !== null && ev.choice !== undefined && /±/.test(ev.name) ? ' as ' + signed(ev.choice) : '') + ' → ' + boardTotal(ev.seat), ev.seat === 0 ? 'y' : 'o');
+        log(seatName(ev.seat) + verb(ev.seat, ' plays [', ' play [') + ev.name + ']' + (ev.choice !== null && ev.choice !== undefined && /±/.test(ev.name) ? ' as ' + signed(ev.choice) : '') + ' → ' + boardTotal(ev.seat), ev.seat === 0 ? 'y' : 'o');
         if (!human(ev.seat)) quip('play', .5);
         if (ev.flips && ev.flips.length) {
           await pause(200); sfx('flip');
@@ -802,10 +806,10 @@
         fx('shockwave', c.x, c.y, { color: 'hi', radius: 200, rings: 2 });
         fx('burst', c.x, c.y, { count: 50, color: 'hi', glyphs: true, speed: 1.3 });
         sfx('twenty'); buzz([20, 40, 20]);
-        if (human(ev.seat)) { S.stats.pure++; unlock('pure'); G.pure = (G.pure || 0) + 1; }
+        if (human(ev.seat) && G.cfg.mode !== 'hotseat') { S.stats.pure++; unlock('pure'); G.pure = (G.pure || 0) + 1; }
         quip(human(ev.seat) ? 'youTwenty' : 'aiTwenty');
         status('TWENTY · <span style="color:#fff">PURE PAZAAK</span>');
-        log(seatName(ev.seat) + ' lands on twenty', 's');
+        log(seatName(ev.seat) + verb(ev.seat, ' lands', ' land') + ' on twenty', 's');
         await pause(700);
         break;
       }
@@ -813,31 +817,31 @@
         const side = $('#side-' + ev.seat); side.classList.add('standing');
         sfx('stand');
         const c = center(side); fx('scan', { color: 'fg', life: 500 }); fx('burst', c.x, c.y, { count: 14, color: 'fg', speed: .5 });
-        status(esc(seatName(ev.seat)) + ' STANDS ON ' + ev.total);
-        log(seatName(ev.seat) + ' stands on ' + ev.total, ev.seat === 0 ? 'y' : 'o');
+        status(esc(seatName(ev.seat)) + verb(ev.seat, ' STANDS', ' STAND') + ' ON ' + ev.total);
+        log(seatName(ev.seat) + verb(ev.seat, ' stands', ' stand') + ' on ' + ev.total, ev.seat === 0 ? 'y' : 'o');
         if (human(ev.seat)) G.lowStand = ev.total <= 15 ? (G.lowStand || 0) | (1 << ev.seat) : G.lowStand;
         if (!human(ev.seat) && !ev.auto) quip('aiStand', .5);
         await pause(500);
         break;
       }
-      case 'end': sfx('end'); log(seatName(ev.seat) + ' ends the turn on ' + ev.total, ev.seat === 0 ? 'y' : ''); await pause(200); break;
+      case 'end': sfx('end'); log(seatName(ev.seat) + verb(ev.seat, ' ends', ' end') + ' the turn on ' + ev.total, ev.seat === 0 ? 'y' : ''); await pause(200); break;
       case 'bust': {
         const side = $('#side-' + ev.seat); side.classList.add('busted'); $('#lock-' + ev.seat).textContent = 'BUST';
         fx('glitch', { life: 650 }); shake(); sfx('bust'); buzz(220);
         const c = center($('#tot-' + ev.seat)); fx('burst', c.x, c.y, { count: 40, color: 'warn', glyphs: true, speed: 1.4 });
-        if (human(ev.seat)) { S.stats.busts++; G.busts = (G.busts || 0) + 1; if (G.cfg.mode !== 'hotseat' && G.busts >= 3) unlock('spect'); }
+        if (human(ev.seat) && G.cfg.mode !== 'hotseat') { S.stats.busts++; G.busts = (G.busts || 0) + 1; if (G.cfg.mode !== 'hotseat' && G.busts >= 3) unlock('spect'); }
         quip(human(ev.seat) ? 'youBust' : 'aiBust');
-        status('<span class="warn-t">' + esc(seatName(ev.seat)) + ' BUSTS · ' + ev.total + '</span>');
-        log(seatName(ev.seat) + ' busts on ' + ev.total, 'w');
+        status('<span class="warn-t">' + esc(seatName(ev.seat)) + (seatName(ev.seat) === 'YOU' ? ' BUST' : ' BUSTS') + ' · ' + ev.total + '</span>');
+        log(seatName(ev.seat) + verb(ev.seat, ' busts', ' bust') + ' on ' + ev.total, 'w');
         await pause(900);
         break;
       }
       case 'nine': {
         const c = center($('#board-' + ev.seat));
         fx('shockwave', c.x, c.y, { color: 'alt', radius: 240, rings: 3 }); fx('flash', { color: 'alt' }); sfx('twenty');
-        if (human(ev.seat)) { S.stats.nines++; unlock('nine'); }
+        if (human(ev.seat) && G.cfg.mode !== 'hotseat') { S.stats.nines++; unlock('nine'); }
         status('NINE CARDS · THE BOARD IS FULL');
-        log(seatName(ev.seat) + ' fills the board', 's');
+        log(seatName(ev.seat) + verb(ev.seat, ' fills', ' fill') + ' the board', 's');
         await pause(800);
         break;
       }
@@ -901,6 +905,7 @@
     try { r = E.act(G.m, seat, E.aiChoose(G.m, seat, o.brain)); } catch (e) { r = { ok: false, error: String(e) }; }
     // a confused brain ends its turn rather than freezing the table
     if (!r.ok) r = E.act(G.m, seat, E.total(G.m, seat) > 20 ? { type: 'stand' } : { type: 'end' });
+    saveMatch();
     await run(r.events || []);
   }
   function humanAct(action) {
@@ -908,6 +913,7 @@
     const r = E.act(G.m, shownSeat, action);
     if (!r.ok) { sfx('error'); status('<span class="warn-t">' + esc(r.error || 'not now') + '</span>'); return; }
     sel = -1; $('#choices').innerHTML = '';
+    saveMatch();
     run(r.events);
   }
   function passDevice(seat) {
@@ -969,12 +975,12 @@
       const o = OPP[cfg.opp];
       if (me) {
         S.stats.won++; S.stats.streak++; S.stats.best = Math.max(S.stats.best, S.stats.streak);
-        S.beaten[cfg.opp] = (S.beaten[cfg.opp] || 0) + 1;
+        if (cfg.mode === 'ladder') S.beaten[cfg.opp] = (S.beaten[cfg.opp] || 0) + 1;
         unlock('first');
         if (m.score[1] === 0) unlock('flawless');
         if (G.down02) unlock('comeback');
         if (S.stats.streak >= 5) unlock('streak');
-        if (cfg.opp === 'hk') unlock('meatbag');
+        if (cfg.mode === 'ladder' && cfg.opp === 'hk') unlock('meatbag');
         if (cfg.mode === 'daily') {
           const d = S.daily[cfg.date] || {};
           if (!d.won) { delta += 150; lines.push('first daily win today · ¤150'); }
@@ -988,9 +994,9 @@
         fx('rain', { life: 3600 }); fx('fireworks', { count: 6 }); sfx('matchWin'); buzz([30, 60, 30, 60, 90]); degauss();
       } else {
         S.stats.lost++; S.stats.streak = 0;
-        S.lost[cfg.opp] = (S.lost[cfg.opp] || 0) + 1;
+        if (cfg.mode === 'ladder') S.lost[cfg.opp] = (S.lost[cfg.opp] || 0) + 1;
         if (cfg.mode === 'daily') { const d = S.daily[cfg.date] || {}; d.lost = (d.lost || 0) + 1; S.daily[cfg.date] = d; }
-        if (cfg.opp === 'camille') unlock('cat');
+        if (cfg.mode === 'ladder' && cfg.opp === 'camille') unlock('cat');
         if (cfg.wager) lines.push('the buy-in stays on the table · −¤' + cfg.wager);
         quip('matchWin');
         fx('glitch', { life: 900, intensity: .7 }); sfx('matchLose');
@@ -1012,7 +1018,7 @@
       (storyNext ? '<button class="btn pri" data-a="story" type="button">continue ›</button>' : '<button class="btn pri" data-a="again" type="button">' + (cfg.mode === 'daily' ? 'try again' : 'rematch') + '</button>') +
       (cfg.mode === 'daily' ? '<button class="btn" data-a="share" type="button">copy result</button>' : '') +
       (cfg.mode === 'hotseat' ? '' : '<button class="btn" data-a="ladder" type="button">opponents</button>') +
-      '<button class="btn" data-a="menu" type="button">menu</button></div></div>';
+      '<button class="btn" data-a="menu" data-esc type="button">menu</button></div></div>';
     $('#ovs').appendChild(ov);
     if (delta) credits(delta);
     $('button', ov).focus();
@@ -1047,7 +1053,7 @@
   }
   function confirmBox(title, text, yes) {
     const ov = document.createElement('div'); ov.className = 'ov';
-    ov.innerHTML = '<div class="panel"><h3 class="warn" style="font-size:34px">' + esc(title) + '</h3><p>' + esc(text) + '</p><div class="row"><button class="btn pri" data-y type="button">yes</button><button class="btn" type="button">no</button></div></div>';
+    ov.innerHTML = '<div class="panel"><h3 class="warn" style="font-size:34px">' + esc(title) + '</h3><p>' + esc(text) + '</p><div class="row"><button class="btn pri" data-y type="button">yes</button><button class="btn" data-esc type="button">no</button></div></div>';
     $('#ovs').appendChild(ov);
     $('[data-y]', ov).focus();
     ov.addEventListener('click', (e) => { if (e.target.tagName !== 'BUTTON') return; ov.remove(); if ('y' in e.target.dataset) yes(); });
@@ -1111,8 +1117,9 @@
     const L = $('#ladder'); L.innerHTML = '';
     if (S.credits < 20) { credits(50); toast('A CREDIT CHIP', 'Camille drags one in from somewhere. Do not ask where.'); }
     const bar = document.createElement('p'); bar.className = 'note'; bar.style.gridColumn = '1 / -1'; bar.style.margin = '0';
-    const n = Math.round((S.align + 10) / 2);
-    bar.innerHTML = 'ALIGNMENT  LIGHT <span style="letter-spacing:2px;color:var(--hi)">' + '▮'.repeat(Math.max(0, 10 - n)) + '<span style="color:var(--faint)">' + '▯'.repeat(10 - Math.max(0, 10 - n)) + '</span></span> DARK';
+    // light on the left, dark on the right, and a needle where you stand
+    const at = 10 - S.align;
+    bar.innerHTML = 'ALIGNMENT  LIGHT <span style="color:var(--faint);letter-spacing:-1px">' + '─'.repeat(at) + '</span><b style="color:var(--hi)">◆</b><span style="color:var(--faint);letter-spacing:-1px">' + '─'.repeat(20 - at) + '</span> DARK';
     L.appendChild(bar);
     ORDER.forEach((k) => {
       const o = OPP[k], open = unlocked(k);
@@ -1120,7 +1127,7 @@
       const b = document.createElement('button'); b.type = 'button';
       b.className = 'opc' + (open ? '' : ' locked') + (S.beaten[k] ? ' beaten' : '');
       b.innerHTML = '<canvas class="portrait" width="16" height="16"></canvas><h3>' + esc(o.name) + '</h3><p>' + esc(o.title) + ' · ' + esc(o.blurb) + '</p>' +
-        '<p class="meta"><span class="stars">' + '★'.repeat(Math.min(5, o.stars)) + (o.stars > 5 ? '?' : '') + '</span><span>' + (o.buyin ? 'buy-in ¤' + o.buyin : 'free') + '</span><span>' + (S.beaten[k] || 0) + 'W · ' + (S.lost[k] || 0) + 'L</span></p>';
+        '<p class="meta"><span class="stars">' + '★'.repeat(Math.min(5, o.stars)) + (o.stars > 5 ? '?' : '') + '</span><span>' + (o.buyin ? 'buy-in ¤' + o.buyin : 'free') + '</span><span>' + (S.beaten[k] || 0) + 'W · ' + (S.lost[k] || 0) + 'L</span>' + (!open ? '<span class="tag">SIGNAL LOCKED</span>' : S.beaten[k] ? '<span class="tag">BEATEN</span>' : '') + '</p>';
       drawPortrait($('canvas', b), open ? k : 'archive', {});
       b.onclick = () => open ? challenge(k) : (sfx('error'), toast('SIGNAL LOCKED', 'Beat ' + OPP[ORDER[ORDER.indexOf(k) - 1]].name + ' first.'));
       L.appendChild(b);
@@ -1269,7 +1276,7 @@
     const ov = document.createElement('div'); ov.className = 'ov';
     ov.innerHTML = '<div class="panel"><h3 style="font-size:34px">DAILY TRANSMISSION</h3><p class="note">' + d + ' · vs HK-47 · the same main deck, the same hands, for everyone today. No advisor. No credits at stake; the first win of the day pays ¤150.</p><p>Today\'s side deck:</p><div class="ex" style="display:flex;flex-wrap:wrap;gap:4px;--w:44px"></div>' +
       (rec && rec.first ? '<p class="note" style="margin-top:8px">Your first attempt today: ' + (rec.first.won ? 'won ' : 'lost ') + rec.first.score.join('–') + '</p>' : '') +
-      '<div class="row"><button class="btn pri" type="button" data-go>deal</button><button class="btn" type="button">back</button></div></div>';
+      '<div class="row"><button class="btn pri" type="button" data-go>deal</button><button class="btn" data-esc type="button">back</button></div></div>';
     deck.forEach((n) => { const c = cardEl({ name: n }); c.style.setProperty('--w', '44px'); $('.ex', ov).appendChild(c); });
     $('#ovs').appendChild(ov);
     ov.addEventListener('click', (e) => { if (e.target.tagName !== 'BUTTON') return; ov.remove(); if ('go' in e.target.dataset) startMatch({ mode: 'daily', opp: 'hk', date: d, seed: 'pazaak-daily:' + d, seats: ['human', 'ai'], wager: 0 }); });
@@ -1292,7 +1299,8 @@
   document.addEventListener('pointerdown', () => { try { if (window.PazaakSfx) PazaakSfx.unlock(); } catch (e) {} if (S.set.tilt) startGyro(); }, { passive: true });
 
   document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey || e.metaKey || e.altKey || $('#ovs').children.length) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if ($('#ovs').children.length) { if (e.key === 'Escape') { const x = $('#ovs > :last-child [data-esc]'); if (x) x.click(); } return; }
     const k = e.key.toLowerCase();
     if (k === 'm') { toggleSound(); return; }
     if (k === 'escape') { if ($('#drawer').classList.contains('open')) $('#drawer').classList.remove('open'); else if (screen === 'table' && sel >= 0) { sel = -1; choices(); } else if (screen === 'table') { saveMatch(); show('menu'); } else if (screen !== 'menu' && screen !== 'boot') show('menu'); return; }
@@ -1305,7 +1313,7 @@
     if (k === 'e') humanAct({ type: 'end' });
     else if (k === 's') humanAct({ type: 'stand' });
     else if (/^[1-4]$/.test(k)) { if (G.m.hands[shownSeat][+k - 1]) choose(+k - 1); }
-    else if (sel >= 0 && (k === 'enter' || k === '+' || k === '=' || k === '-' || k === '_')) {
+    else if (sel >= 0 && ((k === 'enter' && !(e.target.closest && e.target.closest('button, .pc'))) || k === '+' || k === '=' || k === '-' || k === '_')) {
       const plays = E.legalPlays(G.m, shownSeat).filter((p) => p.handIndex === sel);
       if (!plays.length) return;
       let p = plays[0];
