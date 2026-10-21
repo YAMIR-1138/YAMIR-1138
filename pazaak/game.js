@@ -392,10 +392,17 @@
   };
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   function drawPortrait(cv, key, st) {
-    const art = ART[key] || ART.p2, n = art.length, x = cv.getContext('2d');
     st = st || {};
-    cv.width = n; cv.height = n;
-    x.fillStyle = '#000'; x.fillRect(0, 0, n, n);
+    if (!FACE[key] && FACE[key.split(':')[0]]) key = key.split(':')[0];
+    cv.classList.toggle('card', !!st.full);
+    if (FACE[key]) return drawFace(cv, key, st);
+    key = key.split(':')[0];
+    const art = ART[key] || ART.p2, n = art.length, x = cv.getContext('2d');
+    // in a card's place, the pixel art sits at twice the size inside a plain frame
+    const k = st.full ? 2 : 1, ox = st.full ? 8 : 0, oy = st.full ? 14 : 0;
+    cv.width = st.full ? 80 : n; cv.height = st.full ? 100 : n;
+    x.fillStyle = '#000'; x.fillRect(0, 0, cv.width, cv.height);
+    if (st.full) { x.strokeStyle = css('--fg'); x.lineWidth = 1; x.strokeRect(1.5, 1.5, 77, 97); x.beginPath(); x.moveTo(3, 92.5); x.lineTo(77, 92.5); x.stroke(); }
     const fg = css('--fg'), hi = css('--hi'), warn = css('--warn'), alt = css('--alt');
     for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
       let ch = (art[r] || '')[c] || '.';
@@ -410,9 +417,52 @@
       if (ch === '.') continue;
       x.globalAlpha = ch === ':' ? .2 : ch === '+' || ch === 'b' ? .45 : 1;
       x.fillStyle = ch === '*' || ch === 'e' ? hi : ch === 'w' ? warn : ch === 'a' || ch === 'b' ? alt : fg;
-      x.fillRect(c, r, 1, 1);
+      x.fillRect(ox + c * k, oy + r * k, k, k);
     }
     x.globalAlpha = 1;
+  }
+
+  // ---- face cards. Eighty by a hundred in four greys, recoloured into whichever phosphor is up.
+  // Mission, Atton, HK-47 and T3-M4 are drafts made for this page from the game's portraits. Camille is cut from
+  // her own sprite sheets on the landing page, one card for each pose, and she changes pose as the game goes.
+  const FACEFILE = { mission: 'mission', atton: 'atton', hk: 'hk', t3: 't3', camille: 'camille-stare' };
+  ['look', 'purr', 'hiss', 'swat', 'loaf', 'blink', 'back'].forEach((p) => { FACEFILE['camille:' + p] = 'camille-' + p; });
+  // the square around each face, for the small slot at the table
+  const CROP = { mission: [14, 4, 52], atton: [12, 6, 56], hk: [10, 2, 58], t3: [6, 4, 66], camille: [5, 20, 70] };
+  const FACE = {};
+  Object.keys(FACEFILE).forEach((k) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas'); c.width = 80; c.height = 100;
+      const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+      let d; try { d = x.getImageData(0, 0, 80, 100).data; } catch (e) { return; }
+      const L = new Uint8Array(8000);
+      for (let i = 0; i < 8000; i++) { const g = d[i * 4]; L[i] = g < 32 ? 0 : g < 104 ? 1 : g < 187 ? 2 : 3; }
+      FACE[k] = L;
+      if (k.indexOf(':') < 0) redrawPortraits();
+    };
+    img.src = 'faces/' + FACEFILE[k] + '.png';
+  });
+  const rgb = (hex) => { const n = parseInt(hex.replace('#', '').replace(/^(.)(.)(.)$/, '$1$1$2$2$3$3'), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  function drawFace(cv, key, st) {
+    const L = FACE[key], c0 = CROP[key.split(':')[0]];
+    const [cx, cy, cw, ch] = st.full ? [0, 0, 80, 100] : [c0[0], c0[1], c0[2], c0[2]];
+    if (cv.width !== cw || cv.height !== ch) { cv.width = cw; cv.height = ch; }
+    const x = cv.getContext('2d'), img = x.createImageData(cw, ch), o = img.data;
+    const fg = rgb(css('--fg')), hi = rgb(css('--hi'));
+    const pal = [[0, 0, 0], fg.map((v) => v * .26 | 0), fg.map((v) => v * .72 | 0), hi];
+    // while they talk, a band of the transmission slips sideways. A locked signal breaks up
+    const tear = st.talk ? [Math.random() * ch | 0, 2 + (Math.random() * 4 | 0), Math.random() < .5 ? -1 : 1] : null;
+    for (let y = 0; y < ch; y++) {
+      const dx = tear && y >= tear[0] && y < tear[0] + tear[1] ? tear[2] : 0;
+      for (let xx = 0; xx < cw; xx++) {
+        let v = L[(cy + y) * 80 + Math.min(79, Math.max(0, cx + xx + dx))];
+        if (st.noise && Math.random() < st.noise) v = Math.random() * 4 | 0;
+        const c = pal[v], i = (y * cw + xx) * 4;
+        o[i] = c[0]; o[i + 1] = c[1]; o[i + 2] = c[2]; o[i + 3] = 255;
+      }
+    }
+    x.putImageData(img, 0, 0);
   }
 
   // ============================================================
@@ -434,10 +484,10 @@
     ],
     camille_in: [
       { who: 'n', t: 'Camille is sitting on the main deck. Not near it. On it.' },
-      { who: 'camille', t: '*slow blink*' },
+      { who: 'camille', pose: 'blink', t: '*slow blink*' },
       { choose: [
-        { t: 'Pspsps. Want to play?', a: 1, then: [{ who: 'camille', t: 'mrrp.' }, { who: 'n', t: 'She shifts exactly enough for you to take the top card. It is warm.' }] },
-        { t: 'Off the deck, cat.', a: -1, then: [{ who: 'camille', t: '*holds your gaze. pushes one card off the table, slowly, with a single claw.*' }, { who: 'n', t: 'She does not move. You have lost something already and the game has not started.' }] },
+        { t: 'Pspsps. Want to play?', a: 1, then: [{ who: 'camille', pose: 'purr', t: 'mrrp.' }, { who: 'n', t: 'She shifts exactly enough for you to take the top card. It is warm.' }] },
+        { t: 'Off the deck, cat.', a: -1, then: [{ who: 'camille', pose: 'swat', t: '*holds your gaze. pushes one card off the table, slowly, with a single claw.*' }, { who: 'n', t: 'She does not move. You have lost something already and the game has not started.' }] },
         { t: 'Deal, then.', a: 0, then: [{ who: 'n', t: 'She deals with one paw. You are not sure she knows the rules. You are not sure she doesn\'t.' }] },
       ] },
     ],
@@ -749,13 +799,14 @@
         pt.style.display = who || L.pt ? '' : 'none';
         nm.textContent = who ? who.name : 'THE TERMINAL';
         tx.style.color = who ? '' : 'var(--dim)';
-        if (who) { drawPortrait(pt, L.who, { reveal: L.reveal }); sfx(who.voice); }
-        else if (L.pt) drawPortrait(pt, L.pt, { reveal: L.reveal });
+        const face = L.who + (L.pose ? ':' + L.pose : '');
+        if (who) { drawPortrait(pt, face, { reveal: L.reveal, full: true }); sfx(who.voice); }
+        else if (L.pt) drawPortrait(pt, L.pt, { reveal: L.reveal, full: true });
         if (L.reveal) { fx('flash', { color: 'hi', alpha: .5 }); fx('scan', {}); }
         const btn = document.createElement('button'); btn.className = 'btn pri'; btn.type = 'button'; btn.textContent = queue.length ? 'continue ›' : 'done';
         btn.onclick = () => { if (typing) { finish(); return; } next(); };
         row.appendChild(btn);
-        type(L.t, who ? L.who : null);
+        type(L.t, who ? face : null);
         btn.focus();
       }
       const b0 = () => $('button', row);
@@ -765,10 +816,10 @@
         pt.classList.add('talk');
         typing = setInterval(() => {
           i += 2; tx.textContent = t.slice(0, i);
-          if (key && i % 6 === 0) drawPortrait(pt, key, { talk: true });
+          if (key && i % 6 === 0) drawPortrait(pt, key, { talk: true, full: true });
           if (i >= t.length) finish();
         }, 18);
-        function finishNow() { clearInterval(typing); typing = null; tx.textContent = t; pt.classList.remove('talk'); if (key) drawPortrait(pt, key, {}); }
+        function finishNow() { clearInterval(typing); typing = null; tx.textContent = t; pt.classList.remove('talk'); if (key) drawPortrait(pt, key, { full: true }); }
         finish = finishNow;
       }
       let finish = () => {};
@@ -796,15 +847,25 @@
   const pause = (ms) => wait(ms * speed());
   const saveMatch = () => { if (G && G.m.phase !== 'matchOver') store.set('pazaak-match', G); else store.del('pazaak-match'); };
 
+  // what Camille does while she says it
+  const CAMPOSE = { think: 'look', aiTwenty: 'purr', aiBust: 'swat', youTwenty: 'hiss', youBust: 'swat', aiStand: 'loaf', setWin: 'blink', setLose: 'hiss', matchWin: 'loaf', matchLose: 'back', play: 'swat' };
+  let camPose = null, camTimer = 0;
+  function pose(p, ms) {
+    clearTimeout(camTimer); camPose = p || null; paintOpp({});
+    if (p) camTimer = setTimeout(() => { camPose = null; if (!$('#opp-pt').classList.contains('talk')) paintOpp({}); }, ms || 2600);
+  }
+  const oppFace = () => !G ? 'p2' : G.cfg.mode === 'hotseat' ? 'p2' : G.cfg.opp === 'camille' && camPose ? 'camille:' + camPose : G.cfg.opp;
+  const paintOpp = (st) => { if (G) drawPortrait($('#opp-pt'), oppFace(), st); };
   function quip(kind, chance) {
     if (!G || G.cfg.mode === 'hotseat') return;
     const o = O(), lines = o.q[kind];
     if (!lines || Math.random() > (chance === undefined ? 1 : chance)) return;
+    if (G.cfg.opp === 'camille') pose(CAMPOSE[kind], kind === 'matchLose' ? 8000 : 2600);
     say(pick(lines));
   }
   let sayTimer = 0;
   function say(t) {
-    const el = $('#say'), pt = $('#opp-pt'), key = G.cfg.mode === 'hotseat' ? 'p2' : oppKey();
+    const el = $('#say'), pt = $('#opp-pt');
     clearInterval(sayTimer);
     let i = 0; el.textContent = '';
     if (G.cfg.mode !== 'hotseat') sfx(O().voice);
@@ -812,17 +873,18 @@
     if (!S.set.motion) { el.textContent = t; pt.classList.remove('talk'); return; }
     sayTimer = setInterval(() => {
       i += 2; el.textContent = t.slice(0, i);
-      drawPortrait(pt, key, { talk: true });
-      if (i >= t.length) { clearInterval(sayTimer); pt.classList.remove('talk'); drawPortrait(pt, key, {}); }
+      paintOpp({ talk: true });
+      if (i >= t.length) { clearInterval(sayTimer); pt.classList.remove('talk'); paintOpp({}); }
     }, 22);
     log(G.cfg.mode === 'hotseat' ? t : O().name + ': ' + t, 'o');
   }
-  // the opponent's face blinks now and then, and the archive never holds still
+  // now and then the cat blinks, the others' signal slips, and the archive never holds still
   setInterval(() => {
     if (screen !== 'table' || !G || $('#opp-pt').classList.contains('talk')) return;
-    const key = G.cfg.mode === 'hotseat' ? 'p2' : oppKey();
-    if (key === 'archive') { drawPortrait($('#opp-pt'), key, {}); return; }
-    if (Math.random() < .04) { drawPortrait($('#opp-pt'), key, { blink: true }); setTimeout(() => drawPortrait($('#opp-pt'), key, {}), 140); }
+    const key = oppFace();
+    if (key === 'archive') { paintOpp({}); return; }
+    if (key === 'camille' && Math.random() < .03) { pose('blink', 260); return; }
+    if (Math.random() < .03) { paintOpp({ talk: true, blink: true }); setTimeout(() => paintOpp({}), 110); }
   }, 120);
 
   function log(t, cls) {
@@ -838,7 +900,7 @@
     const m = G.m, hot = G.cfg.mode === 'hotseat';
     $('#opp-name').textContent = hot ? 'PLAYER ' + (2 - shownSeat) : O().name;
     $('#opp-title').textContent = hot ? 'waiting for the device' : O().title;
-    drawPortrait($('#opp-pt'), hot ? 'p2' : oppKey(), {});
+    paintOpp({});
     for (let s = 0; s < 2; s++) {
       $('#who-' + s).textContent = seatName(s) + (hot && s === shownSeat ? ' · YOU' : '');
       const b = $('#board-' + s); b.innerHTML = '';
@@ -1175,6 +1237,7 @@
     const opts = { hands: [hand4(myDeck, rnd), hand4(theirDeck, rnd)], setsToWin: 3 };
     if (cfg.seed) opts.seed = cfg.seed;
     G = { cfg, m: E.createMatch(opts), track: [] };
+    camPose = null;
     if (cfg.wager) credits(-cfg.wager);
     shownSeat = 0;
     $('#log').innerHTML = '';
@@ -1359,7 +1422,7 @@
       b.className = 'opc' + (open ? '' : ' locked') + (S.beaten[k] ? ' beaten' : '');
       b.innerHTML = '<canvas class="portrait" width="32" height="32"></canvas><h3>' + esc(o.name) + '</h3><p>' + esc(o.title) + ' · ' + esc(o.blurb) + '</p>' +
         '<p class="meta"><span class="stars">' + '★'.repeat(Math.min(5, o.stars)) + (o.stars > 5 ? '?' : '') + '</span><span>' + (o.buyin ? 'buy-in ¤' + o.buyin : 'free') + '</span><span>' + (S.beaten[k] || 0) + 'W · ' + (S.lost[k] || 0) + 'L</span>' + (!open ? '<span class="tag">SIGNAL LOCKED</span>' : S.beaten[k] ? '<span class="tag">BEATEN</span>' : '') + '</p>';
-      drawPortrait($('canvas', b), open ? k : 'archive', {});
+      drawPortrait($('canvas', b), k, { full: true, noise: open ? 0 : .5 });
       b.onclick = () => open ? challenge(k) : (sfx('error'), toast('SIGNAL LOCKED', 'Beat ' + OPP[ORDER[ORDER.indexOf(k) - 1]].name + ' first.'));
       L.appendChild(b);
     });
@@ -1488,7 +1551,7 @@
     o.appendChild(r);
   };
   function fastLabel() { $('#b-fast').textContent = 'speed ×' + (S.set.fast ? 2 : 1); $('#b-fast').setAttribute('aria-pressed', S.set.fast ? 'true' : 'false'); }
-  function redrawPortraits() { if (G && screen === 'table') drawPortrait($('#opp-pt'), G.cfg.mode === 'hotseat' ? 'p2' : oppKey(), {}); if (screen === 'ladder') RENDER.ladder(); }
+  function redrawPortraits() { if (G && screen === 'table') paintOpp({}); if (screen === 'ladder') RENDER.ladder(); }
 
   // ============================================================
   // WIRING
