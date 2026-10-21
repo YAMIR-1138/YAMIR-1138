@@ -2671,7 +2671,7 @@ window.CATDATA = {
       ctx.restore();
     }
     const head = (n) => { const b = box(n, 1); return [b.x + b.f[5] * b.k, b.y + b.f[6] * b.k]; };
-    return { BW, BH, GY, names, draw, has: (n) => !!Fr[n], head, top: head, group, per, ready: (fn) => { if (ready === 2) fn(); else waiting.push(fn); } };
+    return { BW, BH, GX, GY, names, draw, has: (n) => !!Fr[n], head, top: head, group, per, ready: (fn) => { if (ready === 2) fn(); else waiting.push(fn); } };
   }
   root.RIDER = spriteRig(root.SPRITEDATA, 'riders.png', 'riders-fill.png', 220, 160, 110, 157, 1.6);
   delete root.SPRITEDATA;
@@ -3322,43 +3322,46 @@ window.CATDATA = {
     C.x = x; place(); setU(); onStep && onStep();
   }
   // ---- riders. Others can come through a portal too. Each is a canvas of its own in the layer, drawn from the sprite sheets.
+  // Most are from the riders' sheet; one that brings its own (rig) is drawn from that instead.
   const R = window.RIDER, riders = [], G = R.group, PER = R.per;
   const RW = () => R.BW * unit, RH = () => R.BH * unit;
   const hostile = (r) => r.kind === 'hunt';
-  function makeRider(kind) {
-    const d = document.createElement('div'); d.className = 'rider ' + kind;
+  function makeRider(kind, rig) {
+    const K = rig || R, d = document.createElement('div'); d.className = 'rider ' + kind;
     d.innerHTML = '<span class="say"></span><canvas></canvas>';
-    const c = $('canvas', d); c.width = Math.round(R.BW * unit * dpr); c.height = Math.round(R.BH * unit * dpr); c.style.width = R.BW * unit + 'px'; c.style.height = R.BH * unit + 'px';
+    const c = $('canvas', d); c.width = Math.round(K.BW * unit * dpr); c.height = Math.round(K.BH * unit * dpr); c.style.width = K.BW * unit + 'px'; c.style.height = K.BH * unit + 'px';
     layer.appendChild(d);
-    const r = { el: d, canvas: c, ctx: c.getContext('2d'), say: $('.say', d), kind, x: 0, y: 0, face: 1, pose: '', w: R.BW * unit, gait: [], per: 1, loop: null };
+    const r = { el: d, canvas: c, ctx: c.getContext('2d'), say: $('.say', d), kind, rig: K, x: 0, y: 0, face: 1, pose: '', w: K.BW * unit, gait: [], per: 1, loop: null };
     gait(r, kind === 'hunt' ? 'H_GALLOP' : kind === 'girl' ? 'G_WALK' : kind === 'mare' ? 'M_IDLE' : 'C_GALLOP');
     riders.push(r);
     return r;
   }
   // the frames a rider moves with, and how many ticks each one lasts
-  function gait(r, group, per) { r.gait = G(group); r.per = per || PER(group); }
+  function gait(r, group, per) { r.gait = r.rig.group(group); r.per = per || r.rig.per(group); }
   const inkOf = (r) => hostile(r) ? { line: COL.warn, body: COL.body } : COL;
   function paintRider(r, pose) {
     if (pose === r.pose) return;
     r.pose = pose; r.ctx.clearRect(0, 0, r.canvas.width, r.canvas.height);
-    R.draw(r.ctx, pose, unit * dpr, inkOf(r));
+    r.rig.draw(r.ctx, pose, unit * dpr, inkOf(r));
   }
-  R.ready(() => riders.forEach((r) => { const p = r.pose; r.pose = ''; if (p) paintRider(r, p); }));
+  const repaintRiders = (rig) => riders.forEach((r) => { if (rig && r.rig !== rig) return; const p = r.pose; r.pose = ''; if (p) paintRider(r, p); });
+  R.ready(() => repaintRiders(R));
+  T.onTheme(() => repaintRiders());
   // a change of role mid-scene: the same canvas, another kind
   function become(r, kind, pose) { r.kind = kind; r.el.className = 'rider ' + kind; r.pose = ''; r.loop = null; paintRider(r, pose); placeRider(r); }
   // a cycle that runs on its own while something else happens: setLoop, and tickLoops once a frame
-  function setLoop(r, group, per, once) { r.loop = group ? { g: G(group), per: per || PER(group), i: 0, once: !!once } : null; }
+  function setLoop(r, group, per, once) { r.loop = group ? { g: r.rig.group(group), per: per || r.rig.per(group), i: 0, once: !!once } : null; }
   function tickLoops() { riders.forEach((r) => { const l = r.loop; if (!l) return; const n = l.g.length * l.per, i = l.once ? Math.min(l.i, n - 1) : l.i % n; paintRider(r, l.g[Math.floor(i / l.per)]); l.i++; }); }
   function* bg(gen) { for (;;) { const s = gen.next(); if (s.done) return s.value; tickLoops(); yield; } }
   const hold = (n) => bg(wait(n));
   // a group played once, so many ticks a frame, ending on its last frame
-  function* play(r, group, per) { r.loop = null; const g = G(group); per = per || PER(group); for (let i = 0; i < g.length * per; i++) { paintRider(r, g[Math.floor(i / per)]); yield; } }
+  function* play(r, group, per) { r.loop = null; const g = r.rig.group(group); per = per || r.rig.per(group); for (let i = 0; i < g.length * per; i++) { paintRider(r, g[Math.floor(i / per)]); yield; } }
   // an afterimage of a rider, in the other phosphor, for when she blinks
   function ghostOf(r, x, alpha) {
     const c = document.createElement('canvas'); c.className = 'ghost-rider'; c.width = r.canvas.width; c.height = r.canvas.height;
     c.style.cssText = 'position:absolute;left:0;top:0;width:' + r.canvas.style.width + ';height:' + r.canvas.style.height + ';pointer-events:none;transform:translate(' + Math.round(x) + 'px,' + Math.round(r.y) + 'px)' + (r.face < 0 ? ' scaleX(-1)' : '') + ';opacity:' + alpha + ';transition:opacity .7s';
     const cs = getComputedStyle(document.documentElement), other = cs.getPropertyValue('--portal-b').trim();
-    R.draw(c.getContext('2d'), r.pose, unit * dpr, { line: other, body: COL.body });
+    r.rig.draw(c.getContext('2d'), r.pose, unit * dpr, { line: other, body: COL.body });
     layer.appendChild(c); requestAnimationFrame(() => { c.style.opacity = 0; }); setTimeout(() => c.remove(), 800);
   }
   // she is somewhere else, with a flash, and three of her fading along the way
@@ -3372,8 +3375,8 @@ window.CATDATA = {
   function placeRider(r) {
     r.el.style.transform = 'translate(' + Math.round(r.x) + 'px,' + Math.round(r.y) + 'px)';
     r.el.classList.toggle('flip', r.face < 0);
-    const h = R.head(r.pose || 'G_IDLE0');
-    r.say.style.left = (r.face < 0 ? R.BW - h[0] : h[0]) * unit + 'px'; r.say.style.top = Math.max(0, h[1]) * unit - 5 + 'px';
+    const K = r.rig, h = K.head(r.pose || K.names[0]);
+    r.say.style.left = (r.face < 0 ? K.BW - h[0] : h[0]) * unit + 'px'; r.say.style.top = Math.max(0, h[1]) * unit - 5 + 'px';
   }
   function clipRider(r, planeX, entering) {
     const leftOf = planeX - r.x, w = r.w;
