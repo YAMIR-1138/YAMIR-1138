@@ -337,7 +337,9 @@
   .card .links a.primary::before { content: "[ > "; } .card .links a.primary::after { content: " ]"; }
   .card--featured { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 4px 20px; align-items: start; padding: 18px; }
   .card--featured h3 { font-size: 42px; }
-  .card .emblem { margin: 0; display: flex; flex-direction: column; align-items: center; }
+  .card .emblem { margin: 0; display: flex; flex-direction: column; align-items: center; position: relative; }
+  .card .emblem canvas.droid { position: absolute; left: 0; top: 0; pointer-events: none; transition: opacity .6s; }
+  .card .emblem .cap.droid { position: absolute; left: 0; top: 0; margin: 0; }   /* a report above the monitor, that does not move the card */
   .card--tool .emblem { align-items: flex-start; min-height: 104px; justify-content: center; margin-bottom: 10px; }
   .px.toy { cursor: pointer; }
   .card--empty { border-style: dashed; color: var(--dim); display: flex; flex-direction: column; justify-content: center; min-height: 140px; }
@@ -4014,6 +4016,58 @@ window.CATDATA = {
       P('HK-47: Statement: greetings, meatbag. Observation: your cat is staring at me. Query: may I stare back?');
     });
   };
+  // T3-M4 at the CO2 monitor: the little utility droid comes up beside the incubator's emblem, runs his eye over it and
+  // reports. Not in help. With motion off he is simply standing there, report and all, for a while
+  T.COMMANDS.t3m4 = T.COMMANDS['t3-m4'] = T.COMMANDS.t3 = function () {
+    const card = $('.card[data-alias="co2"]'), fig = card && $('.emblem', card), icon = fig && $('canvas.px', fig);
+    if (!icon || card.hidden) { P('T3-M4: [low whistle] there is no CO2 monitor on this page.', 'err'); return; }
+    if (T.t3Busy) { P('T3-M4 is busy. [indignant beep]'); return; }
+    T.t3Busy = true;
+    P('T3-M4 trundles over to the CO2 monitor. [whirr]');
+    card.scrollIntoView({ block: 'center', behavior: T.motion ? 'smooth' : 'auto' });
+    const K = window.DROIDS();
+    K.ready(() => {
+      const u = 1.25, r = Math.min(3, window.devicePixelRatio || 1), s = u * r;           // css px a sheet pixel, then device px
+      const fw = fig.clientWidth, fh = fig.clientHeight, fr = fig.getBoundingClientRect(), ir = icon.getBoundingClientRect();
+      const ix = ir.left - fr.left, iy = ir.top - fr.top, iw = ir.width, ih = ir.height;
+      // he stands to the right of the monitor, on its bottom line, facing it
+      const ax = Math.min(fw - 26 * u, ix + iw + 34 * u), ay = iy + ih, ex = ax + 6 * u, ey = ay - 42 * u;
+      const c = document.createElement('canvas'), g = c.getContext('2d');
+      c.className = 'droid'; c.width = Math.round(fw * r); c.height = Math.round(fh * r); c.style.width = fw + 'px'; c.style.height = fh + 'px';
+      let cap = $('.cap', fig); const made = !cap, was = cap ? cap.textContent : '';
+      if (made) { cap = document.createElement('figcaption'); cap.className = 'cap droid'; fig.appendChild(cap); }
+      fig.appendChild(c);
+      function draw(name, sweep) {
+        g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, c.width, c.height);
+        if (sweep != null) {
+          // his eye's beam: a pale fan onto the monitor, and the line it reads moving across
+          const cs = getComputedStyle(document.documentElement), glow = cs.getPropertyValue('--glow-rgb').trim(), sx = (ix + iw * sweep) * r;
+          g.fillStyle = 'rgba(' + glow + ',.14)'; g.beginPath(); g.moveTo(ex * r, ey * r); g.lineTo(sx, iy * r); g.lineTo(sx, (iy + ih) * r); g.closePath(); g.fill();
+          g.fillStyle = 'rgba(' + glow + ',.75)'; g.fillRect(Math.round(sx), Math.round(iy * r), Math.max(1, Math.round(r)), Math.round(ih * r));
+        }
+        g.setTransform(-1, 0, 0, 1, Math.round(ax * r + K.GX * s), Math.round(ay * r - K.GY * s));
+        K.draw(g, name, s, COL);
+      }
+      const report = () => {
+        cap.textContent = 'CO₂ 5.0 % · 37.0 °C · NOMINAL';
+        P('T3-M4: [beep] [beep-boop] incubator nominal: 5.0 % CO₂, 37.0 °C. [satisfied whistle]');
+      };
+      const done = () => { c.remove(); if (made) cap.remove(); else cap.textContent = was; T.t3Busy = false; };
+      if (!T.motion) { draw('T3_IDLE0'); report(); setTimeout(done, 10000); return; }
+      // in, a look over the monitor, the report, a moment standing by, and out
+      c.style.opacity = 0; draw('T3_IDLE0'); void c.offsetWidth; c.style.opacity = '';
+      const t0 = performance.now() + 500, SCAN = [700, 2500], OUT = 6500;
+      (function tick() {
+        if (!c.isConnected) { T.t3Busy = false; return; }
+        const t = performance.now() - t0;
+        if (t < SCAN[0]) draw('T3_IDLE0');
+        else if (t < SCAN[1]) { const q = (t - SCAN[0]) / (SCAN[1] - SCAN[0]); draw('T3_SCAN' + (Math.floor((t - SCAN[0]) / 170) % 4), .5 + .5 * Math.cos(q * Math.PI * 2)); }
+        else { if (!cap.textContent || cap.textContent === was) report(); draw('T3_IDLE' + (Math.floor(t / 500) % 2)); }
+        if (t > OUT) { c.style.opacity = 0; setTimeout(done, 650); return; }
+        requestAnimationFrame(tick);
+      })();
+    });
+  };
   // the ship's computer knows the droids too: mother where is hk47
   T.motherAlso = (q) => {
     if (/\bhk|\b47\b|assassin/.test(q)) {
@@ -4021,6 +4075,7 @@ window.CATDATA = {
       return ['UNIT: HK-47', 'CLASS: ASSASSIN DROID', 'LOCATION: ' + (T.hkHere && T.hkHere() ? 'ON THE MOTION TRACKER' : ago < 0 ? 'UNKNOWN' : 'LAST CONTACT ' + (ago < 1 ? 'UNDER A MINUTE' : ago + ' MIN') + ' AGO'),
         'THREAT TO CREW: LOW', 'THREAT TO CAT: DENIED'];
     }
+    if (/\bt3|\bm4\b|droid/.test(q)) return ['UNIT: T3-M4', 'CLASS: UTILITY DROID', 'LOCATION: ' + (T.t3Busy ? 'THE CO2 MONITOR' : 'STANDING BY'), 'STATUS: NOMINAL'];
     return null;
   };
   T.COMMANDS.zoomies = function () {
