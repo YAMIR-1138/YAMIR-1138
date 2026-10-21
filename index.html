@@ -934,6 +934,7 @@
     ['incubator ........... [ 5.0 % CO₂ · 37.0 °C ]', 'ok'],
     ['meter ............... [ 7/8 ]', 'ok'],
     ['crew ................ [ 1 human · 1 cat ]', 'ok'],
+    ['droids .............. [ T3-M4 · standing by ]', 'ok'],
   ];
   const bootEl = $('#boot'), main = $('#main');
   let booted = false;
@@ -3929,6 +3930,8 @@ window.CATDATA = {
     P('  yam ................ human · at the keyboard, presumably');
     P('  camille ............ cat · ' + (C.onstage ? C.mode : 'elsewhere'));
     if (guenHere()) P('  guenhwyvar ......... panther · from the onyx figurine · ignoring the cat');
+    P('  t3-m4 .............. utility droid · ' + (T.t3Busy ? 'at the CO2 monitor' : 'standing by'));
+    if (T.hkSeen) P('  hk-47 .............. assassin droid · ' + (T.hkHere && T.hkHere() ? 'on the tracker · friendly (probably)' : 'somewhere aboard'));
     if (guests) P('  ciri ............... visitor · wrong world · armed');
     if (hunt) P('  ' + hunt + ' riders ........... UNINVITED · hostile · the cat is handling it', 'err');
   };
