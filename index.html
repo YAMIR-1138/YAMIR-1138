@@ -2684,9 +2684,11 @@ window.CATDATA = {
   // tones matched to the idle's, every frame on the cell's own ground point. The kit lets the body wander about the cell
   // in the run and the walk, so the run's is held where the idle has it, and the walk's halfway there (its last five
   // frames were drawn a step ahead of its first three, legs and all, and holding it fully makes the paws skate instead).
+  // From a second kit: her sitting (brought down 4 % to match), the figurine (F_FIG, a fifth of her length) and the mist
+  // it gives off (F_MIST, kept at half size and drawn twice as big, light only). The box is tall enough for the mist.
   // Her sheets (guen.png, guen-fill.png) are only fetched the first time someone calls her.
-  const GUENDATA = {"groups":{"P_APPEAR":{"n":6,"ms":145},"P_IDLE":{"n":6,"ms":200},"P_CROUCH":{"n":4,"ms":160},"P_WALK":{"n":8,"ms":105},"P_RUN":{"n":6,"ms":92},"P_LEAP":{"n":6,"ms":110},"P_VANISH":{"n":6,"ms":145}},"frames":{"P_APPEAR0":[456,266,81,69,1,69,34,72.3,71.3],"P_APPEAR1":[447,109,144,76,1,132,12,73.3,78.3],"P_APPEAR2":[742,109,150,74,1,134,0,76.3,73.3],"P_APPEAR3":[592,109,149,76,1,131,12,74.3,76.3],"P_APPEAR4":[0,191,151,74,1,133,5,74.3,73.3],"P_APPEAR5":[582,191,149,73,1,132,5,75.3,72.3],"P_IDLE0":[0,266,147,72,1,130,5,73.3,71.3],"P_IDLE1":[152,191,153,74,1,135,3,77.3,74.3],"P_IDLE2":[148,109,147,80,1,129,1,74.3,79.3],"P_IDLE3":[148,266,145,71,1,129,5,73.3,71.3],"P_IDLE4":[287,339,148,65,1,132,5,74.3,65.3],"P_IDLE5":[306,191,146,74,1,129,4,72.3,73.3],"P_CROUCH0":[296,109,150,78,1,132,5,74.3,78.3],"P_CROUCH1":[436,339,155,64,1,138,8,77.3,63.3],"P_CROUCH2":[0,470,153,53,1,136,10,76.3,53.3],"P_CROUCH3":[440,470,147,49,1,130,3,73.3,49.3],"P_WALK0":[538,266,148,68,1,131,4,75.5,67.3],"P_WALK1":[835,266,149,66,1,133,4,76.1,65.3],"P_WALK2":[687,266,147,68,1,131,5,74.3,67.3],"P_WALK3":[151,406,147,61,1,131,5,76.5,60.3],"P_WALK4":[592,339,147,64,1,130,5,75.2,63.3],"P_WALK5":[449,406,149,59,1,131,4,77.2,59.3],"P_WALK6":[299,406,149,60,1,132,5,77.0,59.3],"P_WALK7":[0,406,150,63,1,133,5,76.6,62.3],"P_RUN0":[740,339,151,64,1,132,5,73.7,63.3],"P_RUN1":[599,406,163,59,1,143,13,77.4,73.3],"P_RUN2":[294,266,161,71,1,143,12,84.4,70.3],"P_RUN3":[572,0,136,85,1,119,29,74.1,84.3],"P_RUN4":[302,470,137,51,1,123,4,69.0,71.3],"P_RUN5":[0,339,144,66,1,129,4,72.9,65.3],"P_LEAP0":[154,470,147,52,1,131,8,74.3,51.3],"P_LEAP1":[709,0,151,85,1,130,0,75.3,84.3],"P_LEAP2":[134,0,151,90,1,133,0,75.3,102.3],"P_LEAP3":[763,406,157,58,1,138,2,78.3,95.3],"P_LEAP4":[0,0,133,108,1,117,58,66.3,107.3],"P_LEAP5":[145,339,141,66,1,125,8,71.3,65.3],"P_VANISH0":[732,191,146,73,1,129,4,74.3,72.3],"P_VANISH1":[0,109,147,81,1,131,26,71.3,80.3],"P_VANISH2":[429,0,142,86,1,125,37,72.3,85.3],"P_VANISH3":[286,0,142,89,1,126,36,70.3,88.3],"P_VANISH4":[861,0,134,83,1,120,29,64.3,82.3],"P_VANISH5":[453,191,128,74,1,118,28,63.3,73.3]}};
-  root.GUEN = () => root.GUEN.rig || (root.GUEN.rig = spriteRig(GUENDATA, 'guen.png', 'guen-fill.png', 270, 180, 135, 176, 1.6));
+  const GUENDATA = {"groups":{"P_APPEAR":{"n":6,"ms":145},"P_IDLE":{"n":3,"ms":330},"P_CROUCH":{"n":4,"ms":160},"P_WALK":{"n":8,"ms":105},"P_RUN":{"n":6,"ms":92},"P_LEAP":{"n":6,"ms":110},"P_VANISH":{"n":6,"ms":145},"P_SIT":{"n":3,"ms":300},"F_FIG":{"n":6,"ms":160},"F_MIST":{"n":8,"ms":110}},"frames":{"P_APPEAR0":[378,272,81,69,1,69,34,72.3,71.3],"P_APPEAR1":[871,109,144,76,1,132,12,73.3,78.3],"P_APPEAR2":[150,195,150,74,1,134,0,76.3,73.3],"P_APPEAR3":[0,195,149,76,1,131,12,74.3,76.3],"P_APPEAR4":[301,195,151,74,1,133,5,74.3,73.3],"P_APPEAR5":[582,195,149,73,1,132,5,75.3,72.3],"P_IDLE0":[0,272,147,72,1,130,5,73.3,71.3],"P_IDLE1":[572,109,147,80,1,129,1,74.3,79.3],"P_IDLE2":[402,345,148,65,1,132,5,74.3,65.3],"P_CROUCH0":[720,109,150,78,1,132,5,74.3,78.3],"P_CROUCH1":[551,345,155,64,1,138,8,77.3,63.3],"P_CROUCH2":[0,476,153,53,1,136,10,76.3,53.3],"P_CROUCH3":[440,476,147,49,1,130,3,73.3,49.3],"P_WALK0":[460,272,148,68,1,131,4,75.5,67.3],"P_WALK1":[757,272,149,66,1,133,4,76.1,65.3],"P_WALK2":[609,272,147,68,1,131,5,74.4,67.3],"P_WALK3":[151,412,147,61,1,131,5,76.6,60.3],"P_WALK4":[707,345,147,64,1,130,5,75.2,63.3],"P_WALK5":[449,412,149,59,1,131,4,77.2,59.3],"P_WALK6":[299,412,149,60,1,132,5,77.1,59.3],"P_WALK7":[0,412,150,63,1,133,5,76.7,62.3],"P_RUN0":[855,345,151,64,1,132,5,73.8,63.3],"P_RUN1":[599,412,163,59,1,143,13,77.5,73.3],"P_RUN2":[216,272,161,71,1,143,12,84.5,70.3],"P_RUN3":[0,109,136,85,1,119,29,74.1,84.3],"P_RUN4":[302,476,137,51,1,123,4,69.1,71.3],"P_RUN5":[0,345,144,66,1,129,4,72.9,65.3],"P_LEAP0":[154,476,147,52,1,131,8,74.3,51.3],"P_LEAP1":[137,109,151,85,1,130,0,75.3,84.3],"P_LEAP2":[464,0,151,90,1,133,0,75.3,102.3],"P_LEAP3":[814,412,157,58,1,138,2,78.3,95.3],"P_LEAP4":[0,0,133,108,1,117,58,66.3,107.3],"P_LEAP5":[145,345,141,66,1,125,8,71.3,65.3],"P_VANISH0":[732,195,146,73,1,129,4,74.3,72.3],"P_VANISH1":[424,109,147,81,1,131,26,71.3,80.3],"P_VANISH2":[759,0,142,86,1,125,37,72.3,85.3],"P_VANISH3":[616,0,142,89,1,126,36,70.3,88.3],"P_VANISH4":[289,109,134,83,1,120,29,64.3,82.3],"P_VANISH5":[453,195,128,74,1,118,28,63.3,73.3],"P_SIT0":[134,0,109,106,1,94,1,57.3,105.9],"P_SIT1":[244,0,109,106,1,94,1,57.3,105.9],"P_SIT2":[354,0,109,105,1,94,0,57.3,104.9],"F_FIG0":[683,476,43,19,1,37,1,21.6,18.9],"F_FIG1":[727,476,43,19,1,37,1,21.6,18.9],"F_FIG2":[771,476,43,19,1,37,1,21.6,18.9],"F_FIG3":[815,476,43,19,1,37,1,21.6,18.9],"F_MIST0":[643,476,39,22,2,33,14,19.7,24.2],"F_MIST1":[588,476,38,38,2,32,17,18.7,39.2],"F_MIST2":[763,412,50,59,2,44,18,25.7,60.2],"F_MIST3":[148,272,67,72,2,58,25,32.7,73.2],"F_MIST4":[287,345,62,66,2,54,27,29.7,68.2],"F_MIST5":[350,345,51,66,2,44,5,25.7,69.2],"F_MIST6":[972,412,32,54,2,27,38,15.7,57.2],"F_MIST7":[627,476,15,24,2,11,13,7.7,27.2],"F_FIG4":[771,476,43,19,1,37,1,21.6,18.9],"F_FIG5":[727,476,43,19,1,37,1,21.6,18.9]}};
+  root.GUEN = () => root.GUEN.rig || (root.GUEN.rig = spriteRig(GUENDATA, 'guen.png', 'guen-fill.png', 270, 240, 135, 236, 1.6));
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 
@@ -2756,7 +2758,7 @@ window.CATDATA = {
   // ------------------------------------------------------------ drawing
   function colours() {
     const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim();
-    return { line: v('--fg'), body: v('--fur'), eye: v('--eye') || v('--hi'), dark: v('--bg'), warn: v('--warn') };
+    return { line: v('--fg'), body: v('--fur'), eye: v('--eye') || v('--hi'), dark: v('--bg'), warn: v('--warn'), mist: v('--hi') };
   }
   let COL = colours();
   function paint(name, force) {
@@ -3340,13 +3342,14 @@ window.CATDATA = {
     const c = $('canvas', d); c.width = Math.round(K.BW * unit * dpr); c.height = Math.round(K.BH * unit * dpr); c.style.width = K.BW * unit + 'px'; c.style.height = K.BH * unit + 'px';
     layer.appendChild(d);
     const r = { el: d, canvas: c, ctx: c.getContext('2d'), say: $('.say', d), kind, rig: K, x: 0, y: 0, face: 1, pose: '', w: K.BW * unit, gait: [], per: 1, loop: null };
-    gait(r, kind === 'hunt' ? 'H_GALLOP' : kind === 'girl' ? 'G_WALK' : kind === 'mare' ? 'M_IDLE' : kind === 'guen' ? 'P_WALK' : 'C_GALLOP');
+    const moves = kind === 'hunt' ? 'H_GALLOP' : kind === 'girl' ? 'G_WALK' : kind === 'mare' ? 'M_IDLE' : kind === 'guen' ? 'P_WALK' : 'C_GALLOP';
+    if (K.has(moves + '0')) gait(r, moves);           // things that only stand there (a figurine, a mist) have no gait
     riders.push(r);
     return r;
   }
   // the frames a rider moves with, and how many ticks each one lasts
   function gait(r, group, per) { r.gait = r.rig.group(group); r.per = per || r.rig.per(group); }
-  const inkOf = (r) => hostile(r) ? { line: COL.warn, body: COL.body } : COL;
+  const inkOf = (r) => hostile(r) ? { line: COL.warn, body: COL.body } : r.kind === 'guen-mist' ? { line: COL.mist, body: COL.body } : COL;
   function paintRider(r, pose) {
     if (pose === r.pose) return;
     r.pose = pose; r.ctx.clearRect(0, 0, r.canvas.width, r.canvas.height);
@@ -3605,16 +3608,24 @@ window.CATDATA = {
     // she comes out at the end of the stretch beside the cat, if the cat is there, and goes off the other way
     const dir = st.cat ? -st.cat : (Math.random() < .5 ? 1 : -1), room = st.b - st.a;
     const len = 234 * unit, GX = K.GX * unit, at = (g) => g.x + GX;
-    const g = makeRider('guen', K);
-    g.y = st.l.y - (K.GY + 1) * unit; g.face = dir; g.x = (dir > 0 ? st.a : st.b) - GX; paintRider(g, 'P_APPEAR0');
-    g.el.style.transition = 'none'; placeRider(g); void g.el.offsetWidth; g.el.style.transition = '';   // there at once, not gliding in from the corner
+    // the figurine first, set down where she will stand, glowing; then the mist comes up out of it, and she out of the mist
+    const x0 = dir > 0 ? st.a : st.b;
+    const put = (r, pose) => { r.y = st.l.y - (K.GY + 1) * unit; r.face = dir; r.x = x0 - GX; if (pose) paintRider(r, pose); r.el.style.transition = 'none'; placeRider(r); void r.el.offsetWidth; r.el.style.transition = ''; };
+    const drop = (r) => { r.el.remove(); const i = riders.indexOf(r); if (i >= 0) riders.splice(i, 1); };
+    const fig = makeRider('figurine', K), g = makeRider('guen', K), mist = makeRider('guen-mist', K);   // back to front
+    put(fig, 'F_FIG0'); put(g); put(mist);
+    mist.el.style.opacity = .5;                              // in the pale of the phosphor, and thin: a mist, not a fire
+    fig.el.style.opacity = 0; void fig.el.offsetWidth; fig.el.style.transition = 'opacity .5s'; fig.el.style.opacity = '';
+    setLoop(fig, 'F_FIG');
     // the cat watches her the whole time, if the cat is about
     const eyes = C.onstage && !!C.ledge && inView();
     const near = () => Math.abs(at(g) - (C.x + W / 2)) < len * 1.2 && Math.abs(C.y + H - st.l.y) < K.GY * unit;
     const watch = () => { if (!eyes) return; const f = at(g) > C.x + W / 2 ? 1 : -1; if (f !== C.face) { C.face = f; place(); } };
     function* watched(gen) { for (;;) { const s = gen.next(); if (s.done) return; tickLoops(); watch(); yield; } }
+    yield* hold(sec(1.1));
     T.sfx('portal');
-    yield* watched(play(g, 'P_APPEAR'));
+    yield* together([play(mist, 'F_MIST', 2), play(g, 'P_APPEAR')], [0, 5]);
+    drop(mist);
     setLoop(g, 'P_IDLE');
     if (eyes) {
       const close = near(); C.face = at(g) > C.x + W / 2 ? 1 : -1;
@@ -3637,20 +3648,26 @@ window.CATDATA = {
     const leap = Math.min(len * 1.2, left), from = g.x, fr = K.group('P_LEAP'), per = 2;
     if (leap > len * .5) for (let i = 0; i < fr.length * per; i++) {
       // the push-off is the second frame and the landing the fifth: she travels in between
-      g.x = from + dir * leap * clamp((i - per) / (3 * per), 0, 1); paintRider(g, fr[Math.floor(i / per)]); placeRider(g); watch(); yield;
+      g.x = from + dir * leap * clamp((i - per) / (3 * per), 0, 1); paintRider(g, fr[Math.floor(i / per)]); placeRider(g); tickLoops(); watch(); yield;
     } else {
       // no room to spring, on a narrow screen with the cat close by: she thinks better of it and gets up again
       const up = K.group('P_CROUCH').reverse();
-      for (let i = 0; i < up.length * per; i++) { paintRider(g, up[Math.floor(i / per)]); watch(); yield; }
+      for (let i = 0; i < up.length * per; i++) { paintRider(g, up[Math.floor(i / per)]); tickLoops(); watch(); yield; }
     }
-    setLoop(g, 'P_IDLE'); yield* watched(wait(sec(1.8)));
+    // she sits a while, and then she goes back
+    setLoop(g, 'P_IDLE'); yield* watched(wait(sec(.8)));
+    setLoop(g, 'P_SIT'); yield* watched(wait(sec(2.6)));
+    setLoop(g, 'P_IDLE'); yield* watched(wait(sec(.5)));
     yield* watched(play(g, 'P_VANISH'));
-    g.el.remove(); riders.splice(riders.indexOf(g), 1);
-    if (eyes && C.onstage && C.ledge) {
-      paint('SIT_LOOK', true); say('?', 1200);
-      setMode('sitting ' + where(C.ledge), true);
-      yield* sitFor(sec(rand(4, 7)));
-    }
+    drop(g);
+    const look = eyes && C.onstage && C.ledge;
+    if (look) { paint('SIT_LOOK', true); say('?', 1200); }
+    // the figurine is left where it was set down, and glows a little longer before it goes too
+    yield* hold(sec(1.5));
+    fig.el.style.transition = 'opacity 1.2s'; fig.el.style.opacity = 0;
+    yield* hold(sec(1.3));
+    drop(fig);
+    if (look) { setMode('sitting ' + where(C.ledge), true); yield* sitFor(sec(rand(3, 6))); }
   }
 
   // ------------------------------------------------------------ interruptions
@@ -3966,11 +3983,12 @@ window.CATDATA = {
     // with motion off she is simply there, in the log, for as long as you like
     T.store.set('guen', Date.now());
     K.ready(() => {
-      const pic = document.createElement('canvas'), k = 2 * Math.min(3, window.devicePixelRatio || 1), top = 60;
-      pic.width = K.BW * k; pic.height = (K.BH - top) * k; pic.style.width = K.BW * 1.2 + 'px'; pic.style.maxWidth = '100%';
-      const g = pic.getContext('2d'); g.translate(0, -top * k); K.draw(g, 'P_IDLE0', k, COL);
+      // she sits, a little left of the middle, with the figurine in front of her
+      const pic = document.createElement('canvas'), k = 2 * Math.min(3, window.devicePixelRatio || 1), top = K.GY - 180;
+      pic.width = K.BW * k; pic.height = 184 * k; pic.style.width = K.BW * 1.2 + 'px'; pic.style.maxWidth = '100%';
+      const g = pic.getContext('2d'); g.translate(-40 * k, -top * k); K.draw(g, 'P_SIT0', k, COL); g.translate(123 * k, 0); K.draw(g, 'F_FIG2', k, COL);
       pic.setAttribute('aria-hidden', 'true'); pic.className = 'guen';
-      const log = $('#log'); log.appendChild(pic); P('Guenhwyvar stands by the prompt, looking past the cat.');
+      const log = $('#log'); log.appendChild(pic); P('Guenhwyvar sits by the prompt, the figurine at her feet, looking past the cat.');
     });
   };
   T.COMMANDS.zoomies = function () {
