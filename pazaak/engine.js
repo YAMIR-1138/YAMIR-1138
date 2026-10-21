@@ -39,12 +39,6 @@
     return a;
   }
 
-  // a copy of the rng that does not advance the match, for previews
-  function peek(m) {
-    const o = { rng: m.rng };
-    return function () { return nextf(o); };
-  }
-
   function drawHand(deck, r) {
     let f;
     if (typeof r === 'function') f = r;
@@ -573,7 +567,7 @@
     if (t <= 20) {
       sv = S(t, v.myTie);
       ev = contAfter(-1)(t, D);
-      if (sv > 0 && sv >= ev + P.standBias) { bestAct = STAND; bestVal = sv; }
+      if (sv > 0 && standOk(v) && sv >= ev + P.standBias) { bestAct = STAND; bestVal = sv; }
       else { bestAct = END; bestVal = ev; }
     }
     let playVal = -1;
@@ -603,7 +597,7 @@
     if (!P) throw new Error('unknown profile: ' + key);
     if (m.phase !== 'turn' || m.turn !== seat) return { type: 'end' };
     const a = BRAINS[key](view(m, seat), P, function () { return nextf(m); });
-    return { type: a.type, handIndex: a.handIndex, choice: a.choice };
+    return a.type === 'play' ? { type: 'play', handIndex: a.handIndex, choice: a.choice } : { type: a.type };
   }
 
   // tactical hud: always the strongest brain, and it never touches the match rng
