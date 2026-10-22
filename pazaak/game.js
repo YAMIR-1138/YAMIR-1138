@@ -1664,7 +1664,7 @@
     $('#m-play-t').textContent = next ? 'next on the list: ' + OPP[next].name.toLowerCase() : 'the list is finished · ' + OPP.hk.name + ' deals on';
     paintMenuFace();
     $('#tagline').textContent = S.ach.story ? (S.align >= 0 ? 'THE TABLE STAYS OPEN. IT ALWAYS DOES.' : 'WELCOME BACK, MASTER.') : S.beaten.hk ? 'THERE IS A SIXTH NAME.' : 'HK-47 DEALS. THE CAT WATCHES.';
-    demo();
+    fan();
     camille();
   };
   // ---- Camille on the logo. Her sprite sheets are the landing page's own, drawn the same way: the dark of her body,
@@ -1803,54 +1803,16 @@
     camRaf = requestAnimationFrame(frame);
   }
 
-  // under the logo a small table deals to itself: real cards from the real table, a running total, and the four
-  // ways a set can go: stand, twenty, a bust, or a bust saved by a minus card. Then it sweeps up and deals again
-  let demoT = 0;
-  function demo() {
-    const row = $('#demo-row'), dk = $('#demo-deck'), tot = $('#demo-tot'), say = $('#demo-say');
-    if (!row) return;
-    clearTimeout(demoT);
-    if (!dk.children.length) for (let i = 0; i < 3; i++) dk.appendChild(cardEl({ down: true }));
-    let total = 0, saved = false;
-    const show = (word, cls) => {
-      tot.textContent = total; tot.classList.toggle('twenty', total === 20); tot.classList.toggle('over', total > 20);
-      say.textContent = word || ''; say.className = cls || '';
-    };
-    const reset = () => { row.innerHTML = ''; total = 0; saved = false; show(''); };
-    const room = () => Math.floor((row.clientWidth + 6) / (row.querySelector('.pc') ? row.querySelector('.pc').offsetWidth + 6 : 50));
-    if (!S.set.motion) { reset(); [7, 4, 9].forEach((v) => { row.appendChild(cardEl({ v })); total += v; }); show('STAND'); return; }
-    function deal(card, v) {
-      row.appendChild(card);
-      const f = dk.getBoundingClientRect(), t = card.getBoundingClientRect();
-      card.animate([{ transform: 'translate(' + (f.left - t.left) + 'px,' + (f.top - t.top) + 'px)' }, { transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.2,.8,.3,1)' });
-      $('.in', card).animate([{ transform: 'rotateY(180deg)' }, { transform: 'rotateY(0)' }], { duration: 330, easing: 'ease-out' });
-      total += v;
-      setTimeout(() => { show(); tot.classList.remove('tick'); void tot.offsetWidth; tot.classList.add('tick'); }, 300);
-    }
-    function sweep() {
-      const cs = Array.from(row.children), f = dk.getBoundingClientRect();
-      cs.forEach((c, i) => { const r = c.getBoundingClientRect(); c.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate(' + (f.left - r.left) + 'px,' + (f.top - r.top) + 'px) scale(.92)', opacity: 0 }], { duration: 340, delay: i * 45, fill: 'forwards' }); });
-      demoT = setTimeout(() => { reset(); step(); }, 340 + cs.length * 45 + 260);
-    }
-    const burst = (color) => { const c = tot.getBoundingClientRect(); fx('burst', c.left + c.width / 2, c.top + c.height / 2, { count: 16, color, speed: .6, life: 600 }); };
-    function step() {
-      if (screen !== 'menu' || !row.isConnected) return;
-      const later = (ms) => { demoT = setTimeout(step, ms); };
-      if (total > 20) {
-        const k = total - 20 + Math.floor(Math.random() * 2);
-        if (!saved && k <= 6 && Math.random() < .6) { saved = true; deal(cardEl({ card: { kind: 'side', name: '-' + k, v: -k } }), -k); setTimeout(() => show('SAVED', 'hit'), 320); return later(1500); }
-        setTimeout(() => { show('BUST', 'bad'); burst('warn'); }, 320); demoT = setTimeout(sweep, 1700); return;
-      }
-      if (total === 20) { setTimeout(() => { show('PAZAAK', 'hit'); burst('hi'); }, 320); demoT = setTimeout(sweep, 2000); return; }
-      // a side card to land exactly on twenty, now and then
-      if (total >= 14 && 20 - total <= 6 && Math.random() < .3) { const k = 20 - total; deal(cardEl({ card: { kind: 'side', name: '+' + k, v: k } }), k); return later(700); }
-      if ((total >= 17 && Math.random() < .6) || row.children.length >= room()) { show('STAND'); demoT = setTimeout(sweep, 1700); return; }
-      const v = 1 + Math.floor(Math.random() * 10);
-      deal(cardEl({ v }), v);
-      later(1000);
-    }
-    reset(); later0();
-    function later0() { demoT = setTimeout(step, 700); }
+  // over the logo, a hand of cards fanned out and breathing, in the phosphor
+  function fan() {
+    const f = $('#fan'); if (!f || f.children.length) return;
+    const cards = [{ v: 7 }, { name: '-3' }, { name: '±1T' }, { name: '+4' }, { name: '2x' }];
+    cards.forEach((c, i) => {
+      const el = cardEl(c), a = (i - 2) * 13;
+      el.style.transform = 'translateX(-50%) rotate(' + a + 'deg) translateY(' + Math.abs(i - 2) * 6 + 'px)';
+      if (S.set.motion) el.animate([{ translate: '0 0' }, { translate: '0 -7px' }, { translate: '0 0' }], { duration: 3000 + i * 300, iterations: Infinity, delay: i * 200, easing: 'ease-in-out' });
+      f.appendChild(el);
+    });
   }
 
   RENDER.ladder = function () {
