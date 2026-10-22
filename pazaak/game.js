@@ -784,6 +784,7 @@
     streak: ['ON A ROLL', 'Win five matches in a row.'],
     collector: ['COLLECTOR', 'Own one of every side card there is.'],
     hotseat: ['SHARED SCREEN', 'Finish a hotseat match.'],
+    pet: ['PSPSPS', 'Pet Camille on the title screen. More than is reasonable.'],
   };
   function unlock(k) {
     if (S.ach[k] || !ACH[k]) return;
@@ -1664,7 +1665,144 @@
     paintMenuFace();
     $('#tagline').textContent = S.ach.story ? (S.align >= 0 ? 'THE TABLE STAYS OPEN. IT ALWAYS DOES.' : 'WELCOME BACK, MASTER.') : S.beaten.hk ? 'THERE IS A SIXTH NAME.' : 'HK-47 DEALS. THE CAT WATCHES.';
     trace();
+    camille();
   };
+  // ---- Camille on the logo. Her sprite sheets are the landing page's own, drawn the same way: the dark of her body,
+  // the ink over it, raster lines through both. She sits on a letter and does what cats do: blinks, grooms, yawns,
+  // loafs, walks to another letter, and now and then knocks one off. Tap a letter and she pounces on it; tap her and
+  // she purrs. Leave her alone long enough and she sleeps.
+  const CATF = {
+    SIT: [0, 0, 56, 69, 35.5, 64.1], SIT_LOOK: [57, 0, 60, 69, 35.5, 64.1], SIT_ALERT: [118, 0, 57, 71, 35.5, 65.1],
+    LOAF: [176, 0, 67, 54, 35.5, 49.1], LOAF_LOOK: [244, 0, 67, 51, 35.5, 46.1], SLEEP_A: [374, 0, 70, 44, 34.5, 38.1], SLEEP_B: [445, 0, 68, 43, 36.5, 38.1],
+    PURR: [740, 0, 59, 65, 33.5, 59.1], W0: [800, 0, 91, 61, 52.5, 54.1], W1: [892, 0, 90, 61, 51.5, 54.1], W2: [0, 72, 91, 62, 52.5, 55.1], W3: [92, 72, 91, 62, 52.5, 55.1],
+    W4: [184, 72, 90, 61, 51.5, 55.1], W5: [275, 72, 91, 61, 52.5, 55.1], W6: [367, 72, 90, 61, 51.5, 55.1], W7: [458, 72, 90, 60, 51.5, 54.1],
+    LEAP: [916, 72, 93, 70, 47.5, 64.1], LAND: [0, 143, 84, 62, 43.5, 56.1], STALK_A: [85, 143, 94, 43, 47.5, 36.1], STALK_B: [180, 143, 82, 44, 44.5, 37.1],
+    SWAT_A: [263, 143, 56, 70, 31.5, 65.1], SWAT_B: [320, 143, 76, 71, 33.5, 65.1], STRETCH: [555, 143, 79, 77, 41.5, 70.1], YAWN: [635, 143, 64, 74, 33.5, 69.1],
+    GROOM_A: [862, 143, 57, 62, 34.5, 57.1], GROOM_B: [920, 143, 63, 69, 33.5, 63.1], BLINK_A: [0, 230, 57, 70, 31.5, 64.1], BLINK_B: [58, 230, 58, 70, 33.5, 64.1],
+  };
+  const catInk = new Image(), catFill = new Image();
+  catInk.src = 'faces/cat-ink.png'; catFill.src = 'faces/cat-fill.png';
+  const catA = document.createElement('canvas'), catB = document.createElement('canvas');
+  const cam = { at: 3, x: null, face: -1, act: 'sit', t0: 0, until: 0, seq: null, from: 0, to: 0, knocked: -1, poke: 0, pets: 0, box: null };
+  let camRaf = 0;
+  function tint(c, img, f, w, h, col) {
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    const g = c.getContext('2d');
+    g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, w, h); g.imageSmoothingEnabled = false;
+    g.drawImage(img, f[0], f[1], f[2], f[3], 0, 0, w, h);
+    g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, w, h);
+    g.globalCompositeOperation = 'source-over';
+  }
+  function camille() {
+    const cv = $('#catcv'), title = $('.title'); if (!cv) return;
+    cancelAnimationFrame(camRaf);
+    const x = cv.getContext('2d'), spans = $$('#logo span');
+    let W = 0, H = 0, dpr = 0;
+    // where each letter's top edge is, in the canvas: she sits on it
+    const seat = (i) => { const r = spans[i].getBoundingClientRect(), c = cv.getBoundingClientRect(), F = parseFloat(getComputedStyle($('#logo')).fontSize); return { x: r.left - c.left + r.width / 2, y: r.top - c.top + F * .24, F }; };
+    const pickFrame = (now) => {
+      const t = now - cam.t0, a = cam.act;
+      if (a === 'walk') return 'W' + (Math.floor(t / 90) % 8);
+      if (a === 'groom') return Math.floor(t / 320) % 2 ? 'GROOM_B' : 'GROOM_A';
+      if (a === 'blink') return t < 110 ? 'BLINK_A' : t < 220 ? 'BLINK_B' : 'SIT';
+      if (a === 'sleep') return Math.floor(t / 1300) % 2 ? 'SLEEP_B' : 'SLEEP_A';
+      if (a === 'swat') return t < 260 ? 'SWAT_A' : 'SWAT_B';
+      if (a === 'pounce') return t < 450 ? (Math.floor(t / 150) % 2 ? 'STALK_B' : 'STALK_A') : t < 900 ? 'LEAP' : 'LAND';
+      if (a === 'loaf') return t % 4000 < 2600 ? 'LOAF' : 'LOAF_LOOK';
+      return { look: 'SIT_LOOK', yawn: 'YAWN', stretch: 'STRETCH', purr: 'PURR', alert: 'SIT_ALERT' }[a] || 'SIT';
+    };
+    const doing = (act, ms, now) => { cam.act = act; cam.t0 = now; cam.until = now + ms; };
+    function next(now) {
+      // what she does next, sitting on her letter
+      const r = Math.random(), n = spans.length;
+      if (cam.act === 'sleep') return;
+      if (now - cam.poke > 45000) return doing('sleep', 1e9, now);
+      if (r < .2) return doing('blink', 330, now);
+      if (r < .34) return doing('groom', 2600, now);
+      if (r < .42) return doing('yawn', 1100, now);
+      if (r < .54) return doing('look', 1800, now);
+      if (r < .64) return doing('loaf', 6000, now);
+      if (r < .7) return doing('stretch', 1000, now);
+      if (r < .8 && cam.knocked < 0) {
+        // the letter beside her has to go
+        const j = cam.at + cam.face; if (j >= 0 && j < n) { cam.target = j; return doing('swat', 620, now); }
+      }
+      let j; do { j = Math.floor(Math.random() * n); } while (j === cam.at || j === cam.knocked);
+      cam.to = j; cam.face = j > cam.at ? 1 : -1; doing('walk', 1e9, now);
+    }
+    function knock(j) {
+      const s = spans[j]; cam.knocked = j; sfx('tick');
+      s.classList.remove('back', 'squash'); void s.offsetWidth; s.classList.add('knock');
+      // the terminal prints it again, after a moment
+      setTimeout(() => { s.classList.remove('knock'); void s.offsetWidth; s.classList.add('back'); cam.knocked = -1; setTimeout(() => s.classList.remove('back'), 600); }, 2200);
+    }
+    function frame(now) {
+      if (screen !== 'menu' || !cv.isConnected) return;
+      const r = cv.getBoundingClientRect(), k2 = Math.min(2, devicePixelRatio || 1);
+      if (r.width !== W || r.height !== H || k2 !== dpr) { W = r.width; H = r.height; dpr = k2; cv.width = W * k2; cv.height = H * k2; }
+      x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, W, H);
+      if (!catInk.complete || !catFill.complete || !catInk.naturalWidth) { camRaf = requestAnimationFrame(frame); return; }
+      if (cam.x === null) { cam.x = seat(cam.at).x; cam.poke = now; cam.until = now + 1500; }
+      const home = seat(cam.at), k = home.F * .78 / 69;
+      let gy = home.y;
+      if (S.set.motion) {
+        if (cam.act === 'walk') {
+          const dest = seat(cam.to).x, step = k * 70 * Math.min(.05, (now - (cam.last || now)) / 1000);
+          cam.x += Math.sign(dest - cam.x) * Math.min(step, Math.abs(dest - cam.x));
+          if (Math.abs(dest - cam.x) < 1) { cam.at = cam.to; doing('sit', 1200 + Math.random() * 2000, now); }
+        } else if (cam.act === 'pounce') {
+          const t = now - cam.t0;
+          if (t > 450 && t < 900) { const p = (t - 450) / 450, a = cam.from, b = seat(cam.to).x; cam.x = a + (b - a) * p; gy = home.y + (seat(cam.to).y - home.y) * p - Math.sin(p * Math.PI) * home.F * .32; }
+          if (t >= 900 && cam.at !== cam.to) { cam.at = cam.to; cam.x = seat(cam.to).x; const s = spans[cam.to]; s.classList.remove('squash'); void s.offsetWidth; s.classList.add('squash'); sfx('place'); }
+          if (t > 1150) doing('sit', 1500, now);
+        } else if (cam.act === 'swat' && now - cam.t0 > 300 && cam.target !== undefined) { knock(cam.target); cam.target = undefined; }
+        else cam.x += (home.x - cam.x) * .2;
+        if (now > cam.until && cam.act !== 'walk' && cam.act !== 'pounce') next(now);
+      }
+      cam.last = now;
+      const name = S.set.motion ? pickFrame(now) : 'SIT', f = CATF[name] || CATF.SIT;
+      const w = Math.ceil(f[2] * k), h = Math.ceil(f[3] * k), fg = css('--fg');
+      const fur = document.documentElement.dataset.theme === 'green' ? '#020a05' : '#0c0802';
+      tint(catA, catFill, f, w, h, fur); tint(catB, catInk, f, w, h, fg);
+      const a = catA.getContext('2d'); a.drawImage(catB, 0, 0);
+      a.globalCompositeOperation = 'source-atop'; a.globalAlpha = .17; a.fillStyle = fg;
+      for (let yy = 0; yy < h; yy += 3) a.fillRect(0, yy, w, 1);
+      a.globalAlpha = 1; a.globalCompositeOperation = 'source-over';
+      x.save(); x.translate(Math.round(cam.x), Math.round(gy)); if (cam.face < 0) x.scale(-1, 1);
+      x.shadowColor = fg; x.shadowBlur = 6; x.drawImage(catA, -Math.round(f[4] * k), -Math.round(f[5] * k)); x.restore();
+      cam.box = { l: cam.x - f[4] * k, r: cam.x + (f[2] - f[4]) * k, t: gy - f[5] * k, b: gy, flip: cam.face < 0 };
+      if (cam.box.flip) cam.box = { l: cam.x - (f[2] - f[4]) * k, r: cam.x + f[4] * k, t: cam.box.t, b: cam.box.b };
+      if (cam.act === 'sleep' && S.set.motion) {
+        // a z or two drifting up from her
+        x.font = Math.round(home.F * .16) + 'px VT323, monospace'; x.fillStyle = css('--hi');
+        for (let i = 0; i < 2; i++) { const p = ((now / 2200) + i * .5) % 1; x.globalAlpha = Math.sin(p * Math.PI); x.fillText('z', cam.x + home.F * (.1 + p * .25), gy - home.F * (.5 + p * .5)); }
+        x.globalAlpha = 1;
+      }
+      camRaf = requestAnimationFrame(frame);
+    }
+    if (!title.dataset.cat) {
+      title.dataset.cat = 1;
+      title.addEventListener('click', (e) => {
+        const c = cv.getBoundingClientRect(), px = e.clientX - c.left, py = e.clientY - c.top, b = cam.box, now = performance.now();
+        cam.poke = now;
+        if (b && px > b.l - 6 && px < b.r + 6 && py > b.t - 6 && py < b.b + 6) {
+          // a pet
+          if (cam.act === 'sleep') { cam.act = 'stretch'; cam.t0 = now; cam.until = now + 1000; return; }
+          cam.act = 'purr'; cam.t0 = now; cam.until = now + 2600; sfx('purr');
+          fx('burst', e.clientX, e.clientY, { count: 10, color: 'hi', glyphs: true, speed: .5, gravity: -.3, life: 900 });
+          if (++cam.pets >= 7) unlock('pet');
+          return;
+        }
+        const j = spans.indexOf(e.target);
+        if (j < 0 || j === cam.knocked || !S.set.motion) return;
+        if (j === cam.at) { cam.act = 'alert'; cam.t0 = now; cam.until = now + 900; return; }
+        // a letter tapped: she sees it, wiggles, and goes for it
+        cam.from = cam.x; cam.to = j; cam.face = j > cam.at ? 1 : -1; cam.act = 'pounce'; cam.t0 = now; cam.until = now + 1e9; sfx('mrrp');
+      });
+    }
+    camRaf = requestAnimationFrame(frame);
+  }
+
   // under the logo, a sequencing trace runs past, peaks only, the way the landing page's dividers draw it
   let traceRaf = 0;
   function trace() {
