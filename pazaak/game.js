@@ -685,6 +685,10 @@
       return;
     }
     screen = id;
+    // a callout, a recap or a card's readout does not follow you to another screen
+    if (coachNow) coachNow.close();
+    if (recapNow) recapNow.end(false);
+    hideTip();
     $$('.scr').forEach((s) => { const on = s.id === 's-' + id; s.hidden = !on; s.classList.toggle('on', on); });
     $('#b-menu').hidden = id === 'menu' || id === 'boot';
     if (id !== 'table') { $('#drawer').classList.remove('open'); }
@@ -706,6 +710,8 @@
     for (let n = 0; n < 9; n++) { const k = (lo + hi) / 2; set(k); if (bottom() <= room) lo = k; else hi = k; }
     set(lo);
     paintOpp({});
+    if (coachNow) coachNow.place();
+    if (recapNow) recapNow.place();
   }
   let fitT = 0;
   const refit = () => { clearTimeout(fitT); fitT = setTimeout(fit, 80); };
@@ -1290,7 +1296,7 @@
       case 'setEnd': {
         pips();
         const w = ev.winner, me = G.cfg.mode === 'hotseat' ? null : 0;
-        const word = w === null ? 'TIE' : G.cfg.mode === 'hotseat' ? 'P' + (w + 1) + ' TAKES THE SET' : w === me ? 'SET WON' : 'SET LOST';
+        const word = setWord(w);
         const why = { bust: 'over twenty', nine: 'nine cards', stand: ev.totals[0] + ' to ' + ev.totals[1], tiebreak: 'on the tiebreaker', tie: 'the set is played again' }[ev.reason] || '';
         fx('stamp', word, { color: w === null ? 'fg' : w === me || G.cfg.mode === 'hotseat' ? 'hi' : 'warn', sub: why.toUpperCase(), life: 1500 });
         if (w !== null) { const p = $('#pips-' + w).children[ev.score[w] - 1]; if (p) { const c = center(p); fx('burst', c.x, c.y, { count: 24, color: 'hi' }); } }
@@ -1312,6 +1318,7 @@
       case 'matchEnd': break;
     }
   }
+  const setWord = (w) => w === null ? 'TIE' : G.cfg.mode === 'hotseat' ? 'P' + (w + 1) + ' TAKES THE SET' : w === 0 ? 'SET WON' : 'SET LOST';
   async function run(events) {
     // a match left behind (a new one started while this one was still animating) stops where it is
     const g = G;
@@ -1326,14 +1333,119 @@
     const m = G.m;
     if (m.phase === 'matchOver') return matchOver();
     if (screen !== 'table') return;
-    if (m.phase === 'setOver') { busy = true; await pause(500); busy = false; return run(E.startSet(m)); }
+    if (m.phase === 'setOver') {
+      // a set is not waved off: the recap stays until you have read it
+      const g = G;
+      if (!(await recap()) || G !== g) return;
+      return run(E.startSet(m));
+    }
     if (m.phase !== 'turn') return;
     if (!human(m.turn)) return aiTurn();
     if (m.turn !== shownSeat) {
       // hotseat: the device changes hands, and nobody gets to see the other hand on the way
       await passDevice(m.turn);
     }
+    if (coaching()) {
+      // the cards and the buttons stay shut while a callout is up
+      const g = G;
+      controls(); busy = true; controls();
+      await coachTurn();
+      busy = false;
+      if (G !== g || screen !== 'table') return;
+    }
     controls(); choices();
+  }
+
+  // ---- the set recap: who took it, how, and the score. It waits for you, over the arena
+  let recapNow = null;
+  function recap() {
+    const m = G.m, h = m.history[m.history.length - 1], w = h.winner, hot = G.cfg.mode === 'hotseat';
+    const nm = (s) => seatName(s) === 'YOU' ? 'You' : seatName(s);
+    const why = { stand: w === null ? '' : nm(w) + ' stood higher.', bust: w === null ? '' : nm(1 - w) + ' went over twenty.', nine: w === null ? '' : nm(w) + ' filled the board.', tiebreak: 'The tiebreaker card decides it.', tie: 'A tie. The set is played again.' }[h.reason] || '';
+    return new Promise((done) => {
+      const ov = document.createElement('div'); ov.className = 'recap'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'set ' + h.set + ' recap');
+      ov.innerHTML = '<h4 class="' + (w === 1 && !hot ? 'lost' : '') + '">' + esc(setWord(w)) + '</h4><p class="rw">' + esc(why) + '</p>' +
+        '<div class="rs"><span><b>' + h.totals[0] + ' – ' + h.totals[1] + '</b>this set</span><span><b>' + m.score[0] + ' – ' + m.score[1] + '</b>sets</span><button class="btn" type="button">next set ›</button></div>';
+      document.body.appendChild(ov);
+      let over = false;
+      const end = (go) => { if (over) return; over = true; ov.remove(); recapNow = null; if (go) sfx('select'); done(go); };
+      // over the middle of the arena, and no wider than it needs to be
+      const place = () => {
+        const r = $('.arena').getBoundingClientRect(), w = Math.min(460, r.width - 8);
+        ov.style.width = w + 'px'; ov.style.left = r.left + (r.width - w) / 2 + 'px';
+        ov.style.top = Math.max(4, r.top + (r.height - ov.offsetHeight) / 2) + 'px';
+      };
+      recapNow = { end, place };
+      place();
+      ov.onclick = () => end(true);
+      $('.btn', ov).focus();
+    });
+  }
+
+  // ---- coach marks. The first match against Camille: a ring on the thing, a callout beside it, and the table waits
+  let coachNow = null;
+  const coaching = () => !!G && screen === 'table' && G.cfg.mode === 'ladder' && G.cfg.opp === 'camille' && !S.seen.coach;
+  const COACH = {
+    total: { at: '#tot-0', side: 'below', t: () => 'Your total. Twenty wins the set. Over twenty, at the end of your turn, loses it.' },
+    end: { at: '.actions', side: 'above', t: () => '<b>END TURN</b> and the deck deals you another card next turn. <b>STAND</b> and your total is locked for the rest of the set. Neither comes back.' },
+    hand: { at: '#hand .slotc', side: 'above', t: () => 'Your hand. Four side cards, for the whole match, and one per turn. ' + (matchMedia('(pointer: coarse)').matches ? 'Tap a card, then tap the half you want. Or drag it onto your board.' : 'Click the half of a card you want. Or drag it onto your board.') },
+    stand: { at: '#tgt-0', side: 'below', t: () => 'She stands. Beat her total without going over. She is in no hurry.' },
+    over: { at: '#hand .slotc', side: 'above', t: () => 'Over twenty. A minus card can still save it, this turn only. After that it is a bust.' },
+  };
+  async function coachTurn() {
+    const m = G.m, s = shownSeat;
+    await coach('total'); await coach('end'); await coach('hand');
+    if (m.standing[1 - s] && !m.standing[s] && E.total(m, 1 - s) <= 20) await coach('stand');
+    if (E.total(m, s) > 20 && E.legalPlays(m, s).some((p) => p.after <= 20)) await coach('over');
+  }
+  function coach(id) {
+    if (!coaching() || (G.coach && G.coach[id])) return Promise.resolve();
+    const c = COACH[id];
+    (G.coach = G.coach || {})[id] = 1; saveMatch();
+    return new Promise((done) => {
+      const ov = document.createElement('div'); ov.className = 'coach'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'coaching');
+      ov.innerHTML = '<i class="hl"></i><div class="cm"><div class="bx"><span class="cl">THE TERMINAL</span><p>' + c.t() + '</p><div class="cb"><button class="skip" data-esc type="button">skip</button><button class="btn" type="button">got it ›</button></div></div><i class="ar"></i></div>';
+      $('#ovs').appendChild(ov);
+      const hl = $('.hl', ov), cm = $('.cm', ov), ar = $('.ar', ov), cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+      let over = false;
+      const close = (skipped) => {
+        if (over) return; over = true; ov.remove(); coachNow = null;
+        // skipping ends the coaching for good, and so does having seen all of it
+        if (skipped || Object.keys(G.coach).length >= Object.keys(COACH).length) { S.seen.coach = 1; save(); }
+        done();
+      };
+      // on whatever it points at: above or below it if there is room, else beside it, else over its edge with no arrow
+      const place = () => {
+        const els = $$(c.at).filter((e) => e.offsetWidth || e.offsetHeight);
+        const vw = document.documentElement.clientWidth, vh = window.visualViewport ? visualViewport.height : innerHeight;
+        const pad = 5, gap = 20, edge = 10;
+        let r = null;
+        els.forEach((e) => { const b = e.getBoundingClientRect(); r = r ? { left: Math.min(r.left, b.left), top: Math.min(r.top, b.top), right: Math.max(r.right, b.right), bottom: Math.max(r.bottom, b.bottom) } : { left: b.left, top: b.top, right: b.right, bottom: b.bottom }; });
+        cm.style.width = Math.min(310, vw - 2 * edge) + 'px';
+        const w = cm.offsetWidth, h = cm.offsetHeight;
+        if (!r) { r = { left: vw / 2, right: vw / 2, top: vh / 2, bottom: vh / 2 }; hl.style.display = 'none'; } else hl.style.display = '';
+        const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2;
+        hl.style.left = r.left - pad + 'px'; hl.style.top = r.top - pad + 'px'; hl.style.width = r.right - r.left + 2 * pad + 'px'; hl.style.height = r.bottom - r.top + 2 * pad + 'px';
+        const room = { above: r.top - pad - gap - h >= edge, below: r.bottom + pad + gap + h <= vh - edge, left: r.left - pad - gap - w >= edge, right: r.right + pad + gap + w <= vw - edge };
+        const dir = (c.side === 'above' ? ['above', 'below', 'left', 'right'] : ['below', 'above', 'left', 'right']).find((d) => room[d]) || 'none';
+        let x = cl(cx - w / 2, edge, vw - w - edge), y;
+        if (dir === 'above') y = r.top - pad - gap - h;
+        else if (dir === 'below') y = r.bottom + pad + gap;
+        else if (dir === 'left') { x = r.left - pad - gap - w; y = cl(cy - h / 2, edge, vh - h - edge); }
+        else if (dir === 'right') { x = r.right + pad + gap; y = cl(cy - h / 2, edge, vh - h - edge); }
+        else y = r.top - edge > vh - r.bottom ? edge : vh - h - edge;
+        cm.style.left = x + 'px'; cm.style.top = y + 'px';
+        ar.className = 'ar ' + dir;
+        if (dir === 'above' || dir === 'below') { ar.style.left = cl(cx - x, 16, w - 16) + 'px'; ar.style.top = ''; }
+        else { ar.style.top = cl(cy - y, 16, h - 16) + 'px'; ar.style.left = ''; }
+      };
+      coachNow = { place, close: () => close(false), next: () => close(false), skip: () => close(true) };
+      place();
+      $('.btn', ov).onclick = () => close(false);
+      $('.skip', ov).onclick = () => close(true);
+      sfx('select');
+      $('.btn', ov).focus();
+    });
   }
   async function aiTurn() {
     busy = true; controls();
@@ -1407,6 +1519,8 @@
   async function matchOver() {
     if (G.over) return;
     G.over = true;
+    if (recapNow) recapNow.end(false);
+    if (G.coach && !S.seen.coach) { S.seen.coach = 1; save(); }
     const m = G.m, cfg = G.cfg, w = m.winner, me = w === 0;
     store.del('pazaak-match');
     let delta = 0, lines = [], storyNext = null;
@@ -1534,6 +1648,8 @@
   // THE OTHER SCREENS
   // ============================================================
   const RENDER = {};
+  let menuFace = 'camille';
+  const paintMenuFace = () => drawPortrait($('#m-face'), menuFace, { full: true });
   RENDER.menu = function () {
     const sv = store.get('pazaak-match', null);
     const can = sv && sv.m && sv.m.phase !== 'matchOver' && sv.cfg;
@@ -1542,7 +1658,10 @@
     const d = S.daily[today()];
     $('#m-daily-t').textContent = d && d.won ? "today's deal is beaten · play again" : 'same deal for everyone today';
     const next = ORDER.find((k) => unlocked(k) && !S.beaten[k]);
-    $('#m-play-t').textContent = next ? 'next on the list: ' + OPP[next].name.toLowerCase() : 'the list is finished';
+    // the next face on the list sits in the button; when the list is done, HK-47 is still dealing
+    menuFace = next || 'hk';
+    $('#m-play-t').textContent = next ? 'next on the list: ' + OPP[next].name.toLowerCase() : 'the list is finished · ' + OPP.hk.name + ' deals on';
+    paintMenuFace();
     $('#tagline').textContent = S.ach.story ? (S.align >= 0 ? 'THE TABLE STAYS OPEN. IT ALWAYS DOES.' : 'WELCOME BACK, MASTER.') : S.beaten.hk ? 'THERE IS A SIXTH NAME.' : 'HK-47 DEALS. THE CAT WATCHES.';
     wire();
   };
@@ -1621,28 +1740,72 @@
 
   // ---- side deck: ten from what you own
   RENDER.deck = function () {
+    hideTip();
     const dv = $('#deckview'), co = $('#coll');
     dv.innerHTML = ''; co.innerHTML = '';
     for (let i = 0; i < 10; i++) {
       const name = S.deck[i];
       if (!name) { const e = document.createElement('div'); e.className = 'empty'; dv.appendChild(e); continue; }
-      const c = cardEl({ name }); c.title = 'take out ' + name; c.tabIndex = 0;
+      const c = cardEl({ name }); c.tabIndex = 0; c.setAttribute('aria-label', 'take out ' + name + ': ' + E.cardInfo(name).desc);
       c.onclick = () => { S.deck.splice(i, 1); save(); sfx('select'); RENDER.deck(); };
       c.onkeydown = (e) => { if (e.key === 'Enter') c.onclick(); };
+      describe(c, name);
       dv.appendChild(c);
     }
     $('#deck-count').textContent = S.deck.length + '/10';
-    E.ALL_CARDS.forEach((name) => {
-      const own = S.owned[name] || 0, used = S.deck.filter((x) => x === name).length;
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'citem' + (own ? '' : ' none');
-      b.disabled = !own || used >= own || S.deck.length >= 10;
-      b.appendChild(cardEl({ name }));
-      const t = document.createElement('span'); t.className = 'cnt'; t.innerHTML = own ? '<b>' + (own - used) + '</b>/' + own : 'not owned'; b.appendChild(t);
-      b.onclick = () => { S.deck.push(name); save(); sfx('place'); RENDER.deck(); };
-      co.appendChild(b);
+    // what is in it, and whether anything in it can pull you back from twenty-one
+    const by = { plus: 0, minus: 0, flip: 0, gold: 0 };
+    S.deck.forEach((n) => { by[typeOf(n)]++; });
+    const saves = S.deck.some((n) => { const i = E.cardInfo(n); return i.type === 'minus' || i.type === 'flip' || i.choices.some((v) => v < 0); });
+    $('#d-comp').innerHTML = (S.deck.length ? Object.keys(by).filter((t) => by[t]).map((t) => by[t] + ' ' + t).join(' · ') : 'nothing in it yet') + (S.deck.length && !saves ? ' · <span class="warn-t">nothing in here can save you from a bust</span>' : '');
+    ['plus', 'minus', 'flip', 'gold'].forEach((t) => {
+      const h = document.createElement('h4'); h.className = 'grp t-' + t; h.textContent = t.toUpperCase(); co.appendChild(h);
+      E.ALL_CARDS.filter((n) => typeOf(n) === t).forEach((name) => {
+        const own = S.owned[name] || 0, used = S.deck.filter((x) => x === name).length;
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'citem' + (own ? '' : ' none');
+        // not disabled, so a long press can still ask what the card does
+        const no = !own || used >= own || S.deck.length >= 10;
+        b.classList.toggle('dis', no); b.setAttribute('aria-disabled', no ? 'true' : 'false');
+        b.appendChild(cardEl({ name }));
+        const n = document.createElement('span'); n.className = 'cnt'; n.innerHTML = own ? '<b>' + (own - used) + '</b>/' + own : 'not owned'; b.appendChild(n);
+        b.onclick = () => { if (no) return; S.deck.push(name); save(); sfx('place'); RENDER.deck(); };
+        describe(b, name);
+        co.appendChild(b);
+      });
     });
     $('#d-note').textContent = S.deck.length < 10 ? 'add ' + (10 - S.deck.length) + ' more to play' : 'ready';
   };
+  // a card's readout: hover shows it, so does a long press, and a long press is not also a tap
+  let tipEl = null, tipT = 0;
+  function showTip(el, name) {
+    const i = E.cardInfo(name); if (!i) return;
+    if (!tipEl) { tipEl = document.createElement('div'); tipEl.className = 'tip'; tipEl.setAttribute('role', 'tooltip'); document.body.appendChild(tipEl); }
+    clearTimeout(tipT);
+    tipEl.innerHTML = '<b>' + esc(i.label) + '</b> · ' + i.type + ' · ' + esc(i.desc);
+    tipEl.hidden = false;
+    const r = el.getBoundingClientRect(), w = tipEl.offsetWidth, h = tipEl.offsetHeight, vw = document.documentElement.clientWidth;
+    tipEl.style.left = Math.max(8, Math.min(vw - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+    tipEl.style.top = (r.top - h - 8 < 8 ? r.bottom + 8 : r.top - h - 8) + 'px';
+  }
+  function hideTip() { clearTimeout(tipT); if (tipEl) tipEl.hidden = true; }
+  function describe(el, name) {
+    let t = 0, held = false;
+    el.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') showTip(el, name); });
+    el.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') hideTip(); });
+    el.addEventListener('focus', () => { if (el.matches(':focus-visible')) showTip(el, name); });
+    el.addEventListener('blur', hideTip);
+    el.addEventListener('pointerdown', (e) => {
+      held = false; clearTimeout(t);
+      if (e.pointerType === 'mouse') return;
+      t = setTimeout(() => { held = true; showTip(el, name); buzz(15); }, 400);
+    });
+    // a finger that scrolls, or lifts, is not a hold; the readout stays a moment after a real one
+    const release = () => { clearTimeout(t); if (held) tipT = setTimeout(hideTip, 2600); };
+    el.addEventListener('pointerup', release); el.addEventListener('pointercancel', release);
+    el.addEventListener('contextmenu', (e) => { if (held) e.preventDefault(); });
+    el.addEventListener('click', (e) => { if (held) { held = false; e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+  }
+  addEventListener('scroll', hideTip, { passive: true });
   function autoDeck() {
     const score = (n) => { const i = E.cardInfo(n); const v = Math.abs(parseInt(n.replace(/[^\d]/, ''), 10)) || 0; return i.type === 'gold' ? 90 : i.type === 'flip' ? 60 - Math.abs(v - 3) * 4 : 30 - Math.abs(v - 3) * 3; };
     const pool = []; E.ALL_CARDS.forEach((n) => { for (let k = 0; k < (S.owned[n] || 0); k++) pool.push(n); });
@@ -1711,6 +1874,12 @@
       '<h3>The advisor</h3><p>T3-M4 will count the deck for you if you ask: the chance that the next card busts you, the cards left in the main deck, and what it would do. It is switched off in the daily transmission.</p>' +
       '<h3>Keys</h3><p><kbd>1</kbd>–<kbd>4</kbd> pick a card in your hand, <kbd>+</kbd> <kbd>−</kbd> or <kbd>Enter</kbd> play it · <kbd>E</kbd> end turn · <kbd>S</kbd> stand · <kbd>A</kbd> advisor · <kbd>L</kbd> log · <kbd>F</kbd> speed · <kbd>M</kbd> sound · <kbd>Esc</kbd> back</p>' +
       '<p class="note">Pazaak is from Star Wars: Knights of the Old Republic (BioWare, 2003). This is a fan-made table on a personal page.</p>';
+    const rp = document.createElement('p'); rp.innerHTML = '<button class="btn" id="r-coach" type="button">replay the coaching</button>';
+    $('#rules').appendChild(rp);
+    $('#r-coach').onclick = () => {
+      delete S.seen.coach; if (G) G.coach = {}; save(); sfx('select');
+      toast('COACHING RESET', 'It runs again in your next match against Camille.');
+    };
     let k = 0;
     $$('#rules .ex').forEach((box) => { const list = sets[k++]; $$('span[data-ex]', box).forEach((sp, i) => sp.replaceWith(cardEl(list[i]))); });
   };
@@ -1741,7 +1910,7 @@
     o.appendChild(r);
   };
   function fastLabel() { $('#b-fast').textContent = 'speed ×' + (S.set.fast ? 2 : 1); $('#b-fast').setAttribute('aria-pressed', S.set.fast ? 'true' : 'false'); }
-  function redrawPortraits() { if (G && screen === 'table') paintOpp({}); if (screen === 'ladder') RENDER.ladder(); }
+  function redrawPortraits() { if (G && screen === 'table') paintOpp({}); if (screen === 'ladder') RENDER.ladder(); if (screen === 'menu') paintMenuFace(); }
 
   // ============================================================
   // WIRING
@@ -1781,12 +1950,17 @@
   $('#b-fast').onclick = () => { S.set.fast = !S.set.fast; save(); fastLabel(); };
   $('#b-quit').onclick = forfeit;
   document.addEventListener('pointerdown', (e) => {
-    if (sel >= 0 && screen === 'table' && !(e.target.closest && e.target.closest('#hand, #choices'))) { sel = -1; choices(); } try { if (window.PazaakSfx) PazaakSfx.unlock(); } catch (e) {} if (S.set.tilt) startGyro(); }, { passive: true });
+    if (sel >= 0 && screen === 'table' && !(e.target.closest && e.target.closest('#hand, #choices'))) { sel = -1; choices(); }
+    if (tipEl && !tipEl.hidden && !(e.target.closest && e.target.closest('.deckview, .coll'))) hideTip();
+    try { if (window.PazaakSfx) PazaakSfx.unlock(); } catch (e) {} if (S.set.tilt) startGyro(); }, { passive: true });
 
   document.addEventListener('keydown', (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
+    // a coach mark: Enter or Space is got it, Escape is skip
+    if (coachNow) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); coachNow.next(); } else if (e.key === 'Escape') coachNow.skip(); return; }
     if ($('#ovs').children.length) { if (e.key === 'Escape') { const x = $('#ovs > :last-child [data-esc]'); if (x) x.click(); } return; }
     const k = e.key.toLowerCase();
+    if (recapNow && (k === 'enter' || k === ' ')) { e.preventDefault(); recapNow.end(true); return; }
     if (k === 'm') { toggleSound(); return; }
     if (k === 'escape') { if ($('#drawer').classList.contains('open')) $('#drawer').classList.remove('open'); else if (screen === 'table' && sel >= 0) { sel = -1; choices(); } else if (screen === 'table') { saveMatch(); show('menu'); } else if (screen !== 'menu' && screen !== 'boot') show('menu'); return; }
     if (k === '?' && screen !== 'table') { show('rules'); return; }
