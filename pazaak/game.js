@@ -678,7 +678,12 @@
   // SCREENS, THEME, SOUND
   // ============================================================
   let screen = 'boot';
-  function show(id) {
+  function show(id, now) {
+    if (!now && screen === 'table' && id !== 'table' && S.set.motion) {
+      const a = $('#app'); a.classList.add('poweroff'); sfx('glitch');
+      setTimeout(() => { a.classList.remove('poweroff'); show(id, true); }, 330);
+      return;
+    }
     screen = id;
     $$('.scr').forEach((s) => { const on = s.id === 's-' + id; s.hidden = !on; s.classList.toggle('on', on); });
     $('#b-menu').hidden = id === 'menu' || id === 'boot';
@@ -686,7 +691,27 @@
     window.scrollTo(0, 0);
     sfx('whoosh');
     if (RENDER[id]) RENDER[id]();
+    if (id === 'table') requestAnimationFrame(fit);
   }
+  // the table grows its cards until it fills the screen. One size is searched for and measured, not guessed
+  const wide = () => matchMedia('(min-width: 900px) and (min-height: 600px)').matches;
+  function fit() {
+    if (screen !== 'table') return;
+    const t = $('#s-table'), kids = Array.from(t.children);
+    const room = (window.visualViewport ? visualViewport.height : innerHeight) - 10 - (parseFloat(getComputedStyle($('#app')).paddingBottom) || 0);
+    const set = (k) => { t.style.setProperty('--kc', k + 'px'); t.style.setProperty('--kh', (k * 1.22) + 'px'); };
+    // layout sizes, not the box on screen: the screen may still be mid power-on, squashed flat
+    const bottom = () => Math.max(...kids.map((c) => { let y = c.offsetHeight, e = c; while (e) { y += e.offsetTop; e = e.offsetParent; } return y; }));
+    let lo = 28, hi = 140;
+    for (let n = 0; n < 9; n++) { const k = (lo + hi) / 2; set(k); if (bottom() <= room) lo = k; else hi = k; }
+    set(lo);
+    paintOpp({});
+  }
+  let fitT = 0;
+  const refit = () => { clearTimeout(fitT); fitT = setTimeout(fit, 80); };
+  addEventListener('resize', refit);
+  if (window.visualViewport) visualViewport.addEventListener('resize', refit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
   function setTheme(t, save) {
     t = t === 'green' ? 'green' : 'amber';
     document.documentElement.dataset.theme = t;
@@ -855,7 +880,7 @@
     if (p) camTimer = setTimeout(() => { camPose = null; if (!$('#opp-pt').classList.contains('talk')) paintOpp({}); }, ms || 2600);
   }
   const oppFace = () => !G ? 'p2' : G.cfg.mode === 'hotseat' ? 'p2' : G.cfg.opp === 'camille' && camPose ? 'camille:' + camPose : G.cfg.opp;
-  const paintOpp = (st) => { if (G) drawPortrait($('#opp-pt'), oppFace(), st); };
+  const paintOpp = (st) => { if (G) drawPortrait($('#opp-pt'), oppFace(), Object.assign({ full: wide() }, st)); };
   function quip(kind, chance) {
     if (!G || G.cfg.mode === 'hotseat') return;
     const o = O(), lines = o.q[kind];
@@ -893,7 +918,30 @@
     while (l.childNodes.length > 400) l.removeChild(l.firstChild);
     l.scrollTop = l.scrollHeight;
   }
-  function status(html) { $('#status').innerHTML = html; }
+  // the status line is a prompt: new text types itself in, and the cursor stays
+  let statusNow = '';
+  function status(html) {
+    if (html === statusNow) return;
+    statusNow = html;
+    $('#status').innerHTML = html ? '<span class="pr">&gt;</span><span class="tx' + (S.set.motion ? ' new' : '') + '">' + html + '</span><span class="cur"></span>' : '';
+  }
+  // under each board, the last thing that happened there
+  function lastAct(seat, text) {
+    const el = $('#last-' + seat); el.textContent = text; el.classList.remove('new');
+    if (S.set.motion && text) { void el.offsetWidth; el.classList.add('new'); }
+  }
+  // when one side stands, the other is told what it has to beat; and the cards the opponent has left
+  function targets() {
+    if (!G) return;
+    const m = G.m;
+    for (let s = 0; s < 2; s++) {
+      const o = 1 - s, ot = E.total(m, o), on = m.phase === 'turn' && m.standing[o] && !m.standing[s] && ot <= 20;
+      $('#tgt-' + s).textContent = on ? (ot >= 20 ? 'NEED 20' : 'BEAT ' + ot) : '';
+    }
+    $('.arena').classList.toggle('live', m.phase === 'turn');
+    const left = m.hands[1 - shownSeat].filter(Boolean).length;
+    $('#ohand-n').textContent = left + (left === 1 ? ' card' : ' cards') + ' left';
+  }
 
   // ---- building the table from the match state, all at once (on entering, resuming, after a set)
   function renderTable() {
@@ -916,6 +964,7 @@
     deckCount(m.deck.length);
     renderHands();
     controls();
+    requestAnimationFrame(fit);
   }
   function deckCount(n) {
     const d = $('#deck');
@@ -929,12 +978,26 @@
     }
   }
   function boardTotal(s) { return $$('#board-' + s + ' .pc').reduce((a, c) => a + (+c.dataset.v || 0), 0); }
+  const roll = {};
   function setTotal(s, anim) {
     const t = boardTotal(s), el = $('#tot-' + s);
-    el.textContent = t;
+    clearInterval(roll[s]);
+    el.classList.remove('pv', 'bad', 'pure');
+    el.dataset.t = t;
     el.classList.toggle('twenty', t === 20);
     el.classList.toggle('over', t > 20);
-    if (anim) { el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick'); }
+    if (anim && S.set.motion) {
+      // like a counter on an old readout: a few wrong numbers first
+      let n = 0;
+      roll[s] = setInterval(() => { n++; el.textContent = n > 4 ? t : Math.random() * 30 | 0; if (n > 4) clearInterval(roll[s]); }, 34);
+      el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick');
+    } else el.textContent = t;
+  }
+  function preview(after) {
+    const el = $('#tot-' + shownSeat);
+    if (after === null || after === undefined) { if (el.classList.contains('pv')) { el.classList.remove('pv', 'bad', 'pure'); el.textContent = el.dataset.t; } return; }
+    clearInterval(roll[shownSeat]);
+    el.textContent = after; el.classList.add('pv'); el.classList.toggle('bad', after > 20); el.classList.toggle('pure', after === 20);
   }
   // the hand at the bottom belongs to whoever is holding the device; the other hand is face down at the top
   function renderHands() {
@@ -947,7 +1010,10 @@
         const c = cardEl({ name }); c.tabIndex = 0; c.setAttribute('role', 'button');
         c.setAttribute('aria-label', 'side card ' + name + ', key ' + (i + 1));
         c.dataset.i = i;
-        c.addEventListener('click', () => choose(i));
+        c.addEventListener('pointerdown', (e) => grab(e, i, c));
+        c.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse' && !drag) hover(e, i, c); });
+        c.addEventListener('pointerleave', () => { if (drag) return; if (sel !== i) unzone(c); preview(null); });
+        c.addEventListener('click', (e) => tapCard(e, i, c));
         c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); choose(i); } });
         sl.appendChild(c);
       }
@@ -955,7 +1021,83 @@
     });
     const oh = $('#ohand'); oh.innerHTML = '';
     m.hands[them].forEach((name) => { if (name) oh.appendChild(cardEl({ down: true })); else { const g = document.createElement('div'); g.className = 'gap'; oh.appendChild(g); } });
-    sel = -1; choices();
+    sel = -1; choices(); targets();
+  }
+  const playsFor = (i) => myTurn() && !G.m.played[shownSeat] && G.m.boards[shownSeat].length < 9 ? E.legalPlays(G.m, shownSeat).filter((p) => p.handIndex === i).sort((a, b) => (b.choice || 0) - (a.choice || 0)) : [];
+  const playLabel = (p) => p.choice === null || p.choice === undefined ? p.label : signed(p.choice);
+  // laid over the card itself, one band for each way to play it: plus on top, minus below
+  function zone(c, plays, on) {
+    let z = $('.pz', c);
+    if (!z) { z = document.createElement('div'); z.className = 'pz'; c.appendChild(z); }
+    // a finger already has the totals in the row above; a pointer gets them on the card
+    z.innerHTML = plays.map((p, k) => '<i class="' + (k === on ? 'on' : '') + (p.after > 20 ? ' bad' : '') + '">' + esc(playLabel(p)) + (ptr === 'mouse' ? '<small>→ ' + p.after + '</small>' : '') + '</i>').join('');
+  }
+  function unzone(c) { const z = $('.pz', c); if (z) z.remove(); }
+  const zoneAt = (el, y, n) => { const r = el.getBoundingClientRect(); return Math.max(0, Math.min(n - 1, Math.floor((y - r.top) / r.height * n))); };
+  function hover(e, i, c) {
+    const plays = playsFor(i); if (!plays.length) return;
+    const k = zoneAt(c, e.clientY, plays.length);
+    zone(c, plays, k); preview(plays[k].after);
+  }
+  let drag = null, dragged = false, ptr = 'mouse', dropAt = null;
+  function tapCard(e, i, c) {
+    if (dragged) { dragged = false; return; }
+    const plays = playsFor(i);
+    if (!plays.length) { sfx('error'); return; }
+    const k = zoneAt(c, e.clientY, plays.length);
+    // a mouse plays what it points at. A finger picks the card first, then touches the half it wants
+    if (ptr === 'mouse' || sel === i) { humanAct({ type: 'play', handIndex: i, choice: plays[k].choice }); return; }
+    sel = i; sfx('select'); choices();
+  }
+  function grab(e, i, c) {
+    ptr = e.pointerType || 'mouse'; dragged = false;
+    if (e.button > 0 || !playsFor(i).length) return;
+    const x0 = e.clientX, y0 = e.clientY;
+    const move = (ev) => {
+      if (!drag) { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) < 10) return; drag = lift(i, c); }
+      carry(ev);
+    };
+    const up = (ev) => {
+      removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+      if (drag) { dragged = true; drop(ev); }
+    };
+    addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+  }
+  function lift(i, c) {
+    const plays = playsFor(i), ghost = cardEl({ name: G.m.hands[shownSeat][i] });
+    ghost.classList.add('drag'); ghost.style.setProperty('--w', c.getBoundingClientRect().width + 'px');
+    document.body.appendChild(ghost);
+    c.classList.add('lift'); unzone(c); sel = -1; choices();
+    const bands = document.createElement('div'); bands.className = 'bands';
+    bands.innerHTML = plays.map((p) => '<i class="' + (p.after > 20 ? 'bad' : '') + '">' + esc(playLabel(p)) + '<small>→ ' + p.after + '</small></i>').join('');
+    $('#side-' + shownSeat).appendChild(bands);
+    sfx('select');
+    return { i, c, plays, ghost, bands, k: -1 };
+  }
+  function carry(ev) {
+    const d = drag;
+    d.ghost.style.left = ev.clientX + 'px'; d.ghost.style.top = ev.clientY + 'px';
+    const r = d.bands.getBoundingClientRect(), inside = ev.clientX > r.left - 24 && ev.clientX < r.right + 24 && ev.clientY > r.top - 40 && ev.clientY < r.bottom + 24;
+    const k = inside ? zoneAt(d.bands, ev.clientY, d.plays.length) : -1;
+    if (k === d.k) return;
+    d.k = k;
+    $$('i', d.bands).forEach((b, j) => b.classList.toggle('on', j === k));
+    preview(k >= 0 ? d.plays[k].after : null);
+    if (k >= 0) sfx('tick');
+  }
+  function drop(ev) {
+    const d = drag; drag = null;
+    d.bands.remove(); preview(null);
+    if (d.k >= 0 && myTurn()) {
+      dropAt = { x: ev.clientX, y: ev.clientY, w: d.ghost.getBoundingClientRect().width };
+      d.ghost.remove();
+      humanAct({ type: 'play', handIndex: d.i, choice: d.plays[d.k].choice });
+      return;
+    }
+    // not on the board: back to the hand
+    const home = center(d.c), done = () => { d.ghost.remove(); d.c.classList.remove('lift'); };
+    if (!S.set.motion) return done();
+    d.ghost.animate([{ left: ev.clientX + 'px', top: ev.clientY + 'px' }, { left: home.x + 'px', top: home.y + 'px' }], { duration: 180, easing: 'ease-out' }).onfinish = done;
   }
   const myTurn = () => G && G.m.phase === 'turn' && G.m.turn === shownSeat && human(shownSeat) && !busy;
   function controls() {
@@ -970,6 +1112,7 @@
       status(t > 20 ? '<span class="warn-t">OVER TWENTY.</span> PLAY A CARD OR BUST' : (G.cfg.mode === 'hotseat' ? 'PLAYER ' + (shownSeat + 1) + ' · ' : '') + 'YOUR TURN' + (m.standing[1 - shownSeat] ? ' · ' + seatName(1 - shownSeat) + ' STANDS ON ' + E.total(m, 1 - shownSeat) : ''));
     }
     advisor();
+    targets();
   }
   // the advisor shares the row above the hand with the card choices: it speaks while no card is picked
   function advisor() { $('#b-adv').setAttribute('aria-pressed', S.set.advisor ? 'true' : 'false'); choices(); }
@@ -988,22 +1131,20 @@
   }
   function choices() {
     const box = $('#choices'); box.innerHTML = '';
-    $$('#hand .pc').forEach((c) => c.classList.toggle('sel', +c.dataset.i === sel));
+    $$('#hand .pc').forEach((c) => { const on = +c.dataset.i === sel; c.classList.toggle('sel', on); if (on) zone(c, playsFor(sel), -1); else if (!c.matches(':hover')) unzone(c); });
     if (sel < 0 || !G) {
       if (!G || !myTurn()) return;
       if (S.set.advisor && G.cfg.mode !== 'daily') box.innerHTML = advisorHTML();
-      else if (!G.m.played[shownSeat] && G.m.hands[shownSeat].some(Boolean)) box.innerHTML = '<span class="hint">tap a card to play it · keys 1–4, then + − or Enter</span>';
+      else if (!G.m.played[shownSeat] && G.m.hands[shownSeat].some(Boolean)) box.innerHTML = '<span class="hint">' + (matchMedia('(pointer: coarse)').matches ? 'tap a card, then the half you want · or drag it onto your board' : 'click the half of a card you want · drag it · or keys 1–4') + '</span>';
       return;
     }
     const plays = E.legalPlays(G.m, shownSeat).filter((p) => p.handIndex === sel);
     plays.forEach((p) => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn' + (p.after === 20 ? ' twenty' : p.after > 20 ? ' bad' : '');
-      b.innerHTML = 'play <b>' + esc(p.choice === null || p.choice === undefined ? p.label : signed(p.choice)) + '</b> → ' + p.after;
+      b.innerHTML = '<b>' + esc(playLabel(p)) + '</b> → ' + p.after;
       b.onclick = () => humanAct({ type: 'play', handIndex: p.handIndex, choice: p.choice });
       box.appendChild(b);
     });
-    const x = document.createElement('button'); x.type = 'button'; x.className = 'btn sm'; x.textContent = 'cancel'; x.onclick = () => { sel = -1; choices(); };
-    box.appendChild(x);
   }
 
   // ---- moving cards: a card is placed where it ends up, then flown in from where it started
@@ -1043,7 +1184,7 @@
         // last set's cards sweep off the table
         const old = $$('#board-0 .pc, #board-1 .pc');
         if (old.length && S.set.motion) { await Promise.all(old.map((c, i) => c.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate(' + (c.closest('#board-0') ? -60 : 60) + 'px, 30px) rotate(' + (Math.random() * 40 - 20) + 'deg)', opacity: 0 }], { duration: 300 * speed(), delay: i * 20, fill: 'forwards' }).finished)); }
-        for (let s = 0; s < 2; s++) { $$('#board-' + s + ' .pc').forEach((c) => c.remove()); $('#side-' + s).classList.remove('standing', 'busted'); $('#lock-' + s).textContent = 'STAND'; setTotal(s); }
+        for (let s = 0; s < 2; s++) { $$('#board-' + s + ' .pc').forEach((c) => c.remove()); $('#side-' + s).classList.remove('standing', 'busted'); $('#lock-' + s).textContent = 'STAND'; setTotal(s); lastAct(s, ''); $('#tgt-' + s).textContent = ''; }
         $('#set-n').textContent = ev.set; deckCount(40);
         log('— SET ' + ev.set + ' · ' + seatName(ev.starter) + ' first', 's');
         status('SET ' + ev.set); sfx('shuffle');
@@ -1054,6 +1195,8 @@
       case 'reshuffle': deckCount(40); sfx('shuffle'); log('the main deck runs out and is shuffled again'); await pause(400); break;
       case 'turn': {
         for (let s = 0; s < 2; s++) $('#side-' + s).classList.toggle('act', s === ev.seat);
+        $('.arena').classList.add('live');
+        const sd = $('#side-' + ev.seat); sd.classList.remove('sweep'); if (S.set.motion) { void sd.offsetWidth; sd.classList.add('sweep'); }
         if (!human(ev.seat)) status(esc(seatName(ev.seat)) + "'S TURN");
         break;
       }
@@ -1064,7 +1207,7 @@
         const n = +$('#deck-n').textContent - 1; deckCount(Math.max(0, n));
         sfx('deal');
         await fly(el, center($('#deck')), { flipFrom: true, rot: ev.seat ? 12 : -12 });
-        sfx('place'); setTotal(ev.seat, true);
+        sfx('place'); setTotal(ev.seat, true); lastAct(ev.seat, 'drew ' + ev.card.v);
         const c = center(el); fx('burst', c.x, c.y, { count: 10, color: 'fg', speed: .6, life: 450 });
         log(seatName(ev.seat) + verb(ev.seat, ' draws ', ' draw ') + ev.card.v + ' → ' + boardTotal(ev.seat), ev.seat === 0 ? 'y' : '');
         await pause(220);
@@ -1072,7 +1215,8 @@
       }
       case 'play': {
         const type = typeOf(ev.name), from = human(ev.seat) && ev.seat === shownSeat ? $('#hand').children[ev.handIndex] : $('#ohand').children[ev.handIndex];
-        const src = from ? center(from) : center($('#deck'));
+        const src = dropAt && ev.seat === shownSeat ? dropAt : from ? center(from) : center($('#deck'));
+        dropAt = null;
         if (from) { if (from.classList.contains('slotc')) { from.innerHTML = ''; from.classList.add('gone'); } else { const g = document.createElement('div'); g.className = 'gap'; from.replaceWith(g); } }
         const board = $('#board-' + ev.seat), idx = $$('.pc', board).length, el = cardEl({ card: ev.card });
         el.dataset.id = ev.card.id;
@@ -1083,6 +1227,8 @@
         fx('burst', c.x, c.y, { count: type === 'gold' ? 46 : 26, color: colorFor(type), glyphs: type === 'gold', speed: 1 });
         if (type === 'gold') { fx('shockwave', c.x, c.y, { color: '#ffd36b', radius: 140 }); buzz(30); }
         setTotal(ev.seat, true);
+        lastAct(ev.seat, 'played ' + (ev.choice !== null && ev.choice !== undefined ? signed(ev.choice) : (E.cardInfo(ev.name) || {}).label || ev.name));
+        targets();
         log(seatName(ev.seat) + verb(ev.seat, ' plays [', ' play [') + ev.name + ']' + (ev.choice !== null && ev.choice !== undefined && /±/.test(ev.name) ? ' as ' + signed(ev.choice) : '') + ' → ' + boardTotal(ev.seat), ev.seat === 0 ? 'y' : 'o');
         if (!human(ev.seat)) quip('play', .5);
         if (ev.flips && ev.flips.length) {
@@ -1090,6 +1236,7 @@
           for (const f of ev.flips) { const fe = $('#board-' + ev.seat + ' .pc[data-id="' + f.id + '"]'); if (fe) await flipCard(fe, f.to); }
           setTotal(ev.seat, true);
           log('  ' + ev.flips.length + ' card' + (ev.flips.length > 1 ? 's' : '') + ' flip sign → ' + boardTotal(ev.seat));
+          lastAct(ev.seat, 'played ' + ((E.cardInfo(ev.name) || {}).label || ev.name) + ' · ' + ev.flips.length + ' flipped');
         }
         await pause(260);
         break;
@@ -1101,7 +1248,7 @@
         sfx('twenty'); buzz([20, 40, 20]);
         if (human(ev.seat) && G.cfg.mode !== 'hotseat') { S.stats.pure++; unlock('pure'); G.pure = (G.pure || 0) + 1; }
         quip(human(ev.seat) ? 'youTwenty' : 'aiTwenty');
-        status('TWENTY · <span style="color:#fff">PURE PAZAAK</span>');
+        status('TWENTY · <span style="color:#fff">PURE PAZAAK</span>'); lastAct(ev.seat, 'twenty');
         log(seatName(ev.seat) + verb(ev.seat, ' lands', ' land') + ' on twenty', 's');
         await pause(700);
         break;
@@ -1111,19 +1258,21 @@
         sfx('stand');
         const c = center(side); fx('scan', { color: 'fg', life: 500 }); fx('burst', c.x, c.y, { count: 14, color: 'fg', speed: .5 });
         status(esc(seatName(ev.seat)) + verb(ev.seat, ' STANDS', ' STAND') + ' ON ' + ev.total);
+        lastAct(ev.seat, 'stands on ' + ev.total); targets();
         log(seatName(ev.seat) + verb(ev.seat, ' stands', ' stand') + ' on ' + ev.total, ev.seat === 0 ? 'y' : 'o');
         if (human(ev.seat)) G.lowStand = ev.total <= 15 ? (G.lowStand || 0) | (1 << ev.seat) : G.lowStand;
         if (!human(ev.seat) && !ev.auto) quip('aiStand', .5);
         await pause(500);
         break;
       }
-      case 'end': sfx('end'); log(seatName(ev.seat) + verb(ev.seat, ' ends', ' end') + ' the turn on ' + ev.total, ev.seat === 0 ? 'y' : ''); await pause(200); break;
+      case 'end': sfx('end'); lastAct(ev.seat, 'ends on ' + ev.total); log(seatName(ev.seat) + verb(ev.seat, ' ends', ' end') + ' the turn on ' + ev.total, ev.seat === 0 ? 'y' : ''); await pause(200); break;
       case 'bust': {
         const side = $('#side-' + ev.seat); side.classList.add('busted'); $('#lock-' + ev.seat).textContent = 'BUST';
         fx('glitch', { life: 650 }); shake(); sfx('bust'); buzz(220);
         const c = center($('#tot-' + ev.seat)); fx('burst', c.x, c.y, { count: 40, color: 'warn', glyphs: true, speed: 1.4 });
         if (human(ev.seat) && G.cfg.mode !== 'hotseat') { S.stats.busts++; G.busts = (G.busts || 0) + 1; if (G.cfg.mode !== 'hotseat' && G.busts >= 3) unlock('spect'); }
         quip(human(ev.seat) ? 'youBust' : 'aiBust');
+        lastAct(ev.seat, 'bust on ' + ev.total);
         status('<span class="warn-t">' + esc(seatName(ev.seat)) + (seatName(ev.seat) === 'YOU' ? ' BUST' : ' BUSTS') + ' · ' + ev.total + '</span>');
         log(seatName(ev.seat) + verb(ev.seat, ' busts', ' bust') + ' on ' + ev.total, 'w');
         await pause(900);
@@ -1133,7 +1282,7 @@
         const c = center($('#board-' + ev.seat));
         fx('shockwave', c.x, c.y, { color: 'alt', radius: 240, rings: 3 }); fx('flash', { color: 'alt' }); sfx('twenty');
         if (human(ev.seat) && G.cfg.mode !== 'hotseat') { S.stats.nines++; unlock('nine'); }
-        status('NINE CARDS · THE BOARD IS FULL');
+        status('NINE CARDS · THE BOARD IS FULL'); lastAct(ev.seat, 'full board');
         log(seatName(ev.seat) + verb(ev.seat, ' fills', ' fill') + ' the board', 's');
         await pause(800);
         break;
@@ -1205,7 +1354,7 @@
     if (!myTurn()) return;
     const r = E.act(G.m, shownSeat, action);
     if (!r.ok) { sfx('error'); status('<span class="warn-t">' + esc(r.error || 'not now') + '</span>'); return; }
-    sel = -1; $('#choices').innerHTML = '';
+    sel = -1; $('#choices').innerHTML = ''; preview(null);
     saveMatch();
     run(r.events);
   }
@@ -1395,17 +1544,58 @@
     const next = ORDER.find((k) => unlocked(k) && !S.beaten[k]);
     $('#m-play-t').textContent = next ? 'next on the list: ' + OPP[next].name.toLowerCase() : 'the list is finished';
     $('#tagline').textContent = S.ach.story ? (S.align >= 0 ? 'THE TABLE STAYS OPEN. IT ALWAYS DOES.' : 'WELCOME BACK, MASTER.') : S.beaten.hk ? 'THERE IS A SIXTH NAME.' : 'HK-47 DEALS. THE CAT WATCHES.';
-    fan();
+    wire();
   };
-  function fan() {
-    const f = $('#fan'); if (f.children.length) return;
-    const cards = [{ v: 7 }, { name: '-3' }, { name: '±1T' }, { name: '+4' }, { name: '2x' }];
-    cards.forEach((c, i) => {
-      const el = cardEl(c), a = (i - 2) * 13;
-      el.style.transform = 'translateX(-50%) rotate(' + a + 'deg) translateY(' + Math.abs(i - 2) * 6 + 'px)';
-      if (S.set.motion) el.animate([{ translate: '0 0' }, { translate: '0 -7px' }, { translate: '0 0' }], { duration: 3000 + i * 300, iterations: Infinity, delay: i * 200, easing: 'ease-in-out' });
-      f.appendChild(el);
-    });
+  // the menu's wire card: a main-deck card turning on the spot, drawn in lines the way the landing page draws its
+  // receptor. Its number changes each time it turns edge-on. Two more lean behind it, dim
+  let wireRaf = 0;
+  function wire() {
+    const cv = $('#wire'); if (!cv) return;
+    cancelAnimationFrame(wireRaf);
+    const x = cv.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1), vals = [4, 9, 7];
+    let W = 0, H = 0, face = 1;
+    const SEG = { a: [-.5, -1, .5, -1], b: [.5, -1, .5, 0], c: [.5, 0, .5, 1], d: [-.5, 1, .5, 1], e: [-.5, 0, -.5, 1], f: [-.5, -1, -.5, 0], g: [-.5, 0, .5, 0] };
+    const DIG = ['abcdef', 'bc', 'abdeg', 'abcdg', 'bcfg', 'acdfg', 'acdefg', 'abc', 'abcdefg', 'abcdfg'];
+    const path = (pts, close) => { x.beginPath(); pts.forEach((p, i) => (i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1]))); if (close) x.closePath(); };
+    function frame(now) {
+      if (screen !== 'menu' || !cv.isConnected) return;
+      const r = cv.getBoundingClientRect();
+      if (Math.abs(r.width - W) > 1 || Math.abs(r.height - H) > 1) { W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; }
+      const t = now / 1000, fg = css('--fg'), hi = css('--hi'), faint = css('--faint'), bg = css('--bg');
+      x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, W, H);
+      const U = Math.min(H * .42, W * .17), cx = W / 2, cy = H / 2;
+      [[-1.15, .5, 1], [1.15, -.5, 1], [0, 0, 0]].forEach(([dx, lean, back], k) => {
+        const front = k === 2, ang = front ? t * .85 : lean + Math.sin(t * .7 + k * 2) * .1;
+        const ca = Math.cos(ang), sa = Math.sin(ang), z0 = back ? 1.3 : 0;
+        const P = (u, v) => { const X = u * ca, Z = u * sa + z0, s = U * 3.4 / (3.4 + Z); return [cx + dx * U + X * s, cy + v * s + (back ? U * .08 : 0)]; };
+        if (front && (ca >= 0 ? 1 : -1) !== face) { face = -face; if (face > 0) vals[2] = 1 + (Math.random() * 10 | 0); }
+        const showFace = !front || ca >= 0;
+        x.globalAlpha = 1; x.lineWidth = 1.3; x.shadowBlur = 0;
+        path([[-.56, -1], [.7, -1], [.7, .86], [.56, 1], [-.7, 1], [-.7, -.86]].map((p) => P(p[0], p[1])), true);
+        x.fillStyle = bg; x.fill();
+        x.strokeStyle = front ? fg : faint; x.shadowColor = fg; x.shadowBlur = front ? 10 : 0; x.stroke();
+        path([[-.56, -.74], [.56, -.74], [.56, .74], [-.56, .74]].map((p) => P(p[0], p[1])), true);
+        x.lineWidth = 1; x.stroke();
+        if (showFace) {
+          // the number, in seven segments
+          const ds = String(vals[k]).split('').map(Number);
+          x.strokeStyle = front ? hi : faint; x.lineWidth = front ? 2.4 : 1.6; x.lineCap = 'round';
+          ds.forEach((d, j) => {
+            const ox = (j - (ds.length - 1) / 2) * .4;
+            DIG[d].split('').forEach((g) => { const q = SEG[g]; path([P(ox + q[0] * .26, q[1] * .38), P(ox + q[2] * .26, q[3] * .38)]); x.stroke(); });
+          });
+          for (let i = 0; i < Math.min(10, vals[k]); i++) { path([P(-.5 + i * .11, .86), P(-.44 + i * .11, .86)]); x.lineWidth = 2; x.stroke(); }
+        } else {
+          // its back: a lattice and the table's ring
+          x.strokeStyle = faint; x.lineWidth = 1;
+          for (let i = -3; i <= 3; i++) { path([P(-.56, i * .24), P(.56, i * .24 + .5)]); x.stroke(); }
+          x.strokeStyle = fg; path(Array.from({ length: 16 }, (_, i) => P(Math.cos(i / 16 * 6.283) * .24, Math.sin(i / 16 * 6.283) * .24)), true); x.stroke();
+        }
+      });
+      x.shadowBlur = 0;
+      if (S.set.motion) wireRaf = requestAnimationFrame(frame);
+    }
+    wireRaf = requestAnimationFrame(frame);
   }
   RENDER.ladder = function () {
     const L = $('#ladder'); L.innerHTML = '';
@@ -1590,7 +1780,8 @@
   $('#b-logx').onclick = () => $('#drawer').classList.remove('open');
   $('#b-fast').onclick = () => { S.set.fast = !S.set.fast; save(); fastLabel(); };
   $('#b-quit').onclick = forfeit;
-  document.addEventListener('pointerdown', () => { try { if (window.PazaakSfx) PazaakSfx.unlock(); } catch (e) {} if (S.set.tilt) startGyro(); }, { passive: true });
+  document.addEventListener('pointerdown', (e) => {
+    if (sel >= 0 && screen === 'table' && !(e.target.closest && e.target.closest('#hand, #choices'))) { sel = -1; choices(); } try { if (window.PazaakSfx) PazaakSfx.unlock(); } catch (e) {} if (S.set.tilt) startGyro(); }, { passive: true });
 
   document.addEventListener('keydown', (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;

@@ -113,6 +113,12 @@
   .still .scr.on { animation: none; }
   h2 { font-family: var(--display); font-weight: 400; font-size: 34px; line-height: 1.05; margin: 4px 0 12px; letter-spacing: 1px; text-shadow: var(--glow), 0 0 44px rgba(var(--glow-rgb), .16); }
   h2 .ps { color: var(--dim); }
+  .scr.on h2 { animation: reveal .5s steps(16) .15s both; }
+  .scr.on h2::after { content: ""; display: inline-block; width: .45em; height: .8em; margin-left: .2em; background: var(--hi); vertical-align: -.05em; box-shadow: 0 0 10px rgba(var(--glow-rgb), .7); opacity: 0; animation: cur 1s steps(1) .65s 3; }
+  @keyframes cur { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  .still .scr.on h2, .still .scr.on h2::after { animation: none; }
+  #app.poweroff { animation: poweroff .32s cubic-bezier(.6,0,.9,.4) both; }
+  @keyframes poweroff { 0% { transform: none; filter: none; } 55% { transform: scaleY(.006) scaleX(1); filter: brightness(5); } 100% { transform: scaleY(.006) scaleX(0); filter: brightness(8); opacity: 0; } }
   .out { color: var(--dim); font-size: 12.5px; margin: 0 0 14px; }
   .back { align-self: flex-start; margin: 0 0 10px; }
 
@@ -158,13 +164,13 @@
   .pc.t-flip .face::before { background: linear-gradient(to bottom, var(--alt), var(--warn)); }
   .pc.t-flip .v { color: #fff; text-shadow: 0 -.04em .12em var(--alt), 0 .04em .12em var(--warn); }
   /* gold: a holographic foil that turns as the card does */
-  .pc.t-gold { --c: #ffd36b; --c2: #ff7bd5; filter: drop-shadow(0 0 calc(var(--w) * .07) rgba(255, 200, 120, .55)); }
-  .pc.t-gold .face { background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.3) 2px 3px), radial-gradient(ellipse at 50% 40%, #3a2a08 0%, #000 80%); }
-  .pc.t-gold .face::before { background: conic-gradient(from var(--ang, 0deg), #ffd36b, #ff7bd5, #7be0ff, #9dff7b, #ffd36b); animation: spin 4s linear infinite; }
-  .pc.t-gold .v { background: linear-gradient(100deg, #fff6d0 10%, #ffd36b 30%, #ff9ae0 50%, #8fe8ff 70%, #fff6d0 90%); background-size: 220% 100%; background-position: calc(var(--gx, 50%) * 2) 0; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 .06em rgba(255, 210, 120, .9)); }
-  .pc.t-gold .sg.t { background: linear-gradient(90deg, #ffd36b, #ff7bd5, #7be0ff); }
-  .pc.t-gold .sg.b { background: linear-gradient(90deg, #7be0ff, #9dff7b, #ffd36b); }
-  .pc.t-gold .foil { opacity: .45; mix-blend-mode: color-dodge; background: linear-gradient(125deg, rgba(255,0,170,.0) 10%, rgba(255,120,220,.45) calc(var(--gx, 50%) - 12%), rgba(120,230,255,.5) var(--gx, 50%), rgba(160,255,120,.45) calc(var(--gx, 50%) + 12%), rgba(255,255,0,0) 90%); }
+  /* gold: a foil in the phosphor's own light that turns as the card does */
+  .pc.t-gold { --c: var(--hi); --c2: var(--fg); filter: drop-shadow(0 0 calc(var(--w) * .08) rgba(var(--glow-rgb), .6)); }
+  .pc.t-gold .face { background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.3) 2px 3px), repeating-linear-gradient(45deg, rgba(var(--glow-rgb), .07) 0 2px, transparent 2px 5px), radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--fg) 26%, #000) 0%, #000 80%); }
+  .pc.t-gold .face::before { background: conic-gradient(from var(--ang, 0deg), var(--hi), var(--fg), var(--faint), var(--fg), var(--hi)); animation: spin 4s linear infinite; }
+  .pc.t-gold .v { background: linear-gradient(100deg, var(--fg) 10%, #fff 30%, var(--hi) 50%, var(--fg) 70%, #fff 90%); background-size: 220% 100%; background-position: calc(var(--gx, 50%) * 2) 0; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 .06em rgba(var(--glow-rgb), .9)); }
+  .pc.t-gold .sg.t, .pc.t-gold .sg.b { background: linear-gradient(90deg, var(--fg), var(--hi), var(--fg)); }
+  .pc.t-gold .foil { opacity: .4; mix-blend-mode: screen; background: linear-gradient(125deg, transparent 15%, rgba(255,255,255,.0) calc(var(--gx, 50%) - 14%), rgba(255,255,255,.5) var(--gx, 50%), rgba(255,255,255,0) calc(var(--gx, 50%) + 14%), transparent 85%); }
   @property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
   @keyframes spin { to { --ang: 360deg; } }
   .still .pc.t-gold .face::before { animation: none; }
@@ -186,8 +192,11 @@
   /* ============================================================
      THE TABLE
      ============================================================ */
-  #s-table { --cw: max(34px, min(calc((100vw - 2 * var(--gut) - 74px) / 6), calc(8.2 * var(--vh)), 92px)); --hw: max(56px, min(calc((100vw - 2 * var(--gut) - 30px) / 4), calc(11 * var(--vh)), 104px)); gap: 6px; }
+  /* the card sizes: --kc and --kh come from the page, which grows them until the table fills the screen; the caps keep them inside its width */
+  #s-table { --kc: 56px; --kh: 76px; --cw: max(30px, min(var(--kc), calc((100vw - 2 * var(--gut) - 74px) / 6), 120px)); --hw: max(46px, min(var(--kh), calc((100vw - 2 * var(--gut) - 30px) / 4), 128px)); gap: 6px; }
   .opp { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; border: 1px solid var(--line); background: rgba(0,0,0,.3); padding: 6px 8px; position: relative; }
+  .oh { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .ohn { font-size: 10px; letter-spacing: 1px; color: var(--dim); white-space: nowrap; }
   .portrait { display: block; width: 64px; height: 64px; image-rendering: pixelated; border: 1px solid var(--edge); background: #000; }
   .portrait.talk { animation: jitter .14s steps(2) infinite; }
   @keyframes jitter { 50% { transform: translate(1px, 0); } }
@@ -201,7 +210,24 @@
 
   .arena { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 6px; align-items: start; }
   .side { position: relative; border: 1px solid var(--line); background: rgba(0,0,0,.25); padding: 4px 4px 6px; transition: border-color .2s, box-shadow .2s; min-width: 0; }
-  .side.act { border-color: var(--fg); box-shadow: 0 0 18px rgba(var(--glow-rgb), .18), inset 0 0 0 1px var(--faint); }
+  .side.act { border-color: var(--fg); box-shadow: 0 0 18px rgba(var(--glow-rgb), .18), inset 0 0 0 1px var(--faint); animation: live 2.4s ease-in-out infinite; }
+  @keyframes live { 50% { box-shadow: 0 0 26px rgba(var(--glow-rgb), .3), inset 0 0 0 1px var(--edge); } }
+  /* whoever is waiting fades back, so the eye goes to the side that is moving */
+  .arena.live .side:not(.act) { opacity: .58; filter: saturate(.7); }
+  .side { transition: border-color .2s, box-shadow .2s, opacity .3s, filter .3s; }
+  /* a sweep across the board when its turn begins */
+  .side.sweep::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 30%; pointer-events: none; background: linear-gradient(to bottom, rgba(var(--glow-rgb), 0), rgba(var(--glow-rgb), .14), rgba(var(--glow-rgb), 0)); animation: sweep .55s ease-out both; }
+  @keyframes sweep { from { transform: translateY(-100%); } to { transform: translateY(340%); opacity: 0; } }
+  .last { display: flex; justify-content: space-between; gap: 6px; margin: 4px 2px 0; min-height: 15px; font-size: 11px; line-height: 15px; color: var(--dim); white-space: nowrap; overflow: hidden; }
+  .last .lt { overflow: hidden; text-overflow: ellipsis; }
+  .last .lt.new { animation: reveal .3s steps(12) both; }
+  .tgt { color: var(--bg); background: var(--hi); padding: 0 5px; text-shadow: none; letter-spacing: .5px; font-weight: 600; animation: blink 1.2s steps(1) 3; }
+  .tgt:empty { display: none; }
+  @keyframes reveal { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  .tot.pv { color: var(--hi); animation: blink .8s steps(1) infinite; }
+  .tot.pv::before { content: "→"; font-size: .6em; color: var(--dim); margin-right: 2px; }
+  .tot.pv.bad { color: var(--warn); text-shadow: 0 0 8px var(--warn); }
+  .tot.pv.pure { color: #fff; }
   .side header { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 0 2px 4px; min-width: 0; }
   .side .who { font-size: 11px; letter-spacing: 1px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .side.act .who { color: var(--hi); }
@@ -236,7 +262,12 @@
   .setno b { display: block; font: 400 28px/1 var(--display); color: var(--fg); }
   .vs { font: 400 18px/1 var(--display); color: var(--faint); }
 
-  .status { margin: 0; min-height: 26px; text-align: center; font: 400 22px/1.15 var(--display); letter-spacing: 1px; color: var(--hi); text-shadow: var(--glow-hi); }
+  .status { margin: 0; min-height: 26px; text-align: center; font: 400 22px/1.15 var(--display); letter-spacing: 1px; color: var(--hi); text-shadow: var(--glow-hi); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* the status line is a prompt: it types itself out and keeps a cursor */
+  .status .pr { color: var(--dim); margin-right: .35em; }
+  .status .tx { display: inline-block; vertical-align: bottom; max-width: calc(100% - 2em); overflow: hidden; text-overflow: ellipsis; }
+  .status .tx.new { animation: reveal .28s steps(14) both; }
+  .status .cur { display: inline-block; width: .5em; height: .85em; margin-left: .2em; vertical-align: -.05em; background: var(--hi); box-shadow: 0 0 8px rgba(var(--glow-rgb), .7); animation: blink 1s steps(1) infinite; }
   .status .dots::after { content: ""; animation: dots 1.2s steps(4) infinite; }
   @keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
   .advisor { display: flex; gap: 10px; align-items: center; justify-content: safe center; font-size: 11.5px; color: var(--dim); flex-wrap: nowrap; white-space: nowrap; overflow: hidden; max-width: 100%; }
@@ -248,7 +279,8 @@
   .hist { height: 22px; } .hist i { width: 7px; background: var(--fg); opacity: .8; position: relative; transition: height .3s; }
   .hist i.bust { background: var(--warn); }
   .choices { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; min-height: 34px; align-items: center; }
-  .choices .btn { min-height: 34px; padding: 2px 12px; font-size: 13px; animation: poweron .2s both; }
+  .choices .btn { min-height: 34px; padding: 2px 10px; font-size: 13px; animation: poweron .2s both; white-space: nowrap; }
+  .choices { flex-wrap: nowrap; }
   .choices .btn b { font: 400 20px/1 var(--display); }
   .choices .btn.twenty { border-color: var(--hi); color: var(--hi); box-shadow: 0 0 12px rgba(var(--glow-rgb), .45); }
   .choices .btn.bad { color: var(--warn); border-color: var(--warn); text-shadow: none; }
@@ -257,7 +289,25 @@
   .hand { display: flex; gap: 8px; justify-content: center; align-items: flex-end; min-height: calc(var(--hw) * 1.4 + 14px); padding-top: 14px; }
   .hand .slotc { position: relative; width: var(--hw); height: calc(var(--hw) * 1.4); }
   .hand .slotc.gone { border: 1px dashed var(--line); opacity: .5; clip-path: polygon(14% 0, 100% 0, 100% 90%, 86% 100%, 0 100%, 0 10%); }
-  .hand .pc { --w: var(--hw); cursor: pointer; transition: transform .2s cubic-bezier(.2,1.4,.4,1), filter .2s; touch-action: manipulation; }
+  .hand .pc { --w: var(--hw); cursor: pointer; transition: transform .2s cubic-bezier(.2,1.4,.4,1), filter .2s, opacity .2s; touch-action: none; }
+  .hand .pc.lift { opacity: .25; }
+  /* the ways a card can be played, laid over the card itself: top for plus, bottom for minus */
+  .pz { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; pointer-events: none; clip-path: polygon(14% 0, 100% 0, 100% 90%, 86% 100%, 0 100%, 0 10%); }
+  .pz i { flex: 1; display: flex; align-items: center; justify-content: center; gap: .3em; font: 400 calc(var(--w) * .2)/1 var(--display); font-style: normal; color: var(--hi); background: rgba(0,0,0,.72); border-top: 1px dashed rgba(var(--glow-rgb), .35); text-shadow: var(--glow-hi); }
+  .pz i:first-child { border-top: 0; }
+  .pz i small { font: calc(var(--w) * .12)/1 var(--mono); color: var(--dim); }
+  .pz i.on { background: var(--fg); color: var(--bg); text-shadow: none; }
+  .pz i.on small { color: var(--bg); }
+  .pz i.bad { color: var(--warn); }
+  .pz i.on.bad { background: var(--warn); color: #000; }
+  /* while a card is dragged: the card under the finger, and bands over your board for each way to play it */
+  .drag { position: fixed; z-index: 60; pointer-events: none; transform: translate(-50%, -60%) rotate(-4deg) scale(1.08); filter: drop-shadow(0 10px 20px rgba(0,0,0,.6)) drop-shadow(0 0 14px var(--c)); }
+  .bands { position: absolute; inset: 40px 3px 22px; z-index: 6; display: flex; flex-direction: column; gap: 3px; pointer-events: none; animation: poweron .18s both; }
+  .bands i { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px dashed var(--fg); background: rgba(0,0,0,.66); font: 400 22px/1 var(--display); font-style: normal; color: var(--hi); text-shadow: var(--glow-hi); }
+  .bands i small { font: 11px var(--mono); color: var(--dim); }
+  .bands i.on { background: rgba(var(--glow-rgb), .2); border-style: solid; border-color: var(--hi); box-shadow: inset 0 0 24px rgba(var(--glow-rgb), .35), 0 0 14px rgba(var(--glow-rgb), .3); }
+  .bands i.on small { color: var(--hi); }
+  .bands i.bad { border-color: var(--warn); color: var(--warn); }
   .hand .pc:focus-visible { outline: 2px solid var(--hi); outline-offset: 3px; }
   .hand .pc.sel { transform: translateY(-14px) scale(1.04); filter: drop-shadow(0 0 12px var(--c)) brightness(1.15); }
   .hand.off .pc { cursor: default; filter: grayscale(.6) brightness(.6); }
@@ -270,8 +320,6 @@
   .big:hover:not(:disabled) kbd { color: var(--bg); }
   .big.warn { border-color: var(--warn); color: var(--warn); text-shadow: 0 0 6px var(--warn); }
   .tbar { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; order: 10; }
-  /* on a wide screen the small switches sit at the right end of the status line instead of under everything */
-  @media (min-width: 900px) { .tbar { order: 0; justify-content: flex-end; margin-bottom: -34px; position: relative; z-index: 2; pointer-events: none; } .tbar .btn { pointer-events: auto; } }
 
   /* the log: a drawer from the right */
   .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(380px, 92vw); z-index: 70; background: rgba(4,3,1,.96); border-left: 1px solid var(--fg); box-shadow: -10px 0 30px rgba(0,0,0,.7); transform: translateX(105%); transition: transform .28s cubic-bezier(.2,.8,.2,1); display: flex; flex-direction: column; padding: 12px; }
@@ -310,11 +358,14 @@
   .title { text-align: center; margin: 2vh 0 0; position: relative; }
   .title h1 { font: 400 clamp(64px, min(22vw, 15vh), 168px)/.8 var(--display); margin: 0; letter-spacing: 6px; color: var(--hi); text-shadow: var(--glow-hi), 0 0 64px rgba(var(--glow-rgb), .3); }
   .title h1 span { display: inline-block; }
+  /* now and then the picture slips on the tube, the way the landing page's does */
+  .title h1 { animation: holdslip 29s linear 6s infinite; }
+  .still .title h1 { animation: none; }
+  @keyframes holdslip { 0%, 99.4%, 100% { transform: none; filter: none; } 99.5% { transform: translateX(12px) skewX(-2deg); filter: drop-shadow(-4px 0 0 var(--alt)) drop-shadow(4px 0 0 var(--warn)); } 99.65% { transform: translateX(-7px) skewX(1deg); } 99.8% { transform: translateX(3px); } 99.9% { transform: translateX(-1px); } }
   .title h1.glitch span { animation: tear .32s steps(2) 1; }
   @keyframes tear { 0% { transform: translateX(-6px); text-shadow: 3px 0 var(--alt), -3px 0 var(--warn); } 50% { transform: translateX(5px) skewX(8deg); } 100% { transform: none; } }
   .title .sub { color: var(--dim); font-size: 12.5px; letter-spacing: 3px; margin: 8px 0 0; }
-  .fan { position: relative; height: clamp(90px, 17vh, 170px); margin: 1vh auto clamp(18px, 4vh, 40px); width: min(520px, 100%); }
-  .fan .pc { --w: clamp(62px, 12vh, 96px); position: absolute; left: 50%; bottom: 0; transform-origin: 50% 140%; transition: transform .5s cubic-bezier(.2,1.3,.4,1); }
+  #wire { display: block; width: min(420px, 100%); height: clamp(110px, 21vh, 200px); margin: 1vh auto 1.5vh; }
   .menu { display: grid; gap: 8px; width: min(440px, 100%); margin: 0 auto; }
   .menu .big { width: 100%; text-align: left; padding-left: 18px; display: flex; justify-content: space-between; align-items: baseline; }
   .menu .big small { font: 11px var(--mono); color: var(--dim); letter-spacing: .5px; }
@@ -419,14 +470,15 @@
     .advisor .why { display: none; } .advisor .sug { display: inline; }
     .hist i { width: 5px; }
   }
+  @media (max-width: 560px) and (min-height: 700px) { #s-table { justify-content: safe center; } }
   @media (max-height: 620px) and (max-width: 560px) {
     .opp .say { -webkit-line-clamp: 1; min-height: 1.4em; }
     .portrait { width: 38px; height: 38px; }
   }
   /* a phone on its side: the boards on the left, everything you hold on the right */
   @media (orientation: landscape) and (max-height: 520px) {
-    #s-table { --cw: max(30px, min(calc((100 * var(--vh) - 120px) / 4.4), calc((58vw - 70px) / 6), 74px)); --hw: max(46px, min(calc((40vw - 60px) / 4), calc((100 * var(--vh) - 220px) / 1.4), 86px));
-      display: grid; grid-template-columns: minmax(0, 58fr) minmax(0, 42fr); grid-template-rows: auto auto auto auto 1fr auto; column-gap: 10px; row-gap: 4px; align-content: start; }
+    #s-table { --cw: max(28px, min(var(--kc), calc((58vw - 70px) / 6), 90px)); --hw: max(44px, min(var(--kh), calc((40vw - 60px) / 4), 96px));
+      display: grid; grid-template-columns: minmax(0, 58fr) minmax(0, 42fr); grid-template-rows: repeat(6, auto); column-gap: 10px; row-gap: 4px; align-content: start; }
     #s-table > .arena { grid-column: 1; grid-row: 1 / span 6; }
     #s-table > :not(.arena) { grid-column: 2; }
     .portrait { width: 40px; height: 40px; }
@@ -439,12 +491,24 @@
     .big { min-height: 40px; font-size: 20px; padding: 6px; }
     .big kbd { display: none; }
     .advisor .why { display: none; } .advisor .sug { display: inline; }
-    .title h1 { font-size: 70px; } .fan { height: 90px; } .fan .pc { --w: 56px; }
+    .title h1 { font-size: 70px; } #wire { height: 90px; }
+  }
+  @media (min-width: 900px) and (min-height: 600px) {
+    #s-table { --cw: max(30px, min(var(--kc), calc((min(100vw, 1120px) - 2 * var(--gut) - 320px) / 6), 120px)); --hw: max(46px, min(var(--kh), calc((min(100vw, 1120px) - 2 * var(--gut) - 300px) / 4), 120px));
+      display: grid; grid-template-columns: minmax(0, 1fr) 210px; grid-template-areas: "arena opp" "status opp" "choices opp" "hand opp" "actions tbar"; column-gap: 18px; row-gap: 6px; align-content: start; }
+    #s-table > .opp { grid-area: opp; display: flex; flex-direction: column; align-items: center; text-align: center; align-self: start; padding: 12px 10px; gap: 8px; }
+    #s-table > .arena { grid-area: arena; grid-template-columns: auto auto auto; justify-content: center; gap: 10px; }
+    #s-table > .status { grid-area: status; } #s-table > .choices { grid-area: choices; } #s-table > .hand { grid-area: hand; } #s-table > .actions { grid-area: actions; }
+    #s-table > .tbar { grid-area: tbar; order: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-content: end; }
+    #s-table > .tbar .btn { min-height: 30px; }
+    .opp .portrait.card { width: 160px; height: 200px; }
+    .opp .nm { justify-content: center; flex-direction: column; align-items: center; gap: 2px; }
+    .opp .nm b { font-size: 28px; }
+    .opp .say { -webkit-line-clamp: 6; min-height: 5.6em; text-align: left; font-size: 13px; }
+    .opp .oh { flex-direction: row; gap: 8px; }
   }
   @media (min-width: 900px) {
-    .arena { grid-template-columns: minmax(0, 380px) auto minmax(0, 380px); justify-content: center; }
     .title { margin-top: 4vh; }
-    .say { font-size: 13.5px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .crt i, .crt b { animation: none; }
@@ -476,7 +540,7 @@
   <section class="scr" id="s-menu" hidden aria-label="Menu">
     <div class="title">
       <p class="sub">TWENTY WINS · OVER TWENTY LOSES</p>
-      <div class="fan" id="fan" aria-hidden="true"></div>
+      <canvas id="wire" aria-hidden="true"></canvas>
       <h1 id="logo" aria-label="Pazaak"><span>P</span><span>A</span><span>Z</span><span>A</span><span>A</span><span>K</span></h1>
       <p class="sub" id="tagline">HK-47 DEALS. THE CAT WATCHES.</p>
     </div>
@@ -514,12 +578,13 @@
         <p class="nm"><b id="opp-name">HK-47</b><span id="opp-title"></span></p>
         <p class="say" id="say" aria-live="polite"></p>
       </div>
-      <div class="ohand" id="ohand" aria-label="Opponent's hand"></div>
+      <div class="oh"><div class="ohand" id="ohand" aria-label="Opponent's hand"></div><span class="ohn" id="ohand-n"></span></div>
     </div>
     <div class="arena">
       <div class="side" id="side-0">
         <header><span class="who" id="who-0">YOU</span><span class="setpips" id="pips-0"></span><span class="tot" id="tot-0">0</span></header>
         <div class="board" id="board-0"></div>
+        <p class="last"><span class="lt" id="last-0"></span><b class="tgt" id="tgt-0"></b></p>
         <div class="lock" id="lock-0">STAND</div>
       </div>
       <div class="mid">
@@ -529,6 +594,7 @@
       <div class="side" id="side-1">
         <header><span class="tot" id="tot-1">0</span><span class="setpips" id="pips-1"></span><span class="who" id="who-1">HK-47</span></header>
         <div class="board" id="board-1"></div>
+        <p class="last"><b class="tgt" id="tgt-1"></b><span class="lt" id="last-1"></span></p>
         <div class="lock" id="lock-1">STAND</div>
       </div>
     </div>
