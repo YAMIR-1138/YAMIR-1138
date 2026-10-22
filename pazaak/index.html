@@ -130,7 +130,7 @@
     --w: 64px; --c: var(--fg); --c2: var(--c);
     position: relative; width: var(--w); height: calc(var(--w) * 1.4); font-size: var(--w);
     flex: none; perspective: 600px; user-select: none; -webkit-user-select: none;
-    filter: drop-shadow(0 0 calc(var(--w) * .06) color-mix(in srgb, var(--c) 55%, transparent));
+    filter: drop-shadow(0 0 calc(var(--w) * .045) color-mix(in srgb, var(--c) 40%, transparent));
   }
   .pc .in { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .18s ease-out; }
   .pc .face, .pc .bk { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; clip-path: polygon(14% 0, 100% 0, 100% 90%, 86% 100%, 0 100%, 0 10%); }
@@ -138,7 +138,7 @@
     background:
       linear-gradient(var(--c), var(--c)) top left / 100% 1.5px no-repeat,
       repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.28) 2px 3px),
-      radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--c) 22%, #000) 0%, #000 78%);
+      radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--c) 15%, #000) 0%, #000 78%);
     display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
   }
   /* the edge is drawn inside the clip so the chamfers show it too */
@@ -148,18 +148,19 @@
   .pc .v.long { font-size: .4em; }
   .pc .k { position: absolute; z-index: 1; top: 3.5%; right: 7%; font: 600 .13em/1 var(--mono); color: var(--c); text-shadow: none; letter-spacing: .05em; }
   .pc .sg { position: absolute; z-index: 1; left: 9%; right: 9%; height: 11%; display: flex; align-items: center; justify-content: center; font: .12em/1 var(--mono); color: #000; text-shadow: none; letter-spacing: .1em; }
-  .pc .sg.t { top: 5.5%; background: var(--c); clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%); }
-  .pc .sg.b { bottom: 5.5%; background: var(--c2); clip-path: polygon(0 0, 94% 0, 100% 100%, 6% 100%); }
+  .pc .sg.t { top: 5.5%; background: color-mix(in srgb, var(--c) 72%, transparent); clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%); }
+  .pc .sg.b { bottom: 5.5%; background: color-mix(in srgb, var(--c2) 72%, transparent); clip-path: polygon(0 0, 94% 0, 100% 100%, 6% 100%); }
   .pc .pips { position: absolute; z-index: 1; bottom: 7%; left: 12%; right: 12%; display: flex; gap: 3%; justify-content: center; }
   .pc .pips i { flex: 1; max-width: 8%; height: calc(var(--w) * .05); background: var(--c); opacity: .85; box-shadow: 0 0 3px var(--c); }
   .pc .pips i.off { opacity: .16; box-shadow: none; }
   .pc .foil { position: absolute; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: screen; opacity: .0; background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,.55) calc(var(--gx, 50%) - 4%), rgba(255,255,255,0) calc(var(--gx, 50%) + 10%), transparent 80%); transition: opacity .2s; }
-  .pc.side .foil { opacity: .22; }
+  .pc.side .foil { opacity: 0; }
   .pc.live .foil { opacity: .55; }
   .pc.t-main { --c: var(--fg); }
-  .pc.t-plus { --c: var(--alt); }
-  .pc.t-minus { --c: var(--warn); }
-  .pc.t-flip { --c: var(--alt); --c2: var(--warn); }
+  /* the colours of plus and minus are mixed back toward the phosphor, so the cards belong to the same screen */
+  .pc.t-plus { --c: color-mix(in srgb, var(--alt) 62%, var(--fg)); }
+  .pc.t-minus { --c: color-mix(in srgb, var(--warn) 78%, var(--fg)); }
+  .pc.t-flip { --c: color-mix(in srgb, var(--alt) 62%, var(--fg)); --c2: color-mix(in srgb, var(--warn) 78%, var(--fg)); }
   .pc.t-flip .face { background: linear-gradient(var(--alt), var(--alt)) top left / 100% 1.5px no-repeat, repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.28) 2px 3px), radial-gradient(ellipse at 50% 20%, color-mix(in srgb, var(--alt) 22%, #000) 0%, transparent 60%), radial-gradient(ellipse at 50% 85%, color-mix(in srgb, var(--warn) 22%, #000) 0%, #000 60%); }
   .pc.t-flip .face::before { background: linear-gradient(to bottom, var(--alt), var(--warn)); }
   .pc.t-flip .v { color: #fff; text-shadow: 0 -.04em .12em var(--alt), 0 .04em .12em var(--warn); }
@@ -418,7 +419,21 @@
   @keyframes reprint { 0% { opacity: 0; } 20% { opacity: 1; filter: brightness(3); } 40% { opacity: .2; } 60% { opacity: 1; transform: translateX(-3px); } 100% { opacity: 1; } }
   .title h1 span.squash { animation: squash .35s cubic-bezier(.3,1.6,.5,1); }
   @keyframes squash { 30% { transform: scaleY(.8) scaleX(1.08); transform-origin: 50% 100%; } }
-  #trace { display: block; width: min(560px, 100%); height: 46px; margin: 1.4vh auto 0; }
+  /* under the logo a small table deals to itself, with the same cards as the real one, lying on its surface */
+  .demo { --dw: clamp(34px, min(7vh, 10vw), 58px); position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 0 14px; width: min(560px, 100%); margin: 2.2vh auto 0; padding: 0 6px 8px; perspective: 700px; }
+  .demo::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--fg) 18%, var(--fg) 82%, transparent); box-shadow: 0 0 12px rgba(var(--glow-rgb), .7); }
+  .demo::before { content: ""; position: absolute; left: 6%; right: 6%; bottom: 1px; height: 60%; background: radial-gradient(ellipse at 50% 100%, rgba(var(--glow-rgb), .1), transparent 70%); pointer-events: none; }
+  .demo .dk, .demo .row { transform: rotateX(22deg); transform-origin: 50% 100%; }
+  .demo .pc { --w: var(--dw); }
+  .demo .dk { position: relative; width: var(--dw); height: calc(var(--dw) * 1.4); }
+  .demo .dk .pc { position: absolute; inset: 0; }
+  .demo .dk .pc:nth-child(2) { transform: translate(-2px, -2px); } .demo .dk .pc:nth-child(3) { transform: translate(-4px, -4px); }
+  .demo .row { display: flex; gap: 6px; min-height: calc(var(--dw) * 1.4); justify-content: flex-start; }
+  .demo .row .pc { -webkit-box-reflect: below 3px linear-gradient(transparent 55%, rgba(0, 0, 0, .28)); }
+  .demo .dt { text-align: right; min-width: 3.4em; }
+  .demo .tot { font-size: calc(var(--dw) * .62); display: block; text-align: right; }
+  .demo small { display: block; min-height: 1.3em; font-size: 10px; letter-spacing: 2px; color: var(--dim); }
+  .demo small.hit { color: var(--hi); text-shadow: var(--glow-hi); } .demo small.bad { color: var(--warn); }
   .menu { display: grid; gap: 8px; width: min(440px, 100%); margin: 0 auto; }
   .menu .big { width: 100%; text-align: left; padding-left: 18px; display: flex; justify-content: space-between; align-items: baseline; }
   .menu .big small { font: 11px var(--mono); color: var(--dim); letter-spacing: .5px; }
@@ -560,7 +575,7 @@
     .big { min-height: 40px; font-size: 20px; padding: 6px; }
     .big kbd { display: none; }
     .advisor .why { display: none; } .advisor .sug { display: inline; }
-    .title h1 { font-size: 70px; } .title { margin-top: 8px; } #trace { height: 30px; }
+    .title h1 { font-size: 70px; } .title { margin-top: 8px; } .demo { --dw: 32px; margin-top: 6px; }
   }
   @media (min-width: 900px) and (min-height: 600px) {
     #s-table { --cw: max(30px, min(var(--kc), calc((min(100vw, 1120px) - 2 * var(--gut) - 320px) / 6), 120px)); --hw: max(46px, min(var(--kh), calc((min(100vw, 1120px) - 2 * var(--gut) - 300px) / 4), 120px));
@@ -611,7 +626,7 @@
       <p class="sub">TWENTY WINS · OVER TWENTY LOSES</p>
       <canvas id="catcv" aria-hidden="true"></canvas>
       <h1 id="logo" aria-label="Pazaak"><span>P</span><span>A</span><span>Z</span><span>A</span><span>A</span><span>K</span></h1>
-      <canvas id="trace" aria-hidden="true"></canvas>
+      <div class="demo" aria-hidden="true"><div class="dk" id="demo-deck"></div><div class="row" id="demo-row"></div><div class="dt"><span class="tot" id="demo-tot">0</span><small id="demo-say"></small></div></div>
       <p class="sub" id="tagline">HK-47 DEALS. THE CAT WATCHES.</p>
     </div>
     <nav class="menu" aria-label="Main menu" style="margin-top: 3vh">

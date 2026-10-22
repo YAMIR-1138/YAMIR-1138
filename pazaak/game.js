@@ -1664,7 +1664,7 @@
     $('#m-play-t').textContent = next ? 'next on the list: ' + OPP[next].name.toLowerCase() : 'the list is finished · ' + OPP.hk.name + ' deals on';
     paintMenuFace();
     $('#tagline').textContent = S.ach.story ? (S.align >= 0 ? 'THE TABLE STAYS OPEN. IT ALWAYS DOES.' : 'WELCOME BACK, MASTER.') : S.beaten.hk ? 'THERE IS A SIXTH NAME.' : 'HK-47 DEALS. THE CAT WATCHES.';
-    trace();
+    demo();
     camille();
   };
   // ---- Camille on the logo. Her sprite sheets are the landing page's own, drawn the same way: the dark of her body,
@@ -1803,39 +1803,54 @@
     camRaf = requestAnimationFrame(frame);
   }
 
-  // under the logo, a sequencing trace runs past, peaks only, the way the landing page's dividers draw it
-  let traceRaf = 0;
-  function trace() {
-    const cv = $('#trace'); if (!cv) return;
-    cancelAnimationFrame(traceRaf);
-    const x = cv.getContext('2d'), STEP = 9;
-    let seed = 1138;
-    const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
-    const peaks = Array.from({ length: 400 }, (_, i) => ({ x: i * STEP + (rnd() - .5) * 3, c: Math.floor(rnd() * 4), h: .35 + rnd() * .65, w: 2.6 + rnd() * 1.2 }));
-    // each channel sampled once, one value per pixel around the whole loop
-    const span = peaks.length * STEP, prof = [0, 1, 2, 3].map(() => new Float32Array(span));
-    peaks.forEach((q) => { for (let d = -12; d <= 12; d++) { const i = ((Math.round(q.x) + d) % span + span) % span; prof[q.c][i] += q.h * Math.exp(-(d * d) / (2 * q.w * q.w)); } });
-    let W = 0, H = 0, dpr = 0, t0 = performance.now();
-    function frame(now) {
-      if (screen !== 'menu' || !cv.isConnected) return;
-      const r = cv.getBoundingClientRect(), k = Math.min(2, devicePixelRatio || 1);
-      if (r.width !== W || r.height !== H || k !== dpr) { W = r.width; H = r.height; dpr = k; cv.width = W * k; cv.height = H * k; }
-      const ink = [css('--hi'), css('--fg'), css('--dim'), css('--warn')], x0 = Math.round((now - t0) * .05) % span;
-      x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, W, H);
-      // the ends fade, so the trace comes out of the dark and goes back into it
-      for (let c = 0; c < 4; c++) {
-        x.strokeStyle = ink[c]; x.lineWidth = 1; x.globalAlpha = c === 3 ? .55 : .85;
-        x.beginPath();
-        for (let px = 0; px <= W; px++) { const y = H - 2 - Math.min(1, prof[c][(px + x0) % span]) * (H - 6); if (px) x.lineTo(px, y); else x.moveTo(px, y); }
-        x.stroke();
-      }
-      x.globalAlpha = 1; x.globalCompositeOperation = 'destination-out';
-      const fade = x.createLinearGradient(0, 0, W, 0);
-      fade.addColorStop(0, 'rgba(0,0,0,1)'); fade.addColorStop(.18, 'rgba(0,0,0,0)'); fade.addColorStop(.82, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
-      x.fillStyle = fade; x.fillRect(0, 0, W, H); x.globalCompositeOperation = 'source-over';
-      if (S.set.motion) traceRaf = requestAnimationFrame(frame);
+  // under the logo a small table deals to itself: real cards from the real table, a running total, and the four
+  // ways a set can go: stand, twenty, a bust, or a bust saved by a minus card. Then it sweeps up and deals again
+  let demoT = 0;
+  function demo() {
+    const row = $('#demo-row'), dk = $('#demo-deck'), tot = $('#demo-tot'), say = $('#demo-say');
+    if (!row) return;
+    clearTimeout(demoT);
+    if (!dk.children.length) for (let i = 0; i < 3; i++) dk.appendChild(cardEl({ down: true }));
+    let total = 0, saved = false;
+    const show = (word, cls) => {
+      tot.textContent = total; tot.classList.toggle('twenty', total === 20); tot.classList.toggle('over', total > 20);
+      say.textContent = word || ''; say.className = cls || '';
+    };
+    const reset = () => { row.innerHTML = ''; total = 0; saved = false; show(''); };
+    const room = () => Math.floor((row.clientWidth + 6) / (row.querySelector('.pc') ? row.querySelector('.pc').offsetWidth + 6 : 50));
+    if (!S.set.motion) { reset(); [7, 4, 9].forEach((v) => { row.appendChild(cardEl({ v })); total += v; }); show('STAND'); return; }
+    function deal(card, v) {
+      row.appendChild(card);
+      const f = dk.getBoundingClientRect(), t = card.getBoundingClientRect();
+      card.animate([{ transform: 'translate(' + (f.left - t.left) + 'px,' + (f.top - t.top) + 'px)' }, { transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.2,.8,.3,1)' });
+      $('.in', card).animate([{ transform: 'rotateY(180deg)' }, { transform: 'rotateY(0)' }], { duration: 330, easing: 'ease-out' });
+      total += v;
+      setTimeout(() => { show(); tot.classList.remove('tick'); void tot.offsetWidth; tot.classList.add('tick'); }, 300);
     }
-    traceRaf = requestAnimationFrame(frame);
+    function sweep() {
+      const cs = Array.from(row.children), f = dk.getBoundingClientRect();
+      cs.forEach((c, i) => { const r = c.getBoundingClientRect(); c.animate([{ transform: 'none', opacity: 1 }, { transform: 'translate(' + (f.left - r.left) + 'px,' + (f.top - r.top) + 'px) scale(.92)', opacity: 0 }], { duration: 340, delay: i * 45, fill: 'forwards' }); });
+      demoT = setTimeout(() => { reset(); step(); }, 340 + cs.length * 45 + 260);
+    }
+    const burst = (color) => { const c = tot.getBoundingClientRect(); fx('burst', c.left + c.width / 2, c.top + c.height / 2, { count: 16, color, speed: .6, life: 600 }); };
+    function step() {
+      if (screen !== 'menu' || !row.isConnected) return;
+      const later = (ms) => { demoT = setTimeout(step, ms); };
+      if (total > 20) {
+        const k = total - 20 + Math.floor(Math.random() * 2);
+        if (!saved && k <= 6 && Math.random() < .6) { saved = true; deal(cardEl({ card: { kind: 'side', name: '-' + k, v: -k } }), -k); setTimeout(() => show('SAVED', 'hit'), 320); return later(1500); }
+        setTimeout(() => { show('BUST', 'bad'); burst('warn'); }, 320); demoT = setTimeout(sweep, 1700); return;
+      }
+      if (total === 20) { setTimeout(() => { show('PAZAAK', 'hit'); burst('hi'); }, 320); demoT = setTimeout(sweep, 2000); return; }
+      // a side card to land exactly on twenty, now and then
+      if (total >= 14 && 20 - total <= 6 && Math.random() < .3) { const k = 20 - total; deal(cardEl({ card: { kind: 'side', name: '+' + k, v: k } }), k); return later(700); }
+      if ((total >= 17 && Math.random() < .6) || row.children.length >= room()) { show('STAND'); demoT = setTimeout(sweep, 1700); return; }
+      const v = 1 + Math.floor(Math.random() * 10);
+      deal(cardEl({ v }), v);
+      later(1000);
+    }
+    reset(); later0();
+    function later0() { demoT = setTimeout(step, 700); }
   }
 
   RENDER.ladder = function () {
