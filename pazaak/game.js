@@ -1663,59 +1663,43 @@
     $('#m-play-t').textContent = next ? 'next on the list: ' + OPP[next].name.toLowerCase() : 'the list is finished · ' + OPP.hk.name + ' deals on';
     paintMenuFace();
     $('#tagline').textContent = S.ach.story ? (S.align >= 0 ? 'THE TABLE STAYS OPEN. IT ALWAYS DOES.' : 'WELCOME BACK, MASTER.') : S.beaten.hk ? 'THERE IS A SIXTH NAME.' : 'HK-47 DEALS. THE CAT WATCHES.';
-    wire();
+    trace();
   };
-  // the menu's wire card: a main-deck card turning on the spot, drawn in lines the way the landing page draws its
-  // receptor. Its number changes each time it turns edge-on. Two more lean behind it, dim
-  let wireRaf = 0;
-  function wire() {
-    const cv = $('#wire'); if (!cv) return;
-    cancelAnimationFrame(wireRaf);
-    const x = cv.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1), vals = [4, 9, 7];
-    let W = 0, H = 0, face = 1;
-    const SEG = { a: [-.5, -1, .5, -1], b: [.5, -1, .5, 0], c: [.5, 0, .5, 1], d: [-.5, 1, .5, 1], e: [-.5, 0, -.5, 1], f: [-.5, -1, -.5, 0], g: [-.5, 0, .5, 0] };
-    const DIG = ['abcdef', 'bc', 'abdeg', 'abcdg', 'bcfg', 'acdfg', 'acdefg', 'abc', 'abcdefg', 'abcdfg'];
-    const path = (pts, close) => { x.beginPath(); pts.forEach((p, i) => (i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1]))); if (close) x.closePath(); };
+  // under the logo, a sequencing trace runs past, peaks only, the way the landing page's dividers draw it
+  let traceRaf = 0;
+  function trace() {
+    const cv = $('#trace'); if (!cv) return;
+    cancelAnimationFrame(traceRaf);
+    const x = cv.getContext('2d'), STEP = 9;
+    let seed = 1138;
+    const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    const peaks = Array.from({ length: 400 }, (_, i) => ({ x: i * STEP + (rnd() - .5) * 3, c: Math.floor(rnd() * 4), h: .35 + rnd() * .65, w: 2.6 + rnd() * 1.2 }));
+    // each channel sampled once, one value per pixel around the whole loop
+    const span = peaks.length * STEP, prof = [0, 1, 2, 3].map(() => new Float32Array(span));
+    peaks.forEach((q) => { for (let d = -12; d <= 12; d++) { const i = ((Math.round(q.x) + d) % span + span) % span; prof[q.c][i] += q.h * Math.exp(-(d * d) / (2 * q.w * q.w)); } });
+    let W = 0, H = 0, dpr = 0, t0 = performance.now();
     function frame(now) {
       if (screen !== 'menu' || !cv.isConnected) return;
-      const r = cv.getBoundingClientRect();
-      if (Math.abs(r.width - W) > 1 || Math.abs(r.height - H) > 1) { W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; }
-      const t = now / 1000, fg = css('--fg'), hi = css('--hi'), faint = css('--faint'), bg = css('--bg');
+      const r = cv.getBoundingClientRect(), k = Math.min(2, devicePixelRatio || 1);
+      if (r.width !== W || r.height !== H || k !== dpr) { W = r.width; H = r.height; dpr = k; cv.width = W * k; cv.height = H * k; }
+      const ink = [css('--hi'), css('--fg'), css('--dim'), css('--warn')], x0 = Math.round((now - t0) * .05) % span;
       x.setTransform(dpr, 0, 0, dpr, 0, 0); x.clearRect(0, 0, W, H);
-      const U = Math.min(H * .42, W * .17), cx = W / 2, cy = H / 2;
-      [[-1.15, .5, 1], [1.15, -.5, 1], [0, 0, 0]].forEach(([dx, lean, back], k) => {
-        const front = k === 2, ang = front ? t * .85 : lean + Math.sin(t * .7 + k * 2) * .1;
-        const ca = Math.cos(ang), sa = Math.sin(ang), z0 = back ? 1.3 : 0;
-        const P = (u, v) => { const X = u * ca, Z = u * sa + z0, s = U * 3.4 / (3.4 + Z); return [cx + dx * U + X * s, cy + v * s + (back ? U * .08 : 0)]; };
-        if (front && (ca >= 0 ? 1 : -1) !== face) { face = -face; if (face > 0) vals[2] = 1 + (Math.random() * 10 | 0); }
-        const showFace = !front || ca >= 0;
-        x.globalAlpha = 1; x.lineWidth = 1.3; x.shadowBlur = 0;
-        path([[-.56, -1], [.7, -1], [.7, .86], [.56, 1], [-.7, 1], [-.7, -.86]].map((p) => P(p[0], p[1])), true);
-        x.fillStyle = bg; x.fill();
-        x.strokeStyle = front ? fg : faint; x.shadowColor = fg; x.shadowBlur = front ? 10 : 0; x.stroke();
-        path([[-.56, -.74], [.56, -.74], [.56, .74], [-.56, .74]].map((p) => P(p[0], p[1])), true);
-        x.lineWidth = 1; x.stroke();
-        if (showFace) {
-          // the number, in seven segments
-          const ds = String(vals[k]).split('').map(Number);
-          x.strokeStyle = front ? hi : faint; x.lineWidth = front ? 2.4 : 1.6; x.lineCap = 'round';
-          ds.forEach((d, j) => {
-            const ox = (j - (ds.length - 1) / 2) * .4;
-            DIG[d].split('').forEach((g) => { const q = SEG[g]; path([P(ox + q[0] * .26, q[1] * .38), P(ox + q[2] * .26, q[3] * .38)]); x.stroke(); });
-          });
-          for (let i = 0; i < Math.min(10, vals[k]); i++) { path([P(-.5 + i * .11, .86), P(-.44 + i * .11, .86)]); x.lineWidth = 2; x.stroke(); }
-        } else {
-          // its back: a lattice and the table's ring
-          x.strokeStyle = faint; x.lineWidth = 1;
-          for (let i = -3; i <= 3; i++) { path([P(-.56, i * .24), P(.56, i * .24 + .5)]); x.stroke(); }
-          x.strokeStyle = fg; path(Array.from({ length: 16 }, (_, i) => P(Math.cos(i / 16 * 6.283) * .24, Math.sin(i / 16 * 6.283) * .24)), true); x.stroke();
-        }
-      });
-      x.shadowBlur = 0;
-      if (S.set.motion) wireRaf = requestAnimationFrame(frame);
+      // the ends fade, so the trace comes out of the dark and goes back into it
+      for (let c = 0; c < 4; c++) {
+        x.strokeStyle = ink[c]; x.lineWidth = 1; x.globalAlpha = c === 3 ? .55 : .85;
+        x.beginPath();
+        for (let px = 0; px <= W; px++) { const y = H - 2 - Math.min(1, prof[c][(px + x0) % span]) * (H - 6); if (px) x.lineTo(px, y); else x.moveTo(px, y); }
+        x.stroke();
+      }
+      x.globalAlpha = 1; x.globalCompositeOperation = 'destination-out';
+      const fade = x.createLinearGradient(0, 0, W, 0);
+      fade.addColorStop(0, 'rgba(0,0,0,1)'); fade.addColorStop(.18, 'rgba(0,0,0,0)'); fade.addColorStop(.82, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
+      x.fillStyle = fade; x.fillRect(0, 0, W, H); x.globalCompositeOperation = 'source-over';
+      if (S.set.motion) traceRaf = requestAnimationFrame(frame);
     }
-    wireRaf = requestAnimationFrame(frame);
+    traceRaf = requestAnimationFrame(frame);
   }
+
   RENDER.ladder = function () {
     const L = $('#ladder'); L.innerHTML = '';
     if (S.credits < 20) { credits(50); toast('A CREDIT CHIP', 'Camille drags one in from somewhere. Do not ask where.'); }
@@ -2023,5 +2007,5 @@
   }
   if (!E) { document.body.insertAdjacentHTML('beforeend', '<p style="position:fixed;bottom:20px;left:20px">engine.js did not load.</p>'); return; }
   boot();
-  if (/[?&]debug/.test(location.search)) window.PZ = { S, get G() { return G; }, E, scene, STORY, startMatch, challenge, show, unlock };
+  if (/[?&]debug/.test(location.search)) window.PZ = { S, get G() { return G; }, E, scene, STORY, startMatch, challenge, show, unlock, renderTable };
 })();
