@@ -2882,6 +2882,7 @@ window.CATDATA = {
       const again = ledges.find((l) => l.key === C.ledge.key);
       if (again) { C.ledge = again; C.x = clamp(again.x0 + C.u * cw, again.x0 - W, again.x1 + W); C.y = topOf(again); place(); }
     }
+    restage();
   }
   let measureQueued = false;
   function queueMeasure() {
@@ -3323,7 +3324,20 @@ window.CATDATA = {
   // ------------------------------------------------------------ portals
   // Two ovals, one in this phosphor and one in the other. She walks into the first and out of the second.
   const portals = ['a', 'b'].map((k) => { const d = document.createElement('div'); d.className = 'portal ' + k; layer.appendChild(d); return d; });
-  function openPortal(i, x, y) { const d = portals[i]; d.style.transform = ''; d.style.left = Math.round(x) + 'px'; d.style.top = Math.round(y) + 'px'; d.style.height = Math.round(H * 1.12) + 'px'; d.style.marginTop = Math.round(-H * .56) + 'px'; void d.offsetWidth; d.classList.add('on'); }
+  // The page can move under a scene: the terminal closes, a phone turns. Each portal keeps to the ledge it was opened on,
+  // and everyone in a scene to the ledge the scene is played on (the stage): they are drawn as far from where the scene
+  // reckons them as that ledge has moved since.
+  let stage = null;
+  const moved = (l) => { const again = l && ledges.find((k) => k.key === l.key); return again ? { dx: again.x0 - l.x0, dy: again.y - l.y } : { dx: 0, dy: 0 }; };
+  const setStage = (l) => { stage = l ? { l, dx: 0, dy: 0 } : null; };
+  const sdx = () => (stage ? stage.dx : 0), sdy = () => (stage ? stage.dy : 0);
+  function placePortal(d) { const m = moved(d.ledge); d.style.left = Math.round(d.px + m.dx) + 'px'; d.style.top = Math.round(d.py + m.dy) + 'px'; }
+  function restage() {
+    if (stage) Object.assign(stage, moved(stage.l));
+    portals.forEach((d) => { if (d.classList.contains('on')) placePortal(d); });
+    riders.forEach((r) => { if (r.placed) placeRider(r); });
+  }
+  function openPortal(i, x, y, l) { const d = portals[i]; d.px = x; d.py = y; d.ledge = l; d.style.transform = ''; placePortal(d); d.style.height = Math.round(H * 1.12) + 'px'; d.style.marginTop = Math.round(-H * .56) + 'px'; void d.offsetWidth; d.classList.add('on'); }
   function closePortals() { portals.forEach((d) => d.classList.remove('on', 'hunt')); el.style.clipPath = ''; }
   // how much of her is past a vertical plane at x, as a clip on her sprite
   function clipPast(x, entering) {
@@ -3380,7 +3394,7 @@ window.CATDATA = {
   // an afterimage of a rider, in the other phosphor, for when she blinks
   function ghostOf(r, x, alpha) {
     const c = document.createElement('canvas'); c.className = 'ghost-rider'; c.width = r.canvas.width; c.height = r.canvas.height;
-    c.style.cssText = 'position:absolute;left:0;top:0;width:' + r.canvas.style.width + ';height:' + r.canvas.style.height + ';pointer-events:none;transform:translate(' + Math.round(x) + 'px,' + Math.round(r.y) + 'px)' + (r.face < 0 ? ' scaleX(-1)' : '') + ';opacity:' + alpha + ';transition:opacity .7s';
+    c.style.cssText = 'position:absolute;left:0;top:0;width:' + r.canvas.style.width + ';height:' + r.canvas.style.height + ';pointer-events:none;transform:translate(' + Math.round(x + sdx()) + 'px,' + Math.round(r.y + sdy()) + 'px)' + (r.face < 0 ? ' scaleX(-1)' : '') + ';opacity:' + alpha + ';transition:opacity .7s';
     const cs = getComputedStyle(document.documentElement), other = cs.getPropertyValue('--portal-b').trim();
     r.rig.draw(c.getContext('2d'), r.pose, unit * dpr, { line: other, body: COL.body });
     layer.appendChild(c); requestAnimationFrame(() => { c.style.opacity = 0; }); setTimeout(() => c.remove(), 800);
@@ -3397,7 +3411,7 @@ window.CATDATA = {
     // the first time, there at once: a rider is made at the corner of the page, and would glide from there to its place
     const first = !r.placed; r.placed = true;
     if (first) r.el.style.transition = 'none';
-    r.el.style.transform = 'translate(' + Math.round(r.x) + 'px,' + Math.round(r.y) + 'px)';
+    r.el.style.transform = 'translate(' + Math.round(r.x + sdx()) + 'px,' + Math.round(r.y + sdy()) + 'px)';
     if (first) { void r.el.offsetWidth; r.el.style.transition = ''; }
     r.el.classList.toggle('flip', r.face < 0);
     const K = r.rig, h = K.head(r.pose || K.names[0]);
@@ -3408,7 +3422,7 @@ window.CATDATA = {
     r.el.style.clipPath = entering ? (r.face > 0 ? 'inset(0 ' + Math.max(0, w - leftOf) + 'px 0 0)' : 'inset(0 0 0 ' + Math.max(0, leftOf) + 'px)')
                                    : (r.face > 0 ? 'inset(0 0 0 ' + Math.max(0, leftOf) + 'px)' : 'inset(0 ' + Math.max(0, w - leftOf) + 'px 0 0)');
   }
-  function dropRiders() { riders.splice(0).forEach((r) => r.el.remove()); $$('.ghost-rider', layer).forEach((c) => c.remove()); }
+  function dropRiders() { riders.splice(0).forEach((r) => r.el.remove()); $$('.ghost-rider', layer).forEach((c) => c.remove()); setStage(null); }
   // a ride from one x to another in the rider's gait, clipped at a portal plane while entering or leaving it
   function* ride(r, x, plane, entering, speed) {
     let i = 0; r.loop = null;
@@ -3442,6 +3456,8 @@ window.CATDATA = {
     const edgeX = dir > 0 ? Rr - rw * .7 : L - rw * .3;            // where a fleeing rider starts to vanish, still mostly in view
     const tight = k < .75;                                         // a stage squeezed by a quarter or more: two of the Hunt, not three
     const inPortal = planeB - (dir > 0 ? rw : 0);                  // a rider wholly behind the portal plane
+    setStage(dest);
+    const sx = (x) => x + sdx();                                   // where a place the scene reckons is now, for the cat
     // 1. a girl on a black mare, at a gallop, out of the portal. She reins in
     const ciri = makeRider('ciri');
     ciri.x = inPortal; ciri.y = y; ciri.face = dir; paintRider(ciri, 'C_GALLOP0'); placeRider(ciri); clipRider(ciri, planeB, false);
@@ -3477,9 +3493,9 @@ window.CATDATA = {
     yield* together(hunt.map((h) => (function* () { yield* play(h, 'H_TURN'); h.face = -dir; h.pose = ''; paintRider(h, 'H_IDLE0'); placeRider(h); setLoop(h, 'H_IDLE'); })()), [0, 2, 4].slice(0, hunt.length));
     yield* hold(sec(.5));
     // and the ship's cat, out of the same portal, behind them
-    C.ledge = dest; C.y = topOf(dest); C.face = dir; C.x = planeB - (dir > 0 ? W : 0); setU();
-    clipPast(planeB, false); show(); T.sfx('portal');
-    yield* bg(stepTo(planeB + (dir > 0 ? W * .1 : -W * 1.1), () => clipPast(planeB, false)));
+    C.ledge = dest; measure(); C.y = topOf(C.ledge); C.face = dir; C.x = sx(planeB) - (dir > 0 ? W : 0); setU();
+    clipPast(sx(planeB), false); show(); T.sfx('portal');
+    yield* bg(stepTo(sx(planeB) + (dir > 0 ? W * .1 : -W * 1.1), () => clipPast(sx(planeB), false)));
     el.style.clipPath = '';
     setMode('seeing them off');
     paint('HISS_A'); say('HSSSS', 2200); el.classList.add('hiss');
@@ -3498,7 +3514,7 @@ window.CATDATA = {
       h.el.style.opacity = 0;
     })());
     const chaseTo = out(2) + (dir > 0 ? 0 : rw - W);
-    const run = walkTo(chaseTo, 3);
+    const run = walkTo(sx(chaseTo), 3);
     for (let i = 0; ; i++) {
       const r = run.next();
       let going = false;
@@ -3515,7 +3531,7 @@ window.CATDATA = {
     girl.face = -dir; placeRider(girl);
     yield* bg(play(girl, 'G_SHEATHE'));
     // she crouches to the cat, who allows it, then a wave for the one at the keyboard
-    girl.face = C.x > girl.x ? 1 : -1; placeRider(girl); yield* bg(play(girl, 'G_CROUCH'));
+    girl.face = C.x > sx(girl.x) ? 1 : -1; placeRider(girl); yield* bg(play(girl, 'G_CROUCH'));
     riderSay(girl, 'thank you, cat.', 2200); paint('PURR'); say('prrr', 1800);
     yield* hold(sec(2));
     girl.face = -dir; girl.pose = ''; paintRider(girl, 'G_IDLE0'); placeRider(girl); yield* bg(play(girl, 'G_WAVE')); setLoop(girl, 'G_IDLE');
@@ -3527,7 +3543,7 @@ window.CATDATA = {
     C.face = -dir; paint('SIT_LOOK'); place();
     gait(ciri, 'C_WALK'); yield* bg(ride(ciri, out(2.2), null, false, walk));
     gait(ciri, 'C_GALLOP'); yield* ride(ciri, inPortal, planeB, true, gallop);
-    T.sfx('portal'); ciri.el.remove(); riders.length = 0;
+    T.sfx('portal'); ciri.el.remove(); riders.length = 0; setStage(null);
     say('mrrp?', 1400);
   }
   function* portal(withRiders) {
@@ -3555,10 +3571,10 @@ window.CATDATA = {
     if (visitors) xB = dir > 0 ? dest.x0 : dest.x1;          // the portal at the near end, the room on the far side
     const planeA = xA + W * .5, planeB = xB + (dir > 0 ? 0 : W);
     setMode('eyeing a portal');
-    openPortal(0, planeA, topOf(here) + H * .5); T.sfx('portal');
+    openPortal(0, planeA, topOf(here) + H * .5, here); T.sfx('portal');
     paint('SIT_ALERT'); C.face = dir; place();
     yield* wait(sec(1.2));
-    openPortal(1, planeB, topOf(dest) + H * .5);
+    openPortal(1, planeB, topOf(dest) + H * .5, dest);
     yield* wait(sec(.8));
     // in she goes, and the plane of the portal cuts her off as she passes it
     setMode('through the portal');
@@ -4196,7 +4212,7 @@ window.CATDATA = {
         }
       }
       // other contacts: anyone who came through a portal
-      riders.forEach((r) => { const x = mx(r.x + r.w / 2), ry = my(r.y + RH() * .7); g.fillStyle = ink.warn; g.shadowColor = ink.warn; g.shadowBlur = 4; g.fillRect(Math.round(x) - 1.5, Math.round(ry) - 1.5, 3, 3); g.shadowBlur = 0; });
+      riders.forEach((r) => { const x = mx(r.x + sdx() + r.w / 2), ry = my(r.y + sdy() + RH() * .7); g.fillStyle = ink.warn; g.shadowColor = ink.warn; g.shadowBlur = 4; g.fillRect(Math.round(x) - 1.5, Math.round(ry) - 1.5, 3, 3); g.shadowBlur = 0; });
       // the contact
       if (C.onstage) {
         const x = mx(C.x + W / 2), y = my(cy), age = T.motion ? ((sweep - y + MH) % MH) / MH : 0;
