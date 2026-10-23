@@ -718,7 +718,7 @@
         </li>
         <li class="card card--tool" data-project="GeNest" data-dir="side" data-site="https://yamir-1138.github.io/genest-website/">
           <p class="path">Pipeline · reports</p>
-          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="nest" data-scale="2" data-cap="#nest-cap" data-still="56"></canvas><figcaption class="cap" id="nest-cap">HOST GENE</figcaption></figure>
+          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="nest" data-scale="2" data-cap="#nest-cap" data-still="72"></canvas><figcaption class="cap" id="nest-cap">HOST GENE</figcaption></figure>
           <h3>GeNest</h3>
           <p>Finds nested genes: genes that live inside other genes, across whole genomes.</p>
           <p class="quip">A gene within a gene. We need to go deeper.</p>
@@ -1894,31 +1894,57 @@
     } },
     // GeNest: a gene, the gene inside its intron, and the gene inside that one's intron.
     // Drawn the way a genome browser draws them: boxes for exons, a line for introns, chevrons for the strand.
-    nest: { w: 64, h: 52, fps: 8, frames: 64,
-      depth(t) { return t < 18 ? 1 : t < 36 ? 2 : 3; },
-      state(t) { return t >= 52 ? 'WE NEED TO GO DEEPER' : ['', 'HOST GENE · + STRAND', 'NESTED IN INTRON 1 · − STRAND', 'NESTED AGAIN · + STRAND'][this.depth(t)]; },
+    nest: { w: 64, h: 52, fps: 8, frames: 84,
+      // three genes, each in the intron of the one before, in world units. The camera reads one, then dives into its intron
+      // until the gene living there fills the picture, and at the end pulls back to show the whole nest
+      G: [
+        { y: 2, span: [1, 63], ex: [[1, 7], [44, 6], [55, 6]], dir: 1 },
+        { y: 21, span: [10, 42], ex: [[10, 5], [37, 5]], dir: -1 },
+        { y: 41, span: [16, 36], ex: [[16, 3], [24, 3], [32, 4]], dir: 1 },
+      ],
+      VIEW: [[1, 32], [1.75, 26], [2.8, 26]],   // how far in, and the world x at the middle of the picture, for each level
+      phase(t) {
+        const ease = (k) => k * k * (3 - 2 * k);
+        // read 16, dive 6, read 16, dive 6, read 16, pull back 6, hold 18
+        let z = 0, level = 0, k = 0;
+        if (t < 16) { level = 1; k = t / 15; }
+        else if (t < 22) z = ease((t - 16) / 6);
+        else if (t < 38) { z = 1; level = 2; k = (t - 22) / 15; }
+        else if (t < 44) z = 1 + ease((t - 38) / 6);
+        else if (t < 60) { z = 2; level = 3; k = (t - 44) / 15; }
+        else if (t < 66) z = 2 * (1 - ease((t - 60) / 6));
+        const i = Math.min(1, Math.floor(z)), f = z - i, a = this.VIEW[i], b = this.VIEW[Math.min(2, i + 1)];
+        return { z, level, k, hold: t >= 66, cam: [a[0] * Math.pow(b[0] / a[0], f), a[1] + (b[1] - a[1]) * f] };
+      },
+      state(t) {
+        const ph = this.phase(t);
+        return ph.hold ? 'WE NEED TO GO DEEPER' : ph.z < .5 ? 'HOST GENE · + STRAND' : ph.z < 1.5 ? 'NESTED IN INTRON 1 · − STRAND' : 'NESTED AGAIN · + STRAND';
+      },
       draw(p, t) {
-        const depth = this.depth(t), hold = t >= 52;
-        const gene = (y, x0, x1, exons, dir, on, now) => {
-          const line = on ? (now ? FG : DIM) : FAINT, box = on ? (now ? HI : FG) : FAINT;
-          p.rect(x0, y + 3, x1 - x0, 1, line);
-          for (let x = x0 + 3; x < x1 - 2; x += 5) { p.set(x, y + 3, line).set(x - dir, y + 2, line).set(x - dir, y + 4, line); }   // which way it reads
-          exons.forEach((e) => p.rect(e[0], y, e[1], 7, box));
-        };
-        // from an intron down to what lives in it
-        const zoom = (y0, a, b, y1, c, d, on) => {
-          for (let i = 0; i <= 8; i++) { const k = i / 8, y = y0 + (y1 - y0) * k; if (i % 2 === 0 || on) { p.set(a + (c - a) * k, y, on ? DIM : FAINT).set(b + (d - b) * k, y, on ? DIM : FAINT); } }
-        };
-        gene(2, 1, 63, [[3, 7], [44, 6], [55, 6]], 1, true, depth === 1 || hold);
-        zoom(10, 13, 41, 19, 4, 60, depth >= 2);
-        gene(21, 4, 60, [[47, 8], [8, 6]], -1, depth >= 2, depth === 2 || hold);
-        zoom(29, 17, 44, 38, 10, 54, depth >= 3);
-        gene(41, 10, 54, [[13, 8], [30, 5], [44, 7]], 1, depth >= 3, depth === 3 || hold);
-        // the reader, moving along whichever gene is being read
-        if (!hold) {
-          const k = (t - [0, 0, 18, 36][depth]) / (depth === 3 ? 16 : 18), row = [0, 2, 21, 41][depth], a = [0, 1, 60, 10][depth], b = [0, 63, 4, 54][depth];
-          const x = Math.round(a + (b - a) * Math.min(1, k));
-          p.rect(x, row - 2, 1, 11, HI);
+        const ph = this.phase(t), S = ph.cam[0], cx = ph.cam[1], sx = (x) => (x - cx) * S + 32;
+        this.G.forEach((g, i) => {
+          const lvl = i + 1, x0 = sx(g.span[0]), x1 = sx(g.span[1]);
+          if (x1 < -1 || x0 > 64) return;
+          const reading = ph.level === lvl, opened = ph.hold || ph.z > lvl - 1.5;   // opened: the camera has been down this far
+          const line = reading ? FG : opened ? DIM : FAINT, box = reading || opened ? FG : FAINT;
+          const a = Math.max(0, Math.round(x0)), b = Math.min(63, Math.round(x1));
+          p.rect(a, g.y + 3, b - a + 1, 1, line);
+          for (let x = a + 3; x < b - 1; x += 5) p.set(x, g.y + 3, line).set(x - g.dir, g.y + 2, line).set(x - g.dir, g.y + 4, line);   // which way it reads
+          // the reader runs the length of the gene the way the strand reads; exons light as it passes them
+          const rx = reading ? sx(g.dir > 0 ? g.span[0] + (g.span[1] - g.span[0]) * ph.k : g.span[1] - (g.span[1] - g.span[0]) * ph.k) : null;
+          g.ex.forEach((e) => {
+            const e0 = sx(e[0]), e1 = sx(e[0] + e[1]), passed = reading && (g.dir > 0 ? e0 <= rx : e1 >= rx);
+            p.rect(Math.round(e0), g.y, Math.max(2, Math.round(e1 - e0)), 7, passed || ph.hold ? HI : box);
+          });
+          if (reading) p.rect(Math.round(rx), g.y - 2, 2, 11, HI);
+        });
+        // on the whole map, the lines from an intron down to what lives in it
+        if (S < 1.02) {
+          const zoom = (y0, a, b, y1, c, d, on) => {
+            for (let i = 0; i <= 8; i++) { const k = i / 8, y = y0 + (y1 - y0) * k; if (i % 2 === 0 || on) { p.set(a + (c - a) * k, y, on ? DIM : FAINT).set(b + (d - b) * k, y, on ? DIM : FAINT); } }
+          };
+          zoom(10, 8, 44, 19, 10, 42, ph.hold || ph.z > .5);
+          zoom(29, 15, 37, 38, 16, 36, ph.hold || ph.z > 1.5);
         }
       } },
     // CO2 monitor: the molecule, stretching
