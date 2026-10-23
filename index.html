@@ -633,12 +633,16 @@
   }
   @keyframes shutoff {
     0% { transform: none; filter: none; opacity: 1; }
-    40% { transform: scaleY(.004) scaleX(1); filter: brightness(6); opacity: 1; }
-    75% { transform: scaleY(.004) scaleX(.004); filter: brightness(8); opacity: 1; }
-    100% { transform: scaleY(.004) scaleX(.004); filter: brightness(8); opacity: 0; }
+    90% { transform: scaleY(.004) scaleX(1); filter: brightness(6); opacity: 1; }
+    100% { transform: scaleY(.004) scaleX(1); filter: brightness(6); opacity: 0; }
   }
   .js .screen.powerdown { animation: poweroff .5s cubic-bezier(.6, .1, .8, .4) forwards; }
-  .js .screen.shutoff { animation: shutoff 1s cubic-bezier(.5, .1, .8, .5) forwards; }
+  .js .screen.shutoff { animation: shutoff .42s cubic-bezier(.6, .1, .8, .4) forwards; }
+  /* after a shutdown the line that is left draws in to a dot, and the dot goes out */
+  #standby .beam { display: none; position: absolute; left: 50%; top: 50%; width: var(--bw, 600px); height: 2px; transform: translate(-50%, -50%); background: var(--hi); border-radius: 3px; box-shadow: 0 0 10px rgba(var(--glow-rgb), .9), 0 0 28px rgba(var(--glow-rgb), .45); }
+  #standby.beam .beam { display: block; animation: beamout .6s cubic-bezier(.5, 0, .7, .4) forwards; }
+  #standby.beam .msg { visibility: hidden; }
+  @keyframes beamout { 0% { width: var(--bw, 600px); height: 2px; opacity: 1; } 65% { width: 5px; height: 5px; opacity: 1; } 100% { width: 5px; height: 5px; opacity: 0; } }
   #standby { position: fixed; inset: 0; z-index: 45; display: none; background: var(--bg); cursor: none; transition: opacity .3s ease-out; }
   #standby.up { display: block; }
   #standby.out { opacity: 0; }
@@ -2123,7 +2127,7 @@
     const screen = $('.screen'), root = document.documentElement, now = () => performance.now();
     const ov = document.createElement('div');
     ov.id = 'standby'; ov.setAttribute('aria-hidden', 'true');
-    ov.innerHTML = '<canvas></canvas><span class="clk"></span><span class="msg"></span>';
+    ov.innerHTML = '<canvas></canvas><span class="clk"></span><span class="msg"></span><i class="beam"></i>';
     document.body.appendChild(ov);
     const cv = $('canvas', ov), g = cv.getContext('2d'), clk = $('.clk', ov), msg = $('.msg', ov);
     const S = { on: false, mode: '', since: 0, last: now(), after: 240000 };
@@ -2154,12 +2158,13 @@
       });
     }
     const it = T.Anim.add(cv, sky, 12, false);
-    function show(mode) {
+    function show(mode, beam) {
       const cs = getComputedStyle(root), v = (n) => cs.getPropertyValue(n).trim();
       ink = { faint: v('--faint'), dim: v('--dim'), fg: v('--fg') };
       msg.textContent = mode === 'off' ? 'NO SIGNAL' : 'STANDBY · any key';
       clk.textContent = '';
-      ov.className = 'up' + (mode === 'off' ? ' dark' : '');
+      ov.className = 'up' + (mode === 'off' ? ' dark' : '') + (beam ? ' beam' : '');
+      if (beam) { ov.style.setProperty('--bw', Math.round(screen.getBoundingClientRect().width) + 'px'); later(() => ov.classList.remove('beam'), 650); }
       if (mode === 'standby') { size(); seed(); prev = 0; it.on = true; it.visible = true; T.Anim.wake(); sky(); }
     }
     // while it is down, every input is caught before the page sees it; the right kind wakes it
@@ -2191,7 +2196,7 @@
       const fold = ok();
       if (fold) screen.classList.add(mode === 'off' ? 'shutoff' : 'powerdown');
       catchAll(true);
-      later(() => show(mode), fold ? (mode === 'off' ? 1000 : 500) : 0);
+      later(() => show(mode, fold && mode === 'off'), fold ? (mode === 'off' ? 420 : 500) : 0);
       T.log('ship', mode === 'off' ? 'shutdown' : 'standby');
       return true;
     }
@@ -2224,6 +2229,19 @@
     const man = COMMANDS.man;
     COMMANDS.man = (arg) => { if (/^(standby|sleep)$/i.test(arg || '')) print('standby - power the picture down until someone comes back. it comes by itself after four quiet minutes'); else man(arg); };
   })();
+
+  // ---- shutdown, halt, poweroff: the picture folds to a line, the line to a dot, the dot goes out, and there is no signal
+  // until a key or a click. It goes dark on the standby screen, so it needs standby on as well
+  if (F.shutdown) {
+    COMMANDS.shutdown = COMMANDS.halt = COMMANDS.poweroff = function () {
+      if (!T.standby) { print('shutdown: the ship will not let you.', 'err'); return; }
+      if (T.standby.on) return;
+      print('the system is going down for halt NOW!');
+      setTimeout(() => T.standby.enter('off'), 800);
+    };
+    const man = COMMANDS.man;
+    COMMANDS.man = (arg) => { if (/^(shutdown|halt|poweroff)$/i.test(arg || '')) print((arg || '').toLowerCase() + ' - switch the ship off. a key or a click turns it on again'); else man(arg); };
+  }
 
   // "/" reaches the prompt from anywhere on the page
   document.addEventListener('keydown', (e) => {
