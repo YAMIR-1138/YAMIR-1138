@@ -212,8 +212,14 @@
   }
   .bar .id b { color: var(--fg); text-shadow: var(--glow); }
   .bar nav { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
-  .bar nav a { color: var(--fg); text-shadow: var(--glow); border: 0; }
+  .bar nav a { color: var(--fg); text-shadow: var(--glow); border: 0; position: relative; }
   .bar nav a:hover { color: var(--bg); }
+  /* the section on the screen is marked in the nav, the way a prompt marks the line you are on */
+  .bar nav a.on { color: var(--hi); text-shadow: var(--glow-hi); }
+  .bar nav a.on:hover { color: var(--bg); text-shadow: none; }
+  .bar nav a.on::before { content: ">"; position: absolute; right: 100%; margin-right: 4px; color: var(--dim); text-shadow: none; pointer-events: none; }
+  .bar nav .tn { display: none; }   /* the terminal, from the nav: only on a phone, where it cannot wait at the foot of the window */
+  html:not(.js) .bar nav .tn { display: none; }
   .btn {
     font: inherit; background: none; border: 1px solid var(--edge); color: var(--fg);
     padding: 1px 8px; cursor: pointer; text-shadow: var(--glow); border-radius: 0;
@@ -226,6 +232,7 @@
   #boot.done { opacity: 0; max-height: 0; margin: 0; }   /* the boot lines go once the page is up. They are in the terminal again, at the bottom */
   #boot .ok { color: var(--fg); }
   #boot .hd { color: var(--hi); text-shadow: var(--glow-hi); }
+  .boot-skip { color: var(--dim); font-size: 13.5px; line-height: 1.5; margin: -22px 0 22px; text-shadow: none; }
   html:not(.js) #boot, html:not(.js) #helix, html:not(.js) #term, html:not(.js) .bar .btn { display: none; }
   .blink { animation: blink 1s steps(1) infinite; }
   @keyframes blink { 50% { opacity: 0 } }
@@ -371,6 +378,11 @@
 
   /* ---- the terminal. Closed until someone opens it. */
   #term { margin: 56px 0 0; border: 1px solid var(--line); background: rgba(0,0,0,.3); }
+  /* on a wide screen the closed terminal waits at the foot of the window, like the command line of a ship's console.
+     It is the last thing in main, so at the end of the page it settles in its own place above the footer */
+  @media (min-width: 761px) {
+    #term:not([open]) { position: sticky; bottom: 0; z-index: 15; background: var(--bg); }
+  }
   #term summary { list-style: none; cursor: pointer; padding: 8px 14px; color: var(--dim); font-size: 12.5px; letter-spacing: 1px; display: flex; gap: 12px; align-items: baseline; }
   #term summary::-webkit-details-marker { display: none; }
   #term summary b { color: var(--fg); font-weight: 400; }
@@ -488,7 +500,7 @@
     100% { transform: none; filter: none; }
   }
   /* the picture shakes inside the tube, and the tube clips it, so the page never grows wider */
-  .screen.degauss { overflow: hidden; }
+  .screen.degauss { overflow: hidden; overflow: clip; }   /* clip, so the docked terminal stays docked */
   .js .screen.degauss > * { animation: degauss 1.3s cubic-bezier(.2, .7, .3, 1) both; }
   .fallen { display: inline-block; transition: transform .7s cubic-bezier(.5,0,1,.6), opacity .7s; }
   .fallen.go { transform: translateY(60px) rotate(70deg); opacity: 0; }
@@ -502,9 +514,10 @@
     .bar { font-size: 12px; }
     .bar { margin-bottom: 14px; }
     /* links in thirds, the two switches in halves: no orphaned button on a row of its own */
-    .bar nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; width: 100%; align-items: center; }
-    .bar nav a { grid-column: span 2; text-align: center; }
-    .bar nav .btn { grid-column: span 3; }
+    .bar nav { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px; width: 100%; align-items: center; }
+    .bar nav a { grid-column: span 3; text-align: center; justify-self: center; white-space: nowrap; }
+    .bar nav .btn { grid-column: span 6; }
+    .bar nav .tn { display: block; }
     h2 { font-size: 28px; }
     .card--empty { min-height: 72px; }
     .ribo { margin-top: 12px; }
@@ -525,7 +538,7 @@
 
   @media print {
     html, body { background: #fff !important; color: #000 !important; text-shadow: none !important; font-size: 11pt; }
-    .crt, #cat-layer, #tracker, #status, #boot, .bar nav, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
+    .crt, #cat-layer, #tracker, #status, #boot, .boot-skip, .bar nav, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
     * { text-shadow: none !important; box-shadow: none !important; animation: none !important; color: #000 !important; }
     .screen { max-width: none; padding: 0; animation: none !important; }
     .js main.booting { visibility: visible; }
@@ -563,6 +576,7 @@
       <a href="#work">work</a>
       <a href="#side">side quests</a>
       <a href="#about">about</a>
+      <a href="#term" class="tn" aria-label="Open the terminal">&gt;_</a>
       <button id="motion" class="btn" type="button" aria-pressed="true" title="Stop or start all animation">motion: on</button>
       <button id="theme" class="btn" type="button" title="Switch phosphor colour">phosphor: amber</button>
     </nav>
@@ -957,10 +971,16 @@
     ['droids .............. [ T3-M4 · standing by ]', 'ok'],
   ];
   const bootEl = $('#boot'), main = $('#main');
-  let booted = false;
+  const bootLine = (l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>';
+  // the long boot plays once. After that the ship remembers, and starts warm
+  const warm = T.store.get('booted-v1', false) === true;
+  let booted = false, tail = '', skipHint = null;
   function finishBoot() {
     if (booted) return; booted = true;
-    bootEl.innerHTML = BOOT.map((l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>').join('\n');
+    bootEl.innerHTML = BOOT.map(bootLine).join('\n') + tail;
+    if (tail) bootEl.scrollTop = bootEl.scrollHeight;
+    if (skipHint) skipHint.remove();
+    T.store.set('booted-v1', true);
     main.classList.remove('booting');
     // the boot lines have done their job: they fade, and the terminal shows them again when it is opened
     setTimeout(() => bootEl.classList.add('done'), T.reduceMotion || T.debug ? 0 : 1600);
@@ -975,16 +995,32 @@
     const skip = () => finishBoot();
     document.addEventListener('keydown', skip, { once: true });
     document.addEventListener('pointerdown', skip, { once: true });
-    let li = 0, ci = 0;
-    (function type() {
-      if (booted) return;
-      if (li >= BOOT.length) { setTimeout(finishBoot, 250); return; }
-      const [text, cls] = BOOT[li];
-      ci = Math.min(text.length, ci + 3);
-      bootEl.innerHTML = BOOT.slice(0, li).map((l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>\n').join('') +
-        '<span class="' + cls + '">' + T.esc(text.slice(0, ci)) + '</span><span class="blink">█</span>';
-      if (ci >= text.length) { li++; ci = 0; setTimeout(type, 70); } else setTimeout(type, 16);
-    })();
+    if (warm) {
+      // a warm start: the same lines in three bursts, scrolling up the way a busy console does, then a word that all is well
+      tail = '\n' + bootLine(['warm start .......... [ ok ]', 'ok']);
+      const third = Math.ceil(BOOT.length / 3);
+      const show = (html) => { if (booted) return; bootEl.innerHTML = html; bootEl.scrollTop = bootEl.scrollHeight; };
+      [1, 2, 3].forEach((k) => setTimeout(() => show(BOOT.slice(0, Math.min(BOOT.length, k * third)).map(bootLine).join('\n') + '\n<span class="blink">█</span>'), 100 + (k - 1) * 450));
+      setTimeout(() => show(BOOT.map(bootLine).join('\n') + tail), 1400);
+      setTimeout(finishBoot, 1650);
+    } else {
+      // the first time, every line is typed. A visitor in a hurry is told how to skip it, once it has started
+      setTimeout(() => {
+        if (booted) return;
+        skipHint = document.createElement('div'); skipHint.className = 'boot-skip'; skipHint.setAttribute('aria-hidden', 'true');
+        skipHint.textContent = 'any key skips'; bootEl.after(skipHint);
+      }, 1500);
+      let li = 0, ci = 0;
+      (function type() {
+        if (booted) return;
+        if (li >= BOOT.length) { setTimeout(finishBoot, 250); return; }
+        const [text, cls] = BOOT[li];
+        ci = Math.min(text.length, ci + 3);
+        bootEl.innerHTML = BOOT.slice(0, li).map((l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>\n').join('') +
+          '<span class="' + cls + '">' + T.esc(text.slice(0, ci)) + '</span><span class="blink">█</span>';
+        if (ci >= text.length) { li++; ci = 0; setTimeout(type, 70); } else setTimeout(type, 16);
+      })();
+    }
   }
 
   // ---- shell
@@ -1043,6 +1079,7 @@
         print('since you are still here:');
         row('cat', 'the ship has a cat. also: pet · feed · pspsps');
         row('mother', 'ask the ship. mother where is the cat');
+        row('reboot', 'the long boot, once more');
         print('neofetch · fortune · grep <word> · man <command>');
       }
       if (HIST.length >= 10) print('and further down: finger · termlink · degauss · tracker · transcribe · translate · revcomp · gc · zoomies · portal · pazaak');
@@ -1149,7 +1186,11 @@
       if (!T.motion) { print('degauss: motion is off.', 'err'); return; }
       T.degauss(); print('thunk.');
     },
-    reboot() { print('rebooting ...'); setTimeout(() => location.reload(), 600); },
+    reboot() {
+      // forget the warm start, so the whole boot plays again
+      try { localStorage.removeItem('booted-v1'); } catch (e) {}
+      print('rebooting ...'); setTimeout(() => location.reload(), 600);
+    },
     man(arg) {
       const M = {
         ls: 'list the projects on this page', open: 'open a project in a new tab. open pellaeon', cat: 'print a file. with no file, reports on the ship\'s cat', exit: 'close the terminal',
@@ -1500,6 +1541,29 @@
     if (e.key !== 'Tab') stuck = null;
     if (e.key.length === 1 || e.key === 'Backspace') T.sfx('key');
   });
+  // the >_ in a phone's nav opens the terminal
+  const tn = $('.bar nav .tn');
+  if (tn) tn.addEventListener('click', (e) => { e.preventDefault(); T.openTerm(); });
+
+  // ---- the nav marks the section you are reading: the last one to cross a line two fifths down the window.
+  // While the hero still reaches that line, none. At the foot of the page the line drops, so the last section gets its turn
+  (function () {
+    const links = $$('.bar nav a[href^="#"]').map((a) => [a, $(a.getAttribute('href'))]).filter((p) => p[1] && p[1].tagName === 'SECTION');
+    const hero = $('.hero');
+    let queued = false;
+    function spy() {
+      queued = false;
+      const vh = window.innerHeight, end = window.pageYOffset + vh >= document.documentElement.scrollHeight - 4, line = vh * (end ? .9 : .4);
+      let on = null;
+      if (!hero || hero.getBoundingClientRect().bottom <= line) links.forEach(([a, s]) => { if (s.getBoundingClientRect().top <= line) on = a; });
+      links.forEach(([a]) => { if (a.classList.contains('on') !== (a === on)) a.classList.toggle('on', a === on); });
+    }
+    const queue = () => { if (!queued) { queued = true; requestAnimationFrame(spy); } };
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', queue);
+    T.onReady(queue);
+  })();
+
   // "/" reaches the prompt from anywhere on the page
   document.addEventListener('keydown', (e) => {
     if ((e.key !== '/' && e.key !== '~') || !slashKey || e.ctrlKey || e.metaKey || e.altKey) return;
