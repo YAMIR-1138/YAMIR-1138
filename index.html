@@ -194,6 +194,11 @@
 
   a { color: var(--hi); text-shadow: var(--glow-hi); text-decoration: none; border-bottom: 1px dashed var(--dim); }
   a:hover { background: var(--fg); color: var(--bg); text-shadow: none; border-bottom-color: transparent; }
+  /* phosphor afterglow: a link or button lights up at once, and lets go slowly */
+  a, .btn, .profile a::before, .profile a::after { transition: background-color .35s ease-out, color .35s ease-out, text-shadow .35s ease-out, border-color .35s ease-out; }
+  a:hover, .btn:hover, .profile a:hover::before, .profile a:hover::after { transition-duration: 0s; }
+  .still a, .still .btn, .still .profile a::before, .still .profile a::after,
+  :root.fading a, :root.fading .btn, :root.fading .profile a::before, :root.fading .profile a::after { transition: none; }
   a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--hi); outline-offset: 2px; }
   ::selection { background: var(--fg); color: var(--bg); text-shadow: none; }
   b, strong { font-weight: 600; }
@@ -211,13 +216,18 @@
     font-size: 12.5px; color: var(--dim); letter-spacing: .5px; text-shadow: none;
   }
   .bar .id b { color: var(--fg); text-shadow: var(--glow); }
-  .bar nav { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+  .bar nav { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; }
   .bar nav a { color: var(--fg); text-shadow: var(--glow); border: 0; position: relative; }
   .bar nav a:hover { color: var(--bg); }
   /* the section on the screen is marked in the nav, the way a prompt marks the line you are on */
   .bar nav a.on { color: var(--hi); text-shadow: var(--glow-hi); }
   .bar nav a.on:hover { color: var(--bg); text-shadow: none; }
-  .bar nav a.on::before { content: ">"; position: absolute; right: 100%; margin-right: 4px; color: var(--dim); text-shadow: none; pointer-events: none; }
+  .bar nav a.on::before { content: ">"; position: absolute; right: 100%; margin-right: 3px; color: var(--dim); text-shadow: none; pointer-events: none; }
+  /* the ship's clock, how long you have been aboard, and the line to the outside. Only on a wide screen */
+  .bar .sys { display: none; font-size: 11.5px; letter-spacing: 1px; color: var(--dim); text-shadow: none; white-space: nowrap; }
+  .bar .sys .warn { color: var(--warn); }
+  @media (min-width: 900px) { .js .bar .sys { display: inline; } }
+  @media (max-width: 1019px) { .bar .sys .up { display: none; } }   /* short of room, the clock and the carrier only */
   .bar nav .tn { display: none; }   /* the terminal, from the nav: only on a phone, where it cannot wait at the foot of the window */
   html:not(.js) .bar nav .tn { display: none; }
   .btn {
@@ -306,6 +316,12 @@
   section { margin: 0 0 46px; scroll-margin-top: 16px; }
   h2 { font-family: var(--display); font-weight: 400; font-size: 32px; line-height: 1.1; margin: 0 0 16px; letter-spacing: 1px; text-shadow: var(--glow), 0 0 44px rgba(var(--glow-rgb), .16); }
   h2 .ps { color: var(--dim); }
+  /* each heading reads out what is under it, in the grammar of the boot log */
+  h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+  h2 .hd { min-width: 0; }
+  h2 .rd { margin-left: auto; font: 11.5px/1.3 var(--mono); letter-spacing: 1px; text-transform: uppercase; color: var(--dim); text-shadow: none; white-space: nowrap; transition: opacity .45s ease-out .1s; }
+  h2 .rd:empty { display: none; }
+  section.pending h2 .rd { opacity: 0; }
   .out { color: var(--dim); font-size: 13.5px; margin: 0 0 16px; text-shadow: none; }
   /* a heading being typed: letters wait hidden, the block marks the next one */
   h2 .ch { visibility: hidden; }
@@ -345,6 +361,15 @@
     padding: 14px 16px 14px; transition: border-color .15s, box-shadow .15s; min-width: 0;
   }
   .card:hover, .card:focus-within { border-color: var(--fg); box-shadow: 0 0 18px rgba(var(--glow-rgb), .13), inset 0 0 0 1px var(--faint); }
+  /* short ticks on the four corners, like the frame of a readout on a console */
+  .card { --tick: var(--edge); }
+  .card:hover, .card:focus-within { --tick: var(--fg); }
+  .card::after {
+    content: ""; position: absolute; inset: -1px; pointer-events: none;
+    --h: linear-gradient(var(--tick), var(--tick)) no-repeat;
+    background: var(--h) left top / 7px 2px, var(--h) left top / 2px 7px, var(--h) right top / 7px 2px, var(--h) right top / 2px 7px,
+      var(--h) left bottom / 7px 2px, var(--h) left bottom / 2px 7px, var(--h) right bottom / 7px 2px, var(--h) right bottom / 2px 7px;
+  }
   .card .path { margin: 0 0 6px; font-size: 11.5px; letter-spacing: 1.5px; color: var(--dim); text-shadow: none; display: flex; flex-wrap: wrap; gap: 0 14px; justify-content: space-between; text-transform: uppercase; }
   .card .path .gh { color: var(--fg); letter-spacing: .5px; white-space: nowrap; }
   .card h3 { font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1; margin: 0 0 6px; color: var(--hi); text-shadow: var(--glow-hi); }
@@ -406,6 +431,12 @@
     flex: 1; min-width: 0; font: inherit; color: var(--fg); background: none; border: 0;
     outline: none; text-shadow: var(--glow); caret-color: var(--fg); padding: 0;
   }
+  /* a block cursor, drawn after the text, in place of the browser's thin one. In the middle of the line the thin one comes back */
+  .js .prompt input { caret-color: transparent; }
+  .js .prompt input.mid { caret-color: var(--fg); }
+  .prompt .caret { position: absolute; left: 0; top: 0; width: .6em; height: 1.2em; background: var(--fg); box-shadow: 0 0 6px rgba(var(--glow-rgb), .6); pointer-events: none; display: none; animation: blink 1s steps(1) infinite; }
+  .prompt .caret.on { display: block; }
+  .still .prompt .caret { animation: none; }
   /* the prompt shows where you are typing with a line of its own, in place of the browser's ring */
   .prompt:focus-within { box-shadow: 0 5px 0 -3px var(--hi); }
   .prompt:focus-within label { color: var(--hi); text-shadow: var(--glow-hi); }
@@ -519,6 +550,7 @@
     .bar nav .btn { grid-column: span 6; }
     .bar nav .tn { display: block; }
     h2 { font-size: 28px; }
+    h2 .rd { margin-left: 0; flex-basis: 100%; }
     .card--empty { min-height: 72px; }
     .ribo { margin-top: 12px; }
   }
@@ -538,13 +570,13 @@
 
   @media print {
     html, body { background: #fff !important; color: #000 !important; text-shadow: none !important; font-size: 11pt; }
-    .crt, #cat-layer, #tracker, #status, #boot, .boot-skip, .bar nav, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
+    .crt, #cat-layer, #tracker, #status, #boot, .boot-skip, .bar nav, .bar .sys, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
     * { text-shadow: none !important; box-shadow: none !important; animation: none !important; color: #000 !important; }
     .screen { max-width: none; padding: 0; animation: none !important; }
     .js main.booting { visibility: visible; }
     section.pending > :not(h2) { opacity: 1 !important; } h2 .ch { visibility: visible !important; background: none !important; }
     h1 { font-size: 40pt; margin: 0 0 6pt; } h2 { font-size: 16pt; margin-top: 14pt; } .card h3 { font-size: 14pt; }
-    h2 .ps { display: none; }
+    h2 .ps, h2 .rd, .card::after { display: none; }
     .hero, .split, .card--featured { display: block; }
     .card { border: 0; border-top: 1pt solid #999; background: none; padding: 6pt 0; break-inside: avoid; }
     .grid { display: block; }
@@ -558,7 +590,8 @@
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .crt i, .crt b, .blink, .js .screen { animation: none; }
+    .crt i, .crt b, .blink, .js .screen, .prompt .caret { animation: none; }
+    a, .btn, .profile a::before, .profile a::after { transition: none; }
     .js main.booting { visibility: visible; }
     .fallen, #camille { transition: none; }
   }
@@ -572,6 +605,7 @@
 <div class="screen">
   <header class="bar">
     <span class="id"><b>YAM AMIR</b> // TGGR LAB</span>
+    <span class="sys" aria-hidden="true"></span>
     <nav aria-label="Sections">
       <a href="#work">work</a>
       <a href="#side">side quests</a>
@@ -607,7 +641,7 @@
     <div class="divider" aria-hidden="true"><canvas></canvas></div>
 
     <section id="work" aria-label="Selected projects">
-      <h2 id="h-work" aria-label="Selected projects"><span class="ps">&gt;</span> SELECTED PROJECTS<span class="cur-slot"></span></h2>
+      <h2 id="h-work" aria-label="Selected projects"><span class="hd"><span class="ps">&gt;</span> SELECTED PROJECTS<span class="cur-slot"></span></span><span class="rd" aria-hidden="true"></span></h2>
       <ul class="grid grid--featured">
         <li class="card card--featured" data-project="Pellaeon" data-dir="work" data-site="https://tggr-lab.github.io/pellaeon/">
           <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="kite" data-scale="2" data-play="hover"></canvas></figure>
@@ -643,7 +677,7 @@
     <div class="divider" aria-hidden="true"><canvas></canvas></div>
 
     <section id="side" aria-label="Side quests">
-      <h2 id="h-side" aria-label="Side quests"><span class="ps">&gt;</span> SIDE QUESTS<span class="cur-slot"></span></h2>
+      <h2 id="h-side" aria-label="Side quests"><span class="hd"><span class="ps">&gt;</span> SIDE QUESTS<span class="cur-slot"></span></span><span class="rd" aria-hidden="true"></span></h2>
       <ul class="grid grid--tools">
         <li class="card card--tool" data-project="ΣpinZero" data-alias="spinzero" data-dir="side" data-site="https://yamir-1138.github.io/SpinZero/">
           <figure class="emblem"><canvas class="px" data-icon="rotor" data-scale="2" data-cap="#rotor-cap" role="button" tabindex="0" aria-describedby="rotor-cap" aria-label="Centrifuge rotor. Press Enter to load the next slot, Backspace to unload one."></canvas><figcaption class="cap" id="rotor-cap" aria-live="polite">3 tubes · Σ = 0 · click a slot</figcaption></figure>
@@ -699,7 +733,7 @@
     <div class="divider" aria-hidden="true"><canvas></canvas></div>
 
     <section id="about" aria-label="About">
-      <h2 id="h-about" aria-label="About"><span class="ps">&gt;</span> ABOUT<span class="cur-slot"></span></h2>
+      <h2 id="h-about" aria-label="About"><span class="hd"><span class="ps">&gt;</span> ABOUT<span class="cur-slot"></span></span><span class="rd" aria-hidden="true"></span></h2>
       <div class="split">
       <dl class="kv">
         <dt>role</dt><dd>PhD student at the TGGR Lab (Translational Genetics and Genomics Research), Tel Aviv Sourasky Medical Center &amp; Tel Aviv University</dd>
@@ -779,7 +813,7 @@
     const root = document.documentElement, was = root.dataset.theme;
     // a switch while the page is up fades: the old phosphor hangs on for a moment. The canvases redraw once it has gone
     const fade = T.booted && was && was !== t && T.motion && !T.reduceMotion;
-    root.classList.toggle('fading', fade);
+    root.classList.toggle('fading', !!fade);   // !! so an undefined never flips it on by itself
     root.dataset.theme = t;
     themeBtn.textContent = 'phosphor: ' + t;
     clearTimeout(fadeTimer);
@@ -1556,12 +1590,68 @@
       const vh = window.innerHeight, end = window.pageYOffset + vh >= document.documentElement.scrollHeight - 4, line = vh * (end ? .9 : .4);
       let on = null;
       if (!hero || hero.getBoundingClientRect().bottom <= line) links.forEach(([a, s]) => { if (s.getBoundingClientRect().top <= line) on = a; });
-      links.forEach(([a]) => { if (a.classList.contains('on') !== (a === on)) a.classList.toggle('on', a === on); });
+      links.forEach(([a]) => {
+        if (a.classList.contains('on') === (a === on)) return;
+        // the mark moves at once: the slow fade is for a link the pointer has just left
+        a.style.transition = 'none'; a.classList.toggle('on', a === on); void a.offsetWidth; a.style.transition = '';
+      });
     }
     const queue = () => { if (!queued) { queued = true; requestAnimationFrame(spy); } };
     window.addEventListener('scroll', queue, { passive: true });
     window.addEventListener('resize', queue);
-    T.onReady(queue);
+    // while the tube is still powering on the page is squashed flat, so look again once it is up
+    $('.screen').addEventListener('animationend', queue);
+    T.onReady(() => { queue(); setTimeout(queue, 700); });
+  })();
+
+  // ---- each heading reads out what is under it: records, open slots, and the deck the tracker gives it
+  $$('main section[id]').forEach((s, i) => {
+    const rd = $('h2 .rd', s);
+    if (!rd) return;
+    const cards = $$('.card', s).filter((c) => !c.hidden), open = cards.filter((c) => c.classList.contains('card--empty')).length, n = cards.length - open;
+    const parts = cards.length ? [n + (n === 1 ? ' RECORD' : ' RECORDS')].concat(open ? [open + (open === 1 ? ' SLOT OPEN' : ' SLOTS OPEN')] : []) : ['CREW FILE'];
+    rd.textContent = '[ ' + parts.concat('DECK ' + 'ABCDEFGH'[i + 1]).join(' · ') + ' ]';   // the hero is deck A
+  });
+
+  // ---- the bar on a wide screen: ship's clock, time aboard, and the carrier. It stops when motion does
+  (function () {
+    const sys = $('.bar .sys');
+    if (!sys) return;
+    const two = (v) => String(v).padStart(2, '0');
+    const hms = (s) => two(Math.floor(s / 3600)) + ':' + two(Math.floor(s / 60) % 60) + ':' + two(s % 60);
+    function read() {
+      const d = new Date(), up = Math.floor((performance.now() - T.t0) / 1000), off = navigator.onLine === false;
+      sys.innerHTML = 'SYS ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()) + '<span class="up"> · UP ' + hms(up) + '</span> · ' + (off ? '<span class="warn">NO CARRIER</span>' : 'CARRIER OK');
+    }
+    read();
+    setInterval(() => { if (T.motion && !document.hidden && sys.offsetParent) read(); }, 1000);
+    window.addEventListener('online', read); window.addEventListener('offline', read);
+  })();
+
+  // ---- the block cursor in the prompt: drawn just after the last letter, while you type at the end of the line
+  (function () {
+    const caret = document.createElement('span'), pen = document.createElement('canvas').getContext('2d');
+    caret.className = 'caret'; caret.setAttribute('aria-hidden', 'true'); form.appendChild(caret);
+    function place() {
+      const atEnd = input.selectionStart === input.selectionEnd && input.selectionEnd === input.value.length;
+      input.classList.toggle('mid', !atEnd);
+      const on = document.activeElement === input && atEnd && term.open;
+      caret.classList.toggle('on', on);
+      if (!on) return;
+      const cs = getComputedStyle(input), size = parseFloat(cs.fontSize);
+      pen.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+      const x = Math.min(pen.measureText(input.value).width - input.scrollLeft, input.clientWidth - size * .6);
+      caret.style.width = pen.measureText('M').width + 'px'; caret.style.height = Math.round(size * 1.2) + 'px';
+      caret.style.transform = 'translate(' + Math.round(input.offsetLeft + Math.max(0, x)) + 'px,' + Math.round(input.offsetTop + (input.offsetHeight - size * 1.2) / 2) + 'px)';
+      // the blink starts over each time the cursor moves, so it is never caught dark while you type
+      caret.style.animation = 'none'; void caret.offsetWidth; caret.style.animation = '';
+    }
+    const later = () => requestAnimationFrame(place);
+    ['input', 'keyup', 'click', 'focus', 'blur', 'select', 'selectionchange'].forEach((n) => input.addEventListener(n, place));
+    input.addEventListener('keydown', later);
+    document.addEventListener('selectionchange', () => { if (document.activeElement === input) place(); });
+    term.addEventListener('toggle', later);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(later);
   })();
 
   // "/" reaches the prompt from anywhere on the page
@@ -2505,7 +2595,7 @@
             const f = document.createDocumentFragment();
             Array.from(n.data).forEach((c) => { const sp = document.createElement('span'); sp.className = 'ch'; sp.textContent = c; chars.push(sp); f.appendChild(sp); });
             n.parentNode.replaceChild(f, n);
-          } else if (n.nodeType === 1 && !n.classList.contains('ps') && !n.classList.contains('cur-slot')) wrap(n);
+          } else if (n.nodeType === 1 && !n.classList.contains('ps') && !n.classList.contains('cur-slot') && !n.classList.contains('rd')) wrap(n);
         });
       })(h);
       h.parentNode.classList.add('pending');
@@ -2928,7 +3018,7 @@ window.CATDATA = {
   }
   const topOf = (l) => l.y - H;
   // what to call a place, from its own text but without the live numbers or the cursor
-  const labelOf = (node) => { const c = node.cloneNode(true); $$('.gh, #cursor, .cur-slot', c).forEach((x) => x.remove()); return c.textContent.replace(/^\s*[$>]\s*/, '').replace(/\s+/g, ' ').trim().toLowerCase(); };
+  const labelOf = (node) => { const c = node.cloneNode(true); $$('.gh, #cursor, .cur-slot, .rd', c).forEach((x) => x.remove()); return c.textContent.replace(/^\s*[$>]\s*/, '').replace(/\s+/g, ' ').trim().toLowerCase(); };
   function measure() {
     const u = window.innerWidth <= 760 ? .62 : .75, r = Math.min(3, window.devicePixelRatio || 1);
     if (u !== unit || r !== dpr) {
@@ -2951,7 +3041,7 @@ window.CATDATA = {
     };
     const nameEl = $('#name');
     if (nameEl) { const t = textRect(nameEl); add('name', nameEl, 'perch', t.x, t.r, t.y + t.h * 0.25, { label: 'the big heading' }); }
-    $$('main h2').forEach((h, i) => { const t = textRect(h); add('h2-' + i, h, 'perch', t.x, Math.max(t.r, t.x + W + 2), t.y + t.h * 0.2, { label: labelOf(h) }); });
+    $$('main h2').forEach((h, i) => { const t = textRect($('.hd', h) || h); add('h2-' + i, h, 'perch', t.x, Math.max(t.r, t.x + W + 2), t.y + t.h * 0.2, { label: labelOf(h) }); });
     $$('.card').forEach((card, i) => {
       if (card.hidden) return;
       const c = rel(card.getBoundingClientRect());
@@ -3840,7 +3930,7 @@ window.CATDATA = {
       const h = heads[0];
       const tw = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
       let node = null, n;
-      while ((n = tw.nextNode())) if (/[A-Za-z]/.test(n.data) && !n.parentNode.closest('.ps, #cursor, .fallen')) node = n;
+      while ((n = tw.nextNode())) if (/[A-Za-z]/.test(n.data) && !n.parentNode.closest('.ps, .rd, #cursor, .fallen')) node = n;
       if (node) {
         const idx = node.data.search(/[A-Za-z][^A-Za-z]*$/);
         const letter = node.splitText(idx); letter.splitText(1);
