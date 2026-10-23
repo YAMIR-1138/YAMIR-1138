@@ -158,7 +158,8 @@
   }
   /* someone who asks for more contrast gets clean letters: no lines, no glow */
   @media (prefers-contrast: more) {
-    .crt::before { display: none; }
+    .crt::before, .crt s { display: none; }
+    .sag { animation: none; } .tear { transform: none; }
     *, *::before, *::after { text-shadow: none !important; }
   }
   .crt::after {
@@ -176,6 +177,20 @@
     position: absolute; inset: 0; background: rgba(255,255,255,.014);
     animation: flicker 5s infinite steps(1);
   }
+  /* static: a fine grain over everything, crawling. Fainter on green, which is the brighter phosphor */
+  .crt s {
+    position: absolute; inset: 0; opacity: .035;   /* plain blending: a screen blend cost a frame in two on a full window */
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='1' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 160px 160px;
+    animation: grain .5s steps(1) infinite;
+  }
+  :root[data-theme="green"] .crt s { opacity: .03; }
+  @keyframes grain { 0% { background-position: 0 0; } 17% { background-position: -37px -61px; } 33% { background-position: -89px -23px; } 50% { background-position: -13px -113px; } 67% { background-position: -131px -47px; } 83% { background-position: -71px -139px; } }
+  /* a screen that dips for a moment, as if something on the ship drew a lot of power, and one that loses its hold */
+  .sag { animation: sag .7s linear both; will-change: filter; }
+  @keyframes sag { 0% { filter: brightness(1); } 8% { filter: brightness(.72); } 15% { filter: brightness(.9); } 30% { filter: brightness(.62); } 45% { filter: brightness(.72); } 100% { filter: brightness(1); } }
+  .tear { transform: translateX(2px) skewX(.5deg); }
+  .still .crt s, .still .sag { animation: none; }
+  .still .tear { transform: none; }
   @keyframes scanbar { to { transform: translateY(700%); } }
   @keyframes flicker {
     0%,100% { opacity: .6 } 7% { opacity: .2 } 8% { opacity: .9 } 9% { opacity: .3 }
@@ -605,6 +620,7 @@
     .crt, #cat-layer, #tracker, #status, #boot, .boot-skip, .bar nav, .bar .sys, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
     * { text-shadow: none !important; box-shadow: none !important; animation: none !important; color: #000 !important; }
     .screen { max-width: none; padding: 0; animation: none !important; }
+    .sag, .tear { transform: none !important; filter: none !important; }
     .js main.booting { visibility: visible; }
     section.pending > :not(h2) { opacity: 1 !important; } h2 .ch { visibility: visible !important; background: none !important; }
     h1 { font-size: 40pt; margin: 0 0 6pt; } h2 { font-size: 16pt; margin-top: 14pt; } .card h3 { font-size: 14pt; }
@@ -624,7 +640,8 @@
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .crt i, .crt b, .blink, .js .screen, .prompt .caret { animation: none; }
+    .crt i, .crt b, .crt s, .blink, .js .screen, .prompt .caret, .sag { animation: none; }
+    .tear { transform: none; }
     a, .btn, .profile a::before, .profile a::after { transition: none; }
     .js main.booting { visibility: visible; }
     .fallen, #camille { transition: none; }
@@ -633,7 +650,7 @@
 </head>
 <body>
 <a class="skip" href="#work">Skip to projects</a>
-<div class="crt" aria-hidden="true"><i></i><b></b></div>
+<div class="crt" aria-hidden="true"><i></i><b></b><s></s></div>
 <canvas id="ideo" aria-hidden="true" title="Chromosome 5, with the part of the page you are on marked. PAR2 is on it, at 5q13.3."></canvas>
 
 <div class="screen">
@@ -1667,7 +1684,9 @@
     const hms = (s) => (s >= 3600 ? Math.floor(s / 3600) + ':' : '') + two(Math.floor(s / 60) % 60) + ':' + two(s % 60);
     function read() {
       const d = new Date(), up = Math.floor((performance.now() - T.t0) / 1000), off = navigator.onLine === false;
-      sys.innerHTML = 'SHIP TIME ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()) + '<span class="up"> · ABOARD ' + hms(up) + '</span>' + (off ? ' · <span class="warn">LINK LOST</span>' : '');
+      // once in a long while the clock loses a beat and shows dashes for a tick
+      const lost = T.fx && T.fx.takeBeat && T.fx.takeBeat();
+      sys.innerHTML = 'SHIP TIME ' + (lost ? '--:--:--' : two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds())) + '<span class="up"> · ABOARD ' + hms(up) + '</span>' + (off ? ' · <span class="warn">LINK LOST</span>' : '');
     }
     // the bar keeps to one line: the readout gives up its second half, and then itself, before the nav has to wrap
     const id = $('.bar .id'), nav = $('.bar nav');
@@ -1687,6 +1706,71 @@
     if (document.fonts) { document.fonts.addEventListener('loadingdone', refit); if (document.fonts.ready) document.fonts.ready.then(refit); }
     $('.screen').addEventListener('animationend', refit);
     T.onReady(refit);
+  })();
+
+  // ---- the screens are not quite clean. Now and then one sags, one loses its hold, a picture snows, the clock drops a beat.
+  // Rare, short, one screen at a time, and none of it with motion off, reduced motion, or more contrast asked for
+  (function () {
+    const contrast = matchMedia('(prefers-contrast: more)');
+    const ok = () => !!(T.motion && !T.reduceMotion && !contrast.matches);
+    const SCREENS = '.card:not([hidden]), .panel, #term, #tracker';
+    const GLYPHS = '▒░▓#%&/';
+    let over = null, beat = false, snowUntil = 0, running = false;
+    const timers = {};
+    document.addEventListener('pointerover', (e) => { over = e.target && e.target.closest ? e.target.closest(SCREENS) : null; }, { passive: true });
+    const inView = (el) => { if (!el.getClientRects().length) return false; const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth; };
+    const typing = (el) => el.id === 'term' && document.activeElement === $('#cmd');
+    const any = () => { const all = $$(SCREENS).filter((el) => inView(el) && el !== over && !typing(el)); return all.length ? T.pick(all) : null; };
+    function sag(el) {
+      el = el || any();
+      if (!el || !ok()) return false;
+      el.classList.remove('sag'); void el.offsetWidth; el.classList.add('sag');
+      setTimeout(() => el.classList.remove('sag'), 700);
+      return true;
+    }
+    // the left label of a screen's title strip: its own words, not the live readout beside them
+    const labelOf = (el) => {
+      const strip = el.id === 'term' ? $('summary', el) : el.id === 'tracker' ? $('.t', el) : $(':scope > .path', el);
+      return strip ? Array.from(strip.childNodes).filter((n) => n.nodeType === 3 && n.data.trim()) : [];
+    };
+    const scramble = (s) => s.replace(/\S/g, () => T.pick(GLYPHS));
+    function tear(el) {
+      el = el || any();
+      if (!el || !ok()) return false;
+      const nodes = labelOf(el), saved = nodes.map((n) => n.data), put = saved.slice();
+      // scramble only what still holds our own text: a strip something else has just written to is left alone
+      const mess = () => nodes.forEach((n, i) => { if (n.data === put[i]) put[i] = n.data = scramble(saved[i]); });
+      el.classList.add('tear');
+      setTimeout(() => el.classList.remove('tear'), 80);
+      mess();
+      requestAnimationFrame(() => { mess(); requestAnimationFrame(() => {
+        // put the words back from the copy, unless something else has written to the strip meanwhile
+        nodes.forEach((n, i) => { if (n.data === put[i]) n.data = saved[i]; });
+      }); });
+      return true;
+    }
+    function snow() { if (!ok()) return false; snowUntil = performance.now() + 250; return true; }
+    // one scheduler for all of it: a chain of timeouts each, stopped whenever the page is hidden or motion is off
+    const CHAINS = { sag: [12, 30, () => sag()], tear: [40, 90, () => tear()], beat: [120, 300, () => { beat = true; }] };
+    function arm(name) { const c = CHAINS[name]; timers[name] = setTimeout(() => { c[2](); arm(name); }, T.rand(c[0], c[1]) * 1000); }
+    function sync() {
+      const want = ok() && !document.hidden && !!T.booted;
+      if (want === running) return;
+      running = want;
+      if (want) Object.keys(CHAINS).forEach(arm);
+      else { Object.keys(timers).forEach((k) => clearTimeout(timers[k])); $$('.sag, .tear').forEach((el) => el.classList.remove('sag', 'tear')); beat = false; }
+    }
+    T.fx = {
+      sag, tear, snow, ok,
+      get active() { return running; },
+      snowing: () => performance.now() < snowUntil,
+      takeBeat: () => { const b = beat && ok(); beat = false; return b; },
+    };
+    document.addEventListener('visibilitychange', sync);
+    if (contrast.addEventListener) contrast.addEventListener('change', sync);
+    // the motion switch shows as .still on the page: watch for it, so the cat keeps T.onMotion to herself
+    new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    T.onReady(sync);
   })();
 
   // ---- the block cursor in the prompt: drawn just after the last letter, while you type at the end of the line
@@ -2100,6 +2184,11 @@
       const k = I.same ? I.same(cur) : cur;
       if (!cache[k]) { p.clear(); I.draw(p, cur); cache[k] = I.image ? I.image(p, cur, PAL) : p.image(PAL); }
       ctx.putImageData(cache[k], 0, 0);
+      // now and then a little static on the picture. Never cached: the next frame is clean
+      if (T.fx && T.fx.ok() && (Math.random() < 1 / 45 || T.fx.snowing())) {
+        const dots = (c, n) => { ctx.fillStyle = 'rgb(' + c.join(',') + ')'; for (let i = 0; i < n; i++) ctx.fillRect(Math.floor(Math.random() * I.w), Math.floor(Math.random() * I.h), 1, 1); };
+        dots(PAL[2], 8 + Math.floor(Math.random() * 7)); dots(PAL[3], 2 + Math.floor(Math.random() * 2));
+      }
       if (cap && I.state) { const s = I.state(cur); if (cap.textContent !== s) cap.textContent = s; }
     };
     const it = T.Anim.add(canvas, draw, I.fps, always);
