@@ -1945,6 +1945,30 @@
     })();
   })();
 
+  // ---- up up down down left right left right b a, typed anywhere but the prompt: the ship looks itself over and says so.
+  // The tube is degaussed, and if the cat is about she takes it badly. Once a minute at most
+  if (F.konami) (function () {
+    const CODE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'].join();
+    const keys = [];
+    let last = -1e9;
+    document.addEventListener('keydown', (e) => {
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) { keys.length = 0; return; }
+      if (/^(Shift|Control|Alt|Meta|CapsLock)$/.test(e.key)) return;
+      keys.push(e.key.length === 1 ? e.key.toLowerCase() : e.key);
+      if (keys.length > 10) keys.shift();
+      if (keys.join() !== CODE) return;
+      keys.length = 0;
+      if (performance.now() - last < 60000) return;
+      last = performance.now();
+      T.openTerm(false);
+      typeOut(['ALL SYSTEMS NOMINAL'], 'mu');
+      T.degauss();
+      const cat = T.catStatus ? T.catStatus().split(' · ')[1] : 'elsewhere';
+      if (T.motion && cat && cat !== 'elsewhere' && T.COMMANDS.zoomies) setTimeout(() => T.COMMANDS.zoomies(), 1400);
+    });
+  })();
+
   // "/" reaches the prompt from anywhere on the page
   document.addEventListener('keydown', (e) => {
     if ((e.key !== '/' && e.key !== '~') || !slashKey || e.ctrlKey || e.metaKey || e.altKey) return;
