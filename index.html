@@ -1233,6 +1233,7 @@
         row('cat', 'the ship has a cat. also: pet · feed · pspsps');
         row('mother', 'ask the ship. mother where is the cat');
         row('reboot', 'the long boot, once more');
+        if (F.map) row('map', 'the decks, and who is on them');
         print('neofetch · fortune · grep <word> · man <command>');
       }
       if (HIST.length >= 10) print('and further down: finger · termlink · degauss · tracker · transcribe · translate · revcomp · gc · zoomies · portal · pazaak');
@@ -1978,6 +1979,37 @@
       if (T.motion && cat && cat !== 'elsewhere' && T.COMMANDS.zoomies) setTimeout(() => T.COMMANDS.zoomies(), 1400);
     });
   })();
+
+  // ---- map: the decks of the page in the grammar of the boot log, what is on each, and where the cat is
+  if (F.map) {
+    COMMANDS.map = function () {
+      const decks = [$('.hero')].concat($$('main section[id]')).filter(Boolean);
+      const lead = (label) => (label + ' ').padEnd(21, '.') + ' [ ';
+      // she is on a deck the way the tracker reckons it, by where her middle is
+      const cat = $('#camille'), r = cat && cat.style.visibility === 'visible' ? cat.getBoundingClientRect() : null;
+      const cy = r ? r.top + r.height * .6 : 0;
+      let at = -1;
+      decks.forEach((d, i) => { const b = d.getBoundingClientRect(); if (r && cy >= b.top - 40 && cy < b.bottom + 6) at = i; });
+      print('DECK MAP · ' + decks.length + ' DECKS', 'mu');
+      decks.forEach((d, i) => {
+        const cards = $$('.card', d).filter((c) => !c.hidden), open = cards.filter((c) => c.classList.contains('card--empty')).length, n = cards.length - open;
+        const bits = [i ? (d.getAttribute('aria-label') || d.id).toLowerCase() : 'the name and the helix'];
+        if (cards.length) bits.push(n + (n === 1 ? ' record' : ' records'));
+        else if ($('.panel--crew', d)) bits.push('crew file');
+        else bits.push('no records');
+        if (open) bits.push(open + (open === 1 ? ' slot open' : ' slots open'));
+        if ($('#par2', d) && T.display) {
+          const k = T.display.key, cap = $('.par2 .cap', d), two = (v) => String(v).padStart(2, '0');
+          bits.push('display ' + two(T.display.keys.indexOf(k) + 1) + '/' + two(T.display.keys.length) + ' ' + (cap ? cap.textContent.split(' · ')[0] : k));
+        }
+        print(lead('deck ' + 'ABCDEFGH'[i]) + bits.join(' · ') + ' ]' + (i === at ? '  <- cat' : ''));
+      });
+      if (at < 0) print(lead('camille') + (r && T.catStatus ? 'between decks · ' + T.catStatus().split(' · ')[1] : 'not on any deck') + ' ]');
+    };
+    PUBLIC.push('map');
+    const man = COMMANDS.man;
+    COMMANDS.man = (arg) => { if ((arg || '').toLowerCase() === 'map') print('map - the decks of the page, what is on each, and where the cat is'); else man(arg); };
+  }
 
   // "/" reaches the prompt from anywhere on the page
   document.addEventListener('keydown', (e) => {
@@ -2805,7 +2837,7 @@
     };
     T.Anim.add(par2, draw, 24);
     T.onTheme(() => draw(0));
-    T.display = { show: (k) => { if (M[k]) { st.click = false; switchTo(k, 0); st.next = 1e9; } }, keys: Object.keys(M) };
+    T.display = { show: (k) => { if (M[k]) { st.click = false; switchTo(k, 0); st.next = 1e9; } }, keys: Object.keys(M), get key() { return st.key; } };
   }
 
   // ---- a sequencing trace runs past between the sections. Peaks only, no letters: it is a shape, not a read.
