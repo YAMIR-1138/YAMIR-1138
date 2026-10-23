@@ -123,71 +123,24 @@
   .back { align-self: flex-start; margin: 0 0 10px; }
 
   /* ============================================================
-     CARDS. Chamfered like a datapad, phosphor on black.
-     main deck: the phosphor · plus: the other phosphor · minus: warn · flip: both · gold: foil
+     CARDS. Drawn by the page as pixels: a small raster in four tones of the phosphor, scaled up square,
+     so the tube draws them the way it draws everything else. The scanlines and the glow are the screen's.
      ============================================================ */
   .pc {
-    --w: 64px; --c: var(--fg); --c2: var(--c);
-    position: relative; width: var(--w); height: calc(var(--w) * 1.4); font-size: var(--w);
+    --w: 64px; --c: var(--fg);
+    position: relative; width: var(--w); height: calc(var(--w) * 1.4);
     flex: none; perspective: 600px; user-select: none; -webkit-user-select: none;
-    filter: drop-shadow(0 0 calc(var(--w) * .045) color-mix(in srgb, var(--c) 40%, transparent));
+    filter: drop-shadow(0 0 calc(var(--w) * .05) rgba(var(--glow-rgb), .42));
   }
+  .pc.sc { --c: var(--hi); }
   .pc .in { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .18s ease-out; }
-  .pc .face, .pc .bk { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; clip-path: polygon(14% 0, 100% 0, 100% 90%, 86% 100%, 0 100%, 0 10%); }
-  .pc .face {
-    background:
-      linear-gradient(var(--c), var(--c)) top left / 100% 1.5px no-repeat,
-      repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.28) 2px 3px),
-      radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--c) 15%, #000) 0%, #000 78%);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden;
-  }
-  /* the edge is drawn inside the clip so the chamfers show it too */
-  .pc .face::before { content: ""; position: absolute; inset: 0; clip-path: inherit; background: var(--c); -webkit-mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); padding: max(1.5px, calc(var(--w) * .022)); opacity: .95; }
-  .pc .face::after { content: ""; position: absolute; left: 9%; right: 9%; top: 17%; bottom: 17%; border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); }
-  .pc .v { position: relative; z-index: 1; font-family: var(--display); font-size: .56em; line-height: .9; color: color-mix(in srgb, var(--c) 35%, #fff); text-shadow: 0 0 .08em var(--c), 0 0 .3em var(--c); letter-spacing: -.02em; white-space: nowrap; }
-  .pc .v.long { font-size: .4em; }
-  .pc .k { position: absolute; z-index: 1; top: 3.5%; right: 7%; font: 600 .13em/1 var(--mono); color: var(--c); text-shadow: none; letter-spacing: .05em; }
-  .pc .sg { position: absolute; z-index: 1; left: 9%; right: 9%; height: 11%; display: flex; align-items: center; justify-content: center; font: .12em/1 var(--mono); color: #000; text-shadow: none; letter-spacing: .1em; }
-  .pc .sg.t { top: 5.5%; background: color-mix(in srgb, var(--c) 72%, transparent); clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%); }
-  .pc .sg.b { bottom: 5.5%; background: color-mix(in srgb, var(--c2) 72%, transparent); clip-path: polygon(0 0, 94% 0, 100% 100%, 6% 100%); }
-  .pc .pips { position: absolute; z-index: 1; bottom: 7%; left: 12%; right: 12%; display: flex; gap: 3%; justify-content: center; }
-  .pc .pips i { flex: 1; max-width: 8%; height: calc(var(--w) * .05); background: var(--c); opacity: .85; box-shadow: 0 0 3px var(--c); }
-  .pc .pips i.off { opacity: .16; box-shadow: none; }
-  .pc .foil { position: absolute; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: screen; opacity: .0; background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,.55) calc(var(--gx, 50%) - 4%), rgba(255,255,255,0) calc(var(--gx, 50%) + 10%), transparent 80%); transition: opacity .2s; }
-  .pc.side .foil { opacity: 0; }
-  .pc.live .foil { opacity: .55; }
-  .pc.t-main { --c: var(--fg); }
-  /* the colours of plus and minus are mixed back toward the phosphor, so the cards belong to the same screen */
-  .pc.t-plus { --c: color-mix(in srgb, var(--alt) 62%, var(--fg)); }
-  .pc.t-minus { --c: color-mix(in srgb, var(--warn) 78%, var(--fg)); }
-  .pc.t-flip { --c: color-mix(in srgb, var(--alt) 62%, var(--fg)); --c2: color-mix(in srgb, var(--warn) 78%, var(--fg)); }
-  .pc.t-flip .face { background: linear-gradient(var(--alt), var(--alt)) top left / 100% 1.5px no-repeat, repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.28) 2px 3px), radial-gradient(ellipse at 50% 20%, color-mix(in srgb, var(--alt) 22%, #000) 0%, transparent 60%), radial-gradient(ellipse at 50% 85%, color-mix(in srgb, var(--warn) 22%, #000) 0%, #000 60%); }
-  .pc.t-flip .face::before { background: linear-gradient(to bottom, var(--alt), var(--warn)); }
-  .pc.t-flip .v { color: #fff; text-shadow: 0 -.04em .12em var(--alt), 0 .04em .12em var(--warn); }
-  /* gold: a holographic foil that turns as the card does */
-  /* gold: a foil in the phosphor's own light that turns as the card does */
-  .pc.t-gold { --c: var(--hi); --c2: var(--fg); filter: drop-shadow(0 0 calc(var(--w) * .08) rgba(var(--glow-rgb), .6)); }
-  .pc.t-gold .face { background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.3) 2px 3px), repeating-linear-gradient(45deg, rgba(var(--glow-rgb), .07) 0 2px, transparent 2px 5px), radial-gradient(ellipse at 50% 40%, color-mix(in srgb, var(--fg) 26%, #000) 0%, #000 80%); }
-  .pc.t-gold .face::before { background: conic-gradient(from var(--ang, 0deg), var(--hi), var(--fg), var(--faint), var(--fg), var(--hi)); animation: spin 4s linear infinite; }
-  .pc.t-gold .v { background: linear-gradient(100deg, var(--fg) 10%, #fff 30%, var(--hi) 50%, var(--fg) 70%, #fff 90%); background-size: 220% 100%; background-position: calc(var(--gx, 50%) * 2) 0; -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 .06em rgba(var(--glow-rgb), .9)); }
-  .pc.t-gold .sg.t, .pc.t-gold .sg.b { background: linear-gradient(90deg, var(--fg), var(--hi), var(--fg)); }
-  .pc.t-gold .foil { opacity: .4; mix-blend-mode: screen; background: linear-gradient(125deg, transparent 15%, rgba(255,255,255,.0) calc(var(--gx, 50%) - 14%), rgba(255,255,255,.5) var(--gx, 50%), rgba(255,255,255,0) calc(var(--gx, 50%) + 14%), transparent 85%); }
-  @property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-  @keyframes spin { to { --ang: 360deg; } }
-  .still .pc.t-gold .face::before { animation: none; }
-  /* the back: a lattice, and the table's mark in the middle */
-  .pc .bk { transform: rotateY(180deg); background:
-      radial-gradient(circle at 50% 50%, transparent 0 18%, var(--fg) 18% 20.5%, transparent 20.5% 27%, color-mix(in srgb, var(--fg) 50%, transparent) 27% 28%, transparent 28%),
-      repeating-linear-gradient(60deg, transparent 0 6px, color-mix(in srgb, var(--fg) 22%, transparent) 6px 7px),
-      repeating-linear-gradient(-60deg, transparent 0 6px, color-mix(in srgb, var(--fg) 22%, transparent) 6px 7px),
-      radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--fg) 18%, #000), #000 80%); }
-  .pc .bk::before { content: ""; position: absolute; inset: 0; clip-path: inherit; background: var(--fg); padding: max(1.5px, calc(var(--w) * .022)); -webkit-mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
-  .pc .bk::after { content: "P"; position: absolute; inset: 0; display: grid; place-items: center; font: .3em/1 var(--display); color: var(--hi); text-shadow: var(--glow-hi); }
-  .pc.down { --c: var(--fg); }
+  .pc .face, .pc .bk { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .pc canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
+  .pc .bk { transform: rotateY(180deg); }
   .pc.down .in { transform: rotateY(180deg); }
-  .pc.down.lit .in { transform: rotateY(180deg); }
   .pc.flash .face { animation: cflash .5s ease-out; }
   @keyframes cflash { 0% { filter: brightness(3); } 100% { filter: none; } }
+  .pc.live { filter: drop-shadow(0 0 calc(var(--w) * .08) rgba(var(--glow-rgb), .6)) brightness(1.12); }
   .pc.dead { opacity: .3; filter: grayscale(1); }
 
   /* ============================================================
@@ -423,9 +376,7 @@
   @keyframes squash { 30% { transform: scaleY(.8) scaleX(1.08); transform-origin: 50% 100%; } }
   /* the fan of cards over the logo, every one in the phosphor: the side cards bright, the main deck card plain */
   .fan { position: relative; height: clamp(100px, 19vh, 180px); margin: 1.5vh auto 1vh; width: min(520px, 100%); }
-  .fan .pc { --w: clamp(62px, 12vh, 96px); --c: var(--hi); --c2: var(--hi); position: absolute; left: 50%; bottom: 0; transform-origin: 50% 140%; transition: transform .5s cubic-bezier(.2,1.3,.4,1); }
-  .fan .pc.t-main { --c: var(--fg); }
-  .fan .pc .v { color: color-mix(in srgb, var(--c) 45%, #fff); }
+  .fan .pc { --w: clamp(62px, 12vh, 96px); position: absolute; left: 50%; bottom: 0; transform-origin: 50% 140%; transition: transform .5s cubic-bezier(.2,1.3,.4,1); }
   .menu { display: grid; gap: 8px; width: min(440px, 100%); margin: 0 auto; }
   .menu .big { width: 100%; text-align: left; padding-left: 18px; display: flex; justify-content: space-between; align-items: baseline; }
   .menu .big small { font: 11px var(--mono); color: var(--dim); letter-spacing: .5px; }
@@ -473,8 +424,7 @@
   /* the collection, grouped: a small heading for each kind of card */
   .grp { grid-column: 1 / -1; justify-self: stretch; display: flex; align-items: center; gap: 6px; margin: 6px 0 -2px; padding: 0 0 3px; border-bottom: 1px solid var(--line); font: 600 11px/1.2 var(--mono); letter-spacing: 2px; color: var(--dim); }
   .grp::before { content: ""; width: 7px; height: 7px; background: var(--fg); }
-  .grp.t-plus::before { background: var(--alt); } .grp.t-minus::before { background: var(--warn); } .grp.t-gold::before { background: var(--hi); }
-  .grp.t-flip::before { background: linear-gradient(var(--alt) 50%, var(--warn) 50%); }
+  .grp.t-plus::before, .grp.t-minus::before, .grp.t-flip::before { background: var(--fg); } .grp.t-gold::before { background: var(--hi); }
   /* what a card does: a readout over it, from hover or a long press */
   .tip { position: fixed; z-index: 74; max-width: min(300px, calc(100vw - 16px)); padding: 6px 10px; border: 1px solid var(--fg); background: var(--bg); font-size: 12.5px; line-height: 1.4; color: var(--fg); pointer-events: none; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); box-shadow: inset 0 0 0 1px var(--faint); }
   .tip b { color: var(--hi); font-weight: 600; }

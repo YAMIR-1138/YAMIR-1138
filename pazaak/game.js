@@ -607,41 +607,117 @@
   // ============================================================
   const typeOf = (name) => { const i = E.cardInfo(name); return i ? i.type : 'main'; };
   const signed = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v);
-  // a card. what: { name } for a side card in hand, { v } for a main deck card, { card } for one on a board, { down } for a back
+  // a card is a small raster, painted by the page in four tones of the phosphor and scaled up with square pixels.
+  // what: { name } for a side card in hand, { v } for a main deck card, { card } for one on a board, { down } for a back
   function cardEl(what) {
     const el = document.createElement('div');
-    el.className = 'pc';
-    let type = 'main', big = '', corner = '', top = '', bot = '', pips = 0;
-    if (what.card && what.card.kind === 'side') what = { name: what.card.name, v: what.card.v, onBoard: true, tie: what.card.tie };
-    else if (what.card) what = { v: what.card.v };
-    if (what.name) {
-      const info = E.cardInfo(what.name) || { type: 'gold', label: what.name };
-      type = info.type; corner = info.label;
-      big = what.onBoard && !/&/.test(what.name) ? signed(what.v) : info.label.replace('-', '−');
-      if (type === 'plus') top = '▲ ▲ ▲';
-      else if (type === 'minus') bot = '▼ ▼ ▼';
-      else { top = type === 'gold' ? '◆' : '+'; bot = type === 'gold' ? '◆' : '−'; }
-      el.classList.add('side');
-      if (!what.onBoard) corner = '';
-    } else if (what.v !== undefined) {
-      big = what.v < 0 ? signed(what.v) : String(what.v); pips = Math.min(10, Math.abs(what.v));
-    }
-    el.classList.add('t-' + type);
-    if (what.down) el.classList.add('down');
-    el.dataset.v = what.v !== undefined ? what.v : '';
-    el.innerHTML = '<div class="in"><div class="face">' +
-      (top ? '<span class="sg t">' + top + '</span>' : '') +
-      '<span class="v' + (big.length > 3 ? ' long' : '') + '">' + esc(big) + '</span>' +
-      (corner ? '<span class="k">' + esc(corner) + '</span>' : '') +
-      (bot ? '<span class="sg b">' + bot + '</span>' : '') +
-      (pips ? '<span class="pips">' + Array.from({ length: 10 }, (_, i) => '<i' + (i < pips ? '' : ' class="off"') + '></i>').join('') + '</span>' : '') +
-      '<i class="foil"></i></div><div class="bk"></div></div>';
+    let sp = {};
+    if (what.card && what.card.kind === 'side') sp = { side: true, name: what.card.name, v: what.card.v, board: true };
+    else if (what.card) sp = { v: what.card.v };
+    else if (what.name) sp = { side: true, name: what.name };
+    else if (what.v !== undefined) sp = { v: what.v };
+    el.className = 'pc t-' + (sp.side ? typeOf(sp.name) : 'main') + (sp.side ? ' sc' : '') + (what.down ? ' down' : '');
+    el.dataset.v = sp.v !== undefined ? sp.v : '';
+    el._sp = sp;
+    el.innerHTML = '<div class="in"><div class="face"><canvas></canvas></div><div class="bk"><canvas></canvas></div></div>';
+    cardRO.observe(el);
     return el;
   }
-  function setCardValue(el, v, side) {
-    el.dataset.v = v;
-    const t = $('.v', el); t.textContent = side ? signed(v) : (v < 0 ? signed(v) : String(v));
-    $$('.pips i', el).forEach((p, i) => p.classList.toggle('off', i >= Math.abs(v)));
+  function setCardValue(el, v) { el.dataset.v = v; el._sp.v = v; paintCard(el); }
+
+  // the lettering: five by seven, the way a terminal of the period would have set it
+  const GLYPH = {
+    0: '.###.#...##..###.#.###..##...#.###.', 1: '..#...##....#....#....#....#...###.', 2: '.###.#...#....#...#...#...#...#####',
+    3: '####.....#....#.###.....#....#####.', 4: '...#...##..#.#.#..#.#####...#....#.', 5: '######....####.....#....##...#.###.',
+    6: '..##..#...#....####.#...##...#.###.', 7: '#####....#...#...#...#....#....#...', 8: '.###.#...##...#.###.#...##...#.###.',
+    9: '.###.#...##...#.####....#...#..##..', '+': '.......#....#..#####..#....#.......', '-': '...............#####...............',
+    '±': '..#....#..#####..#....#.......#####', x: '..........#...#.#.#...#...#.#.#...#', '&': '.##..#..#.#.#...#...#.#.##..#..##.#',
+    '/': '....#...#....#...#...#....#...#....', T: '#####..#....#....#....#....#....#..', P: '####.#...##...#####.#....#....#....',
+  };
+  const glyphOf = (ch) => GLYPH[ch === '−' ? '-' : ch];
+  const cardRO = new ResizeObserver((es) => es.forEach((e) => paintCard(e.target)));
+  function paintCard(el) {
+    if (!el.isConnected) { cardRO.unobserve(el); return; }
+    const sp = el._sp, cw = el.offsetWidth; if (!sp || !cw) return;
+    // one pixel of the card is a few pixels of the screen, about the same size wherever the card is
+    const P = cw * Math.min(3, devicePixelRatio || 1), k = Math.max(2, Math.round(P / 34)), W = Math.max(10, Math.round(P / k)), H = Math.round(W * 1.4);
+    const fg = rgb(css('--fg')), hi = rgb(css('--hi')), dark = document.documentElement.dataset.theme === 'green' ? [2, 7, 3] : [7, 5, 2];
+    const pal = [dark, fg.map((v) => v * .3 | 0), fg.map((v) => v * .78 | 0), hi];
+    const cvs = el.querySelectorAll('canvas');
+    draw(cvs[0], W, H, pal, (g) => face(g, W, H, sp, el.classList.contains('t-gold')));
+    draw(cvs[1], W, H, pal, (g) => back(g, W, H));
+  }
+  function draw(cv, W, H, pal, fn) {
+    const g = new Int8Array(W * H).fill(-1);
+    fn(g);
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    const x = cv.getContext('2d'), img = x.createImageData(W, H), d = img.data;
+    for (let i = 0; i < g.length; i++) { if (g[i] < 0) continue; const c = pal[g[i]]; d[i * 4] = c[0]; d[i * 4 + 1] = c[1]; d[i * 4 + 2] = c[2]; d[i * 4 + 3] = 255; }
+    x.putImageData(img, 0, 0);
+  }
+  // the shape: a rectangle with two corners cut, in steps
+  const cardShape = (W, H, inset) => { const c = Math.max(2, Math.round(W * .14)) + inset; return (x, y) => x >= inset && y >= inset && x < W - inset && y < H - inset && x + y >= c + inset && (W - 1 - x) + (H - 1 - y) >= c + inset; };
+  function outline(g, W, H, inside, tone) {
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (inside(x, y) && (!inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1) || !inside(x, y + 1))) g[y * W + x] = tone;
+  }
+  function text(g, W, H, str, cx, cy, maxW, maxH, tone) {
+    const chars = Array.from(str).map(glyphOf).filter(Boolean); if (!chars.length) return;
+    const n = chars.length, s = Math.max(1, Math.min(Math.floor((maxW + 1) / (n * 6 - 1)), Math.floor(maxH / 7)));
+    const tw = (n * 6 - 1) * s, x0 = Math.round(cx - tw / 2), y0 = Math.round(cy - 7 * s / 2);
+    const on = new Set();
+    chars.forEach((gl, j) => { for (let r = 0; r < 7; r++) for (let c = 0; c < 5; c++) if (gl[r * 5 + c] === '#') for (let a = 0; a < s; a++) for (let b = 0; b < s; b++) on.add((y0 + r * s + a) * W + x0 + (j * 6 + c) * s + b); });
+    // a dark rim around the letters, so they read over the dither
+    on.forEach((i) => { const x = i % W, y = (i / W) | 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const j = (y + dy) * W + x + dx; if (x + dx >= 0 && x + dx < W && g[j] > 0 && !on.has(j)) g[j] = 0; } });
+    on.forEach((i) => { if (i >= 0 && i < g.length) g[i] = tone; });
+  }
+  function face(g, W, H, sp, gold) {
+    const inside = cardShape(W, H, 0), inner = cardShape(W, H, 2), main = !sp.side, type = main ? 'main' : typeOf(sp.name);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (!inside(x, y)) continue;
+      // the fill is dither, not a gradient: sparse dots on the main deck, a closer weave on side cards, stripes on gold
+      const dot = gold ? (x + y) % 3 === 0 : main ? x % 2 === 0 && y % 2 === 0 && (x + y) % 4 === 0 : (x + y) % 2 === 0 && y % 2 === 0;
+      g[y * W + x] = dot && inner(x, y) ? 1 : 0;
+    }
+    outline(g, W, H, inside, main ? 2 : 3);
+    if (gold) outline(g, W, H, inner, 3);
+    else outline(g, W, H, cardShape(W, H, 3), 1);
+    // the bands: plus on top, minus below, both on a flip card
+    const bh = Math.max(3, Math.round(H * .09)), top = 4, bot = H - 4 - bh;
+    const band = (y0, mark) => {
+      for (let y = y0; y < y0 + bh; y++) for (let x = 4; x < W - 4; x++) if (inner(x, y)) g[y * W + x] = gold ? 3 : 2;
+      const my = y0 + (bh >> 1);
+      [.3, .5, .7].forEach((f, i) => {
+        const mx = Math.round(W * f);
+        if (mark === 'up') { g[(my - 1) * W + mx] = 0; for (let d = -1; d <= 1; d++) g[my * W + mx + d] = 0; }
+        else if (mark === 'down') { g[(my + 1) * W + mx] = 0; for (let d = -1; d <= 1; d++) g[my * W + mx + d] = 0; }
+        else if (i === 1) { for (let d = -1; d <= 1; d++) g[my * W + mx + d] = 0; if (mark === 'plus' || mark === 'gem') { g[(my - 1) * W + mx] = 0; g[(my + 1) * W + mx] = 0; } }
+      });
+    };
+    if (type === 'plus') band(top, 'up');
+    if (type === 'minus') band(bot, 'down');
+    if (type === 'flip') { band(top, 'plus'); band(bot, 'minus'); }
+    if (type === 'gold') { band(top, 'gem'); band(bot, 'gem'); }
+    let label;
+    if (main) label = (sp.v < 0 ? '-' : '') + Math.abs(sp.v);
+    else { const info = E.cardInfo(sp.name) || { label: sp.name }; label = sp.board && !/&/.test(sp.name) ? (sp.v > 0 ? '+' : sp.v < 0 ? '-' : '') + Math.abs(sp.v) : info.label; }
+    const ty = main ? H * .44 : H / 2, room = main ? H * .46 : H - 2 * (bh + 6);
+    text(g, W, H, label, W / 2, ty, W - 8, room, 3);
+    if (main && W >= 26) {
+      // the pips along the bottom count the value out of ten
+      const n = Math.min(10, Math.abs(sp.v)), pw = W >= 34 ? 2 : 1, gap = 1, tw = 10 * pw + 9 * gap, x0 = Math.round((W - tw) / 2), y = H - 6;
+      for (let i = 0; i < 10; i++) for (let a = 0; a < pw; a++) { g[y * W + x0 + i * (pw + gap) + a] = i < n ? 2 : 1; g[(y + 1) * W + x0 + i * (pw + gap) + a] = i < n ? 2 : 1; }
+    }
+  }
+  function back(g, W, H) {
+    const inside = cardShape(W, H, 0), inner = cardShape(W, H, 2), cx = (W - 1) / 2, cy = (H - 1) / 2, R = W * .24;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (!inside(x, y)) continue;
+      const d = Math.hypot(x - cx, y - cy);
+      g[y * W + x] = inner(x, y) && d > R + 1.5 && ((x + y) % 4 === 0 || (x - y + 400) % 4 === 0) ? 1 : 0;
+      if (Math.abs(d - R) < .75) g[y * W + x] = 2;
+    }
+    outline(g, W, H, inside, 2);
+    text(g, W, H, 'P', W / 2, H / 2, R * 1.2, R * 1.3, 3);
   }
 
   // a card under the pointer tilts toward it, and its foil catches the light
@@ -665,7 +741,7 @@
   function gyro(e) {
     if (!S.set.tilt || !S.set.motion || e.gamma === null) return;
     const px = Math.max(0, Math.min(1, .5 + e.gamma / 50)), py = Math.max(0, Math.min(1, .5 + (e.beta - 40) / 60));
-    $$('.hand .pc.side, .fan .pc').forEach((c) => { $('.in', c).style.transform = 'rotateY(' + ((px - .5) * 22).toFixed(1) + 'deg) rotateX(' + ((.5 - py) * 18).toFixed(1) + 'deg)'; c.style.setProperty('--gx', (px * 100).toFixed(0) + '%'); });
+    $$('.hand .pc.sc, .fan .pc').forEach((c) => { $('.in', c).style.transform = 'rotateY(' + ((px - .5) * 22).toFixed(1) + 'deg) rotateX(' + ((.5 - py) * 18).toFixed(1) + 'deg)'; c.style.setProperty('--gx', (px * 100).toFixed(0) + '%'); });
   }
   function startGyro() {
     if (gyroOn || !window.DeviceOrientationEvent || !matchMedia('(pointer: coarse)').matches) return;
@@ -726,6 +802,7 @@
     if (save) store.set('phosphor-v2', t);
     // the light has to match the tube
     fx('setColors', { fg: css('--fg'), hi: css('--hi'), warn: css('--warn'), alt: css('--alt') });
+    $$('.pc').forEach(paintCard);
     redrawPortraits();
   }
   function degauss() {
@@ -1172,7 +1249,7 @@
     return new Promise((r) => { a.onfinish = () => { el.style.zIndex = ''; r(); }; a.oncancel = r; });
   }
   async function flipCard(el, to) {
-    const side = el.classList.contains('side');
+    const side = el.classList.contains('sc');
     if (!S.set.motion) { setCardValue(el, to, side); return; }
     const inn = $('.in', el);
     await inn.animate([{ transform: 'rotateY(0)' }, { transform: 'rotateY(90deg)' }], { duration: 160 * speed(), easing: 'ease-in' }).finished;
@@ -1181,7 +1258,7 @@
     await inn.animate([{ transform: 'rotateY(-90deg)' }, { transform: 'rotateY(0)' }], { duration: 160 * speed(), easing: 'ease-out' }).finished;
   }
   function shake() { if (!S.set.motion) return; const a = $('#app'); a.classList.remove('shake'); void a.offsetWidth; a.classList.add('shake'); setTimeout(() => a.classList.remove('shake'), 500); }
-  const colorFor = (type) => type === 'plus' ? 'alt' : type === 'minus' ? 'warn' : type === 'gold' ? '#ffd36b' : 'hi';
+  const colorFor = () => 'hi';
 
   // ---- one event at a time, each with its own small show
   async function play(ev) {
@@ -1232,7 +1309,7 @@
         await fly(el, src, { flipFrom: !human(ev.seat) || ev.seat !== shownSeat, dur: 520, rot: 25, color: colorFor(type) });
         const c = center(el);
         fx('burst', c.x, c.y, { count: type === 'gold' ? 46 : 26, color: colorFor(type), glyphs: type === 'gold', speed: 1 });
-        if (type === 'gold') { fx('shockwave', c.x, c.y, { color: '#ffd36b', radius: 140 }); buzz(30); }
+        if (type === 'gold') { fx('shockwave', c.x, c.y, { color: 'hi', radius: 140 }); buzz(30); }
         setTotal(ev.seat, true);
         lastAct(ev.seat, 'played ' + (ev.choice !== null && ev.choice !== undefined ? signed(ev.choice) : (E.cardInfo(ev.name) || {}).label || ev.name));
         targets();
