@@ -1921,6 +1921,30 @@
     $$('main section').forEach((sec) => mo.observe(sec, { attributes: true, attributeFilter: ['class'], attributeOldValue: true }));
   })();
 
+  // ---- the tab knows when you are away: standby while it is hidden, link up for a moment when you come back.
+  // And the cat's face on it blinks, every half a minute or so, both eyes shut for a moment
+  if (F.tab) (function () {
+    const title = document.title, icon = $('link[rel="icon"]'), open = icon ? icon.getAttribute('href') : '';
+    // the same face with each eye a short line, one pixel high at the size a tab draws it
+    const shut = open.replace(/%3Ccircle cx='([\d.]+)' cy='([\d.]+)' r='([\d.]+)' fill='([^']+)'\/%3E/g,
+      (m, cx, cy, r, fill) => "%3Crect x='" + (cx - r) + "' y='" + (cy - 1) + "' width='" + 2 * r + "' height='2' fill='" + fill + "'/%3E");
+    let back = 0;
+    document.addEventListener('visibilitychange', () => {
+      clearTimeout(back);
+      if (document.hidden) { document.title = 'YAMIR-1138 · standby'; return; }
+      document.title = 'YAMIR-1138 · link up';
+      back = setTimeout(() => { document.title = title; }, 3000);
+    });
+    if (!icon || shut === open) return;
+    // the face is always put back from the copy kept above, whatever happens in between
+    (function blink() {
+      setTimeout(() => {
+        if (T.motion) { icon.setAttribute('href', shut); setTimeout(() => icon.setAttribute('href', open), 180); }
+        blink();
+      }, T.rand(20, 40) * 1000);
+    })();
+  })();
+
   // "/" reaches the prompt from anywhere on the page
   document.addEventListener('keydown', (e) => {
     if ((e.key !== '/' && e.key !== '~') || !slashKey || e.ctrlKey || e.metaKey || e.altKey) return;
