@@ -216,6 +216,13 @@
     font-size: 12.5px; color: var(--dim); letter-spacing: .5px; text-shadow: none;
   }
   .bar .id b { color: var(--fg); text-shadow: var(--glow); }
+  /* on a wide screen the bar stays at the head of the window, the way the terminal waits at its foot: the clock and the
+     marker in the nav are always in view. It paints the same fixed glow as the page, so it never shows as a band */
+  @media (min-width: 761px) {
+    .js .bar { position: sticky; top: 0; z-index: 15; padding-top: 20px; margin-top: -20px; background: radial-gradient(ellipse at 50% 30%, var(--bg-2) 0%, var(--bg) 70%) fixed; }
+    main section { scroll-margin-top: 72px; }
+    .screen { padding-bottom: 128px; }   /* room under the footer, so the last section can still climb out from under the bar */
+  }
   .bar nav { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; }
   .bar nav a { color: var(--fg); text-shadow: var(--glow); border: 0; position: relative; }
   .bar nav a:hover { color: var(--bg); }
@@ -406,7 +413,7 @@
   /* on a wide screen the closed terminal waits at the foot of the window, like the command line of a ship's console.
      It is the last thing in main, so at the end of the page it settles in its own place above the footer */
   @media (min-width: 761px) {
-    #term:not([open]) { position: sticky; bottom: 0; z-index: 15; background: var(--bg); }
+    #term:not([open]) { position: sticky; bottom: 0; z-index: 15; background: radial-gradient(ellipse at 50% 30%, var(--bg-2) 0%, var(--bg) 70%) fixed; }
   }
   #term summary { list-style: none; cursor: pointer; padding: 8px 14px; color: var(--dim); font-size: 12.5px; letter-spacing: 1px; display: flex; gap: 12px; align-items: baseline; }
   #term summary::-webkit-details-marker { display: none; }
