@@ -177,6 +177,7 @@
     .crt::before, .crt s { display: none; }
     .sag { animation: none; } .tear { transform: none; }
     *, *::before, *::after { text-shadow: none !important; }
+    html.f-leds .led::before { box-shadow: none !important; }
   }
   .crt::after {
     content: "";
@@ -473,6 +474,12 @@
   #term summary b { color: var(--fg); font-weight: 400; }
   #term summary:hover { color: var(--fg); }
   #term summary .hint { margin-left: auto; font-size: 12px; color: var(--dim); }
+  /* the activity light: a small square in the margin of a screen's title strip, before its label (FEATURES.leds) */
+  html.f-leds .led { position: relative; }
+  html.f-leds .led::before { content: ""; position: absolute; left: 6px; top: 50%; width: 5px; height: 5px; margin-top: -2.5px; background: var(--faint); pointer-events: none; }
+  html.f-leds #term summary.led::before { left: 5px; }
+  html.f-leds .led.led-on::before, html.f-leds .led.led-blink:not(.led-on)::before { background: var(--fg); box-shadow: 0 0 4px rgba(var(--glow-rgb), .8), 0 0 10px rgba(var(--glow-rgb), .3); }
+  html.f-leds .led.led-on.led-blink::before { background: var(--faint); box-shadow: none; }
   #term[open] summary .hint { visibility: hidden; }
   #term summary:focus-visible { outline: 2px solid var(--hi); outline-offset: -3px; }
   #term[open] summary { border-bottom: 1px solid var(--line); }
@@ -640,7 +647,7 @@
     .js main.booting { visibility: visible; }
     section.pending > :not(h2) { opacity: 1 !important; } h2 .ch { visibility: visible !important; background: none !important; }
     h1 { font-size: 40pt; margin: 0 0 6pt; } h2 { font-size: 16pt; margin-top: 14pt; } .card h3 { font-size: 14pt; }
-    h2 .ps, h2 .rd, h2 .ld, .card::after, .panel::after, .panel--ribo, .panel--display { display: none !important; }
+    h2 .ps, h2 .rd, h2 .ld, .card::after, .panel::after, .panel--ribo, .panel--display, html.f-leds .led::before { display: none !important; }
     .card .path, .panel > .path { margin: 0; padding: 0; border: 0; background: none; }
     .panel { border: 0; background: none; padding: 0; }
     .hero, .split, .card--featured { display: block; }
@@ -1827,6 +1834,46 @@
     document.addEventListener('selectionchange', () => { if (document.activeElement === input) place(); });
     term.addEventListener('toggle', later);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(later);
+  })();
+
+  // ---- a light on each screen's title strip, the way a drive has one. It is lit while the screen is busy: its picture
+  // moving and in view, the display turning, the ribosome reading, the terminal open with you typing in it. It blinks
+  // once when what the screen shows changes. One look four times a second, not one a frame
+  if (F.leds) (function () {
+    const lights = [];
+    // an animation is busy when the scheduler is running it and it is on the screen
+    const running = (el) => { let it = null; return () => { if (!it) it = T.Anim.items.find((i) => i.el === el) || null; return !!(T.motion && it && it.on && it.visible); }; };
+    const idle = () => false;
+    function light(strip, busy, watch) {
+      if (!strip) return;
+      const L = { strip, busy, on: false, until: 0, timer: 0 };
+      strip.classList.add('led');
+      lights.push(L);
+      const blink = () => {
+        // a stream of changes blinks at a steady rate, it does not hold the light in one state
+        const t = performance.now();
+        if (!T.motion || document.hidden || t < L.until + 120) return;
+        L.until = t + 120; strip.classList.add('led-blink');
+        clearTimeout(L.timer); L.timer = setTimeout(() => strip.classList.remove('led-blink'), 120);
+      };
+      const mo = new MutationObserver(blink);
+      watch.forEach((w) => { if (w[0]) mo.observe(w[0], w[1]); });
+    }
+    const TEXT = { childList: true, characterData: true, subtree: true };
+    $$('.card').forEach((card) => {
+      const strip = $('.path', card), pic = $('canvas.px', card);
+      // the strip is watched for a label arriving (the GitHub numbers), not for its own letters, which the static scrambles
+      light(strip, pic ? running(pic) : idle, [[$('.cap', card), TEXT], [strip, { childList: true, subtree: true }]]);
+    });
+    light($('.panel--crew > .path'), idle, [[$('#papers'), TEXT]]);
+    light($('.panel--display > .path'), running($('#par2')), [[$('.par2 .cap'), TEXT]]);
+    light($('.panel--ribo > .path'), running($('#mrna')), [[$('#ribo-cap'), TEXT]]);
+    light($('summary', term), () => term.open && document.activeElement === input, [[log, TEXT]]);
+    function look() {
+      if (document.hidden) return;
+      lights.forEach((L) => { const on = L.busy(); if (on !== L.on) { L.on = on; L.strip.classList.toggle('led-on', on); } });
+    }
+    T.onReady(() => { look(); setInterval(look, 250); });
   })();
 
   // "/" reaches the prompt from anywhere on the page
