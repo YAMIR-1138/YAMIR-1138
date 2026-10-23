@@ -85,7 +85,7 @@
 <script>
   document.documentElement.classList.add('js');
   // the saved phosphor is set before anything is painted, so nobody sees the wrong colour first
-  try { if (JSON.parse(localStorage.getItem('phosphor-v2')) === 'green') document.documentElement.dataset.theme = 'green'; } catch (e) {}
+  try { const p = JSON.parse(localStorage.getItem('phosphor-v2')); if (p === 'green' || p === 'white') document.documentElement.dataset.theme = p; } catch (e) {}
 </script>
 <style>
   /* ============================================================
@@ -124,6 +124,22 @@
     --eye: #f1ffd9;
     --portal-b: #ffb000;
     --glow-rgb: 61, 255, 122;
+  }
+  /* the third phosphor: a paper-white tube, the kind a word processor had. Only offered while FEATURES.phosphor3 is on */
+  :root[data-theme="white"] {
+    --bg: #05070a;
+    --bg-2: #10141a;
+    --fg: #d9e2ea;
+    --hi: #ffffff;
+    --dim: #9fb0bd;
+    --faint: #343d46;
+    --line: #363f48;
+    --edge: #66737f;
+    --warn: #ff6a3d;
+    --fur: #04060a;
+    --eye: #eaffd0;
+    --portal-b: #ffb000;
+    --glow-rgb: 217, 226, 234;
   }
 
   /* a change of phosphor cross-fades: the colour tokens are registered from script, in the theme code */
@@ -183,7 +199,7 @@
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='1' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 160px 160px;
     animation: grain .5s steps(1) infinite;
   }
-  :root[data-theme="green"] .crt s { opacity: .03; }
+  :root[data-theme="green"] .crt s, :root[data-theme="white"] .crt s { opacity: .03; }
   @keyframes grain { 0% { background-position: 0 0; } 17% { background-position: -37px -61px; } 33% { background-position: -89px -23px; } 50% { background-position: -13px -113px; } 67% { background-position: -131px -47px; } 83% { background-position: -71px -139px; } }
   /* a screen that dips for a moment, as if something on the ship drew a lot of power, and one that loses its hold */
   .sag { animation: sag .7s linear both; will-change: filter; }
@@ -847,6 +863,18 @@
     catSprite: params.get('cat') === 'sprite' || (params.get('cat') !== 'outline' && (() => { try { return localStorage.getItem('camille-sprite') !== '0'; } catch (e) { return true; } })()),
     ready: [],
   };
+  // ---- the night's additions, each with its own switch. false puts the page back the way it was before it
+  const F = T.FEATURES = {
+    phosphor3: true,   // a third phosphor, paper white, after amber and green
+    leds: true,        // a small light on each screen's title strip, lit while that screen is busy
+    powerup: true,     // the screens of a section switch on from a bright line when it is reached
+    tab: true,         // the tab says standby while you are away, and the cat on it blinks now and then
+    konami: true,      // up up down down left right left right b a
+    watch: true,       // the boot log tells the time by the ship's watch
+    map: true,         // map: the decks, the cat and the display, in the terminal
+  };
+  // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
+  Object.keys(F).forEach((k) => { if (F[k]) document.documentElement.classList.add('f-' + k); });
   const $ = T.$ = (s, r) => (r || document).querySelector(s);
   const $$ = T.$$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   T.esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -870,7 +898,7 @@
   }
   let fadeTimer = 0;
   T.setTheme = function (t, save) {
-    t = t === 'green' ? 'green' : 'amber';
+    t = t === 'green' ? 'green' : F.phosphor3 && t === 'white' ? 'white' : 'amber';
     const root = document.documentElement, was = root.dataset.theme;
     // a switch while the page is up fades: the old phosphor hangs on for a moment. The canvases redraw once it has gone
     const fade = T.booted && was && was !== t && T.motion && !T.reduceMotion;
@@ -883,7 +911,9 @@
     if (save) T.store.set('phosphor-v2', t);
     return t;
   };
-  T.toggleTheme = () => T.setTheme(document.documentElement.dataset.theme === 'amber' ? 'green' : 'amber', true);
+  // the button goes round them in order: amber, green, then white if there is a third, then amber again
+  const PHOSPHORS = F.phosphor3 ? ['amber', 'green', 'white'] : ['amber', 'green'];
+  T.toggleTheme = () => T.setTheme(PHOSPHORS[(PHOSPHORS.indexOf(document.documentElement.dataset.theme) + 1) % PHOSPHORS.length], true);
   T.setTheme(T.store.get('phosphor-v2', 'amber'));
   T.degauss = function () {
     if (!T.motion) return;
@@ -1166,7 +1196,7 @@
       row('ls', 'the projects on this page');
       row('open', 'open one of them. open pellaeon');
       row('whoami', 'who runs this');
-      row('theme', 'amber or green phosphor');
+      row('theme', F.phosphor3 ? 'amber, green or white phosphor' : 'amber or green phosphor');
       row('motion', 'stop or start the animation');
       row('sound', 'off unless you turn it on');
       row('clear', 'wipe the screen · exit closes the terminal');
@@ -1195,7 +1225,7 @@
       window.open(p.site, '_blank', 'noopener');
     },
     theme(arg) {
-      const t = arg === 'green' || arg === 'amber' ? T.setTheme(arg, true) : T.toggleTheme();
+      const t = PHOSPHORS.indexOf(arg) >= 0 ? T.setTheme(arg, true) : T.toggleTheme();
       print('phosphor set to ' + t);
     },
     transcribe(arg) {
@@ -1605,7 +1635,7 @@
     else if (parts[0] === 'cat') pool = Object.keys(FILES).filter((f) => f[0] !== '~');
     else if (parts[0] === 'open') pool = projects().map((q) => q.alias || norm(q.name));
     else if (parts[0] === 'cd') pool = $$('main section[id]').map((x) => x.id);
-    else if (parts[0] === 'theme') pool = ['amber', 'green'];
+    else if (parts[0] === 'theme') pool = PHOSPHORS;
     else if (parts[0] === 'motion') pool = ['on', 'off'];
     else if (parts[0] === 'man') pool = PUBLIC.filter((k) => own(COMMANDS, k));
     else if (parts[0] === 'keys' || parts[0] === 'sound') pool = ['on', 'off'];
