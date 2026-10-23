@@ -487,6 +487,22 @@
   .panel--log .lines > div.new, .panel--log .lines > div.new span { color: var(--hi); text-shadow: var(--glow-hi); }
   @media (max-width: 760px) { .panel--log .lines { height: calc(4 * 1.6em); } .panel--log .lines > div:nth-last-child(n+5) { display: none; } }
 
+
+  /* ---- the instruments under the name (FEATURES.instruments): three small screens in a row, on a wide window only */
+  .inst-row { display: none; }
+  @media (min-width: 900px) { .inst-row { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: -6px; } }
+  .panel.panel--inst { padding: 14px 14px 10px; min-height: 84px; }
+  .panel--inst > .path { margin: -14px -14px 8px; padding: 5px 14px; }
+  .panel--inst .inst { display: flex; align-items: center; justify-content: space-between; gap: 10px; font: 11px/1.45 var(--mono); letter-spacing: .3px; color: var(--dim); text-shadow: none; }
+  .panel--inst .batt { width: 20px; height: 8px; margin-right: 7px; }
+  html.f-leds .panel--inst > .led::before { left: 4px; }
+  .panel--inst .read { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .panel--inst .read b { color: var(--fg); font-weight: 400; }
+  .panel--inst .read .two { display: flex; flex-direction: column; }
+  .panel--inst .read .two span + span { font-size: 10.5px; }
+  .panel--inst canvas { width: 110px; height: 28px; flex: none; display: block; }
+  .inst-row.pwr-wait .panel { opacity: 0; }
+
   /* ---- the terminal. Closed until someone opens it. */
   #term { position: relative; margin: 56px 0 0; border: 1px solid var(--line); background: rgba(0,0,0,.3); }
   #term summary { list-style: none; cursor: pointer; padding: 5px 14px; background: rgba(0,0,0,.28); color: var(--dim); font-size: 12.5px; letter-spacing: 1px; display: flex; gap: 12px; align-items: baseline; }
@@ -691,7 +707,7 @@
 
   @media print {
     html, body { background: #fff !important; color: #000 !important; text-shadow: none !important; font-size: 11pt; }
-    .crt, #standby, #cat-layer, #tracker, #status, #boot, .boot-skip, .bar nav, .bar .sys, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
+    .crt, #standby, .inst-row, #cat-layer, #tracker, #status, #boot, .boot-skip, .bar nav, .bar .sys, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
     * { text-shadow: none !important; box-shadow: none !important; animation: none !important; color: #000 !important; }
     .screen { max-width: none; padding: 0; animation: none !important; }
     .sag, .tear { transform: none !important; filter: none !important; }
@@ -934,6 +950,8 @@
     shiplog: true,     // a ship's log screen above the terminal, fed by what happens aboard, and the log command
     standby: true,     // after four quiet minutes the ship goes to standby: stars and the clock until you come back
     shutdown: true,    // shutdown, halt and poweroff. needs standby on too: it goes dark on the same screen
+    instruments: true, // three small screens under the name on a wide window: the incubator, the power, who is aboard
+    catwatch: true,    // the cat goes and watches the display when it changes channel, if she is in the mood
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
   Object.keys(F).forEach((k) => { if (F[k]) document.documentElement.classList.add('f-' + k); });
@@ -1166,6 +1184,23 @@
     return String(h).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ' · ' + ['middle', 'morning', 'forenoon', 'afternoon', 'dog', 'first'][Math.floor(h / 4)] + ' watch';
   } : null;
   const watchLine = () => 'watch ............... [ ' + watchNow() + ' ]';
+  // the incubator the CO₂ monitor reads, as a model that behaves like one: about 5 % CO₂ and 37 °C, wandering a little,
+  // and a door opened now and then (FEATURES.instruments). No timers here: the values are worked out when asked for
+  const incubator = F.instruments ? (function () {
+    const ph = [0, 1, 2, 3, 4].map(() => Math.random() * Math.PI * 2);
+    let doorAt = -1e13;
+    const wave = (t, period, k) => Math.sin(t / 1000 / period * Math.PI * 2 + ph[k]);
+    // the door: CO₂ falls to about 4.2 over ten seconds, then climbs back over forty
+    const dip = (t) => { const d = (t - doorAt) / 1000; return d < 0 || d >= 50 ? 0 : d < 10 ? -.8 * d / 10 : -.8 * Math.pow(1 - (d - 10) / 40, 2); };
+    return {
+      co2: (t) => { t = t || Date.now(); return 5 + .045 * wave(t, 170, 0) + .025 * wave(t, 430, 1) + .01 * wave(t, 61, 2) + dip(t); },
+      temp: (t) => { t = t || Date.now(); return 37 + .06 * wave(t, 300, 3) + .03 * wave(t, 95, 4) + dip(t) * .05; },
+      door() { doorAt = Date.now(); },
+      doorAge: () => (Date.now() - doorAt) / 1000,
+    };
+  })() : null;
+  const incLine = () => 'incubator ........... [ ' + incubator.co2().toFixed(1) + ' % CO₂ · ' + incubator.temp().toFixed(1) + ' °C ]';
+  if (incubator) { const at = BOOT.findIndex((l) => l[0].indexOf('incubator ') === 0); if (at >= 0) BOOT[at] = [incLine(), 'ok']; }
   if (watchNow) { const at = BOOT.findIndex((l) => l[0].indexOf('crew ') === 0); BOOT.splice(at < 0 ? BOOT.length : at + 1, 0, [watchLine(), 'ok']); }
   const bootEl = $('#boot'), main = $('#main');
   const bootLine = (l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>';
@@ -1229,7 +1264,7 @@
   let termUsed = false;
   T.openTerm = function (focus) {
     if (!term.open) term.open = true;
-    if (!termUsed) { termUsed = true; BOOT.forEach((l) => print(l[0].indexOf('crew') === 0 && T.crew ? 'crew ................ [ ' + T.crew() + ' ]' : watchNow && l[0].indexOf('watch ') === 0 ? watchLine() : l[0], l[1] === 'hd' ? 'mu' : 'in')); print(''); }
+    if (!termUsed) { termUsed = true; BOOT.forEach((l) => print(l[0].indexOf('crew') === 0 && T.crew ? 'crew ................ [ ' + T.crew() + ' ]' : watchNow && l[0].indexOf('watch ') === 0 ? watchLine() : incubator && l[0].indexOf('incubator ') === 0 ? incLine() : l[0], l[1] === 'hd' ? 'mu' : 'in')); print(''); }
     if (focus !== false) { input.focus({ preventScroll: true }); input.scrollIntoView({ block: 'center', behavior: T.motion ? 'smooth' : 'auto' }); }
   };
   term.addEventListener('toggle', () => { if (term.open) T.openTerm(false); });
@@ -1454,6 +1489,7 @@
     let a;
     if (/937|special order|priority/.test(q)) a = ['SPECIAL ORDER 1138', 'SCIENCE OFFICER EYES ONLY', 'PRIORITY ONE', 'INSURE RETURN OF SOURDOUGH STARTER FOR ANALYSIS', 'ALL OTHER CONSIDERATIONS SECONDARY', 'CREW EXPENDABLE', 'CAT NOT EXPENDABLE'];
     else if (watchNow && /\btime\b|\bclock\b|\bwhat watch\b|\bwhich watch\b/.test(q)) a = [watchNow().toUpperCase()];
+    else if (incubator && /incubator|\bco2\b|co₂/.test(q)) a = ['INCUBATOR · CO₂ ' + incubator.co2().toFixed(2) + ' % · ' + incubator.temp().toFixed(1) + ' °C', incubator.doorAge() < 50 ? 'DOOR OPENED ' + Math.round(incubator.doorAge()) + ' S AGO · RECOVERING' : 'STATUS: NOMINAL'];
     else if (T.motherAlso && T.motherAlso(q)) a = T.motherAlso(q);
     else if (/cat|camille/.test(q)) a = ['CREW MEMBER: CAMILLE', 'RANK: CAT', 'STATUS: ' + (T.catStatus ? T.catStatus().split(' · ')[1] : 'unknown').toUpperCase(), 'NOT EXPENDABLE'];
     else if (proj) a = [proj.name.toUpperCase(), proj.desc.replace(/\s+/g, ' ').trim().toUpperCase()];
@@ -1965,6 +2001,106 @@
     COMMANDS.man = (arg) => { if ((arg || '').toLowerCase() === 'log') print('log - what the ship has noted, oldest first. log clear wipes it'); else man(arg); };
   })();
 
+  // ---- the instruments: three small screens under the name, on a wide window only. The incubator the CO₂ monitor
+  // watches, the power the page is running on, and who is aboard, each with a trace of the last few minutes. Nothing is
+  // drawn and nothing ticks below 900 px
+  if (F.instruments) (function () {
+    const wide = matchMedia('(min-width: 900px)'), STEP = 4000, N = 110;
+    const row = document.createElement('div');
+    row.className = 'inst-row'; row.setAttribute('aria-hidden', 'true');
+    const mk = (name, title) => '<div class="panel panel--inst" data-inst="' + name + '"><p class="path">' + title + '</p><div class="inst"><span class="read"></span><canvas width="110" height="28"></canvas></div></div>';
+    row.innerHTML = mk('inc', 'INCUBATOR') + mk('pow', 'POWER') + mk('con', 'CONTACTS');
+    $('.hero').appendChild(row);
+    const two = (v) => String(v).padStart(2, '0');
+    const P = {};
+    $$('.panel--inst', row).forEach((el) => { P[el.dataset.inst] = { el, read: $('.read', el), cv: $('canvas', el), pts: [], lo: 0, hi: 1, min: 0 }; });
+    const set = (p, html) => { if (p.html !== html) { p.html = html; p.read.innerHTML = html; } };
+    let ink = null;
+    function trace(p) {
+      const c = p.cv, r = Math.min(3, window.devicePixelRatio || 1);
+      if (c.width !== 110 * r) { c.width = 110 * r; c.height = 28 * r; }
+      if (!ink) { const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(); ink = { faint: v('--faint'), dim: v('--dim'), fg: v('--fg') }; }
+      const g = c.getContext('2d'); g.setTransform(r, 0, 0, r, 0, 0); g.clearRect(0, 0, 110, 28);
+      const pts = p.pts; if (!pts.length) return;
+      let lo = Math.min(...pts, p.lo), hi = Math.max(...pts, p.hi);
+      if (hi - lo < p.min) { const m = (hi + lo) / 2; lo = m - p.min / 2; hi = m + p.min / 2; }
+      const y = (v) => 24.5 - (v - lo) / (hi - lo || 1) * 21, x0 = 110 - pts.length;
+      g.strokeStyle = p.faint ? ink.faint : ink.dim; g.lineWidth = 1; g.beginPath();
+      pts.forEach((v, i) => (i ? g.lineTo(x0 + i + .5, y(v)) : g.moveTo(x0 + i + .5, y(v))));
+      g.stroke();
+      g.fillStyle = ink.fg; g.fillRect(109 - 1, Math.round(y(pts[pts.length - 1])) - 1, 2, 2);
+    }
+    const push = (p, v) => { p.pts.push(v); if (p.pts.length > N) p.pts.shift(); };
+    // 1. the incubator. Its past is drawn from the model at once, so the trace is full from the start
+    const inc = P.inc; inc.min = .3; inc.lo = Infinity; inc.hi = -Infinity;      // its own range, never less than 0.3 %
+    for (let i = N - 1; i >= 0; i--) inc.pts.push(incubator.co2(Date.now() - i * STEP));
+    let nextDoor = Date.now() + T.rand(6, 15) * 60000, restoreTimer = 0;
+    function door() {
+      incubator.door(); T.log('incubator', 'door opened');
+      clearTimeout(restoreTimer); restoreTimer = setTimeout(() => T.log('incubator', incubator.co2().toFixed(1) + ' % restored'), 50000);
+      nextDoor = Date.now() + T.rand(6, 15) * 60000;
+      readInc();
+    }
+    const readInc = () => set(inc, 'CO₂ <b>' + incubator.co2().toFixed(1) + ' %</b> · <b>' + incubator.temp().toFixed(1) + ' °C</b>');
+    // 2. the power: the battery if the browser tells, the mains otherwise, with a ripple that is only a picture
+    const pow = P.pow; let batt = null;
+    function readPow() {
+      // on two lines, the way the contacts are: a small screen has no room for it on one
+      if (batt) set(pow, '<span class="two"><span><span class="batt"><i style="width:' + Math.round(batt.level * 100) + '%"></i></span>BATT <b>' + Math.round(batt.level * 100) + ' %</b></span><span>' + (batt.charging ? 'charging' : 'on battery') + '</span></span>');
+      else set(pow, 'MAINS · <b>230 V</b> · <b>50 Hz</b>');
+    }
+    function ripple(k) { pow.faint = true; pow.lo = -1; pow.hi = 1; pow.pts = Array.from({ length: N }, (_, i) => Math.sin((i + k) / 5)); }
+    ripple(0);
+    if (navigator.getBattery) navigator.getBattery().then((b) => {
+      if (!b) return;
+      batt = b; pow.faint = false; pow.lo = 0; pow.hi = 100; pow.pts = Array(N).fill(b.level * 100);
+      const upd = () => { readPow(); trace(pow); };
+      b.addEventListener('levelchange', upd); b.addEventListener('chargingchange', upd);
+      upd();
+    }).catch(() => {});
+    // 3. who is aboard: the manifest, how many that is, and the deck the cat is on (the way map reckons it)
+    const con = P.con; con.lo = 0; con.hi = 4;
+    const heads = (s) => (s.match(/\d+/g) || []).reduce((a, n) => a + +n, 0);
+    const decks = [$('.hero')].concat($$('main section[id]')).filter(Boolean);
+    function catDeck() {
+      const cat = $('#camille'), r = cat && cat.style.visibility === 'visible' ? cat.getBoundingClientRect() : null;
+      if (!r) return -1;
+      const cy = r.top + r.height * .6; let at = -1;
+      decks.forEach((d, i) => { const b = d.getBoundingClientRect(); if (cy >= b.top - 40 && cy < b.bottom + 6) at = i; });
+      return at;
+    }
+    const crew = () => (T.crew ? T.crew() : '1 human · 1 cat');
+    function readCon() {
+      const d = catDeck();
+      set(con, '<span class="two"><span>' + T.esc(crew()) + '</span><span>cat · ' + (d < 0 ? 'off deck' : 'deck ' + 'ABCDEFGH'[d]) + '</span></span>');
+    }
+    con.pts = Array(N).fill(heads(crew()));
+    // one tick a second while the row is on the screen: the readouts every second, a point on each trace every four
+    let timer = 0, n = 0;
+    function tick() {
+      if (document.hidden || !T.motion) return;
+      readCon();
+      if (n++ % 4) return;
+      if (Date.now() >= nextDoor) door();
+      readInc(); push(inc, incubator.co2());
+      if (batt) push(pow, batt.level * 100); else ripple(n / 4);
+      push(con, heads(crew()));
+      [inc, pow, con].forEach(trace);
+    }
+    function run() {
+      const on = wide.matches;
+      if (on && !timer) { readInc(); readPow(); readCon(); [inc, pow, con].forEach(trace); timer = setInterval(tick, 1000); }
+      if (!on && timer) { clearInterval(timer); timer = 0; }
+    }
+    if (wide.addEventListener) wide.addEventListener('change', run); else wide.addListener(run);
+    T.onReady(run);
+    if (T.onTheme) T.onTheme(() => { ink = null; [inc, pow, con].forEach(trace); });
+    else T.onReady(() => T.onTheme && T.onTheme(() => { ink = null; [inc, pow, con].forEach(trace); }));
+    // the row opens with the other screens' power-on when there is one
+    if (T.powerUp && T.motion && !T.reduceMotion) { row.classList.add('pwr-wait'); T.onReady(() => setTimeout(() => { row.classList.remove('pwr-wait'); if (wide.matches) T.powerUp(row); }, 450)); }
+    T.inst = { door, get co2() { return incubator.co2(); }, get temp() { return incubator.temp(); }, get running() { return !!timer; } };
+  })();
+
   // ---- a light on each screen's title strip, the way a drive has one. It is lit while the screen is busy: its picture
   // moving and in view, the display turning, the ribosome reading, the terminal open with you typing in it. It blinks
   // once when what the screen shows changes. One look four times a second, not one a frame
@@ -1999,6 +2135,7 @@
     light($('.panel--ribo > .path'), running($('#mrna')), [[$('#ribo-cap'), TEXT]]);
     light($('summary', term), () => term.open && document.activeElement === input, [[log, TEXT]]);
     light($('.panel--log > .path'), () => !!(T.log.busy && T.log.busy()), [[$('.panel--log .lines'), { childList: true }]]);
+    $$('.panel--inst').forEach((p) => light($('.path', p), () => !!(T.inst && T.inst.running && T.motion && p.getBoundingClientRect().bottom > 0), [[$('.read', p), TEXT]]));
     function look() {
       if (document.hidden) return;
       lights.forEach((L) => { const on = L.busy(); if (on !== L.on) { L.on = on; L.strip.classList.toggle('led-on', on); } });
@@ -2038,6 +2175,7 @@
       if (T.motion && !T.reduceMotion) power(m.target);
     }));
     $$('main section').forEach((sec) => mo.observe(sec, { attributes: true, attributeFilter: ['class'], attributeOldValue: true }));
+    T.powerUp = power;     // for screens outside a section, such as the instruments
   })();
 
   // ---- the tab knows when you are away: standby while it is hidden, link up for a moment when you come back.
