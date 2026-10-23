@@ -77,6 +77,9 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23060402'/%3E%3Cpath d='M6 7l6 6h8l6-6v14a6 6 0 0 1-6 6h-8a6 6 0 0 1-6-6z' fill='%23ffb000'/%3E%3Ccircle cx='12' cy='19' r='2.2' fill='%23060402'/%3E%3Ccircle cx='20' cy='19' r='2.2' fill='%23060402'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- the two faces seen first are asked for early, so the name does not flash in a stand-in font -->
+<link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n1i8q1w.woff2">
 <link href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script data-goatcounter="https://yamirpersonal.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script>
@@ -147,7 +150,16 @@
   .crt::before {
     content: "";
     background: repeating-linear-gradient(to bottom,
-      rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.2) 3px, rgba(0,0,0,.2) 4px);
+      rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.12) 3px, rgba(0,0,0,.12) 4px);
+  }
+  /* on a plain screen the lines cut through small type, so they are lighter there; a sharp screen gets them full */
+  @media (min-resolution: 1.5dppx) {
+    .crt::before { background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.2) 3px, rgba(0,0,0,.2) 4px); }
+  }
+  /* someone who asks for more contrast gets clean letters: no lines, no glow */
+  @media (prefers-contrast: more) {
+    .crt::before { display: none; }
+    *, *::before, *::after { text-shadow: none !important; }
   }
   .crt::after {
     content: "";
@@ -196,9 +208,9 @@
     display: flex; flex-wrap: wrap; gap: 6px 20px; align-items: baseline; justify-content: space-between;
     border-bottom: 1px solid var(--line);
     padding-bottom: 10px; margin-bottom: 20px;
-    font-size: 12.5px; color: var(--dim); letter-spacing: .5px;
+    font-size: 12.5px; color: var(--dim); letter-spacing: .5px; text-shadow: none;
   }
-  .bar .id b { color: var(--fg); }
+  .bar .id b { color: var(--fg); text-shadow: var(--glow); }
   .bar nav { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
   .bar nav a { color: var(--fg); text-shadow: var(--glow); border: 0; }
   .bar nav a:hover { color: var(--bg); }
@@ -266,6 +278,7 @@
   /* ---- the receptor in the hero: a wire model of PAR2, turning */
   .par2 { margin: 0; display: flex; flex-direction: column; align-items: center; }
   .par2 canvas { display: block; width: 236px; height: 272px; }
+  .cap { text-shadow: none; }   /* small print reads better without the halo */
   .par2 .cap { white-space: normal; text-align: center; max-width: 236px; min-height: 2.6em; }
   html:not(.js) .par2 { display: none; }
 
@@ -286,7 +299,7 @@
   section { margin: 0 0 46px; scroll-margin-top: 16px; }
   h2 { font-family: var(--display); font-weight: 400; font-size: 32px; line-height: 1.1; margin: 0 0 16px; letter-spacing: 1px; text-shadow: var(--glow), 0 0 44px rgba(var(--glow-rgb), .16); }
   h2 .ps { color: var(--dim); }
-  .out { color: var(--dim); font-size: 13px; margin: 0 0 16px; }
+  .out { color: var(--dim); font-size: 13.5px; margin: 0 0 16px; text-shadow: none; }
   /* a heading being typed: letters wait hidden, the block marks the next one */
   h2 .ch { visibility: hidden; }
   h2 .ch.on { visibility: visible; }
@@ -295,7 +308,8 @@
   section.pending > :not(h2) { opacity: 0; }
 
   /* ---- about: the facts, with the receptor beside them */
-  .split { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px 40px; align-items: center; }
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px 40px; align-items: start; }
+  .split .par2 { align-self: center; }
 
   /* ---- translation, in about */
   .ribo { margin: 26px 0 0; }
@@ -324,12 +338,12 @@
     padding: 14px 16px 14px; transition: border-color .15s, box-shadow .15s; min-width: 0;
   }
   .card:hover, .card:focus-within { border-color: var(--fg); box-shadow: 0 0 18px rgba(var(--glow-rgb), .13), inset 0 0 0 1px var(--faint); }
-  .card .path { margin: 0 0 6px; font-size: 11px; letter-spacing: 1.5px; color: var(--dim); display: flex; flex-wrap: wrap; gap: 0 14px; justify-content: space-between; text-transform: uppercase; }
+  .card .path { margin: 0 0 6px; font-size: 11.5px; letter-spacing: 1.5px; color: var(--dim); text-shadow: none; display: flex; flex-wrap: wrap; gap: 0 14px; justify-content: space-between; text-transform: uppercase; }
   .card .path .gh { color: var(--fg); letter-spacing: .5px; white-space: nowrap; }
   .card h3 { font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1; margin: 0 0 6px; color: var(--hi); text-shadow: var(--glow-hi); }
-  .card p { margin: 0 0 10px; font-size: 13.5px; }
-  .card .quip { color: var(--dim); font-size: 12.5px; }
-  .card .facts { list-style: none; margin: 0 0 12px; padding: 0; font-size: 12.5px; color: var(--dim); }
+  .card p { margin: 0 0 10px; font-size: 14px; }
+  .card .quip { color: var(--dim); font-size: 13px; text-shadow: none; }
+  .card .facts { list-style: none; margin: 0 0 12px; padding: 0; font-size: 13px; color: var(--dim); text-shadow: none; }
   .card .facts li::before { content: "+ "; color: var(--fg); }
   .card .links { margin: 0; font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px 14px; }
   .card .links a::before { content: "["; } .card .links a::after { content: "]"; }
@@ -340,15 +354,18 @@
   .card .emblem { margin: 0; display: flex; flex-direction: column; align-items: center; position: relative; }
   .card .emblem canvas.droid { position: absolute; left: 0; top: 0; pointer-events: none; transition: opacity .6s; }
   .card .emblem .cap.droid { position: absolute; left: 0; top: 0; margin: 0; }   /* a report above the monitor, that does not move the card */
-  .card--tool .emblem { align-items: flex-start; min-height: 104px; justify-content: center; margin-bottom: 10px; }
+  /* every tool card keeps the same room for its picture and one line of caption, so the cards in a row line up under it */
+  .card--tool .emblem { display: grid; grid-template-rows: 120px 1.6em; align-items: center; justify-items: start; margin-bottom: 10px; }
+  .card--tool .emblem .cap { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .px.toy { cursor: pointer; }
   .card--empty { border-style: dashed; color: var(--dim); display: flex; flex-direction: column; justify-content: center; min-height: 140px; }
-  .card--empty p { margin: 0; white-space: pre-wrap; }
+  .card--empty p { margin: 0; white-space: pre-wrap; font-size: 13.5px; }
+  .card--empty .nw { white-space: nowrap; }   /* the brackets stay together */
   .card[hidden] { display: none; }
 
   /* ---- key/value */
   .kv { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 16px; }
-  .kv dt { color: var(--dim); }
+  .kv dt { color: var(--dim); text-shadow: none; }
   .kv dt::after { content: ":"; }
   .kv dd { margin: 0; }
 
@@ -358,7 +375,7 @@
   #term summary::-webkit-details-marker { display: none; }
   #term summary b { color: var(--fg); font-weight: 400; }
   #term summary:hover { color: var(--fg); }
-  #term summary .hint { margin-left: auto; font-size: 11px; color: var(--faint); }
+  #term summary .hint { margin-left: auto; font-size: 12px; color: var(--dim); }
   #term[open] summary .hint { visibility: hidden; }
   #term summary:focus-visible { outline: 2px solid var(--hi); outline-offset: -3px; }
   #term[open] summary { border-bottom: 1px solid var(--line); }
@@ -367,6 +384,7 @@
   #log { white-space: pre-wrap; margin: 0 0 6px; word-break: break-word; font: inherit; }
   #log .in { color: var(--dim); }
   #log .err { color: var(--warn); }
+  #log .dd { display: block; padding-left: 2ch; text-indent: -2ch; }   /* a meaning under its command: a wrapped line keeps the indent */
   #log .mu { color: var(--hi); text-shadow: var(--glow-hi); letter-spacing: 1.5px; }
   #log .mu.in { color: var(--dim); text-shadow: none; }
   #log canvas.spec { display: block; margin: 4px 0 2px; }
@@ -383,7 +401,7 @@
 
   footer {
     border-top: 1px solid var(--line); padding-top: 14px; margin-top: 32px;
-    color: var(--dim); font-size: 12px;
+    color: var(--dim); font-size: 12.5px; text-shadow: none;
     display: flex; flex-wrap: wrap; gap: 6px 24px; justify-content: space-between;
   }
 
@@ -499,9 +517,11 @@
     .bar .btn { padding-top: 7px; padding-bottom: 7px; }
     .card .path { font-size: 12px; }
     #cmd { min-height: 32px; }
+    body { font-size: 16px; }
+    .card p { font-size: 14.5px; }
   }
   /* a finger, not a mouse: the terminal hint says so */
-  @media (pointer: coarse) { #term summary .hint { display: inline; font-size: 0; } #term summary .hint::after { content: "tap to open"; font-size: 11px; } }
+  @media (pointer: coarse) { #term summary .hint { display: inline; font-size: 0; } #term summary .hint::after { content: "tap to open"; font-size: 12px; } }
 
   @media print {
     html, body { background: #fff !important; color: #000 !important; text-shadow: none !important; font-size: 11pt; }
@@ -657,7 +677,7 @@
           <p class="links"><a class="primary" href="https://yamir-1138.github.io/dough_formulator/">open app</a><a href="https://github.com/YAMIR-1138/dough_formulator">repo</a></p>
         </li>
         <li class="card card--empty" aria-label="Empty slot">
-          <p>next strange thing ..... [ <span id="slot">pending</span> ]</p>
+          <p>next strange thing ..... <span class="nw">[ <span id="slot">pending</span> ]</span></p>
         </li>
       </ul>
     </section>
@@ -989,6 +1009,10 @@
     name: el.dataset.project, alias: el.dataset.alias || '', dir: el.dataset.dir, site: el.dataset.site,
     desc: ($('p:not(.path)', el) || {}).textContent || '', text: el.textContent,
   }));
+  // a command and what it does: side by side, or on a narrow screen the command with its meaning under it
+  const row = T.row = (cmd, text) => {
+    if (matchMedia('(max-width: 480px)').matches) { print(cmd); print('  ' + text, 'dd'); } else print(cmd.padEnd(11) + text);
+  };
   const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
   const CODON = {};
   (function () {
@@ -1007,18 +1031,18 @@
   const COMMANDS = T.COMMANDS = {
     help() {
       // the short list. The longer one turns up for people who keep typing
-      print('ls         the projects on this page');
-      print('open       open one of them. open pellaeon');
-      print('whoami     who runs this');
-      print('theme      amber or green phosphor');
-      print('motion     stop or start the animation');
-      print('sound      off unless you turn it on');
-      print('clear      wipe the screen · exit closes the terminal');
+      row('ls', 'the projects on this page');
+      row('open', 'open one of them. open pellaeon');
+      row('whoami', 'who runs this');
+      row('theme', 'amber or green phosphor');
+      row('motion', 'stop or start the animation');
+      row('sound', 'off unless you turn it on');
+      row('clear', 'wipe the screen · exit closes the terminal');
       if (HIST.length >= 4) {
         print('');
         print('since you are still here:');
-        print('cat        the ship has a cat. also: pet · feed · pspsps');
-        print('mother     ask the ship. mother where is the cat');
+        row('cat', 'the ship has a cat. also: pet · feed · pspsps');
+        row('mother', 'ask the ship. mother where is the cat');
         print('neofetch · fortune · grep <word> · man <command>');
       }
       if (HIST.length >= 10) print('and further down: finger · termlink · degauss · tracker · transcribe · translate · revcomp · gc · zoomies · portal · pazaak');
