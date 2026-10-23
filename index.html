@@ -3108,7 +3108,8 @@
     function show(key, t) {
       const was = st.key;
       st.key = key; const m = M[key];
-      if (was !== key) T.log('display', String(KEYS.indexOf(key) + 1).padStart(2, '0') + '/' + String(KEYS.length).padStart(2, '0') + ' ' + (m.cap || key).split(' · ')[0]);
+      if (was !== key && T.displayChanged) T.displayChanged(key);
+      if (was !== key) T.log('display', String(KEYS.indexOf(key) + 1).padStart(2, '0') + '/' + String(KEYS.length).padStart(2, '0') + ' ' + (m.cap || key.toUpperCase()).split(' · ')[0]);
       st.model = m.build ? m.build() : null;
       // every model fills the screen the same way: its longest reach sets the scale
       if (st.model) st.model.size = Math.max(1, ...st.model.pts.map((q) => Math.hypot(q[0], q[1], q[2]))) * (key === 'par2' ? 1.25 : 1.08);
@@ -3854,6 +3855,9 @@ window.CATDATA = {
       if (p && card.dataset.project) { const b = rel(p.getBoundingClientRect()); add('desc-' + i, p, 'block', b.x, b.r, b.b, { label, card }); }
       if (card.classList.contains('card--empty')) add('box', card, 'box', c.x + 6, c.r - 6, c.b - 5, { label: 'the empty slot', card });
     });
+    // the display has a ledge along its top edge, for when she goes to watch it (FEATURES.catwatch)
+    const dsp = T.FEATURES.catwatch && $('.panel--display');
+    if (dsp && dsp.getClientRects().length) { const c = rel(dsp.getBoundingClientRect()); add('display', dsp, 'perch', c.x, c.r, c.y, { label: 'the display' }); }
     const form = $('#form'), input = $('#cmd');
     if (form) { const f = rel(form.getBoundingClientRect()), n = rel(input.getBoundingClientRect()); add('prompt', form, 'prompt', n.x, f.r, f.b + 2, { label: 'the prompt' }); }
     if (T.helix) { const h = rel(T.helix.el.getBoundingClientRect()); add('helix', T.helix.el, 'top', h.x - W * .3, h.r + W * .3, h.y + 5, { label: 'the helix' }); }
@@ -4055,6 +4059,32 @@ window.CATDATA = {
     C.energy -= 6;
     setMode('perched ' + where(l), true);
     yield* rest();
+  }
+  // the display changed channel and she wants to see: up onto its title strip, facing the picture, a while of looking
+  function* watch(forced) {
+    mark('watch');
+    measure();
+    let l = ledges.find((k) => k.id === 'display');
+    if (!l) return;
+    if (!vis(l)) {
+      if (!forced) return;
+      l.el.scrollIntoView({ block: 'center', behavior: T.motion ? 'smooth' : 'auto' });
+      for (let i = 0; i < 2000 / TICK && !vis(l); i++) { yield; measure(); l = ledges.find((k) => k.id === 'display') || l; }   // the page's time, not hers
+      if (!vis(l)) return;
+    }
+    setMode('eyeing the display');
+    // she sits on the left of the strip, so the picture is in front of her and a little below
+    yield* goTo(l, clamp(l.x0 + (l.x1 - l.x0) * .12, l.x0, l.x1));
+    const box = rel(l.el.getBoundingClientRect());
+    C.face = C.x + W / 2 < box.x + box.w / 2 ? 1 : -1;
+    paint('SIT_ALERT'); place(); say('?', 1400);
+    setMode('watching the display', true);
+    if (logged !== C.mode) { logged = C.mode; loggedAt = now(); T.log('cat', C.mode); }
+    // a long look, and once in the middle of it a glance round
+    const n = sec(rand(6, 12)), turn = Math.floor(n * rand(.4, .6));
+    for (let i = 0; i < n; i++) { paint(i >= turn && i < turn + sec(1.2) && A.has('SIT_LOOK') ? 'SIT_LOOK' : 'SIT_ALERT'); yield; }
+    paint('SIT');
+    setMode('sitting ' + where(l), true);
   }
   function* patrol() {
     mark('patrol');
@@ -4278,6 +4308,17 @@ window.CATDATA = {
   T.catNudge = () => { lastScroll = Math.max(lastScroll, now()); };
   T.startle = () => { if (enabled && C.onstage && T.motion && C.mode !== 'zoomies' && inView()) take(startle()); };
   T.cursorBusy = () => C.mode === 'stalking the cursor' || C.mode === 'sitting on the cursor';
+  // a new channel on the display: if she is settled somewhere, the display is on the screen and she has not just been, she goes
+  // to look. If she is already looking, it surprises her
+  if (T.FEATURES.catwatch) T.displayChanged = () => {
+    if (!enabled || !C.onstage || !T.motion || (T.standby && T.standby.on)) return;
+    if (C.mode === 'watching the display') { say('!', 1200); return; }
+    if (C.mode === 'eyeing the display' || !C.rest || T.cursorBusy() || riders.length || guenHere()) return;
+    const p = $('.panel--display'), r = p && p.getBoundingClientRect();
+    if (!r || !r.height || Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0) < r.height / 2) return;
+    if (!cool('watch', 90)) return;
+    take(watch());
+  };
   T.onMotion = (on) => { if (T.reduceMotion || !T.booted) return; if (on) { hide(); cur = null; } else { park(); tracker.draw(0); } };
   // an ordinary nap, wherever she happens to be. She naps more at night, like the rest of us should.
   const night = () => { const h = new Date().getHours(); return h >= 23 || h < 6; };
@@ -5309,7 +5350,7 @@ window.CATDATA = {
       C, hitAt, canvas, get ledges() { return ledges; }, measure, say, poke, paint, place, show, hide,
       rider: makeRider, paintRider,
       run(name, arg) {
-        const B = { intro, climb, portal, ciri: () => portal(true), guen: () => guenhwyvar(window.GUEN()), perch, patrol, block, box, catnap, meddle, startle, chase, zoomies, chargeNap, promptNap, leave, knock, rest, offPrompt };
+        const B = { watch: () => watch(true), intro, climb, portal, ciri: () => portal(true), guen: () => guenhwyvar(window.GUEN()), perch, patrol, block, box, catnap, meddle, startle, chase, zoomies, chargeNap, promptNap, leave, knock, rest, offPrompt };
         C.awayUntil = 0; take(B[name](arg)); return name;
       },
       poses: A.names,
