@@ -203,8 +203,8 @@
     100% { transform: none; filter: none; opacity: 1; }
   }
   .still .crt i, .still .crt b, .still .blink { animation: none; }
-  .js .screen { animation: poweron .5s cubic-bezier(.2,.8,.2,1) both, holdslip 53s linear 9s infinite; transform-origin: 50% 30vh; }
-  .still .screen { animation: poweron .5s cubic-bezier(.2,.8,.2,1) both; }
+  .js .screen, .js .bar { animation: poweron .5s cubic-bezier(.2,.8,.2,1) both, holdslip 53s linear 9s infinite; transform-origin: 50% 30vh; }
+  .still .screen, .still .bar { animation: poweron .5s cubic-bezier(.2,.8,.2,1) both; }
   @keyframes holdslip { 0%, 99.5%, 100% { transform: none; } 99.56% { transform: translateX(10px) skewX(-1.4deg); } 99.66% { transform: translateX(-6px) skewX(.8deg); } 99.76% { transform: translateX(3px) skewX(-.3deg); } 99.88% { transform: translateX(-1px); } }
 
   a { color: var(--hi); text-shadow: var(--glow-hi); text-decoration: none; border-bottom: 1px dashed var(--dim); }
@@ -221,20 +221,21 @@
   .skip { position: absolute; left: -9999px; top: 0; z-index: 60; background: var(--fg); color: var(--bg); padding: 6px 12px; text-shadow: none; border: 0; }
   .skip:focus { left: 16px; top: 8px; }
 
-  .screen { max-width: 1040px; margin: 0 auto; padding: 20px 16px 72px; }
+  .screen { max-width: 1040px; margin: 0 auto; padding: 0 16px 72px; }
 
   /* ---- status bar */
   .bar {
     display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; justify-content: space-between;
     border-bottom: 1px solid var(--line);
-    padding-bottom: 10px; margin-bottom: 20px;
+    max-width: 1040px; margin: 0 auto 20px; padding: 20px 16px 10px;   /* the same column as the screen below it */
     font-size: 12.5px; color: var(--dim); letter-spacing: .5px; text-shadow: none;
   }
   .bar .id b { color: var(--fg); text-shadow: var(--glow); }
   /* on a wide screen the bar stays at the head of the window: the clock, the marker in the nav and the way to the
-     terminal are always in view. It paints the same fixed glow as the page, so it never shows as a band */
+     terminal are always in view. It paints the same fixed glow as the page, so it never shows as a band. It lives outside
+     the screen, which is a stacking layer of its own, so that it can sit above the cat */
   @media (min-width: 761px) {
-    .js .bar { position: sticky; top: 0; z-index: 15; padding-top: 20px; margin-top: -20px; background: radial-gradient(ellipse at 50% 30%, var(--bg-2) 0%, var(--bg) 70%) fixed; }
+    .js .bar { position: sticky; top: 0; z-index: 25; background: radial-gradient(ellipse at 50% 30%, var(--bg-2) 0%, var(--bg) 70%) fixed; }   /* above the cat, so she scrolls under it with the page */
     main section { scroll-margin-top: 72px; }
     .screen { padding-bottom: 128px; }   /* room under the footer, so the last section can still climb out from under the bar */
   }
@@ -575,8 +576,8 @@
     100% { transform: none; filter: none; }
   }
   /* the picture shakes inside the tube, and the tube clips it, so the page never grows wider */
-  .screen.degauss { overflow: hidden; overflow: clip; }   /* clip, so the bar stays stuck to the head of the window */
-  .js .screen.degauss > * { animation: degauss 1.3s cubic-bezier(.2, .7, .3, 1) both; }
+  .screen.degauss { overflow: hidden; overflow: clip; }
+  .js .screen.degauss > *, .js .bar.degauss { animation: degauss 1.3s cubic-bezier(.2, .7, .3, 1) both; }
   .fallen { display: inline-block; transition: transform .7s cubic-bezier(.5,0,1,.6), opacity .7s; }
   .fallen.go { transform: translateY(60px) rotate(70deg); opacity: 0; }
 
@@ -619,7 +620,8 @@
     html, body { background: #fff !important; color: #000 !important; text-shadow: none !important; font-size: 11pt; }
     .crt, #cat-layer, #tracker, #status, #boot, .boot-skip, .bar nav, .bar .sys, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
     * { text-shadow: none !important; box-shadow: none !important; animation: none !important; color: #000 !important; }
-    .screen { max-width: none; padding: 0; animation: none !important; }
+    .screen, .bar { max-width: none; padding: 0; animation: none !important; }
+    .bar { position: static; }
     .sag, .tear { transform: none !important; filter: none !important; }
     .js main.booting { visibility: visible; }
     section.pending > :not(h2) { opacity: 1 !important; } h2 .ch { visibility: visible !important; background: none !important; }
@@ -640,7 +642,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .crt i, .crt b, .crt s, .blink, .js .screen, .prompt .caret, .sag { animation: none; }
+    .crt i, .crt b, .crt s, .blink, .js .screen, .js .bar, .prompt .caret, .sag { animation: none; }
     .tear { transform: none; }
     a, .btn, .profile a::before, .profile a::after { transition: none; }
     .js main.booting { visibility: visible; }
@@ -653,19 +655,19 @@
 <div class="crt" aria-hidden="true"><i></i><b></b><s></s></div>
 <canvas id="ideo" aria-hidden="true" title="Chromosome 5, with the part of the page you are on marked. PAR2 is on it, at 5q13.3."></canvas>
 
+<header class="bar">
+  <span class="id"><b>YAM AMIR</b> // TGGR LAB</span>
+  <span class="sys" aria-hidden="true"></span>
+  <nav aria-label="Sections">
+    <a href="#work">work</a>
+    <a href="#side">side quests</a>
+    <a href="#about">about</a>
+    <a href="#term" class="tn" aria-label="Open the terminal"><b>&gt;_</b><span class="w"> terminal</span></a>
+    <button id="motion" class="btn" type="button" aria-pressed="true" title="Stop or start all animation">motion: on</button>
+    <button id="theme" class="btn" type="button" title="Switch phosphor colour">phosphor: amber</button>
+  </nav>
+</header>
 <div class="screen">
-  <header class="bar">
-    <span class="id"><b>YAM AMIR</b> // TGGR LAB</span>
-    <span class="sys" aria-hidden="true"></span>
-    <nav aria-label="Sections">
-      <a href="#work">work</a>
-      <a href="#side">side quests</a>
-      <a href="#about">about</a>
-      <a href="#term" class="tn" aria-label="Open the terminal"><b>&gt;_</b><span class="w"> terminal</span></a>
-      <button id="motion" class="btn" type="button" aria-pressed="true" title="Stop or start all animation">motion: on</button>
-      <button id="theme" class="btn" type="button" title="Switch phosphor colour">phosphor: amber</button>
-    </nav>
-  </header>
 
   <pre id="boot" aria-hidden="true"></pre>
 
@@ -887,8 +889,7 @@
   T.setTheme(T.store.get('phosphor-v2', 'amber'));
   T.degauss = function () {
     if (!T.motion) return;
-    const el = $('.screen'); el.classList.remove('degauss'); void el.offsetWidth; el.classList.add('degauss');
-    setTimeout(() => el.classList.remove('degauss'), 1400);
+    $$('.screen, .bar').forEach((el) => { el.classList.remove('degauss'); void el.offsetWidth; el.classList.add('degauss'); setTimeout(() => el.classList.remove('degauss'), 1400); });
     if (T.startle) T.startle();
     T.sfx('thunk');
   };
@@ -3840,7 +3841,7 @@ window.CATDATA = {
   }
   const riderSay = (r, text, ms) => { r.say.textContent = text; r.say.classList.add('on'); setTimeout(() => r.say.classList.remove('on'), ms); };
   // Someone else comes through first: a rider and her mare, in the wrong world, and then the ones after her
-  function jolt() { const sc = $('.screen'); sc.classList.remove('degauss'); void sc.offsetWidth; sc.classList.add('degauss'); setTimeout(() => sc.classList.remove('degauss'), 1400); }
+  function jolt() { $$('.screen, .bar').forEach((sc) => { sc.classList.remove('degauss'); void sc.offsetWidth; sc.classList.add('degauss'); setTimeout(() => sc.classList.remove('degauss'), 1400); }); }
   function* wrongWorld(dest, planeB, dir) {
     const rw = RW(), y = dest.y - RH(), gallop = cw * 2.2, walk = cw * .7;
     // the stage is what is on the screen: on a phone the stops close up, so that nobody acts past the edge
