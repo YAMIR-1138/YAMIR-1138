@@ -1133,7 +1133,7 @@
         transcribe: 'DNA to mRNA', translate: 'DNA or RNA to protein, reading frame 1', revcomp: 'reverse complement of a DNA string', gc: 'length and GC content',
         theme: 'switch the phosphor. theme green', motion: 'stop or start all animation', degauss: 'clear the magnetic build-up on the tube', reboot: 'start again',
         keys: 'turn the / and ~ shortcuts off or on. keys off', mother: 'ask the ship. mother where is the cat', tracker: 'the motion tracker in the margin, on wide screens. tracker off', sound: 'key clicks and tube noises. off unless you ask. sound on',
-        portal: 'open a pair of portals for the cat', pazaak: 'the card game. first to three sets', replicate: 'copy the helix. or click it', pet: 'pet the cat', feed: 'feed the cat', pspsps: 'call the cat. she may come', zoomies: 'you will regret this', shoo: 'ask the cat to leave',
+        portal: 'open a pair of portals for the cat', pazaak: 'the card game. first to three sets. pazaak table opens the full table', replicate: 'copy the helix. or click it', pet: 'pet the cat', feed: 'feed the cat', pspsps: 'call the cat. she may come', zoomies: 'you will regret this', shoo: 'ask the cat to leave',
       };
       const k = (arg || '').toLowerCase();
       if (!k) { print('man: which command? try: man cat'); return; }
@@ -1352,12 +1352,14 @@
       G = { hands: { you: shuffle(deck.slice()).slice(0, 4), hk: shuffle(['+1', '+2', '+3', '-1', '-2', '-4', '±1', '±2', '±3', '2&4']).slice(0, 4) }, you: 0, hk: 0, set: 1 };
       print('PAZAAK · first to three sets · twenty wins, over twenty loses, nine cards wins outright');
       print('Greeting: HK-47 deals, meatbag. four cards from your side deck are your hand for the match. pazaak deck shows it.');
+      print('the full table, with cards you can hold, is one deck down: pazaak table');
       newSet(); table();
       T.game = input;
     }
     return { start };
   })();
-  COMMANDS.pazaak = (arg) => PZ.start(arg);
+  // the same game with real cards, on its own screen
+  COMMANDS.pazaak = (arg) => { if ((arg || '').trim() === 'table') { print('opening the table...'); location.href = 'pazaak/'; return; } PZ.start(arg); };
   // ---- astrophage. It emits at 4.26 µm. CO₂ absorbs at 4.26 µm, which is how the incubator monitor reads it: the two
   // spectra, drawn one over the other in the log, say the rest.
   COMMANDS.astrophage = function () {
