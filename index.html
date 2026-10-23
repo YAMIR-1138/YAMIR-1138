@@ -623,6 +623,33 @@
   .fallen { display: inline-block; transition: transform .7s cubic-bezier(.5,0,1,.6), opacity .7s; }
   .fallen.go { transform: translateY(60px) rotate(70deg); opacity: 0; }
 
+
+  /* ---- standby (FEATURES.standby): the picture folds to a bright line, then a dark screen with a few stars drifting by and
+     the clock. It sits under the scanlines and the grain. shutdown uses the same screen, with nothing on it but NO SIGNAL */
+  @keyframes poweroff {
+    0% { transform: none; filter: none; opacity: 1; }
+    65% { transform: scaleY(.004) scaleX(1); filter: brightness(6); opacity: 1; }
+    100% { transform: scaleY(.004) scaleX(.6); filter: brightness(6); opacity: 0; }
+  }
+  @keyframes shutoff {
+    0% { transform: none; filter: none; opacity: 1; }
+    40% { transform: scaleY(.004) scaleX(1); filter: brightness(6); opacity: 1; }
+    75% { transform: scaleY(.004) scaleX(.004); filter: brightness(8); opacity: 1; }
+    100% { transform: scaleY(.004) scaleX(.004); filter: brightness(8); opacity: 0; }
+  }
+  .js .screen.powerdown { animation: poweroff .5s cubic-bezier(.6, .1, .8, .4) forwards; }
+  .js .screen.shutoff { animation: shutoff 1s cubic-bezier(.5, .1, .8, .5) forwards; }
+  #standby { position: fixed; inset: 0; z-index: 45; display: none; background: var(--bg); cursor: none; transition: opacity .3s ease-out; }
+  #standby.up { display: block; }
+  #standby.out { opacity: 0; }
+  #standby canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #standby .clk { position: absolute; top: 20px; right: max(16px, calc((100vw - 1040px) / 2 + 16px)); font: 11.5px/1.6 var(--mono); letter-spacing: .5px; color: var(--dim); text-shadow: none; white-space: nowrap; }
+  #standby .msg { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 12.5px/1.6 var(--mono); letter-spacing: 3px; color: var(--dim); text-shadow: none; white-space: nowrap; animation: breathe 3s ease-in-out infinite alternate; }
+  @keyframes breathe { from { opacity: .4; } to { opacity: .8; } }
+  #standby.dark canvas, #standby.dark .clk { display: none; }
+  #standby.dark .msg { animation: none; opacity: 1; color: var(--faint); }
+  .still #standby .msg { animation: none; opacity: .6; }
+
   @media (max-width: 760px) {
     .hero { grid-template-columns: minmax(0, 1fr); }
     #helix { justify-self: center; }
@@ -660,7 +687,7 @@
 
   @media print {
     html, body { background: #fff !important; color: #000 !important; text-shadow: none !important; font-size: 11pt; }
-    .crt, #cat-layer, #tracker, #status, #boot, .boot-skip, .bar nav, .bar .sys, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
+    .crt, #standby, #cat-layer, #tracker, #status, #boot, .boot-skip, .bar nav, .bar .sys, #term, .px, .cap, .emblem, .par2, .divider, #ideo, .ribo, #helix, .skip, #cursor, .card--empty, .gh { display: none !important; }
     * { text-shadow: none !important; box-shadow: none !important; animation: none !important; color: #000 !important; }
     .screen { max-width: none; padding: 0; animation: none !important; }
     .sag, .tear { transform: none !important; filter: none !important; }
@@ -2088,6 +2115,115 @@
     const man = COMMANDS.man;
     COMMANDS.man = (arg) => { if ((arg || '').toLowerCase() === 'map') print('map - the decks of the page, what is on each, and where the cat is'); else man(arg); };
   }
+
+  // ---- standby: four minutes with nobody at the controls, and the ship powers the picture down to save the tube. Stars go by
+  // and the clock keeps time until someone comes back; whatever they press only wakes it, it does nothing else. Never
+  // with motion off, and motion going off wakes it. shutdown uses the same screen, dark (below)
+  if (F.standby) (function () {
+    const screen = $('.screen'), root = document.documentElement, now = () => performance.now();
+    const ov = document.createElement('div');
+    ov.id = 'standby'; ov.setAttribute('aria-hidden', 'true');
+    ov.innerHTML = '<canvas></canvas><span class="clk"></span><span class="msg"></span>';
+    document.body.appendChild(ov);
+    const cv = $('canvas', ov), g = cv.getContext('2d'), clk = $('.clk', ov), msg = $('.msg', ov);
+    const S = { on: false, mode: '', since: 0, last: now(), after: 240000 };
+    let timers = [];
+    const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+    const ok = () => !!(T.motion && !T.reduceMotion);
+    const two = (v) => String(v).padStart(2, '0');
+    // the sky: about a hundred and twenty stars, the brighter ones nearer and faster
+    let stars = [], W = 0, H = 0, ink = null, prev = 0;
+    function size() {
+      const r = Math.min(2, window.devicePixelRatio || 1);
+      W = window.innerWidth; H = window.innerHeight; cv.width = Math.round(W * r); cv.height = Math.round(H * r); g.setTransform(r, 0, 0, r, 0, 0);
+    }
+    function seed() {
+      stars = Array.from({ length: 120 }, () => { const k = Math.random() < .06 ? 2 : Math.random() < .35 ? 1 : 0; return { x: Math.random() * W, y: Math.random() * H, k }; });
+    }
+    function sky() {
+      if (!S.on || S.mode !== 'standby' || !ov.classList.contains('up')) return;
+      const d = new Date(), t = now(), dt = Math.min(.5, (t - (prev || t)) / 1000); prev = t;
+      const c = 'SHIP TIME ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds());
+      if (clk.textContent !== c) clk.textContent = c;
+      g.clearRect(0, 0, W, H);
+      stars.forEach((st) => {
+        st.x -= [3, 6, 11][st.k] * dt;
+        if (st.x < -2) { st.x = W + 2; st.y = Math.random() * H; }
+        g.fillStyle = [ink.faint, ink.dim, ink.fg][st.k];
+        const z = st.k === 2 ? 1.5 : 1; g.fillRect(Math.round(st.x), Math.round(st.y), z, z);
+      });
+    }
+    const it = T.Anim.add(cv, sky, 12, false);
+    function show(mode) {
+      const cs = getComputedStyle(root), v = (n) => cs.getPropertyValue(n).trim();
+      ink = { faint: v('--faint'), dim: v('--dim'), fg: v('--fg') };
+      msg.textContent = mode === 'off' ? 'NO SIGNAL' : 'STANDBY · any key';
+      clk.textContent = '';
+      ov.className = 'up' + (mode === 'off' ? ' dark' : '');
+      if (mode === 'standby') { size(); seed(); prev = 0; it.on = true; it.visible = true; T.Anim.wake(); sky(); }
+    }
+    // while it is down, every input is caught before the page sees it; the right kind wakes it
+    const KINDS = ['keydown', 'keyup', 'keypress', 'pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu', 'touchstart', 'touchend', 'touchmove', 'wheel', 'pointermove'];
+    function catchIt(e) {
+      if (e.cancelable) e.preventDefault();
+      e.stopImmediatePropagation();
+      if (!S.on || now() - S.since < 700) return;      // the hand that put it down is still moving
+      const wakes = S.mode === 'off' ? /^(keydown|pointerdown|touchstart)$/ : /^(keydown|pointerdown|touchstart|pointermove|wheel)$/;
+      if (wakes.test(e.type)) wake();
+    }
+    const onScroll = () => { if (S.on && S.mode === 'standby' && now() - S.since > 700) wake(); };
+    let catching = false;
+    function catchAll(on) {
+      if (on === catching) return; catching = on;
+      KINDS.forEach((k) => (on ? window.addEventListener : window.removeEventListener).call(window, k, catchIt, { capture: true, passive: false }));
+      (on ? window.addEventListener : window.removeEventListener).call(window, 'scroll', onScroll, { passive: true });
+    }
+    function enter(mode) {
+      mode = mode === 'off' ? 'off' : 'standby';
+      if (S.on || !T.booted || (mode === 'standby' && (!ok() || document.hidden))) return false;
+      timers.forEach(clearTimeout); timers = [];
+      S.on = true; S.mode = mode; S.since = now();
+      // the picture folds towards the middle of the window, wherever the page is scrolled to, and only what is on the
+      // glass folds: the rest of the page is cut away for the while
+      const r = screen.getBoundingClientRect(), above = Math.max(0, -r.top), below = Math.max(0, r.bottom - window.innerHeight);
+      screen.style.transformOrigin = '50% ' + Math.round(window.innerHeight / 2 - r.top) + 'px';
+      screen.style.clipPath = 'inset(' + Math.round(above) + 'px 0 ' + Math.round(below) + 'px 0)';
+      const fold = ok();
+      if (fold) screen.classList.add(mode === 'off' ? 'shutoff' : 'powerdown');
+      catchAll(true);
+      later(() => show(mode), fold ? (mode === 'off' ? 1000 : 500) : 0);
+      T.log('ship', mode === 'off' ? 'shutdown' : 'standby');
+      return true;
+    }
+    function wake() {
+      if (!S.on) return false;
+      const was = S.mode, secs = Math.round((now() - S.since) / 1000);
+      timers.forEach(clearTimeout); timers = [];
+      S.on = false; it.on = false;
+      ov.classList.add('out');
+      screen.classList.remove('powerdown', 'shutoff');      // and the power-on the page opened with plays again
+      later(() => { ov.className = ''; }, 300);
+      later(() => catchAll(false), 500);                    // a click that lands just after still goes nowhere
+      if (was === 'off') { print('power restored'); T.log('ship', 'power restored'); }
+      else T.log('ship', 'woke after ' + Math.floor(secs / 60) + ':' + two(secs % 60));
+      return true;
+    }
+    screen.addEventListener('animationend', (e) => { if (e.target === screen && e.animationName === 'poweron' && !S.on) { screen.style.transformOrigin = ''; screen.style.clipPath = ''; } });
+    // nobody at the controls: no pointer, key, scroll or touch for the whole of S.after
+    const seen = () => { S.last = now(); };
+    ['pointermove', 'pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'].forEach((k) => window.addEventListener(k, seen, { passive: true, capture: true }));
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) seen(); });
+    setInterval(() => { if (!S.on && !document.hidden && ok() && now() - S.last >= S.after) enter('standby'); }, 1000);
+    new MutationObserver(() => { if (S.on && S.mode === 'standby' && !ok()) wake(); }).observe(root, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('resize', () => { if (S.on && S.mode === 'standby') { size(); seed(); } });
+    T.standby = { enter, wake, get on() { return S.on; }, get mode() { return S.on ? S.mode : ''; }, get after() { return S.after; }, set after(ms) { S.after = +ms || 240000; } };
+    COMMANDS.standby = COMMANDS.sleep = function () {
+      if (!ok()) { print('standby: motion is off.', 'err'); return; }
+      print('standing by.'); enter('standby');
+    };
+    const man = COMMANDS.man;
+    COMMANDS.man = (arg) => { if (/^(standby|sleep)$/i.test(arg || '')) print('standby - power the picture down until someone comes back. it comes by itself after four quiet minutes'); else man(arg); };
+  })();
 
   // "/" reaches the prompt from anywhere on the page
   document.addEventListener('keydown', (e) => {
@@ -4592,7 +4728,7 @@ window.CATDATA = {
   }
 
   function tick() {
-    if (!enabled) return;
+    if (!enabled || (T.standby && T.standby.on)) return;     // she holds still while the ship is in standby
     C.annoy = Math.max(0, C.annoy - (TICK / 1000 * FAST) / 15);
     let r;
     try { if (!cur) cur = director(); r = cur.next(); } catch (e) { console.error('camille:', e); cur = null; settle(); hide(); return; }
