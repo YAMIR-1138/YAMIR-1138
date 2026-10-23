@@ -1113,6 +1113,13 @@
     ['crew ................ [ 1 human · 1 cat ]', 'ok'],
     ['droids .............. [ T3-M4 · standing by ]', 'ok'],
   ];
+  // the time by the ship's watch, after the crew: four hours a watch from midnight, and the dog watch before the first
+  const watchNow = F.watch ? () => {
+    const d = new Date(), h = d.getHours();
+    return String(h).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ' · ' + ['middle', 'morning', 'forenoon', 'afternoon', 'dog', 'first'][Math.floor(h / 4)] + ' watch';
+  } : null;
+  const watchLine = () => 'watch ............... [ ' + watchNow() + ' ]';
+  if (watchNow) { const at = BOOT.findIndex((l) => l[0].indexOf('crew ') === 0); BOOT.splice(at < 0 ? BOOT.length : at + 1, 0, [watchLine(), 'ok']); }
   const bootEl = $('#boot'), main = $('#main');
   const bootLine = (l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>';
   // the long boot plays once. After that the ship remembers, and starts warm
@@ -1161,6 +1168,8 @@
         ci = Math.min(text.length, ci + 3);
         bootEl.innerHTML = BOOT.slice(0, li).map((l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>\n').join('') +
           '<span class="' + cls + '">' + T.esc(text.slice(0, ci)) + '</span><span class="blink">█</span>';
+        // the box holds about eight lines: with the watch at the end, the newest line is kept in view so it is seen
+        if (watchNow) bootEl.scrollTop = bootEl.scrollHeight;
         if (ci >= text.length) { li++; ci = 0; setTimeout(type, 70); } else setTimeout(type, 16);
       })();
     }
@@ -1172,7 +1181,7 @@
   let termUsed = false;
   T.openTerm = function (focus) {
     if (!term.open) term.open = true;
-    if (!termUsed) { termUsed = true; BOOT.forEach((l) => print(l[0].indexOf('crew') === 0 && T.crew ? 'crew ................ [ ' + T.crew() + ' ]' : l[0], l[1] === 'hd' ? 'mu' : 'in')); print(''); }
+    if (!termUsed) { termUsed = true; BOOT.forEach((l) => print(l[0].indexOf('crew') === 0 && T.crew ? 'crew ................ [ ' + T.crew() + ' ]' : watchNow && l[0].indexOf('watch ') === 0 ? watchLine() : l[0], l[1] === 'hd' ? 'mu' : 'in')); print(''); }
     if (focus !== false) { input.focus({ preventScroll: true }); input.scrollIntoView({ block: 'center', behavior: T.motion ? 'smooth' : 'auto' }); }
   };
   term.addEventListener('toggle', () => { if (term.open) T.openTerm(false); });
@@ -1394,6 +1403,7 @@
     const proj = projects().find((x) => q.indexOf(norm(x.name).slice(0, 5)) >= 0 || (x.alias && q.indexOf(x.alias) >= 0));
     let a;
     if (/937|special order|priority/.test(q)) a = ['SPECIAL ORDER 1138', 'SCIENCE OFFICER EYES ONLY', 'PRIORITY ONE', 'INSURE RETURN OF SOURDOUGH STARTER FOR ANALYSIS', 'ALL OTHER CONSIDERATIONS SECONDARY', 'CREW EXPENDABLE', 'CAT NOT EXPENDABLE'];
+    else if (watchNow && /\btime\b|\bclock\b|\bwhat watch\b|\bwhich watch\b/.test(q)) a = [watchNow().toUpperCase()];
     else if (T.motherAlso && T.motherAlso(q)) a = T.motherAlso(q);
     else if (/cat|camille/.test(q)) a = ['CREW MEMBER: CAMILLE', 'RANK: CAT', 'STATUS: ' + (T.catStatus ? T.catStatus().split(' · ')[1] : 'unknown').toUpperCase(), 'NOT EXPENDABLE'];
     else if (proj) a = [proj.name.toUpperCase(), proj.desc.replace(/\s+/g, ' ').trim().toUpperCase()];
