@@ -376,6 +376,16 @@
   h2 .ch.at { visibility: visible; background: var(--hi); color: transparent; text-shadow: none; box-shadow: 0 0 10px rgba(var(--glow-rgb), .7); }
   section > :not(h2) { transition: opacity .45s ease-out; }
   section.pending > :not(h2) { opacity: 0; }
+  /* or, with FEATURES.powerup, the screens of the section switch on one after another, each out of a bright line.
+     The script puts the classes on and takes them off again when the picture is up, so nothing is left transformed */
+  html.f-powerup section.pwr-host > :not(h2) { transition: none; }
+  html.f-powerup .pwr { animation: screenon .35s cubic-bezier(.2, .8, .2, 1) var(--pwr, 0ms) backwards; transform-origin: 50% 50%; }
+  @keyframes screenon {
+    0% { transform: scaleY(.01) scaleX(.7); filter: brightness(5); opacity: 0; }
+    30% { transform: scaleY(.01) scaleX(1); filter: brightness(5); opacity: 1; }
+    100% { transform: none; filter: none; opacity: 1; }
+  }
+  .still .pwr { animation: none !important; }
 
   /* ---- about: the facts, with the receptor beside them */
   /* about: the crew file and the display side by side, two screens of the same height */
@@ -668,6 +678,7 @@
     a, .btn, .profile a::before, .profile a::after { transition: none; }
     .js main.booting { visibility: visible; }
     .fallen, #camille { transition: none; }
+    .pwr { animation: none !important; }
   }
 </style>
 </head>
@@ -1874,6 +1885,40 @@
       lights.forEach((L) => { const on = L.busy(); if (on !== L.on) { L.on = on; L.strip.classList.toggle('led-on', on); } });
     }
     T.onReady(() => { look(); setInterval(look, 250); });
+  })();
+
+  // ---- a section's screens switch on when its heading has typed itself out: each card and panel opens out of a bright
+  // line, sixty milliseconds after the one before it. With motion off it simply appears, as it always has
+  if (F.powerup) (function () {
+    const ANIM = 'screenon';
+    function power(sec) {
+      const screens = $$('.card, .panel', sec).filter((el) => !el.hidden);
+      if (!screens.length) return;
+      sec.classList.add('pwr-host');
+      let left = screens.length;
+      screens.forEach((el, i) => {
+        let timer = 0;
+        const done = (late) => {
+          if (!timer) return;
+          clearTimeout(timer); timer = 0; el.removeEventListener('animationend', end);
+          el.classList.remove('pwr'); el.style.removeProperty('--pwr');
+          if (--left === 0) sec.classList.remove('pwr-host');
+          // the end of the animation reaches the cat by itself, as it bubbles up; if it never came, she is told another way
+          if (late) window.dispatchEvent(new Event('resize'));
+        };
+        const end = (e) => { if (e.target === el && e.animationName === ANIM) done(false); };
+        el.style.setProperty('--pwr', i * 60 + 'ms');
+        el.classList.add('pwr');
+        el.addEventListener('animationend', end);
+        timer = setTimeout(() => done(true), i * 60 + 1000);
+      });
+    }
+    // the heading code takes pending off the section when it is done typing: that is the moment
+    const mo = new MutationObserver((ms) => ms.forEach((m) => {
+      if (!/\bpending\b/.test(m.oldValue || '') || m.target.classList.contains('pending')) return;
+      if (T.motion && !T.reduceMotion) power(m.target);
+    }));
+    $$('main section').forEach((sec) => mo.observe(sec, { attributes: true, attributeFilter: ['class'], attributeOldValue: true }));
   })();
 
   // "/" reaches the prompt from anywhere on the page
