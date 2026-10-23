@@ -223,7 +223,8 @@
     main section { scroll-margin-top: 72px; }
     .screen { padding-bottom: 128px; }   /* room under the footer, so the last section can still climb out from under the bar */
   }
-  .bar nav { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+  .bar nav { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; margin-left: 10px; }   /* room for the marker before the first link */
+  @media (max-width: 899px) { .bar nav { gap: 4px 14px; margin-left: 0; } }   /* without the clock there is less to spare */
   .bar nav a { color: var(--fg); text-shadow: var(--glow); border: 0; position: relative; }
   .bar nav a:hover { color: var(--bg); }
   /* the section on the screen is marked in the nav, the way a prompt marks the line you are on */
@@ -1654,7 +1655,8 @@
     const sys = $('.bar .sys');
     if (!sys) return;
     const two = (v) => String(v).padStart(2, '0');
-    const hms = (s) => two(Math.floor(s / 3600)) + ':' + two(Math.floor(s / 60) % 60) + ':' + two(s % 60);
+    // minutes and seconds, and the hour only once there is one
+    const hms = (s) => (s >= 3600 ? Math.floor(s / 3600) + ':' : '') + two(Math.floor(s / 60) % 60) + ':' + two(s % 60);
     function read() {
       const d = new Date(), up = Math.floor((performance.now() - T.t0) / 1000), off = navigator.onLine === false;
       sys.innerHTML = 'SHIP TIME ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()) + '<span class="up"> · ABOARD ' + hms(up) + '</span>' + (off ? ' · <span class="warn">LINK LOST</span>' : '');
