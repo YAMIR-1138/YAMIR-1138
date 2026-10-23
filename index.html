@@ -332,7 +332,10 @@
   h2 .hd { min-width: 0; }
   h2 .rd { margin-left: auto; font: 11.5px/1.3 var(--mono); letter-spacing: 1px; text-transform: uppercase; color: var(--dim); text-shadow: none; white-space: nowrap; transition: opacity .45s ease-out .1s; }
   h2 .rd:empty { display: none; }
-  section.pending h2 .rd { opacity: 0; }
+  /* a leader of dots from the words to the readout, the way the boot log runs from a label to its status */
+  h2 .ld { flex: 1 1 24px; min-width: 24px; height: 2px; align-self: baseline; background: radial-gradient(circle, var(--line) 0 1px, transparent 1.5px) 0 50% / 6px 2px repeat-x; transition: opacity .45s ease-out .1s; }
+  html:not(.js) h2 .ld { display: none; }
+  section.pending h2 .rd, section.pending h2 .ld { opacity: 0; }
   .out { color: var(--dim); font-size: 13.5px; margin: 0 0 16px; text-shadow: none; }
   /* a heading being typed: letters wait hidden, the block marks the next one */
   h2 .ch { visibility: hidden; }
@@ -347,6 +350,10 @@
 
   /* ---- translation, in about */
   .ribo { margin: 26px 0 0; }
+  /* about is two screens: the crew file, and the translation running under it */
+  .panel { position: relative; border: 1px solid var(--line); background: rgba(0,0,0,.3); padding: 18px; }
+  .panel--ribo { margin-top: 14px; padding: 14px 16px; }
+  .panel .ribo { margin: 0; }
   .mrna { display: flex; flex-wrap: wrap; gap: 4px 3px; align-items: center; font-size: 13px; letter-spacing: 1px; }
   .mrna::before { content: "5'"; color: var(--dim); margin-right: 6px; }
   .mrna::after { content: "3'"; color: var(--dim); margin-left: 6px; }
@@ -373,15 +380,22 @@
   }
   .card:hover, .card:focus-within { border-color: var(--fg); box-shadow: 0 0 18px rgba(var(--glow-rgb), .13), inset 0 0 0 1px var(--faint); }
   /* short ticks on the four corners, like the frame of a readout on a console */
-  .card { --tick: var(--edge); }
-  .card:hover, .card:focus-within { --tick: var(--fg); }
-  .card::after {
+  .card, .panel, #term { --tick: var(--edge); }
+  .card:hover, .card:focus-within, #term:focus-within { --tick: var(--fg); }
+  .card::after, .panel::after, #term::after {
     content: ""; position: absolute; inset: -1px; pointer-events: none;
     --h: linear-gradient(var(--tick), var(--tick)) no-repeat;
     background: var(--h) left top / 7px 2px, var(--h) left top / 2px 7px, var(--h) right top / 7px 2px, var(--h) right top / 2px 7px,
       var(--h) left bottom / 7px 2px, var(--h) left bottom / 2px 7px, var(--h) right bottom / 7px 2px, var(--h) right bottom / 2px 7px;
   }
-  .card .path { margin: 0 0 6px; font-size: 11.5px; letter-spacing: 1.5px; color: var(--dim); text-shadow: none; display: flex; flex-wrap: wrap; gap: 0 14px; justify-content: space-between; text-transform: uppercase; }
+  /* every card is a screen on the console: its first line is a title strip along the top edge, from border to border */
+  .card .path, .panel > .path {
+    margin: -14px -16px 12px; padding: 5px 16px; border-bottom: 1px solid var(--line); background: rgba(0,0,0,.28);
+    font-size: 11.5px; letter-spacing: 1.5px; color: var(--dim); text-shadow: none; display: flex; flex-wrap: wrap; gap: 0 14px; justify-content: space-between; text-transform: uppercase;
+  }
+  .card--featured .path, .panel--crew > .path { margin: -18px -18px 14px; padding: 5px 18px; }
+  .card--featured .path { grid-column: 1 / -1; }
+  .panel > .path .who { color: var(--fg); letter-spacing: .5px; }
   .card .path .gh { color: var(--fg); letter-spacing: .5px; white-space: nowrap; }
   .card h3 { font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1; margin: 0 0 6px; color: var(--hi); text-shadow: var(--glow-hi); }
   .card p { margin: 0 0 10px; font-size: 14px; }
@@ -403,6 +417,8 @@
   .px.toy { cursor: pointer; }
   .card--empty { border-style: dashed; color: var(--dim); display: flex; flex-direction: column; justify-content: center; min-height: 140px; }
   .card--empty p { margin: 0; white-space: pre-wrap; font-size: 13.5px; }
+  .card--empty .path { margin-bottom: auto; }   /* the strip keeps to the top, the line sits in the middle of what is left */
+  .card--empty p:not(.path) { margin-bottom: auto; }
   .card--empty .nw { white-space: nowrap; }   /* the brackets stay together */
   .card[hidden] { display: none; }
 
@@ -413,8 +429,8 @@
   .kv dd { margin: 0; }
 
   /* ---- the terminal. Closed until someone opens it. */
-  #term { margin: 56px 0 0; border: 1px solid var(--line); background: rgba(0,0,0,.3); }
-  #term summary { list-style: none; cursor: pointer; padding: 8px 14px; color: var(--dim); font-size: 12.5px; letter-spacing: 1px; display: flex; gap: 12px; align-items: baseline; }
+  #term { position: relative; margin: 56px 0 0; border: 1px solid var(--line); background: rgba(0,0,0,.3); }
+  #term summary { list-style: none; cursor: pointer; padding: 5px 14px; background: rgba(0,0,0,.28); color: var(--dim); font-size: 12.5px; letter-spacing: 1px; display: flex; gap: 12px; align-items: baseline; }
   #term summary::-webkit-details-marker { display: none; }
   #term summary b { color: var(--fg); font-weight: 400; }
   #term summary:hover { color: var(--fg); }
@@ -557,8 +573,11 @@
     .bar nav .tn .w { display: none; }   /* a phone column has room for the >_ only */
     h2 { font-size: 28px; }
     h2 .rd { margin-left: 0; flex-basis: 100%; }
+    h2 .ld { display: none; }
     .card--empty { min-height: 72px; }
     .ribo { margin-top: 12px; }
+    .panel--crew { padding: 14px 16px; }
+    .panel--crew > .path { margin: -14px -16px 12px; padding: 5px 16px; }
   }
   /* room for a thumb, on anything touched or narrow: every link and button at least 32px tall, and no text under 12px */
   @media (pointer: coarse), (max-width: 760px) {
@@ -568,6 +587,7 @@
     .bar .btn { padding-top: 7px; padding-bottom: 7px; }
     .card .path { font-size: 12px; }
     #cmd { min-height: 32px; }
+    #term summary { padding-top: 8px; padding-bottom: 8px; }   /* the strip is a button too: tall enough for a thumb */
     body { font-size: 16px; }
     .card p { font-size: 14.5px; }
   }
@@ -582,7 +602,9 @@
     .js main.booting { visibility: visible; }
     section.pending > :not(h2) { opacity: 1 !important; } h2 .ch { visibility: visible !important; background: none !important; }
     h1 { font-size: 40pt; margin: 0 0 6pt; } h2 { font-size: 16pt; margin-top: 14pt; } .card h3 { font-size: 14pt; }
-    h2 .ps, h2 .rd, .card::after { display: none; }
+    h2 .ps, h2 .rd, h2 .ld, .card::after, .panel::after, .panel--ribo { display: none !important; }
+    .card .path, .panel > .path { margin: 0; padding: 0; border: 0; background: none; }
+    .panel { border: 0; background: none; padding: 0; }
     .hero, .split, .card--featured { display: block; }
     .card { border: 0; border-top: 1pt solid #999; background: none; padding: 6pt 0; break-inside: avoid; }
     .grid { display: block; }
@@ -647,12 +669,12 @@
     <div class="divider" aria-hidden="true"><canvas></canvas></div>
 
     <section id="work" aria-label="Selected projects">
-      <h2 id="h-work" aria-label="Selected projects"><span class="hd"><span class="ps">&gt;</span> SELECTED PROJECTS<span class="cur-slot"></span></span><span class="rd" aria-hidden="true"></span></h2>
+      <h2 id="h-work" aria-label="Selected projects"><span class="hd"><span class="ps">&gt;</span> SELECTED PROJECTS<span class="cur-slot"></span></span><span class="ld" aria-hidden="true"></span><span class="rd" aria-hidden="true"></span></h2>
       <ul class="grid grid--featured">
         <li class="card card--featured" data-project="Pellaeon" data-dir="work" data-site="https://tggr-lab.github.io/pellaeon/">
+          <p class="path">ChimeraX plugin</p>
           <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="kite" data-scale="2" data-play="hover"></canvas></figure>
           <div>
-            <p class="path">ChimeraX plugin</p>
             <h3>Pellaeon</h3>
             <p>Talk to UCSF ChimeraX in plain English. A chat panel inside ChimeraX that turns what you type into commands, and shows you every command it ran.</p>
             <ul class="facts">
@@ -664,9 +686,9 @@
           </div>
         </li>
         <li class="card card--featured" data-project="GPCompaRe" data-dir="work" data-site="https://tggr-lab.github.io/GPCompaRe/">
+          <p class="path">Database</p>
           <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="gpcr" data-scale="2" data-cap="#gpcr-cap" data-still="50"></canvas><figcaption class="cap" id="gpcr-cap">INACTIVE</figcaption></figure>
           <div>
-            <p class="path">Database</p>
             <h3>GPCompaRe</h3>
             <p>A database of what changes when a receptor switches on. Residue contacts compared between active and inactive states, receptor by receptor.</p>
             <ul class="facts">
@@ -683,27 +705,27 @@
     <div class="divider" aria-hidden="true"><canvas></canvas></div>
 
     <section id="side" aria-label="Side quests">
-      <h2 id="h-side" aria-label="Side quests"><span class="hd"><span class="ps">&gt;</span> SIDE QUESTS<span class="cur-slot"></span></span><span class="rd" aria-hidden="true"></span></h2>
+      <h2 id="h-side" aria-label="Side quests"><span class="hd"><span class="ps">&gt;</span> SIDE QUESTS<span class="cur-slot"></span></span><span class="ld" aria-hidden="true"></span><span class="rd" aria-hidden="true"></span></h2>
       <ul class="grid grid--tools">
         <li class="card card--tool" data-project="ΣpinZero" data-alias="spinzero" data-dir="side" data-site="https://yamir-1138.github.io/SpinZero/">
-          <figure class="emblem"><canvas class="px" data-icon="rotor" data-scale="2" data-cap="#rotor-cap" role="button" tabindex="0" aria-describedby="rotor-cap" aria-label="Centrifuge rotor. Press Enter to load the next slot, Backspace to unload one."></canvas><figcaption class="cap" id="rotor-cap" aria-live="polite">3 tubes · Σ = 0 · click a slot</figcaption></figure>
           <p class="path">Web app</p>
+          <figure class="emblem"><canvas class="px" data-icon="rotor" data-scale="2" data-cap="#rotor-cap" role="button" tabindex="0" aria-describedby="rotor-cap" aria-label="Centrifuge rotor. Press Enter to load the next slot, Backspace to unload one."></canvas><figcaption class="cap" id="rotor-cap" aria-live="polite">3 tubes · Σ = 0 · click a slot</figcaption></figure>
           <h3>ΣpinZero</h3>
           <p>Balances centrifuge rotors with number theory and roots of unity.</p>
           <p class="quip">Σspin = 0, or it wobbles.</p>
           <p class="links"><a class="primary" href="https://yamir-1138.github.io/SpinZero/">open app</a><a href="https://github.com/YAMIR-1138/SpinZero">repo</a></p>
         </li>
         <li class="card card--tool" data-project="GeNest" data-dir="side" data-site="https://yamir-1138.github.io/genest-website/">
-          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="nest" data-scale="2" data-cap="#nest-cap" data-still="56"></canvas><figcaption class="cap" id="nest-cap">HOST GENE</figcaption></figure>
           <p class="path">Pipeline · reports</p>
+          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="nest" data-scale="2" data-cap="#nest-cap" data-still="56"></canvas><figcaption class="cap" id="nest-cap">HOST GENE</figcaption></figure>
           <h3>GeNest</h3>
           <p>Finds nested genes: genes that live inside other genes, across whole genomes.</p>
           <p class="quip">A gene within a gene. We need to go deeper.</p>
           <p class="links"><a class="primary" href="https://yamir-1138.github.io/genest-website/">open reports</a><a href="https://github.com/YAMIR-1138/genest-website">repo</a></p>
         </li>
         <li class="card card--tool" data-project="CO₂ Monitor" data-alias="co2" data-dir="side" data-site="https://tggr-lab.github.io/incubator-co2-monitor/">
-          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="co2" data-scale="2" data-secret="astrophage"></canvas></figure>
           <p class="path">Hardware · ESP32</p>
+          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="co2" data-scale="2" data-secret="astrophage"></canvas></figure>
           <h3>CO₂ Monitor</h3>
           <p>A DIY CO₂ and temperature monitor for cell culture incubators, built on an ESP32.</p>
           <p class="quip">Full build guide, with ten days of real data.</p>
@@ -723,14 +745,15 @@
           <p class="links"><a class="primary" href="https://yamir-1138.github.io/dnatools/">open app</a><a href="https://github.com/YAMIR-1138/dnatools">repo</a></p>
         </li>
         <li class="card card--tool" data-project="DOUGH_FORMULATOR" data-alias="dough" data-dir="side" data-site="https://yamir-1138.github.io/dough_formulator/">
-          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="wheat" data-scale="2"></canvas></figure>
           <p class="path">Web app</p>
+          <figure class="emblem" aria-hidden="true"><canvas class="px" data-icon="wheat" data-scale="2"></canvas></figure>
           <h3>DOUGH_FORMULATOR</h3>
           <p>A retro sourdough calculator built on true baker's percentages.</p>
           <p class="quip">Calculate. Ferment. Ascend.</p>
           <p class="links"><a class="primary" href="https://yamir-1138.github.io/dough_formulator/">open app</a><a href="https://github.com/YAMIR-1138/dough_formulator">repo</a></p>
         </li>
         <li class="card card--empty" aria-label="Empty slot">
+          <p class="path">SLOT</p>
           <p>next strange thing ..... <span class="nw">[ <span id="slot">pending</span> ]</span></p>
         </li>
       </ul>
@@ -739,7 +762,9 @@
     <div class="divider" aria-hidden="true"><canvas></canvas></div>
 
     <section id="about" aria-label="About">
-      <h2 id="h-about" aria-label="About"><span class="hd"><span class="ps">&gt;</span> ABOUT<span class="cur-slot"></span></span><span class="rd" aria-hidden="true"></span></h2>
+      <h2 id="h-about" aria-label="About"><span class="hd"><span class="ps">&gt;</span> ABOUT<span class="cur-slot"></span></span><span class="ld" aria-hidden="true"></span><span class="rd" aria-hidden="true"></span></h2>
+      <div class="panel panel--crew">
+      <p class="path">CREW FILE<span class="who">YAM AMIR · YAMIR-1138</span></p>
       <div class="split">
       <dl class="kv">
         <dt>role</dt><dd>PhD student at the TGGR Lab (Translational Genetics and Genomics Research), Tel Aviv Sourasky Medical Center &amp; Tel Aviv University</dd>
@@ -750,11 +775,15 @@
       </dl>
       <figure class="par2" aria-hidden="true"><canvas id="par2"></canvas><figcaption class="cap">PAR2 · ALPHAFOLD MODEL · Cα TRACE</figcaption></figure>
       </div>
+      </div>
+      <div class="panel panel--ribo">
+      <p class="path">TRANSLATION</p>
       <figure class="ribo" aria-hidden="true">
         <div class="mrna" id="mrna"></div>
         <div class="chain" id="chain"></div>
         <figcaption class="cap" id="ribo-cap">&nbsp;</figcaption>
       </figure>
+      </div>
     </section>
 
     <details id="term">
@@ -2617,7 +2646,7 @@
             const f = document.createDocumentFragment();
             Array.from(n.data).forEach((c) => { const sp = document.createElement('span'); sp.className = 'ch'; sp.textContent = c; chars.push(sp); f.appendChild(sp); });
             n.parentNode.replaceChild(f, n);
-          } else if (n.nodeType === 1 && !n.classList.contains('ps') && !n.classList.contains('cur-slot') && !n.classList.contains('rd')) wrap(n);
+          } else if (n.nodeType === 1 && !n.classList.contains('ps') && !n.classList.contains('cur-slot') && !n.classList.contains('rd') && !n.classList.contains('ld')) wrap(n);
         });
       })(h);
       h.parentNode.classList.add('pending');
@@ -3040,7 +3069,7 @@ window.CATDATA = {
   }
   const topOf = (l) => l.y - H;
   // what to call a place, from its own text but without the live numbers or the cursor
-  const labelOf = (node) => { const c = node.cloneNode(true); $$('.gh, #cursor, .cur-slot, .rd', c).forEach((x) => x.remove()); return c.textContent.replace(/^\s*[$>]\s*/, '').replace(/\s+/g, ' ').trim().toLowerCase(); };
+  const labelOf = (node) => { const c = node.cloneNode(true); $$('.gh, #cursor, .cur-slot, .rd, .ld', c).forEach((x) => x.remove()); return c.textContent.replace(/^\s*[$>]\s*/, '').replace(/\s+/g, ' ').trim().toLowerCase(); };
   function measure() {
     const u = window.innerWidth <= 760 ? .62 : .75, r = Math.min(3, window.devicePixelRatio || 1);
     if (u !== unit || r !== dpr) {
@@ -3067,7 +3096,7 @@ window.CATDATA = {
     $$('.card').forEach((card, i) => {
       if (card.hidden) return;
       const c = rel(card.getBoundingClientRect());
-      const path = $('.path', card), label = path ? labelOf(path) : 'an empty slot';
+      const path = $('.path', card), label = path && !card.classList.contains('card--empty') ? labelOf(path) : 'an empty slot';
       add('card-' + i, card, 'perch', c.x, c.r, c.y, { label, card });
       const p = $('p:not(.path)', card);
       if (p && card.dataset.project) { const b = rel(p.getBoundingClientRect()); add('desc-' + i, p, 'block', b.x, b.r, b.b, { label, card }); }
@@ -3952,7 +3981,7 @@ window.CATDATA = {
       const h = heads[0];
       const tw = document.createTreeWalker(h, NodeFilter.SHOW_TEXT);
       let node = null, n;
-      while ((n = tw.nextNode())) if (/[A-Za-z]/.test(n.data) && !n.parentNode.closest('.ps, .rd, #cursor, .fallen')) node = n;
+      while ((n = tw.nextNode())) if (/[A-Za-z]/.test(n.data) && !n.parentNode.closest('.ps, .rd, .ld, #cursor, .fallen')) node = n;
       if (node) {
         const idx = node.data.search(/[A-Za-z][^A-Za-z]*$/);
         const letter = node.splitText(idx); letter.splitText(1);
