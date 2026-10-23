@@ -477,6 +477,16 @@
   .kv dt::after { content: ":"; }
   .kv dd { margin: 0; }
 
+  /* ---- the ship's log, a screen above the terminal (FEATURES.shiplog). Six lines kept for it, four on a phone, so it never changes height */
+  .panel--log { margin: 56px 0 0; padding: 14px 16px 12px; }
+  html.f-shiplog #term { margin-top: 14px; }
+  .panel--log > .path .n { color: var(--fg); letter-spacing: .5px; }
+  .panel--log .lines { font: 12.5px/1.6 var(--mono); height: calc(6 * 1.6em); overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; text-shadow: none; }
+  .panel--log .lines > div { white-space: pre; overflow: hidden; text-overflow: ellipsis; color: var(--dim); flex: none; }
+  .panel--log .lines .s { color: var(--fg); }
+  .panel--log .lines > div.new, .panel--log .lines > div.new span { color: var(--hi); text-shadow: var(--glow-hi); }
+  @media (max-width: 760px) { .panel--log .lines { height: calc(4 * 1.6em); } .panel--log .lines > div:nth-last-child(n+5) { display: none; } }
+
   /* ---- the terminal. Closed until someone opens it. */
   #term { position: relative; margin: 56px 0 0; border: 1px solid var(--line); background: rgba(0,0,0,.3); }
   #term summary { list-style: none; cursor: pointer; padding: 5px 14px; background: rgba(0,0,0,.28); color: var(--dim); font-size: 12.5px; letter-spacing: 1px; display: flex; gap: 12px; align-items: baseline; }
@@ -657,7 +667,7 @@
     .js main.booting { visibility: visible; }
     section.pending > :not(h2) { opacity: 1 !important; } h2 .ch { visibility: visible !important; background: none !important; }
     h1 { font-size: 40pt; margin: 0 0 6pt; } h2 { font-size: 16pt; margin-top: 14pt; } .card h3 { font-size: 14pt; }
-    h2 .ps, h2 .rd, h2 .ld, .card::after, .panel::after, .panel--ribo, .panel--display, html.f-leds .led::before { display: none !important; }
+    h2 .ps, h2 .rd, h2 .ld, .card::after, .panel::after, .panel--ribo, .panel--display, .panel--log, html.f-leds .led::before { display: none !important; }
     .card .path, .panel > .path { margin: 0; padding: 0; border: 0; background: none; }
     .panel { border: 0; background: none; padding: 0; }
     .hero, .split, .card--featured { display: block; }
@@ -890,9 +900,14 @@
     konami: true,      // up up down down left right left right b a
     watch: true,       // the boot log tells the time by the ship's watch
     map: true,         // map: the decks, the cat and the display, in the terminal
+    shiplog: true,     // a ship's log screen above the terminal, fed by what happens aboard, and the log command
+    standby: true,     // after four quiet minutes the ship goes to standby: stars and the clock until you come back
+    shutdown: true,    // shutdown, halt and poweroff. needs standby on too: it goes dark on the same screen
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
   Object.keys(F).forEach((k) => { if (F[k]) document.documentElement.classList.add('f-' + k); });
+  // the ship's log takes a line from anywhere aboard: T.log('tube', 'phosphor green'). Without the log it does nothing
+  T.log = () => {};
   const $ = T.$ = (s, r) => (r || document).querySelector(s);
   const $$ = T.$$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   T.esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -923,6 +938,7 @@
     root.classList.toggle('fading', !!fade);   // !! so an undefined never flips it on by itself
     root.dataset.theme = t;
     themeBtn.textContent = 'phosphor: ' + t;
+    if (T.booted && was !== t) T.log('tube', 'phosphor ' + t);
     clearTimeout(fadeTimer);
     if (T.themeChanged) T.themeChanged();
     if (fade) fadeTimer = setTimeout(() => { root.classList.remove('fading'); if (T.themeChanged) T.themeChanged(); }, 1200);
@@ -1033,7 +1049,7 @@
     document.documentElement.classList.toggle('still', !T.motion);
     motionBtn.textContent = 'motion: ' + (T.motion ? 'on' : 'off');
     motionBtn.setAttribute('aria-pressed', String(T.motion));
-    if (was !== T.motion) { if (T.motion && T.Anim) T.Anim.wake(); if (T.onMotion) T.onMotion(T.motion); }
+    if (was !== T.motion) { if (T.motion && T.Anim) T.Anim.wake(); if (T.onMotion) T.onMotion(T.motion); T.log('tube', 'motion ' + (T.motion ? 'on' : 'off')); }
   };
   T.setMotion(T.motion);
   motionBtn.addEventListener('click', () => T.setMotion(!T.motion));
@@ -1135,6 +1151,7 @@
     // the boot lines have done their job: they fade, and the terminal shows them again when it is opened
     setTimeout(() => bootEl.classList.add('done'), T.reduceMotion || T.debug ? 0 : 1600);
     T.booted = true;
+    T.log('ship', warm ? 'warm start' : 'cold boot'); T.log('link', navigator.onLine === false ? 'lost' : 'up');
     T.ready.splice(0).forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
   }
   T.onReady = (fn) => { if (T.booted) fn(); else T.ready.push(fn); };
@@ -1234,6 +1251,7 @@
         row('mother', 'ask the ship. mother where is the cat');
         row('reboot', 'the long boot, once more');
         if (F.map) row('map', 'the decks, and who is on them');
+        if (F.shiplog) row('log', 'what the ship has noted. log clear wipes it');
         print('neofetch · fortune · grep <word> · man <command>');
       }
       if (HIST.length >= 10) print('and further down: finger · termlink · degauss · tracker · transcribe · translate · revcomp · gc · zoomies · portal · pazaak');
@@ -1652,6 +1670,7 @@
     if (T.game) { T.game(raw); input.scrollIntoView({ block: 'nearest' }); return; }     // a game has the prompt
     const parts = raw.split(/\s+/);
     const fn = own(COMMANDS, parts[0].toLowerCase());
+    if (typeof fn === 'function' && !/^(help|clear|log)$/i.test(parts[0])) T.log('shell', parts[0].toLowerCase());
     if (typeof fn === 'function') fn(parts.slice(1).join(' ')); else print(parts[0] + ': command not found. try: help', 'err');
     input.scrollIntoView({ block: 'nearest' });
   });
@@ -1711,6 +1730,10 @@
       const vh = window.innerHeight, end = window.pageYOffset + vh >= document.documentElement.scrollHeight - 4, line = vh * (end ? .9 : .4);
       let on = null;
       if (!hero || hero.getBoundingClientRect().bottom <= line) links.forEach(([a, s]) => { if (s.getBoundingClientRect().top <= line) on = a; });
+      // the first time a deck is reached, the log notes it
+      const sec = on && links.find((p) => p[0] === on)[1];
+      // (not while the tube is still powering on: squeezed flat, every section seems to have been reached)
+      if (sec && !sec._logged && sec.getBoundingClientRect().height > sec.offsetHeight * .9) { sec._logged = true; T.log('deck ' + 'ABCDEFGH'[$$('main section[id]').indexOf(sec) + 1], (sec.getAttribute('aria-label') || sec.id).toLowerCase()); }
       links.forEach(([a]) => {
         if (a.classList.contains('on') === (a === on)) return;
         // the mark moves at once: the slow fade is for a link the pointer has just left
@@ -1745,6 +1768,7 @@
       const d = new Date(), up = Math.floor((performance.now() - T.t0) / 1000), off = navigator.onLine === false;
       // once in a long while the clock loses a beat and shows dashes for a tick
       const lost = T.fx && T.fx.takeBeat && T.fx.takeBeat();
+      if (lost) T.log('clock', 'dropped a beat');
       sys.innerHTML = 'SHIP TIME ' + (lost ? '--:--:--' : two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds())) + '<span class="up"> · ABOARD ' + hms(up) + '</span>' + (off ? ' · <span class="warn">LINK LOST</span>' : '');
     }
     // the bar keeps to one line: the readout gives up its second half, and then itself, before the nav has to wrap
@@ -1759,7 +1783,7 @@
     const refit = () => { cancelAnimationFrame(fitting); fitting = requestAnimationFrame(fit); };
     read(); fit();
     setInterval(() => { if (T.motion && !document.hidden && sys.offsetParent) read(); }, 1000);
-    window.addEventListener('online', () => { read(); refit(); }); window.addEventListener('offline', () => { read(); refit(); });
+    window.addEventListener('online', () => { read(); refit(); T.log('link', 'up'); }); window.addEventListener('offline', () => { read(); refit(); T.log('link', 'lost'); });
     // look again once the type has loaded and the tube has finished powering on: both change what fits
     window.addEventListener('resize', refit);
     if (document.fonts) { document.fonts.addEventListener('loadingdone', refit); if (document.fonts.ready) document.fonts.ready.then(refit); }
@@ -1785,6 +1809,7 @@
       if (!el || !ok()) return false;
       el.classList.remove('sag'); void el.offsetWidth; el.classList.add('sag');
       setTimeout(() => el.classList.remove('sag'), 700);
+      T.log('power', 'sag, screen ' + ($$(SCREENS).indexOf(el) + 1));
       return true;
     }
     // the left label of a screen's title strip: its own words, not the live readout beside them
@@ -1806,6 +1831,7 @@
         // put the words back from the copy, unless something else has written to the strip meanwhile
         nodes.forEach((n, i) => { if (n.data === put[i]) n.data = saved[i]; });
       }); });
+      T.log('screen ' + ($$(SCREENS).indexOf(el) + 1), 'lost sync, recovered');
       return true;
     }
     function snow() { if (!ok()) return false; snowUntil = performance.now() + 250; return true; }
@@ -1858,6 +1884,56 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(later);
   })();
 
+  // ---- the ship's log: a screen above the terminal with the last few things that happened aboard, newest at the
+  // bottom. Lines come in no faster than one every second and a half; the rest wait their turn. Two hundred are kept,
+  // in memory only, and the log command prints them all
+  if (F.shiplog) (function () {
+    const KEEP = 200, GAP = 1500, SHOW = 6, all = [], queue = [];
+    const panel = document.createElement('div');
+    panel.className = 'panel panel--log'; panel.setAttribute('aria-hidden', 'true');   // the log command reads it out
+    panel.innerHTML = '<p class="path">SHIP LOG<span class="n">0 ENTRIES</span></p><div class="lines"></div>';
+    term.before(panel);
+    const count = $('.n', panel), lines = $('.lines', panel);
+    const two = (v) => String(v).padStart(2, '0');
+    const stamp = (d) => two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds());
+    const text = (e) => stamp(e.at) + '  ' + e.source + ' · ' + e.message;
+    let next = 0, timer = 0;
+    function put(e) {
+      const row = document.createElement('div');
+      [['t', stamp(e.at)], ['', '  '], ['s', e.source], ['', ' · '], ['m', e.message]].forEach((p) => {
+        if (!p[0]) { row.appendChild(document.createTextNode(p[1])); return; }
+        const sp = document.createElement('span'); sp.className = p[0]; sp.textContent = p[1]; row.appendChild(sp);
+      });
+      lines.appendChild(row);
+      while (lines.children.length > SHOW) lines.firstChild.remove();
+      // a new line comes up bright for a frame, then settles
+      if (T.motion) { row.className = 'new'; requestAnimationFrame(() => requestAnimationFrame(() => row.classList.remove('new'))); }
+    }
+    function pump() {
+      timer = 0;
+      if (!queue.length) return;
+      put(queue.shift()); next = performance.now() + GAP;
+      if (queue.length) timer = setTimeout(pump, GAP);
+    }
+    T.log = function (source, message) {
+      const e = { at: new Date(), source: String(source), message: String(message) };
+      all.push(e); if (all.length > KEEP) all.shift();
+      count.textContent = all.length + (all.length === 1 ? ' ENTRY' : ' ENTRIES');
+      // a long backlog is not worth the wait: the screen keeps to the latest few, the log keeps them all
+      queue.push(e); if (queue.length > SHOW) queue.shift();
+      if (!timer) timer = setTimeout(pump, Math.max(0, next - performance.now()));
+    };
+    T.log.busy = () => queue.length > 0 || performance.now() < next;
+    COMMANDS.log = function (arg) {
+      if ((arg || '').trim() === 'clear') { all.length = 0; queue.length = 0; lines.textContent = ''; count.textContent = '0 ENTRIES'; print('log cleared.'); return; }
+      if (!all.length) { print('the log is empty.'); return; }
+      all.forEach((e) => print(text(e)));
+    };
+    PUBLIC.push('log');
+    const man = COMMANDS.man;
+    COMMANDS.man = (arg) => { if ((arg || '').toLowerCase() === 'log') print('log - what the ship has noted, oldest first. log clear wipes it'); else man(arg); };
+  })();
+
   // ---- a light on each screen's title strip, the way a drive has one. It is lit while the screen is busy: its picture
   // moving and in view, the display turning, the ribosome reading, the terminal open with you typing in it. It blinks
   // once when what the screen shows changes. One look four times a second, not one a frame
@@ -1891,6 +1967,7 @@
     light($('.panel--display > .path'), running($('#par2')), [[$('.par2 .cap'), TEXT]]);
     light($('.panel--ribo > .path'), running($('#mrna')), [[$('#ribo-cap'), TEXT]]);
     light($('summary', term), () => term.open && document.activeElement === input, [[log, TEXT]]);
+    light($('.panel--log > .path'), () => !!(T.log.busy && T.log.busy()), [[$('.panel--log .lines'), { childList: true }]]);
     function look() {
       if (document.hidden) return;
       lights.forEach((L) => { const on = L.busy(); if (on !== L.on) { L.on = on; L.strip.classList.toggle('led-on', on); } });
@@ -1974,6 +2051,7 @@
       last = performance.now();
       T.openTerm(false);
       typeOut(['ALL SYSTEMS NOMINAL'], 'mu');
+      T.log('ship', 'all systems nominal');
       T.degauss();
       const cat = T.catStatus ? T.catStatus().split(' · ')[1] : 'elsewhere';
       if (T.motion && cat && cat !== 'elsewhere' && T.COMMANDS.zoomies) setTimeout(() => T.COMMANDS.zoomies(), 1400);
@@ -2736,7 +2814,9 @@
     // a change of picture goes through the beam: the frame collapses to a bright line, then the next one opens out of it
     const switchTo = (key, t) => { if (T.reduceMotion || !T.motion) { show(key, t); draw(t); } else { st.pending = key; st.blank = BLANK; } };
     function show(key, t) {
+      const was = st.key;
       st.key = key; const m = M[key];
+      if (was !== key) T.log('display', String(KEYS.indexOf(key) + 1).padStart(2, '0') + '/' + String(KEYS.length).padStart(2, '0') + ' ' + (m.cap || key).split(' · ')[0]);
       st.model = m.build ? m.build() : null;
       // every model fills the screen the same way: its longest reach sets the scale
       if (st.model) st.model.size = Math.max(1, ...st.model.pts.map((q) => Math.hypot(q[0], q[1], q[2]))) * (key === 'par2' ? 1.25 : 1.08);
@@ -3430,7 +3510,12 @@ window.CATDATA = {
     if (ms !== 0) sayTimer = setTimeout(hush, ms || 1800);
   }
   function hush() { clearTimeout(sayTimer); bubble.classList.remove('on'); }
-  const setMode = (m, rest) => { C.mode = m; C.rest = !!rest; };
+  // what she is up to goes in the ship's log, a line at most every twenty seconds, and never the same line twice running
+  let logged = '', loggedAt = -1e9;
+  const setMode = (m, rest) => {
+    C.mode = m; C.rest = !!rest;
+    if (m !== logged && m !== 'elsewhere' && now() - loggedAt >= 20000) { logged = m; loggedAt = now(); T.log('cat', m); }
+  };
 
   // ------------------------------------------------------------ geometry
   function rel(r) {
@@ -3975,6 +4060,9 @@ window.CATDATA = {
     const moves = kind === 'hunt' ? 'H_GALLOP' : kind === 'girl' ? 'G_WALK' : kind === 'mare' ? 'M_IDLE' : kind === 'guen' ? 'P_WALK' : 'C_GALLOP';
     if (K.has(moves + '0')) gait(r, moves);           // things that only stand there (a figurine, a mist) have no gait
     riders.push(r);
+    // who came aboard goes in the log, once for a party of them
+    const say = { ciri: ['portal', 'a visitor came through'], hunt: ['tracker', 'riders, hostile'], guen: ['figurine', 'guenhwyvar is aboard'] }[kind];
+    if (say && !riders.some((o) => o !== r && o.kind === kind)) T.log(say[0], say[1]);
     return r;
   }
   // the frames a rider moves with, and how many ticks each one lasts
@@ -4177,7 +4265,7 @@ window.CATDATA = {
     if (visitors) xB = dir > 0 ? dest.x0 : dest.x1;          // the portal at the near end, the room on the far side
     const planeA = xA + W * .5, planeB = xB + (dir > 0 ? 0 : W);
     setMode('eyeing a portal');
-    openPortal(0, planeA, topOf(here) + H * .5, here); T.sfx('portal');
+    openPortal(0, planeA, topOf(here) + H * .5, here); T.sfx('portal'); T.log('portal', 'opened');
     paint('SIT_ALERT'); C.face = dir; place();
     yield* wait(sec(1.2));
     openPortal(1, planeB, topOf(dest) + H * .5, dest);
@@ -4653,6 +4741,7 @@ window.CATDATA = {
     if (T.t3Busy) { P('T3-M4 is busy. [indignant beep]'); return; }
     T.t3Busy = true;
     P('T3-M4 trundles over to the CO2 monitor. [whirr]');
+    T.log('droid', 'T3-M4 on deck ' + 'ABCDEFGH'[$$('main section[id]').indexOf(card.closest('section')) + 1]);
     card.scrollIntoView({ block: 'center', behavior: T.motion ? 'smooth' : 'auto' });
     const K = window.DROIDS();
     K.ready(() => {
@@ -4741,7 +4830,7 @@ window.CATDATA = {
     const hkAge = () => (now() - hk.t0) / 1000 * FAST;
     T.hk47 = (loud) => {
       if (hk || !on || !seenCat || !seen() || !T.motion) return false;
-      hk = { t0: now(), loud: !!loud, said: false, rig: window.DROIDS() }; T.hkSeen = Date.now(); T.sfx('ping');
+      hk = { t0: now(), loud: !!loud, said: false, rig: window.DROIDS() }; T.hkSeen = Date.now(); T.sfx('ping'); T.log('tracker', 'unknown contact');
       return true;
     };
     T.hkHere = () => !!hk;
