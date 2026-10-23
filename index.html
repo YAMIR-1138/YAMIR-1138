@@ -230,7 +230,7 @@
   .bar nav a.on { color: var(--hi); text-shadow: var(--glow-hi); }
   .bar nav a.on:hover { color: var(--bg); text-shadow: none; }
   .bar nav a.on::before { content: ">"; position: absolute; right: 100%; margin-right: 3px; color: var(--dim); text-shadow: none; pointer-events: none; }
-  /* the ship's clock, how long you have been aboard, and the line to the outside. Only on a wide screen */
+  /* the ship's clock, how long you have been aboard, and LINK LOST when the line to the outside is down. Only on a wide screen */
   .bar .sys { display: none; font-size: 11.5px; letter-spacing: .5px; color: var(--dim); text-shadow: none; white-space: nowrap; }
   .bar .sys .warn { color: var(--warn); }
   @media (min-width: 900px) { .js .bar .sys { display: inline; } }
@@ -572,7 +572,7 @@
     .card p { font-size: 14.5px; }
   }
   /* a finger, not a mouse: the terminal hint says so */
-  @media (pointer: coarse) { #term summary .hint { display: inline; font-size: 0; } #term summary .hint::after { content: "tap to open"; font-size: 12px; } }
+  @media (pointer: coarse) { #term summary .hint { display: inline; font-size: 0; } #term summary .hint::after { content: "tap to type commands"; font-size: 12px; } }
 
   @media print {
     html, body { background: #fff !important; color: #000 !important; text-shadow: none !important; font-size: 11pt; }
@@ -758,7 +758,7 @@
     </section>
 
     <details id="term">
-      <summary><b>&gt;_</b> terminal <span class="hint">press / to open</span></summary>
+      <summary><b>&gt;_</b> terminal <span class="hint">press / or click to type commands</span></summary>
       <div class="body">
         <p class="out" id="sh-hint">type <b>help</b> and press enter. <b>exit</b> closes it.</p>
         <pre id="log" aria-live="polite"></pre>
@@ -1107,6 +1107,7 @@
   const COMMANDS = T.COMMANDS = {
     help() {
       // the short list. The longer one turns up for people who keep typing
+      print('a command line for this page. type a command and press enter:', 'in');
       row('ls', 'the projects on this page');
       row('open', 'open one of them. open pellaeon');
       row('whoami', 'who runs this');
@@ -1619,7 +1620,7 @@
     rd.textContent = '[ ' + parts.concat('DECK ' + 'ABCDEFGH'[i + 1]).join(' · ') + ' ]';   // the hero is deck A
   });
 
-  // ---- the bar on a wide screen: ship's clock, time aboard, and the carrier. It stops when motion does
+  // ---- the bar on a wide screen: ship's clock, time aboard, and a word if the link to the outside is lost. It stops when motion does
   (function () {
     const sys = $('.bar .sys');
     if (!sys) return;
@@ -1627,7 +1628,7 @@
     const hms = (s) => two(Math.floor(s / 3600)) + ':' + two(Math.floor(s / 60) % 60) + ':' + two(s % 60);
     function read() {
       const d = new Date(), up = Math.floor((performance.now() - T.t0) / 1000), off = navigator.onLine === false;
-      sys.innerHTML = 'SYS ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()) + '<span class="up"> · UP ' + hms(up) + '</span> · ' + (off ? '<span class="warn">NO CARRIER</span>' : 'CARRIER OK');
+      sys.innerHTML = 'SHIP TIME ' + two(d.getHours()) + ':' + two(d.getMinutes()) + ':' + two(d.getSeconds()) + '<span class="up"> · ABOARD ' + hms(up) + '</span>' + (off ? ' · <span class="warn">LINK LOST</span>' : '');
     }
     // the bar keeps to one line: the readout gives up its second half, and then itself, before the nav has to wrap
     const id = $('.bar .id'), nav = $('.bar nav');
