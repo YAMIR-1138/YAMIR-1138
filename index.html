@@ -488,10 +488,14 @@
   @media (max-width: 760px) { .panel--log .lines { height: calc(4 * 1.6em); } .panel--log .lines > div:nth-last-child(n+5) { display: none; } }
 
 
-  /* ---- the instruments under the name (FEATURES.instruments): small screens in a row, on a wide window only. Each
+  /* ---- the instruments at the foot of the page (FEATURES.instruments): small screens in a row above the ship log and
+     the terminal, on a wide window only. Each
      shows only what the page can really know; a screen with nothing true to show is not there */
   .inst-row { display: none; }
-  @media (min-width: 900px) { .inst-row { display: grid; grid-column: 1 / -1; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 12px; margin-top: -6px; } }
+  @media (min-width: 900px) {
+    .inst-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 12px; margin: 56px 0 0; }
+    .inst-row + .panel--log, .inst-row + #term { margin-top: 14px; }   /* the row heads the console at the foot of the page */
+  }
   .panel--inst[hidden] { display: none; }
   .panel.panel--inst { padding: 14px 14px 10px; min-height: 84px; }
   .panel--inst > .path { margin: -14px -14px 8px; padding: 5px 14px; }
@@ -952,7 +956,7 @@
     shiplog: true,     // a ship's log screen above the terminal, fed by what happens aboard, and the log command
     standby: true,     // after four quiet minutes the ship goes to standby: stars and the clock until you come back
     shutdown: true,    // shutdown, halt and poweroff. needs standby on too: it goes dark on the same screen
-    instruments: true, // small screens under the name on a wide window: the tube's real refresh rate, the battery if there is one, who is aboard
+    instruments: true, // small screens above the ship log on a wide window: the tube's real refresh rate, the battery if there is one, who is aboard
     catwatch: true,    // the cat goes and watches the display when it changes channel, if she is in the mood
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
@@ -1985,7 +1989,7 @@
     COMMANDS.man = (arg) => { if ((arg || '').toLowerCase() === 'log') print('log - what the ship has noted, oldest first. log clear wipes it'); else man(arg); };
   })();
 
-  // ---- the instruments: small screens under the name, on a wide window only. Each shows only what the page can really
+  // ---- the instruments: small screens at the foot of the page, above the ship log and the terminal, on a wide window only. Each shows only what the page can really
   // know: the tube, measured from the frames the browser draws; the battery, if the browser tells; who is aboard. Nothing
   // is drawn and nothing ticks below 900 px
   if (F.instruments) (function () {
@@ -1994,7 +1998,8 @@
     row.className = 'inst-row'; row.setAttribute('aria-hidden', 'true');
     const mk = (name, title) => '<div class="panel panel--inst" data-inst="' + name + '"><p class="path">' + title + '</p><div class="inst"><span class="read"></span><canvas width="110" height="28"></canvas></div></div>';
     row.innerHTML = mk('tube', 'TUBE') + mk('pow', 'POWER') + mk('con', 'CONTACTS');
-    $('.hero').appendChild(row);
+    // at the foot of the page, at the head of the console: above the ship log if there is one, else above the terminal
+    ($('.panel--log') || $('#term')).before(row);
     const P = {};
     $$('.panel--inst', row).forEach((el) => { P[el.dataset.inst] = { el, read: $('.read', el), cv: $('canvas', el), pts: [], lo: 0, hi: 1, min: 0 }; });
     const set = (p, html) => { if (p.html !== html) { p.html = html; p.read.innerHTML = html; } };
@@ -2085,7 +2090,16 @@
     if (T.onTheme) T.onTheme(retint);
     else T.onReady(() => T.onTheme && T.onTheme(retint));
     // the row opens with the other screens' power-on when there is one
-    if (T.powerUp && T.motion && !T.reduceMotion) { row.classList.add('pwr-wait'); T.onReady(() => setTimeout(() => { row.classList.remove('pwr-wait'); if (wide.matches) T.powerUp(row); }, 450)); }
+    // the row switches on the first time it comes into view, the way the sections' screens do
+    if (T.powerUp && T.motion && !T.reduceMotion && 'IntersectionObserver' in window) {
+      row.classList.add('pwr-wait');
+      const seen = new IntersectionObserver((es) => {
+        if (!es.some((e) => e.isIntersecting)) return;
+        seen.disconnect(); row.classList.remove('pwr-wait');
+        if (T.motion && wide.matches) T.powerUp(row);
+      }, { threshold: .3 });
+      T.onReady(() => seen.observe(row));
+    }
     T.inst = { get hz() { return hz; }, get battery() { return !!batt; }, get running() { return !!timer; } };
   })();
 
