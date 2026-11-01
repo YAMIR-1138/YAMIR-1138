@@ -128,26 +128,48 @@
   .mission { font: 500 clamp(30px, 4vw, 48px)/1.12 var(--display); letter-spacing: -.005em; max-width: 24ch; text-wrap: balance; }
   .mission em { font-style: normal; background: linear-gradient(90deg, var(--teal), var(--orange)) no-repeat 0 92% / 100% .08em; padding-bottom: .04em; }
   .from { margin-top: 18px; color: var(--muted); max-width: 52ch; }
-  .areas { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; margin-top: 44px; }
-  @media (min-width: 760px) { .areas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  .areas li { perspective: 1200px; }
-  .area { cursor: default; }
-  .area h3 { font: 600 clamp(26px, 2.6vw, 32px)/1.1 var(--display); text-wrap: balance; }
-  .area .tag { font: 500 11.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--orange-text); margin: 0 0 8px; }
-  /* translational: family to sequence to clinic, the dashes flow on hover */
-  .flow { stroke-dasharray: 3 6; }
-  .card:hover .flow { animation: flow 1s linear infinite; }
-  @keyframes flow { to { stroke-dashoffset: -18; } }
-  .card:hover .clinic { stroke: var(--orange); transform: rotate(90deg); }
-  /* innovations: a new base pair lights up in the helix */
-  .newbp { transform-origin: 50% 50%; }
-  .card:hover .newbp { transform: scaleX(1.35); }
-  .spark { opacity: 0; transform-origin: 50% 50%; }
-  .card:hover .spark { opacity: 1; transform: scale(1.4); }
+  .areas { margin-top: 40px; display: grid; gap: 10px; }
+  .areas .tag { font: 500 12px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--orange-text); }
+  .areas ul { display: grid; gap: 4px; }
+  .areas li { display: flex; align-items: baseline; gap: 14px; font: 500 clamp(22px, 2.4vw, 28px)/1.25 var(--display); }
+  .areas li::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--teal); transform: translateY(-.15em); }
+  .areas li + li::before { background: var(--orange); }
   @supports (animation-timeline: view()) { @media (prefers-reduced-motion: no-preference) {
     .mission em { animation: under linear both; animation-timeline: view(); animation-range: entry 40% cover 45%; }
     @keyframes under { from { background-size: 0% .08em; } }
   } }
+
+  /* publications: years down the left, each paper opens to its authors */
+  .pubs { display: grid; gap: 8px; }
+  .year { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px 32px; padding-top: 18px; border-top: 1px solid var(--rule); }
+  @media (min-width: 760px) { .year { grid-template-columns: 120px minmax(0, 1fr); } .year h3 { position: sticky; top: 84px; align-self: start; } }
+  .year h3 { font: 500 44px/1 var(--display); color: var(--teal); font-variant-numeric: lining-nums; }
+  .list { display: grid; gap: 4px; min-width: 0; }
+  .pub { border-radius: 16px; transition: background .3s, box-shadow .3s; }
+  .pub:hover, .pub[open] { background: var(--surface); box-shadow: var(--shadow); }
+  .pub summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) 28px; gap: 4px 16px; padding: 14px 18px; border-radius: 16px; }
+  .pub summary::-webkit-details-marker { display: none; }
+  .pub .t { font-weight: 600; font-size: 16.5px; line-height: 1.4; text-wrap: pretty; }
+  .pub .j { grid-column: 1; font: 500 12.5px/1.4 var(--mono); letter-spacing: .03em; color: var(--muted); }
+  .pub .j i { font-style: normal; color: var(--orange-text); }
+  .plus { grid-column: 2; grid-row: 1 / span 2; align-self: center; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--rule); position: relative; transition: transform .45s cubic-bezier(.2, .8, .2, 1), background .3s, border-color .3s; }
+  .plus::before, .plus::after { content: ""; position: absolute; left: 50%; top: 50%; width: 10px; height: 1.5px; background: var(--teal); transform: translate(-50%, -50%); }
+  .plus::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .pub:hover .plus { border-color: var(--orange); }
+  .pub[open] .plus { transform: rotate(135deg); background: var(--orange); border-color: var(--orange); }
+  .pub[open] .plus::before, .pub[open] .plus::after { background: var(--surface); }
+  .more { padding: 0 18px 18px; display: grid; gap: 12px; justify-items: start; }
+  .au { font-size: 14px; line-height: 1.6; color: var(--muted); }
+  .au b { color: var(--fg); font-weight: 600; }
+  .au .partial { display: block; margin-top: 4px; font-style: italic; }
+  .pm { display: inline-flex; align-items: center; gap: 8px; font: 600 13.5px var(--body); color: var(--teal); padding: 7px 14px; border: 1px solid var(--rule); border-radius: 999px; transition: border-color .3s, color .3s; }
+  .pm svg { width: 12px; height: 12px; }
+  .pm:hover { border-color: var(--orange); color: var(--orange-text); }
+  @supports (interpolate-size: allow-keywords) {
+    .pubs { interpolate-size: allow-keywords; }
+    .pub::details-content { height: 0; overflow: clip; transition: height .45s cubic-bezier(.2, .8, .2, 1), content-visibility .45s allow-discrete; }
+    .pub[open]::details-content { height: auto; }
+  }
 
   /* tools: cards with a pointer spotlight, a glowing edge and a small working diagram */
   .tools { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
@@ -193,14 +215,14 @@
   .people { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   @media (min-width: 760px) { .people { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   .person { display: grid; justify-items: center; gap: 12px; padding: 22px 12px 20px; border-radius: 18px; text-align: center; transition: background .3s, transform .4s cubic-bezier(.2, .8, .2, 1); }
-  .person:hover, a.person:focus-visible { background: var(--surface); transform: translateY(-4px); box-shadow: var(--shadow); }
+  a.person:hover, a.person:focus-visible { background: var(--surface); transform: translateY(-4px); box-shadow: var(--shadow); }
   .mono { width: 76px; height: 76px; }
   .mono circle { fill: none; stroke-width: 1.5; }
   .mono .base { stroke: var(--rule); }
   .mono .draw { stroke: var(--teal); stroke-dasharray: 220; stroke-dashoffset: 220; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 1s cubic-bezier(.2, .8, .2, 1); }
   .mono text { font: 500 26px var(--display); fill: var(--fg); transition: fill .3s; }
-  .person:hover .draw, a.person:focus-visible .draw { stroke-dashoffset: 0; }
-  .person:hover text { fill: var(--orange-text); }
+  a.person:hover .draw, a.person:focus-visible .draw { stroke-dashoffset: 0; }
+  a.person:hover text { fill: var(--orange-text); }
   .lead .draw { stroke: var(--orange); stroke-dashoffset: 0; }
   .person h3 { font: 600 15.5px/1.3 var(--body); }
   .person p { font: 500 11.5px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
@@ -254,25 +276,57 @@
     <h2 class="kicker" id="research-h">Research</h2>
     <p class="mission rise">Identifying, characterizing and functionally analyzing <em>novel human disease&#8209;causing genes</em>, to inform personalized medicine.</p>
     <p class="from rise">Families come from the Genetics Institute at Tel Aviv Sourasky Medical Center, or by outside colleagues.</p>
-    <ul class="areas">
-      <li class="rise"><div class="card area">
-        <div class="fig" aria-hidden="true"><svg viewBox="0 0 200 120">
-          <circle cx="34" cy="60" r="13"/><circle class="fo" cx="34" cy="60" r="5"/>
-          <path class="flow" d="M52 60h26"/>
-          <path d="M84 40c10 0 22 40 32 40M84 80c10 0 22-40 32-40"/><path class="o" d="M90 50h20M90 70h20" stroke-width="1.8"/>
-          <path class="flow" d="M122 60h26"/>
-          <rect x="152" y="44" width="32" height="32" rx="8"/><path class="clinic o" d="M168 52v16M160 60h16"/>
-        </svg></div>
-        <div><p class="tag">Project area</p><h3>Translational Genetics and Genomics Research</h3></div>
+    <div class="areas rise">
+      <p class="tag">Project areas</p>
+      <ul>
+        <li>Translational Genetics and Genomics Research</li>
+        <li>Innovations in the Genetics field</li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="pubs-h">
+    <h2 class="kicker" id="pubs-h">Publications</h2>
+    <ul class="pubs">
+      <li class="year rise"><h3>2026</h3><div class="list">
+        <details class="pub"><summary><span class="t">Recurring and isolated intronic FGFR1 variants as an underdiagnosed cause of congenital hypogonadotropic hypogonadism</span><span class="j"><i>J Endocr Soc</i> · 10(11):bvag234</span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au">Yacobi-Bach M, Hagin R, Levy Lando B, Délot E, Vilain E et al. <span class="partial">Full author list at the publisher.</span></p><a class="pm" href="https://doi.org/10.1210/jendso/bvag234">doi.org/10.1210/jendso/bvag234 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
       </div></li>
-      <li class="rise"><div class="card area">
-        <div class="fig" aria-hidden="true"><svg viewBox="0 0 200 120">
-          <path d="M40 30c40 0 80 60 120 60M40 90c40 0 80-60 120-60"/>
-          <path d="M58 34v52M76 42v36M124 42v36M142 34v52" stroke-width="1.6"/>
-          <path class="o newbp" d="M100 52v16" stroke-width="2.6"/>
-          <g class="spark"><circle class="fo" cx="100" cy="38" r="2.5"/><circle class="fo" cx="112" cy="46" r="2"/><circle class="fo" cx="88" cy="46" r="2"/></g>
-        </svg></div>
-        <div><p class="tag">Project area</p><h3>Innovations in the Genetics field</h3></div>
+      <li class="year rise"><h3>2025</h3><div class="list">
+        <details class="pub"><summary><span class="t">Impaired Wnt/planar cell polarity signaling in yellow nail syndrome</span><span class="j"><i>Ann Intern Med</i> · 178(1):39–49</span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au"><b>Kurolap A</b>, …, <b>Baris Feldman H</b> <span class="partial">Full author list at the publisher.</span></p><a class="pm" href="https://doi.org/10.7326/ANNALS-24-01101">doi.org/10.7326/ANNALS-24-01101 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
+      </div></li>
+      <li class="year rise"><h3>2023</h3><div class="list">
+        <details class="pub"><summary><span class="t">Corin and left atrial cardiomyopathy, hypertension, arrhythmia, and fibrosis</span><span class="j"><i>N Engl J Med</i> · 389:1685–1692</span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au"><b>Baris Feldman H</b>, Chai Gadot C, Zahler D et al. <span class="partial">Full author list at the publisher.</span></p><a class="pm" href="https://doi.org/10.1056/NEJMoa2301908">doi.org/10.1056/NEJMoa2301908 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
+      </div></li>
+      <li class="year rise"><h3>2020</h3><div class="list">
+        <details class="pub"><summary><span class="t">A recurring NFS1 pathogenic variant causes a mitochondrial disorder with variable intra-familial patient outcomes</span><span class="j"><i>Mol Genet Metab Rep</i> · 26:100699</span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au">Hershkovitz T, <b>Kurolap A</b>, Tal G, Paperna T, Mory A, Staples J, Brigatti KW, Regeneron Genetics Center, Gonzaga-Jauregui C, Dumin E, Saada A, Mandel H, <b>Baris Feldman H</b></p><a class="pm" href="https://pubmed.ncbi.nlm.nih.gov/?term=A+recurring+NFS1+pathogenic+variant+causes+a+mitochondrial+disorder+with+variable+intra-familial+patient+outcomes">PubMed <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
+      </div></li>
+      <li class="year rise"><h3>2019</h3><div class="list">
+        <details class="pub"><summary><span class="t">A unique presentation of infantile-onset colitis and eosinophilic disease without recurrent infections resulting from a novel homozygous CARMIL2 variant</span><span class="j"><i>J Clin Immunol</i> · 39(4):430–439</span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au"><b>Kurolap A</b>, Eshach-Adiv O, Konnikova L, Werner L, Gonzaga-Jauregui C, Steinberg M, Mitsialis V, Mory A, Nunberg MY, Wall S, Shaoul R, Overton JD, Regeneron Genetics Center, Shuldiner AR, Zohar Y, Paperna T, Snapper SB, Shouval DS, <b>Baris Feldman H</b></p><a class="pm" href="https://pubmed.ncbi.nlm.nih.gov/?term=A+unique+presentation+of+infantile-onset+colitis+and+eosinophilic+disease+without+recurrent+infections+resulting+from+a+novel+homozygous+CARMIL2+variant">PubMed <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
+        <details class="pub"><summary><span class="t">A novel TUFM homozygous variant in a child with mitochondrial cardiomyopathy expands the phenotype of combined oxidative phosphorylation deficiency 4</span><span class="j"><i>J Hum Genet</i> · 64(6):589–595</span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au">Hershkovitz T, <b>Kurolap A</b>, Gonzaga-Jauregui C, Paperna T, Mory A, Wolf SE, Regeneron Genetics Center, Overton JD, Shuldiner AR, Saada A, Mandel H, <b>Baris Feldman H</b></p><a class="pm" href="https://pubmed.ncbi.nlm.nih.gov/?term=A+novel+TUFM+homozygous+variant+in+a+child+with+mitochondrial+cardiomyopathy+expands+the+phenotype+of+combined+oxidative+phosphorylation+deficiency+4">PubMed <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
+        <details class="pub"><summary><span class="t">Homozygosity for CHEK2 p.Gly167Arg leads to a unique cancer syndrome with multiple complex chromosomal translocations in peripheral blood karyotype</span><span class="j"><i>J Med Genet</i></span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au">Paperna T, Sharon-Shwartzman N, <b>Kurolap A</b>, Goldberg Y, Moustafa N, Carasso Y, Feinstein-Linial M, Mory A, Reznick-Levi G, Gonzaga-Jauregui C, Shuldiner AR, Basel-Salmon L, Ofran Y, Half EE, <b>Baris Feldman H</b></p><a class="pm" href="https://pubmed.ncbi.nlm.nih.gov/?term=Homozygosity+for+CHEK2+p.Gly167Arg+leads+to+a+unique+cancer+syndrome+with+multiple+complex+chromosomal+translocations+in+peripheral+blood+karyotype">PubMed <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
+        <details class="pub"><summary><span class="t">Eculizumab is safe and effective as a long-term treatment for protein-losing enteropathy due to CD55-deficiency</span><span class="j"><i>J Pediatr Gastroenterol Nutr</i> · 68(3):325–333</span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au"><b>Kurolap A</b>, Eshach-Adiv O, Hershkovitz T, Tabib A, Karbian N, Paperna T, Mory A, Vachyan A, Slijper N, Steinberg R, Zohar Y, Mevorach D, <b>Baris Feldman H</b></p><a class="pm" href="https://pubmed.ncbi.nlm.nih.gov/?term=Eculizumab+is+safe+and+effective+as+a+long-term+treatment+for+protein-losing+enteropathy+due+to+CD55-deficiency">PubMed <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
+      </div></li>
+      <li class="year rise"><h3>2018</h3><div class="list">
+        <details class="pub"><summary><span class="t">Pathogenic variants in glutamyl-tRNA<sup>Gln</sup> amidotransferase subunits cause a lethal mitochondrial cardiomyopathy disorder</span><span class="j"><i>Nat Commun</i> · 9(1):4065</span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au">Friederich MW, Timal S, Powell CA, Dallabona C, <b>Kurolap A</b>, Palacios-Zambrano S, Bratkovic S, Derks TGJ, Bick D, Bouman K, Chatfield KC, Damouny-Naoum N, Dishop MK, Falik-Zaccai TC, Fares F, Fedida A, Ferrero I, Gallagher RC, Garesse R, Gilberti M, González C, Gowan K, Habib C, Halligan RK, Kalfon L, Knight K, Lefeber D, Mamblona L, Mandel H, Mory A, Ottoson J, Paperna T, Pruijn GJM, Rebelo-Guiomar P, Saada A, Sainz B, Salvemini H, Schoots MH, Smeitink JA, Szukszto MJ, ter Horst HJ, van den Brandt F, van Spronsen FJ, Veltman JA, Wartchow E, Wintjes LT, Zohar Y, Fernández-Moreno MA, <b>Baris HN</b>, Donnini C, Minczuk M, Rodenburg RJ, Van Hove JLK</p><a class="pm" href="https://pubmed.ncbi.nlm.nih.gov/?term=Pathogenic+variants+in+glutamyl-tRNAGln+amidotransferase+subunits+cause+a+lethal+mitochondrial+cardiomyopathy+disorder">PubMed <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
+        <details class="pub"><summary><span class="t">Establishing the role of PLVAP in protein-losing enteropathy: a homozygous missense variant leads to an attenuated phenotype</span><span class="j"><i>J Med Genet</i> · 55:779–784</span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au"><b>Kurolap A</b>, Eshach-Adiv O, Gonzaga-Jauregui C, Dolnikov K, Mory A, Paperna T, Hershkovitz T, Overton JD, Kaplan M, Glaser F, Zohar Y, Shuldiner AR, Berger G, <b>Baris HN</b></p><a class="pm" href="https://pubmed.ncbi.nlm.nih.gov/?term=Establishing+the+role+of+PLVAP+in+protein-losing+enteropathy%3A+a+homozygous+missense+variant+leads+to+an+attenuated+phenotype">PubMed <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
+      </div></li>
+      <li class="year rise"><h3>2017</h3><div class="list">
+        <details class="pub"><summary><span class="t">Loss of CD55 in eculizumab-responsive protein-losing enteropathy</span><span class="j"><i>N Engl J Med</i> · 377:87–89</span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au"><b>Kurolap A</b>, Eshach-Adiv O, Hershkovitz T, Paperna T, Mory A, Oz-Levi D, Zohar Y, Mandel H, Chezar J, Azoulay D, Peleg S, Half EE, Yahalom V, Finkel L, Weissbrod O, Geiger D, Tabib A, Shaoul R, Magen D, Bonstein L, Mevorach D, <b>Baris HN</b></p><a class="pm" href="https://pubmed.ncbi.nlm.nih.gov/?term=Loss+of+CD55+in+eculizumab-responsive+protein-losing+enteropathy">PubMed <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
+      </div></li>
+      <li class="year rise"><h3>2016</h3><div class="list">
+        <details class="pub"><summary><span class="t">Loss of glycine transporter 1 causes a subtype of glycine encephalopathy with arthrogryposis and mildly elevated cerebrospinal fluid glycine</span><span class="j"><i>Am J Hum Genet</i> · 99(5):1172–1180</span><span class="plus" aria-hidden="true"></span></summary>
+          <div class="more"><p class="au"><b>Kurolap A</b>, Armbruster A, Hershkovitz T, Hauf K, Mory A, Paperna T, Hannappel E, Tal G, Nijem Y, Sella E, Mahajnah M, Ilivitzki A, Hershkovitz D, Ekhilevitch N, Mandel H, Eulenburg V, <b>Baris HN</b></p><a class="pm" href="https://pubmed.ncbi.nlm.nih.gov/?term=Loss+of+glycine+transporter+1+causes+a+subtype+of+glycine+encephalopathy+with+arthrogryposis+and+mildly+elevated+cerebrospinal+fluid+glycine">PubMed <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg></a></div></details>
       </div></li>
     </ul>
   </section>
