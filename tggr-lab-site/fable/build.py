@@ -35,6 +35,10 @@ TOOLS = [
 
 ARROW = '<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg>'
 
+FIGS = ["chromosomes", "chromosome 1", "1q32", "gene", "double helix", "codons"]
+def fig(n):
+    return f'    <figure class="fig" data-level="{n}" aria-hidden="true"><canvas></canvas><figcaption>{FIGS[n]}</figcaption></figure>\n'
+
 def authors(a):
     parts = a.replace("; ", ", ").split(", ")
     return ", ".join(f"<b>{html.escape(x)}</b>" if x in LAB else html.escape(x) for x in parts)
@@ -117,7 +121,6 @@ page = f'''<!doctype html>
       <li data-go="#contact"><span>codon</span></li>
       <i class="mark"></i>
     </ol>
-    <p class="readout" id="readout" aria-hidden="true"><span id="ro-main"></span><span id="ro-sub"></span></p>
   </div>
 
   <main class="content">
@@ -126,20 +129,20 @@ page = f'''<!doctype html>
       <h1 id="h-name">Translational Genetics and Genomics Research Laboratory</h1>
       <p class="aff">Genetics Institute, Tel Aviv Sourasky Medical Center<br>Faculty of Medicine, Tel Aviv University</p>
     </section>
-
+{fig(0)}
     <section id="research" aria-labelledby="h-research">
       <h2 id="h-research" class="eyebrow reveal">Research</h2>
       <p class="mission reveal">{MISSION}</p>
       <p class="families reveal">{FAMILIES}</p>
     </section>
-
+{fig(1)}
     <section id="publications" aria-labelledby="h-publications">
       <h2 id="h-publications" class="eyebrow reveal">Publications</h2>
       <ul class="pubs">
 {chr(10).join(pubs)}
       </ul>
     </section>
-
+{fig(2)}
     <section id="tools" aria-labelledby="h-tools">
       <h2 id="h-tools" class="eyebrow reveal">Tools</h2>
       <p class="note reveal">Open source.</p>
@@ -147,14 +150,14 @@ page = f'''<!doctype html>
 {chr(10).join(tools)}
       </ul>
     </section>
-
+{fig(3)}
     <section id="people" aria-labelledby="h-people">
       <h2 id="h-people" class="eyebrow reveal">People</h2>
       <ul class="people">
 {chr(10).join(people)}
       </ul>
     </section>
-
+{fig(4)}
     <footer id="contact" aria-label="Links">
       <ul class="links">
         <li class="reveal"><a href="https://github.com/tggr-lab">GitHub{ARROW}</a></li>
@@ -162,7 +165,7 @@ page = f'''<!doctype html>
       </ul>
       <p class="aff reveal">Genetics Institute, Tel Aviv Sourasky Medical Center<br>Faculty of Medicine, Tel Aviv University</p>
     </footer>
-  </main>
+{fig(5)}  </main>
 </div>
 
 <script src="../logo-kit/tggr-logo.js"></script>
