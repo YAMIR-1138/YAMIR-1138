@@ -127,7 +127,9 @@
   /* research: the mission in the display face, its key phrase underlined as it scrolls in */
   .mission { font: 500 clamp(30px, 4vw, 48px)/1.12 var(--display); letter-spacing: -.005em; max-width: 24ch; text-wrap: balance; }
   .mission em { font-style: normal; background: linear-gradient(90deg, var(--teal), var(--orange)) no-repeat 0 92% / 100% .08em; padding-bottom: .04em; }
-  .from { margin-top: 18px; color: var(--muted); max-width: 52ch; }
+  .focus { margin-top: 22px; font-size: clamp(18px, 1.6vw, 20px); line-height: 1.6; max-width: 58ch; }
+  .focus em { font-style: normal; font-weight: 600; background: linear-gradient(90deg, var(--teal), var(--orange)) no-repeat 0 100% / 100% 2px; padding-bottom: 1px; }
+  .from { margin-top: 14px; color: var(--muted); max-width: 58ch; }
   .areas { margin-top: 40px; display: grid; gap: 10px; }
   .areas .tag { font: 500 12px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--orange-text); }
   .areas ul { display: grid; gap: 4px; }
@@ -135,8 +137,8 @@
   .areas li::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--teal); transform: translateY(-.15em); }
   .areas li + li::before { background: var(--orange); }
   @supports (animation-timeline: view()) { @media (prefers-reduced-motion: no-preference) {
-    .mission em { animation: under linear both; animation-timeline: view(); animation-range: entry 40% cover 45%; }
-    @keyframes under { from { background-size: 0% .08em; } }
+    .focus em { animation: under linear both; animation-timeline: view(); animation-range: entry 40% cover 45%; }
+    @keyframes under { from { background-size: 0% 2px; } }
   } }
 
   /* publications: years down the left, each paper opens to its authors */
@@ -274,7 +276,8 @@
 <main>
   <section aria-labelledby="research-h">
     <h2 class="kicker" id="research-h">Research</h2>
-    <p class="mission rise">Identifying, characterizing and functionally analyzing <em>novel human disease&#8209;causing genes</em>, to inform personalized medicine.</p>
+    <p class="mission rise">We are dedicated to decipher the role of genetic diseases in our patients.</p>
+    <p class="focus rise">Our projects focus on the identification, characterization and functional analyses of <em>novel human disease&#8209;causing genes</em> in order to elucidate the disease pathophysiology and potentially provide targets for personalized medicine.</p>
     <p class="from rise">Families come from the Genetics Institute at Tel Aviv Sourasky Medical Center, or by outside colleagues.</p>
     <div class="areas rise">
       <p class="tag">Project areas</p>
