@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TGGR Lab</title>
+<meta name="description" content="Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center and the Faculty of Medicine, Tel Aviv University. We are dedicated to decipher the role of genetic diseases in our patients.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TGGR Lab">
+<meta property="og:description" content="Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center and the Faculty of Medicine, Tel Aviv University. We are dedicated to decipher the role of genetic diseases in our patients.">
+<meta property="og:image" content="https://tggr-lab.github.io/logo-kit/png/tggr-logo-light-1024.png">
+<meta name="theme-color" content="#f3eee2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1b1a" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/png" href="../logo-kit/png/lockup-light.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>try { var t = localStorage.getItem('tggr-theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#research">Skip to content</a>
+
+<header class="bar">
+  <a class="home" href="#top" aria-label="TGGR Lab, top of page"><tggr-logo ring="none" motion="still" label="TGGR Lab"></tggr-logo><span>TGGR Lab</span></a>
+  <nav class="sections" aria-label="Sections">
+    <a href="#research">Research</a>
+    <a href="#publications">Publications</a>
+    <a href="#tools">Tools</a>
+    <a href="#people">People</a>
+  </nav>
+  <div class="actions">
+    <a class="ib" href="https://github.com/tggr-lab" aria-label="TGGR Lab on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+    <button class="ib" id="theme" type="button" aria-label="Switch to dark theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg></button>
+  </div>
+</header>
+
+<div class="layout" id="top">
+  <div class="stage" id="stage" role="img" aria-label="A continuous zoom that follows the page: from a human karyotype into chromosome 1, into band 1q32, into a gene with its exons and introns, into the double helix, and down to a single codon.">
+    <canvas id="scene"></canvas>
+    <ol class="rail" id="rail" aria-hidden="true">
+      <li data-go="#top"><span>chromosomes</span></li>
+      <li data-go="#research"><span>chromosome 1</span></li>
+      <li data-go="#publications"><span>1q32</span></li>
+      <li data-go="#tools"><span>gene</span></li>
+      <li data-go="#people"><span>helix</span></li>
+      <li data-go="#contact"><span>codon</span></li>
+      <i class="mark"></i>
+    </ol>
+    <p class="readout" id="readout" aria-hidden="true"><span id="ro-main"></span><span id="ro-sub"></span></p>
+  </div>
+
+  <main class="content">
+    <section class="hero" aria-labelledby="h-name">
+      <tggr-logo class="logo" label="TGGR Lab logo: a tiger whose body becomes a DNA helix, above the wordmark TggR LAB, inside a ring reading Translational Genetics and Genomics Research Laboratory"></tggr-logo>
+      <h1 id="h-name">Translational Genetics and Genomics Research Laboratory</h1>
+      <p class="aff">Genetics Institute, Tel Aviv Sourasky Medical Center<br>Faculty of Medicine, Tel Aviv University</p>
+    </section>
+
+    <section id="research" aria-labelledby="h-research">
+      <h2 id="h-research" class="eyebrow reveal">Research</h2>
+      <p class="mission reveal">We are dedicated to decipher the role of genetic diseases in our patients. Our projects focus on the identification, characterization and functional analyses of novel human disease-causing genes in order to elucidate the disease pathophysiology and potentially provide targets for personalized medicine.</p>
+      <p class="families reveal">Families come from the Genetics Institute at Tel Aviv Sourasky Medical Center, or by outside colleagues.</p>
+    </section>
+
+    <section id="publications" aria-labelledby="h-publications">
+      <h2 id="h-publications" class="eyebrow reveal">Publications</h2>
+      <ul class="pubs">
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1111/liv.70951"><i>PIH1D2</i> loss-of-function directs ciliary and cell cycle defects resulting in left isomerism with or without biliary atresia<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">Liver Int</span> <span class="vol">46(11):e70951</span> <span class="yr">2026</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p><b>Kurolap A</b>, <b>Chai Gadot C</b>, Shalata A, Eshach Adiv O, <b>Amir Y</b>, <b>Levy Lando B</b>, Stehling F, Hershkovitz T, Osman K, Habib C, Mintz H, Steinberg R, Hochberg A, Hamiel U, Mory A, Marom D, von Hardenberg S, Singer A, Auber B, <b>Baris Feldman H</b></p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1210/jendso/bvag234">Recurring and isolated intronic <i>FGFR1</i> variants as an underdiagnosed cause of congenital hypogonadotropic hypogonadism<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">J Endocr Soc</span> <span class="vol">10(11):bvag234</span> <span class="yr">2026</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p>Yacobi-Bach M, Hagin R, <b>Levy Lando B</b>, Délot E, Vilain E, Kępczyński Ł, Botvinik A, Mory A, <b>Amir Y</b>, Kałużewski T, Gach A, Łupińska A, Zygmunt A, Johnson J, Rutter MM, Lebenthal Y, Shaklai S, Greenman Y, <b>Baris Feldman H</b>, <b>Kurolap A</b></p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.7326/ANNALS-24-01101">Impaired Wnt/planar cell polarity signaling in yellow nail syndrome<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">Ann Intern Med</span> <span class="vol">178(1):39–49</span> <span class="yr">2025</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p><b>Kurolap A</b>, <b>Chai Gadot C</b>, Eshach Adiv O, Hershkovitz T, Avitan-Hersh E, Martin L, Humeau H, Schatz UA, Westphal DS, Lobmaier S, Sofrin-Drucker E, Stafler P, Bugis J, Chermesh I, Hardak E, Geva P, Zohar Y, Hershkovitz D, Mory A, Chatterji S, Greenberger S, Shteinberg M, <b>Baris Feldman H</b></p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1001/jamanetworkopen.2024.0146">National rapid genome sequencing in neonatal intensive care<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">JAMA Netw Open</span> <span class="vol">7(2):e240146</span> <span class="yr">2024</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p>Marom D, Mory A, Reytan-Miron S, <b>Amir Y</b>, <b>Kurolap A</b>, Cohen JG, Morhi Y, Smolkin T, Cohen L, Zangen S, Shalata A, Riskin A, Peleg A, Lavie-Nevo K, Mandel D, Chervinsky E, Fisch CF, Fleisher Sheffer V, Falik-Zaccai TC, Rips J, Shlomai NO, Friedman SE, Shporen CH, Ben-Yehoshua SJ, Simmonds A, Yaacobi RG, Bauer-Rusek S, Omari H, Weiss K, Hochwald O, Koifman A, Globus O, Batzir NA, Yaron N, Segel R, Morag I, Reish O, Eliyahu A, Leibovitch L, Schwartz ME, Abramsky R, Hochberg A, Oron A, Banne E, Portnov I, Samra NN, Singer A, <b>Baris Feldman H</b></p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1056/NEJMoa2301908">Corin and left atrial cardiomyopathy, hypertension, arrhythmia, and fibrosis<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">N Engl J Med</span> <span class="vol">389(18):1685–1692</span> <span class="yr">2023</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p><b>Baris Feldman H</b>, <b>Chai Gadot C</b>, Zahler D, Mory A, Aviram G, Elhanan E, Shefer G, Goldiner I, <b>Amir Y</b>, <b>Kurolap A</b>, Ablin JN</p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1016/j.ymgmr.2020.100699">A recurring <i>NFS1</i> pathogenic variant causes a mitochondrial disorder with variable intra-familial patient outcomes<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">Mol Genet Metab Rep</span> <span class="vol">26:100699</span> <span class="yr">2021</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p>Hershkovitz T, <b>Kurolap A</b>, Tal G, Paperna T, Mory A, Staples J, Brigatti KW, Regeneron Genetics Center, Gonzaga-Jauregui C, Dumin E, Saada A, Mandel H, <b>Baris Feldman H</b></p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1136/jmedgenet-2018-105824">Homozygosity for <i>CHEK2</i> p.Gly167Arg leads to a unique cancer syndrome with multiple complex chromosomal translocations in peripheral blood karyotype<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">J Med Genet</span> <span class="vol">57(7):500–504</span> <span class="yr">2020</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p>Paperna T, Sharon-Shwartzman N, <b>Kurolap A</b>, Goldberg Y, Moustafa N, Carasso Y, Feinstein-Linial M, Mory A, Reznick-Levi G, Gonzaga-Jauregui C, Shuldiner AR, Basel-Salmon L, Ofran Y, Half EE, <b>Baris Feldman H</b></p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1007/s10875-019-00631-6">A unique presentation of infantile-onset colitis and eosinophilic disease without recurrent infections resulting from a novel homozygous <i>CARMIL2</i> variant<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">J Clin Immunol</span> <span class="vol">39(4):430–439</span> <span class="yr">2019</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p><b>Kurolap A</b>, Eshach-Adiv O, Konnikova L, Werner L, Gonzaga-Jauregui C, Steinberg M, Mitsialis V, Mory A, Nunberg MY, Wall S, Shaoul R, Overton JD, Regeneron Genetics Center, Shuldiner AR, Zohar Y, Paperna T, Snapper SB, Shouval DS, <b>Baris Feldman H</b></p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1038/s10038-019-0592-6">A novel <i>TUFM</i> homozygous variant in a child with mitochondrial cardiomyopathy expands the phenotype of combined oxidative phosphorylation deficiency 4<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">J Hum Genet</span> <span class="vol">64(6):589–595</span> <span class="yr">2019</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p>Hershkovitz T, <b>Kurolap A</b>, Gonzaga-Jauregui C, Paperna T, Mory A, Wolf SE, Regeneron Genetics Center, Overton JD, Shuldiner AR, Saada A, Mandel H, <b>Baris Feldman H</b></p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1097/MPG.0000000000002198">Eculizumab is safe and effective as a long-term treatment for protein-losing enteropathy due to CD55 deficiency<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">J Pediatr Gastroenterol Nutr</span> <span class="vol">68(3):325–333</span> <span class="yr">2019</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p><b>Kurolap A</b>, Eshach-Adiv O, Hershkovitz T, Tabib A, Karbian N, Paperna T, Mory A, Vachyan A, Slijper N, Steinberg R, Zohar Y, Mevorach D, <b>Baris Feldman H</b></p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1038/s41467-018-06250-w">Pathogenic variants in glutamyl-tRNA<sup>Gln</sup> amidotransferase subunits cause a lethal mitochondrial cardiomyopathy disorder<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">Nat Commun</span> <span class="vol">9(1):4065</span> <span class="yr">2018</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p>Friederich MW, Timal S, Powell CA, Dallabona C, <b>Kurolap A</b>, Palacios-Zambrano S, Bratkovic S, Derks TGJ, Bick D, Bouman K, Chatfield KC, Damouny-Naoum N, Dishop MK, Falik-Zaccai TC, Fares F, Fedida A, Ferrero I, Gallagher RC, Garesse R, Gilberti M, González C, Gowan K, Habib C, Halligan RK, Kalfon L, Knight K, Lefeber D, Mamblona L, Mandel H, Mory A, Ottoson J, Paperna T, Pruijn GJM, Rebelo-Guiomar P, Saada A, Sainz B, Salvemini H, Schoots MH, Smeitink JA, Szukszto MJ, ter Horst HJ, van den Brandt F, van Spronsen FJ, Veltman JA, Wartchow E, Wintjes LT, Zohar Y, Fernández-Moreno MA, <b>Baris HN</b>, Donnini C, Minczuk M, Rodenburg RJ, Van Hove JLK</p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1136/jmedgenet-2018-105299">Establishing the role of <i>PLVAP</i> in protein-losing enteropathy: a homozygous missense variant leads to an attenuated phenotype<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">J Med Genet</span> <span class="vol">55(11):779–784</span> <span class="yr">2018</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p><b>Kurolap A</b>, Eshach-Adiv O, Gonzaga-Jauregui C, Dolnikov K, Mory A, Paperna T, Hershkovitz T, Overton JD, Kaplan M, Glaser F, Zohar Y, Shuldiner AR, Berger G, <b>Baris HN</b></p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1056/NEJMc1707173">Loss of <i>CD55</i> in eculizumab-responsive protein-losing enteropathy<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">N Engl J Med</span> <span class="vol">377(1):87–89</span> <span class="yr">2017</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p><b>Kurolap A</b>, Eshach-Adiv O, Hershkovitz T, Paperna T, Mory A, Oz-Levi D, Zohar Y, Mandel H, Chezar J, Azoulay D, Peleg S, Half EE, Yahalom V, Finkel L, Weissbrod O, Geiger D, Tabib A, Shaoul R, Magen D, Bonstein L, Mevorach D, <b>Baris HN</b></p>
+          </details>
+        </li>
+        <li class="pub reveal">
+          <h3><a href="https://doi.org/10.1016/j.ajhg.2016.09.004">Loss of glycine transporter 1 causes a subtype of glycine encephalopathy with arthrogryposis and mildly elevated cerebrospinal fluid glycine<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></h3>
+          <p class="cite"><span class="jr">Am J Hum Genet</span> <span class="vol">99(5):1172–1180</span> <span class="yr">2016</span></p>
+          <details class="au">
+            <summary><span>Authors</span></summary>
+            <p><b>Kurolap A</b>, Armbruster A, Hershkovitz T, Hauf K, Mory A, Paperna T, Hannappel E, Tal G, Nijem Y, Sella E, Mahajnah M, Ilivitzki A, Hershkovitz D, Ekhilevitch N, Mandel H, Eulenburg V, <b>Baris HN</b></p>
+          </details>
+        </li>
+      </ul>
+    </section>
+
+    <section id="tools" aria-labelledby="h-tools">
+      <h2 id="h-tools" class="eyebrow reveal">Tools</h2>
+      <p class="note reveal">Open source.</p>
+      <ul class="tools">
+        <li class="reveal"><a class="tool" href="https://tggr-lab.github.io/pellaeon/">
+          <span class="nm">Pellaeon</span>
+          <span class="ds">Talk to UCSF ChimeraX in plain English</span>
+          <svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg>
+        </a></li>
+        <li class="reveal"><a class="tool" href="https://tggr-lab.github.io/GPCompaRe/">
+          <span class="nm">GPCompaRe</span>
+          <span class="ds">Inactive and active residue contacts across 283 human Class A GPCRs</span>
+          <svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg>
+        </a></li>
+        <li class="reveal"><a class="tool" href="https://tggr-lab.github.io/incubator-co2-monitor/">
+          <span class="nm">Incubator CO₂ monitor</span>
+          <span class="ds">An incubator CO₂ and temperature monitor you build on an ESP32</span>
+          <svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg>
+        </a></li>
+        <li class="reveal"><a class="tool" href="https://yamir-1138.github.io/genest-website/">
+          <span class="nm">GeNest</span>
+          <span class="ds">Finds genes that sit inside other genes, across a genome</span>
+          <svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg>
+        </a></li>
+      </ul>
+    </section>
+
+    <section id="people" aria-labelledby="h-people">
+      <h2 id="h-people" class="eyebrow reveal">People</h2>
+      <ul class="people">
+        <li class="person reveal head"><span class="nm">Prof. Hagit Baris Feldman</span><span class="rl">Head of the lab</span></li>
+        <li class="person reveal"><span class="nm">Dr. Chofit Chai Gadot</span><span class="rl">Lab manager</span></li>
+        <li class="person reveal"><span class="nm">Alina Kurolap, RN, PhD</span><span class="rl">Researcher</span></li>
+        <li class="person reveal"><span class="nm">Yam Amir</span><span class="rl">PhD student</span></li>
+        <li class="person reveal"><span class="nm">Doha Khair</span><span class="rl">PhD student</span></li>
+        <li class="person reveal"><span class="nm">Bar Levy Lando</span><span class="rl">PhD student</span></li>
+        <li class="person reveal"><span class="nm">Lotem Nethanel</span><span class="rl">PhD student</span></li>
+        <li class="person reveal"><span class="nm">Ahava Dukan</span><span class="rl">MSc student</span></li>
+      </ul>
+    </section>
+
+    <footer id="contact" aria-label="Links">
+      <ul class="links">
+        <li class="reveal"><a href="https://github.com/tggr-lab">GitHub<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></li>
+        <li class="reveal"><a href="https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/">Lab page at TASMC<svg class="arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 16 16 4M6 4h10v10"/></svg></a></li>
+      </ul>
+      <p class="aff reveal">Genetics Institute, Tel Aviv Sourasky Medical Center<br>Faculty of Medicine, Tel Aviv University</p>
+    </footer>
+  </main>
+</div>
+
+<script src="../logo-kit/tggr-logo.js"></script>
+<script src="bands.js"></script>
+<script src="site.js"></script>
+</body>
+</html>
