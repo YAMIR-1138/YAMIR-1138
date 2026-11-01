@@ -208,27 +208,4 @@
     heads.forEach(function (h) { hio.observe(h); });
   }
 
-  // ---- the pedigree: one family under four modes of inheritance; it cycles until touched ----
-  var ped = document.getElementById('ped');
-  if (ped) {
-    var inds = Array.prototype.slice.call(ped.querySelectorAll('.ind'));
-    var modeBtns = Array.prototype.slice.call(document.querySelectorAll('.modes button'));
-    var names = { ad: 'dominant', ar: 'recessive', xl: 'X-linked', dn: 'de novo' };
-    var setMode = function (m) {
-      inds.forEach(function (g) {
-        var st = (g.dataset.s.match(new RegExp(m + ':(\\w)')) || [])[1];
-        g.classList.toggle('is-a', st === 'a'); g.classList.toggle('is-c', st === 'c');
-      });
-      modeBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === m)); });
-      ped.setAttribute('aria-label', 'A three-generation family tree showing ' + names[m] + ' inheritance');
-    };
-    var order = modeBtns.map(function (b) { return b.dataset.mode; }), at = 1, timer = 0, inView = false;
-    var cycle = function () { clearInterval(timer); if (reduce.matches || !inView) return; timer = setInterval(function () { at = (at + 1) % order.length; setMode(order[at]); }, 3200); };
-    modeBtns.forEach(function (b, k) { b.addEventListener('click', function () { at = k; setMode(b.dataset.mode); clearInterval(timer); timer = -1; }); });
-    new IntersectionObserver(function (es) { inView = es[0].isIntersecting; if (timer !== -1) { if (inView) cycle(); else clearInterval(timer); } }, { threshold: .4 }).observe(ped);
-  }
-
-  // ---- TGGR as a sequence logo: pressing it shows the reading frame ----
-  var seq = document.querySelector('.seq');
-  if (seq) seq.addEventListener('click', function () { seq.setAttribute('aria-pressed', String(seq.getAttribute('aria-pressed') !== 'true')); });
 })();

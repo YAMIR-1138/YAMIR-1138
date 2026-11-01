@@ -259,33 +259,6 @@
     @keyframes exon { from { transform: scaleY(0); } }
   } }
 
-  /* ---------- the pedigree: one family, four ways a condition can pass down ---------- */
-  .ped { margin: 48px 0 0; display: grid; gap: 18px; max-width: 640px; }
-  .modes { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); width: fit-content; }
-  .modes button { font: 600 14px var(--body); color: var(--muted); background: none; border: 0; border-radius: 999px; padding: 8px 14px; cursor: pointer; transition: background .3s, color .3s; }
-  .modes button:hover { color: var(--fg); }
-  .modes button[aria-pressed="true"] { background: var(--teal); color: var(--surface); }
-  .ped svg { width: 100%; height: auto; overflow: visible; }
-  .ped .ln { fill: none; stroke: var(--muted); stroke-width: 1.5; }
-  .ped .sh { fill: var(--bg); stroke: var(--fg); stroke-width: 1.8; }
-  .ped .fill { fill: var(--teal); opacity: 0; transition: opacity .5s var(--d, 0s); }
-  .ped .is-a .fill { opacity: 1; }
-  .ped .dot { fill: var(--orange); opacity: 0; transform: scale(0); transform-box: fill-box; transform-origin: center; transition: opacity .4s var(--d, 0s), transform .5s cubic-bezier(.3, 1.6, .5, 1) var(--d, 0s); }
-  .ped .is-c .dot { opacity: 1; transform: none; }
-  .ped .proband { fill: none; stroke: var(--orange); stroke-width: 2; stroke-linecap: round; }
-
-  /* ---------- footer: TGGR as a sequence logo ---------- */
-  .seq { display: block; width: 240px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--fg); }
-  .seq svg { width: 100%; height: auto; overflow: visible; }
-  .seq text { font: 800 100px/1 var(--body); transform-box: fill-box; transform-origin: 50% 100%; transform: scale(.82, var(--h)); }
-  .seq .t, .seq .a { fill: var(--teal); } .seq .g { fill: var(--orange); }
-  @media (prefers-reduced-motion: no-preference) { .seq:hover text { animation: bits 1.6s ease-in-out var(--w) infinite alternate; } }
-  @keyframes bits { 50% { transform: scale(.82, calc(var(--h) * 1.12)); } 100% { transform: scale(.82, calc(var(--h) * .9)); } }
-  .seq .frame { opacity: 0; transition: opacity .4s; }
-  .seq .frame path { fill: none; stroke: var(--muted); stroke-width: 1.5; }
-  .seq .frame text { font: 500 11px var(--mono); fill: var(--muted); transform: none; text-anchor: middle; }
-  .seq[aria-pressed="true"] .frame { opacity: 1; }
-
   /* ---------- theme switch: the new theme opens as a circle from the button ---------- */
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
   ::view-transition-new(root) { z-index: 2; }
@@ -297,4 +270,3 @@
   } }
   .lead .draw { animation: none; }
   html { scroll-padding-top: 72px; }
-  @media (max-width: 480px) { .modes { flex-wrap: nowrap; } .modes button { font-size: 13px; padding: 8px 10px; white-space: nowrap; } }

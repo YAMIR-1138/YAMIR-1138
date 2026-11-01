@@ -113,46 +113,6 @@ def gene(seed):
     return f'<div class="gene" aria-hidden="true"><svg viewBox="0 0 {W} 44" preserveAspectRatio="xMidYMid meet"><path class="intron" d="M0 30H{W}"/>{arcs}{alt}{rects}</svg></div>\n'
 
 
-# pedigree: (id, sex, x, y); states per mode: a affected, c carrier, u unaffected
-PED = [("I-1", "m", 250, 40), ("I-2", "f", 350, 40), ("II-1", "m", 130, 140), ("II-2", "f", 230, 140), ("II-3", "m", 330, 140),
-       ("II-4", "f", 430, 140), ("II-5", "m", 530, 140), ("III-1", "m", 400, 240), ("III-2", "f", 480, 240), ("III-3", "m", 560, 240)]
-MODES = [("ad", "Dominant", "au auuau aau"), ("ar", "Recessive", "cc ucacc cau"), ("xl", "X-linked", "uc auucu acu"), ("dn", "De novo", "uu uuuuu uau")]
-
-
-def pedigree():
-    shapes = []
-    for k, (pid, sex, x, y) in enumerate(PED):
-        states = " ".join(f"{m}:{s.replace(' ', '')[k]}" for m, _, s in MODES)
-        gen = pid.count("I") if not pid.startswith("III") else 3
-        body = (f'<rect class="sh" x="{x - 16}" y="{y - 16}" width="32" height="32" rx="2"/><rect class="fill" x="{x - 16}" y="{y - 16}" width="32" height="32" rx="2"/>' if sex == "m"
-                else f'<circle class="sh" cx="{x}" cy="{y}" r="16"/><circle class="fill" cx="{x}" cy="{y}" r="16"/>')
-        cls = {"a": " is-a", "c": " is-c"}.get(MODES[1][2].replace(" ", "")[k], "")
-        shapes.append(f'<g class="ind{cls}" data-s="{states}" style="--d:{(gen - 1) * .12 + k * .02:.2f}s">{body}<circle class="dot" cx="{x}" cy="{y}" r="5"/></g>')
-    lines = ('<path class="ln" d="M266 40H334M300 40V95M130 95H430M130 95V124M230 95V124M330 95V124M430 95V124"/>'
-             '<path class="ln" d="M446 140H514M480 140V195M400 195H560M400 195V224M480 195V224M560 195V224"/>'
-             '<path class="proband" d="M446 274l18-18m0 0h-10m10 0v10"/>')
-    buttons = "".join(f'<button type="button" data-mode="{m}" aria-pressed="{str(m == "ar").lower()}">{n}</button>' for m, n, _ in MODES)
-    return f'''    <figure class="ped rise">
-      <div class="modes" role="group" aria-label="Inheritance">{buttons}</div>
-      <svg viewBox="80 10 520 280" role="img" aria-label="A three-generation family tree showing recessive inheritance" id="ped">{lines}{"".join(shapes)}</svg>
-    </figure>
-'''
-
-
-def seqlogo():
-    """TGGR as a sequence logo. R is IUPAC for a purine, so the last column is a G over an A."""
-    cols = [[("T", 74, "t")], [("G", 70, "g")], [("G", 78, "g")], [("G", 40, "g"), ("A", 28, "a")]]
-    out = []
-    for i, col in enumerate(cols):
-        base = 92
-        for j, (ch, h, c) in enumerate(reversed(col)):
-            out.append(f'<text class="{c}" x="{4 + i * 62}" y="{base}" style="--h:{h / 70:.3f};--w:{i * .2 + j * .1:.1f}s">{ch}</text>')
-            base -= h
-    return ('<button class="seq" type="button" aria-pressed="false" aria-label="TGGR as a sequence logo: TGG codes for tryptophan, R is A or G">'
-            f'<svg viewBox="0 -16 252 112" aria-hidden="true">{"".join(out)}'
-            '<g class="frame"><path d="M4 -2v-6h176v6"/><text x="92" y="-12">Trp · W</text><path d="M190 -2v-6h58v6"/><text x="219" y="-12">A/G</text></g></svg></button>')
-
-
 def page():
     nav = "".join(f'<a href="#{i}">{n}</a>' for i, n in SECTIONS)
     menu = "".join(f'<a href="#{i}"><span>0{k + 1}</span>{n}</a>' for k, (i, n) in enumerate(SECTIONS))
@@ -235,7 +195,7 @@ def page():
     <p class="mission rise">{MISSION}</p>
     <p class="focus rise">{FOCUS}</p>
     <p class="from rise">{FAMILIES}</p>
-{pedigree()}  </section>
+  </section>
 {gene(3)}
   <section id="publications" aria-labelledby="publications-h">
     {big("publications", "Publications")}
@@ -261,7 +221,6 @@ def page():
   </section>
 
   <footer>
-    {seqlogo()}
     <div class="go">
       <a href="https://github.com/tggr-lab">GitHub {ARROW}</a>
       <a href="{TASMC}">Lab page at TASMC {ARROW}</a>
