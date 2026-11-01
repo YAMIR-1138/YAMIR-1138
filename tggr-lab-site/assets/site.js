@@ -11,11 +11,20 @@
   // ---- theme: one button flips light and dark, remembered in this browser ----
   var btn = document.getElementById('theme');
   function label() { if (btn) btn.setAttribute('aria-label', isDark() ? 'Switch to light theme' : 'Switch to dark theme'); }
-  if (btn) btn.addEventListener('click', function () {
+  function flip() {
     var next = isDark() ? 'light' : 'dark';
     root.dataset.theme = next;
     try { localStorage.setItem('tggr-theme', next); } catch (e) {}
     label(); redrawAll();
+  }
+  if (btn) btn.addEventListener('click', function () {
+    if (!document.startViewTransition || reduce.matches) { flip(); return; }
+    var r = btn.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+    var R = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    document.startViewTransition(flip).ready.then(function () {
+      root.animate({ clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + R + 'px at ' + x + 'px ' + y + 'px)'] },
+        { duration: 700, easing: 'cubic-bezier(.2, .8, .2, 1)', pseudoElement: '::view-transition-new(root)' });
+    });
   });
   label();
   new MutationObserver(function () { label(); redrawAll(); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
@@ -38,6 +47,7 @@
       if (open) { bar.classList.add('solid'); var a = menu.querySelector('a'); if (a) a.focus(); }
     };
     menuBtn.addEventListener('click', function () { setMenu(menu.hidden); });
+    menu.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); menuBtn.focus(); } });
   }
 
@@ -120,57 +130,105 @@
     if (document.fonts) document.fonts.ready.then(function () { size(); draw(); });
   });
 
-  // ---- publications: the year strip and the search filter the list ----
+  // ---- publications: the search filters the list and marks what it matched ----
   var list = document.querySelector('.pubs[data-filter]');
   if (list) {
     var items = Array.prototype.slice.call(list.children);
-    var q = document.getElementById('q'), shown = document.getElementById('shown'), clear = document.getElementById('clear'), none = document.getElementById('none');
-    var years = Array.prototype.slice.call(document.querySelectorAll('.yr'));
-    var picked = null, total = items.length;
+    var q = document.getElementById('q'), clear = document.getElementById('clear'), none = document.getElementById('none');
     items.forEach(function (li) { li._t = li.querySelector('.t'); li._a = li.querySelector('.au'); li._t0 = li._t.innerHTML; li._a0 = li._a.innerHTML; });
-    function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-    function mark(html, re) { return re ? html.replace(/(<[^>]+>)|([^<]+)/g, function (m, tag, text) { return tag || text.replace(re, '<mark>$&</mark>'); }) : html; }
-    function apply() {
-      var term = q.value.trim(), re = term ? new RegExp(esc(term), 'gi') : null, n = 0;
+    var esc = function (v) { return v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+    var mark = function (h, re) { return re ? h.replace(/(<[^>]+>)|([^<]+)/g, function (m, tag, text) { return tag || text.replace(re, '<mark>$&</mark>'); }) : h; };
+    var apply = function () {
+      var term = q.value.trim(), lc = term.toLowerCase(), re = term ? new RegExp(esc(term), 'gi') : null, any = false;
       items.forEach(function (li) {
-        var hay = li.dataset.search, ok = (!picked || li.dataset.year === picked) && (!re || hay.toLowerCase().indexOf(term.toLowerCase()) !== -1);
-        li.hidden = !ok; if (ok) n++;
+        var ok = !term || li.dataset.search.indexOf(lc) !== -1;
+        li.hidden = !ok; any = any || ok;
         li._t.innerHTML = mark(li._t0, re); li._a.innerHTML = mark(li._a0, re);
-        if (re && ok && li._a.textContent.toLowerCase().indexOf(term.toLowerCase()) !== -1) li.querySelector('details').open = true;
+        if (re && ok && li._a.textContent.toLowerCase().indexOf(lc) !== -1) li.querySelector('details').open = true;
       });
-      years.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.year === picked)); });
-      clear.hidden = !(term || picked); none.hidden = n > 0;
-    }
-    years.forEach(function (b) { b.addEventListener('click', function () { picked = picked === b.dataset.year ? null : b.dataset.year; apply(); }); });
+      clear.hidden = !term; none.hidden = any;
+    };
     q.addEventListener('input', apply);
-    clear.addEventListener('click', function () { q.value = ''; picked = null; apply(); q.focus(); });
-    apply();
+    clear.addEventListener('click', function () { q.value = ''; apply(); q.focus(); });
   }
 
-  // ---- people: a tile with papers opens a panel listing them ----
-  var grid = document.querySelector('.people');
-  if (grid) {
-    var panels = grid.querySelectorAll('.people-panel');
-    var cols = function () { return getComputedStyle(grid).gridTemplateColumns.split(' ').length; };
-    grid.querySelectorAll('button.person').forEach(function (b) {
-      var panel = document.getElementById(b.getAttribute('aria-controls'));
-      b.addEventListener('click', function () {
-        var open = b.getAttribute('aria-expanded') !== 'true';
-        grid.querySelectorAll('button.person').forEach(function (o) { o.setAttribute('aria-expanded', 'false'); });
-        panels.forEach(function (p) { p.hidden = true; });
-        if (!open) return;
-        // place the panel after the last tile in this tile's row
-        var tiles = Array.prototype.slice.call(grid.querySelectorAll(':scope > li:not(.people-panel)'));
-        var idx = tiles.indexOf(b.parentElement), n = cols(), end = Math.min(tiles.length - 1, Math.floor(idx / n) * n + n - 1);
-        tiles[end].after(panel);
-        b.setAttribute('aria-expanded', 'true'); panel.hidden = false;
-      });
+  // ---- nav: the dot follows the section being read ----
+  var nav = document.querySelector('.nav'), dot = nav && nav.querySelector('.navdot');
+  var navLinks = nav ? Array.prototype.slice.call(nav.querySelectorAll('a')) : [];
+  function markNav(id) {
+    navLinks.forEach(function (a) {
+      var on = a.hash === '#' + id; a.setAttribute('aria-current', on ? 'true' : 'false');
+      if (on && dot) { dot.style.setProperty('--dx', (a.offsetLeft + a.offsetWidth / 2 - 2.5) + 'px'); dot.classList.add('on'); }
     });
-    grid.querySelectorAll('.people-panel .close').forEach(function (c) {
-      c.addEventListener('click', function () {
-        var panel = c.closest('.people-panel'), b = grid.querySelector('[aria-controls="' + panel.id + '"]');
-        panel.hidden = true; b.setAttribute('aria-expanded', 'false'); b.focus();
-      });
-    });
+    if (!id && dot) dot.classList.remove('on');
   }
+  var secs = document.querySelectorAll('main section[id]');
+  if (secs.length && nav) {
+    var sio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) markNav(e.target.id); });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    secs.forEach(function (sec) { sio.observe(sec); });
+  }
+
+  // ---- chromosome 1 as the reading bar ----
+  var chromo = document.querySelector('.chromo');
+  if (chromo) {
+    var queued = false;
+    var progress = function () {
+      queued = false;
+      var max = document.documentElement.scrollHeight - innerHeight;
+      chromo.style.setProperty('--p', max > 0 ? Math.min(1, Math.max(0, scrollY / max)).toFixed(4) : 0);
+      if (scrollY < innerHeight * .5) markNav('');
+    };
+    addEventListener('scroll', function () { if (!queued) { queued = true; requestAnimationFrame(progress); } }, { passive: true });
+    addEventListener('resize', progress); progress();
+  }
+
+  // ---- section titles decode from A, C, G and T as they arrive ----
+  var BASES = 'ACGT';
+  function decode(el) {
+    var text = el.dataset.text || (el.dataset.text = el.textContent), n = text.length, start = 0;
+    if (reduce.matches) { el.textContent = text; return; }
+    function frame(now) {
+      if (!start) start = now;
+      var done = Math.floor((now - start) / 900 * (n + 3)) - 3, out = '';
+      for (var i = 0; i < n; i++) {
+        var ch = text[i];
+        if (i < done || ch === ' ') out += ch.replace(/[&<>]/g, '');
+        else { var b = BASES[(Math.random() * 4) | 0]; out += '<span class="x' + (b === 'G' || b === 'A' ? ' o' : '') + '">' + b + '</span>'; }
+      }
+      el.innerHTML = out;
+      if (done < n) requestAnimationFrame(frame); else el.textContent = text;
+    }
+    requestAnimationFrame(frame);
+  }
+  var heads = document.querySelectorAll('[data-decode]');
+  if (heads.length && 'IntersectionObserver' in window) {
+    var hio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { hio.unobserve(e.target); decode(e.target); } }); }, { threshold: .6 });
+    heads.forEach(function (h) { hio.observe(h); });
+  }
+
+  // ---- the pedigree: one family under four modes of inheritance; it cycles until touched ----
+  var ped = document.getElementById('ped');
+  if (ped) {
+    var inds = Array.prototype.slice.call(ped.querySelectorAll('.ind'));
+    var modeBtns = Array.prototype.slice.call(document.querySelectorAll('.modes button'));
+    var names = { ad: 'dominant', ar: 'recessive', xl: 'X-linked', dn: 'de novo' };
+    var setMode = function (m) {
+      inds.forEach(function (g) {
+        var st = (g.dataset.s.match(new RegExp(m + ':(\\w)')) || [])[1];
+        g.classList.toggle('is-a', st === 'a'); g.classList.toggle('is-c', st === 'c');
+      });
+      modeBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === m)); });
+      ped.setAttribute('aria-label', 'A three-generation family tree showing ' + names[m] + ' inheritance');
+    };
+    var order = modeBtns.map(function (b) { return b.dataset.mode; }), at = 1, timer = 0, inView = false;
+    var cycle = function () { clearInterval(timer); if (reduce.matches || !inView) return; timer = setInterval(function () { at = (at + 1) % order.length; setMode(order[at]); }, 3200); };
+    modeBtns.forEach(function (b, k) { b.addEventListener('click', function () { at = k; setMode(b.dataset.mode); clearInterval(timer); timer = -1; }); });
+    new IntersectionObserver(function (es) { inView = es[0].isIntersecting; if (timer !== -1) { if (inView) cycle(); else clearInterval(timer); } }, { threshold: .4 }).observe(ped);
+  }
+
+  // ---- TGGR as a sequence logo: pressing it shows the reading frame ----
+  var seq = document.querySelector('.seq');
+  if (seq) seq.addEventListener('click', function () { seq.setAttribute('aria-pressed', String(seq.getAttribute('aria-pressed') !== 'true')); });
 })();
