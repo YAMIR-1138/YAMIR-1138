@@ -1,0 +1,297 @@
+#!/usr/bin/env python3
+"""Build the TGGR Lab site: five static pages from one header, one footer and the data below.
+
+    python3 build.py
+
+Edit the data here (publications, people) or the tool cards in src/tools.html, then rebuild.
+Styles are in assets/site.css and behaviour in assets/site.js; the pages only load them.
+Standard library only. The output is plain HTML, committed, served as is by GitHub Pages.
+"""
+import html, json, pathlib, re
+
+HERE = pathlib.Path(__file__).resolve().parent
+SITE = "https://tggr-lab.github.io/"
+TASMC = "https://www.tasmc.org.il/rd/en/next-unit/research-laboratories/genetics/the-translational-genetics-and-genomics-research-laboratory-prof-hagit-baris-feldman/"
+
+# ---------------------------------------------------------------- data
+MISSION = "We are dedicated to decipher the role of genetic diseases in our patients."
+FOCUS = ("Our projects focus on the identification, characterization and functional analyses of "
+         "<em>novel human disease&#8209;causing genes</em> in order to elucidate the disease pathophysiology "
+         "and potentially provide targets for personalized medicine.")
+FAMILIES = "Families come from the Genetics Institute at Tel Aviv Sourasky Medical Center, or by outside colleagues."
+
+# year, title (HTML), journal, volume/pages, authors, DOI
+PUBS = [
+ (2026, "<i>PIH1D2</i> loss-of-function directs ciliary and cell cycle defects resulting in left isomerism with or without biliary atresia", "Liver Int", "46(11):e70951",
+  "Kurolap A, Chai Gadot C, Shalata A, Eshach Adiv O, Amir Y, Levy Lando B, Stehling F, Hershkovitz T, Osman K, Habib C, Mintz H, Steinberg R, Hochberg A, Hamiel U, Mory A, Marom D, von Hardenberg S, Singer A, Auber B, Baris Feldman H", "10.1111/liv.70951"),
+ (2026, "Recurring and isolated intronic <i>FGFR1</i> variants as an underdiagnosed cause of congenital hypogonadotropic hypogonadism", "J Endocr Soc", "10(11):bvag234",
+  "Yacobi-Bach M, Hagin R, Levy Lando B, Délot E, Vilain E, Kępczyński Ł, Botvinik A, Mory A, Amir Y, Kałużewski T, Gach A, Łupińska A, Zygmunt A, Johnson J, Rutter MM, Lebenthal Y, Shaklai S, Greenman Y, Baris Feldman H, Kurolap A", "10.1210/jendso/bvag234"),
+ (2025, "Impaired Wnt/planar cell polarity signaling in yellow nail syndrome", "Ann Intern Med", "178(1):39–49",
+  "Kurolap A, Chai Gadot C, Eshach Adiv O, Hershkovitz T, Avitan-Hersh E, Martin L, Humeau H, Schatz UA, Westphal DS, Lobmaier S, Sofrin-Drucker E, Stafler P, Bugis J, Chermesh I, Hardak E, Geva P, Zohar Y, Hershkovitz D, Mory A, Chatterji S, Greenberger S, Shteinberg M, Baris Feldman H", "10.7326/ANNALS-24-01101"),
+ (2024, "National rapid genome sequencing in neonatal intensive care", "JAMA Netw Open", "7(2):e240146",
+  "Marom D, Mory A, Reytan-Miron S, Amir Y, Kurolap A, Cohen JG, Morhi Y, Smolkin T, Cohen L, Zangen S, Shalata A, Riskin A, Peleg A, Lavie-Nevo K, Mandel D, Chervinsky E, Fisch CF, Fleisher Sheffer V, Falik-Zaccai TC, Rips J, Shlomai NO, Friedman SE, Shporen CH, Ben-Yehoshua SJ, Simmonds A, Yaacobi RG, Bauer-Rusek S, Omari H, Weiss K, Hochwald O, Koifman A, Globus O, Batzir NA, Yaron N, Segel R, Morag I, Reish O, Eliyahu A, Leibovitch L, Schwartz ME, Abramsky R, Hochberg A, Oron A, Banne E, Portnov I, Samra NN, Singer A, Baris Feldman H", "10.1001/jamanetworkopen.2024.0146"),
+ (2023, "Corin and left atrial cardiomyopathy, hypertension, arrhythmia, and fibrosis", "N Engl J Med", "389(18):1685–1692",
+  "Baris Feldman H, Chai Gadot C, Zahler D, Mory A, Aviram G, Elhanan E, Shefer G, Goldiner I, Amir Y, Kurolap A, Ablin JN", "10.1056/NEJMoa2301908"),
+ (2021, "A recurring <i>NFS1</i> pathogenic variant causes a mitochondrial disorder with variable intra-familial patient outcomes", "Mol Genet Metab Rep", "26:100699",
+  "Hershkovitz T, Kurolap A, Tal G, Paperna T, Mory A, Staples J, Brigatti KW; Regeneron Genetics Center, Gonzaga-Jauregui C, Dumin E, Saada A, Mandel H, Baris Feldman H", "10.1016/j.ymgmr.2020.100699"),
+ (2020, "Homozygosity for <i>CHEK2</i> p.Gly167Arg leads to a unique cancer syndrome with multiple complex chromosomal translocations in peripheral blood karyotype", "J Med Genet", "57(7):500–504",
+  "Paperna T, Sharon-Shwartzman N, Kurolap A, Goldberg Y, Moustafa N, Carasso Y, Feinstein-Linial M, Mory A, Reznick-Levi G, Gonzaga-Jauregui C, Shuldiner AR, Basel-Salmon L, Ofran Y, Half EE, Baris Feldman H", "10.1136/jmedgenet-2018-105824"),
+ (2019, "A unique presentation of infantile-onset colitis and eosinophilic disease without recurrent infections resulting from a novel homozygous <i>CARMIL2</i> variant", "J Clin Immunol", "39(4):430–439",
+  "Kurolap A, Eshach-Adiv O, Konnikova L, Werner L, Gonzaga-Jauregui C, Steinberg M, Mitsialis V, Mory A, Nunberg MY, Wall S, Shaoul R, Overton JD, Regeneron Genetics Center, Shuldiner AR, Zohar Y, Paperna T, Snapper SB, Shouval DS, Baris Feldman H", "10.1007/s10875-019-00631-6"),
+ (2019, "A novel <i>TUFM</i> homozygous variant in a child with mitochondrial cardiomyopathy expands the phenotype of combined oxidative phosphorylation deficiency 4", "J Hum Genet", "64(6):589–595",
+  "Hershkovitz T, Kurolap A, Gonzaga-Jauregui C, Paperna T, Mory A, Wolf SE, Regeneron Genetics Center, Overton JD, Shuldiner AR, Saada A, Mandel H, Baris Feldman H", "10.1038/s10038-019-0592-6"),
+ (2019, "Eculizumab is safe and effective as a long-term treatment for protein-losing enteropathy due to CD55 deficiency", "J Pediatr Gastroenterol Nutr", "68(3):325–333",
+  "Kurolap A, Eshach-Adiv O, Hershkovitz T, Tabib A, Karbian N, Paperna T, Mory A, Vachyan A, Slijper N, Steinberg R, Zohar Y, Mevorach D, Baris Feldman H", "10.1097/MPG.0000000000002198"),
+ (2018, "Pathogenic variants in glutamyl-tRNA<sup>Gln</sup> amidotransferase subunits cause a lethal mitochondrial cardiomyopathy disorder", "Nat Commun", "9(1):4065",
+  "Friederich MW, Timal S, Powell CA, Dallabona C, Kurolap A, Palacios-Zambrano S, Bratkovic S, Derks TGJ, Bick D, Bouman K, Chatfield KC, Damouny-Naoum N, Dishop MK, Falik-Zaccai TC, Fares F, Fedida A, Ferrero I, Gallagher RC, Garesse R, Gilberti M, González C, Gowan K, Habib C, Halligan RK, Kalfon L, Knight K, Lefeber D, Mamblona L, Mandel H, Mory A, Ottoson J, Paperna T, Pruijn GJM, Rebelo-Guiomar P, Saada A, Sainz B, Salvemini H, Schoots MH, Smeitink JA, Szukszto MJ, ter Horst HJ, van den Brandt F, van Spronsen FJ, Veltman JA, Wartchow E, Wintjes LT, Zohar Y, Fernández-Moreno MA, Baris HN, Donnini C, Minczuk M, Rodenburg RJ, Van Hove JLK", "10.1038/s41467-018-06250-w"),
+ (2018, "Establishing the role of <i>PLVAP</i> in protein-losing enteropathy: a homozygous missense variant leads to an attenuated phenotype", "J Med Genet", "55(11):779–784",
+  "Kurolap A, Eshach-Adiv O, Gonzaga-Jauregui C, Dolnikov K, Mory A, Paperna T, Hershkovitz T, Overton JD, Kaplan M, Glaser F, Zohar Y, Shuldiner AR, Berger G, Baris HN", "10.1136/jmedgenet-2018-105299"),
+ (2017, "Loss of <i>CD55</i> in eculizumab-responsive protein-losing enteropathy", "N Engl J Med", "377(1):87–89",
+  "Kurolap A, Eshach-Adiv O, Hershkovitz T, Paperna T, Mory A, Oz-Levi D, Zohar Y, Mandel H, Chezar J, Azoulay D, Peleg S, Half EE, Yahalom V, Finkel L, Weissbrod O, Geiger D, Tabib A, Shaoul R, Magen D, Bonstein L, Mevorach D, Baris HN", "10.1056/NEJMc1707173"),
+ (2016, "Loss of glycine transporter 1 causes a subtype of glycine encephalopathy with arthrogryposis and mildly elevated cerebrospinal fluid glycine", "Am J Hum Genet", "99(5):1172–1180",
+  "Kurolap A, Armbruster A, Hershkovitz T, Hauf K, Mory A, Paperna T, Hannappel E, Tal G, Nijem Y, Sella E, Mahajnah M, Ilivitzki A, Hershkovitz D, Ekhilevitch N, Mandel H, Eulenburg V, Baris HN", "10.1016/j.ajhg.2016.09.004"),
+]
+
+# name, role, monogram, how the name appears in author lists
+PEOPLE = [
+ ("Prof. Hagit Baris Feldman", "Head of the lab", "HB", ["Baris Feldman H", "Baris HN"]),
+ ("Dr. Chofit Chai Gadot", "Lab manager", "CG", ["Chai Gadot C"]),
+ ("Alina Kurolap, RN, PhD", "Researcher", "AK", ["Kurolap A"]),
+ ("Yam Amir", "PhD student", "YA", ["Amir Y"]),
+ ("Doha Khair", "PhD student", "DK", []),
+ ("Bar Levy Lando", "PhD student", "BL", ["Levy Lando B"]),
+ ("Lotem Nethanel", "PhD student", "LN", []),
+ ("Ahava Dukan", "MSc student", "AD", []),
+]
+LAB = {k for p in PEOPLE for k in p[3]}
+
+PAGES = [("research.html", "Research"), ("publications.html", "Publications"), ("tools.html", "Tools"), ("people.html", "People")]
+
+# ---------------------------------------------------------------- pieces
+ARROW = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12 12 4M5 4h7v7"/></svg>'
+GITHUB = '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>'
+THEME = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>'
+MENU = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>'
+SEARCH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
+
+plain = lambda t: re.sub(r"<[^>]+>", "", t)
+years = sorted({p[0] for p in PUBS})
+
+
+def head(title, desc, path, extra=""):
+    t = "TGGR Lab" if not title else f"{title} · TGGR Lab"
+    ld = ""
+    if path == "":
+        ld = '<script type="application/ld+json">\n' + json.dumps({
+            "@context": "https://schema.org", "@type": "ResearchOrganization", "name": "TGGR Lab",
+            "alternateName": "Translational Genetics and Genomics Research Laboratory", "url": SITE,
+            "logo": SITE + "logo-kit/png/tggr-logo-light-512.png", "sameAs": ["https://github.com/tggr-lab", TASMC],
+            "parentOrganization": [{"@type": "Organization", "name": "Tel Aviv Sourasky Medical Center"}, {"@type": "Organization", "name": "Tel Aviv University"}],
+            "founder": {"@type": "Person", "name": "Hagit Baris Feldman"},
+            "member": [{"@type": "Person", "name": re.sub(r"^(Prof\.|Dr\.) |, .*$", "", p[0])} for p in PEOPLE[1:]],
+            "address": {"@type": "PostalAddress", "streetAddress": "6 Weizmann Street", "addressLocality": "Tel Aviv", "addressCountry": "IL"},
+        }, ensure_ascii=False, indent=1) + '\n</script>\n'
+    return f'''<!doctype html>
+<!-- Generated by build.py. Edit the data there, then run: python3 build.py -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{t}</title>
+<meta name="description" content="{html.escape(desc)}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{t}">
+<meta property="og:description" content="{html.escape(desc)}">
+<meta property="og:url" content="{SITE}{path}">
+<meta property="og:image" content="{SITE}og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The TGGR Lab logo, a tiger and a DNA helix inside a ring of text, beside the lab's full name.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{SITE}{path}">
+<link rel="icon" type="image/png" href="logo-kit/png/lockup-light.png">
+{ld}<meta name="theme-color" content="#f5f7f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1615" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Atkinson+Hyperlegible+Next:wght@400;600&family=Atkinson+Hyperlegible+Mono:wght@500&display=swap" rel="stylesheet">
+<script>try {{ var t = localStorage.getItem('tggr-theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t; }} catch (e) {{}}</script>
+<link rel="stylesheet" href="assets/site.css">
+{extra}</head>
+'''
+
+
+def bar(current):
+    nav = "".join(f'<a href="{h}"{" aria-current=\"page\"" if h == current else ""}>{n}</a>' for h, n in PAGES)
+    menu = "".join(f'<a href="{h}"{" aria-current=\"page\"" if h == current else ""}><span>0{i + 1}</span>{n}</a>' for i, (h, n) in enumerate(PAGES))
+    home = current == "index.html"
+    return f'''<header class="bar" id="bar">
+  <a class="mini" href="index.html" aria-label="TGGR Lab home"{' tabindex="-1"' if home else ''}><tggr-logo ring="none" motion="still" label="TGGR Lab"></tggr-logo><span>TGGR Lab</span></a>
+  <nav class="nav" aria-label="Main">{nav}</nav>
+  <div class="icons">
+    <a class="icon" href="https://github.com/tggr-lab" aria-label="TGGR Lab on GitHub">{GITHUB}</a>
+    <button class="icon" id="theme" type="button" aria-label="Switch to dark theme">{THEME}</button>
+    <button class="icon menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu">{MENU}</button>
+  </div>
+</header>
+<nav class="menu" id="menu" aria-label="Main" hidden>{menu}</nav>
+'''
+
+
+def foot():
+    nav = "".join(f'<a href="{h}">{n}</a>' for h, n in PAGES)
+    return f'''  <footer>
+    <div class="go">
+      <a href="https://github.com/tggr-lab">GitHub {ARROW}</a>
+      <a href="{TASMC}">Lab page at TASMC {ARROW}</a>
+    </div>
+    <nav class="fnav" aria-label="Pages">{nav}</nav>
+    <small>Tel Aviv Sourasky Medical Center · Faculty of Medicine, Tel Aviv University</small>
+  </footer>
+'''
+
+
+def tail():
+    return '''<script src="logo-kit/tggr-logo.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>
+'''
+
+
+def page_head(title, sub, vt):
+    return f'''<header class="page-head">
+  <canvas class="helix" data-mode="band" aria-hidden="true"></canvas>
+  <div class="in"><p class="sub">{sub}</p><h1 style="view-transition-name: {vt}">{title}</h1></div>
+</header>
+'''
+
+
+def authors(a):
+    return ", ".join(f"<b>{html.escape(x)}</b>" if x in LAB else html.escape(x) for x in a.replace("; ", ", ").split(", "))
+
+
+def mine(person):
+    return [p for p in PUBS if any(k in p[4].replace("; ", ", ").split(", ") for k in person[3])]
+
+
+# ---------------------------------------------------------------- pages
+def home():
+    papers = "".join(f'<g class="face" style="--dx:{(i - 1) * 26}px;--dy:{-abs(i - 1) * 2 - 4}px"><rect x="{86 + i * 6}" y="{10 + i * 4}" width="44" height="54" rx="4" fill="var(--bg)"{" class=\"o\"" if i == 2 else ""}/><path d="M{94 + i * 6} {24 + i * 4}h28M{94 + i * 6} {32 + i * 4}h28M{94 + i * 6} {40 + i * 4}h18" stroke-width="1.6"/></g>' for i in range(3))
+    strands = ('<path class="strand" d="M4 36c26-28 52-28 78 0s52 28 78 0 52-28 56 0"/>'
+               '<path class="strand o" d="M4 36c26 28 52 28 78 0s52-28 78 0 52 28 56 0"/>'
+               + "".join(f'<path class="dot" d="M{x} {36 - h}v{2 * h}" stroke-width="1.4"/>' for x, h in ((24, 18), (43, 18), (102, 18), (121, 18), (180, 18), (199, 18))))
+    tools = "".join(f'<g class="face" style="--dy:-{8 + 4 * (i % 2)}px"><circle cx="{28 + i * 55}" cy="36" r="20"/>{g}</g>' for i, g in enumerate((
+        '<circle class="fo" cx="28" cy="36" r="5"/>',
+        '<path class="o" d="M77 26v20M83 26v20M89 26v20"/>',
+        '<path class="o" d="M126 40l6-8 6 6 6-10"/>',
+        '<path d="M181 40h22"/><rect class="fo" x="186" y="28" width="12" height="7" rx="2"/>')))
+    people = "".join(f'<g class="face" style="--dx:{(i - 3.5) * 12:.0f}px"><circle cx="{58 + i * 15}" cy="36" r="13" fill="var(--bg)"{" class=\"o\"" if i == 0 else ""}/><text x="{58 + i * 15}" y="39.5" text-anchor="middle">{p[2]}</text></g>' for i, p in enumerate(PEOPLE))
+    doors = [
+        ("research.html", "Research", strands),
+        ("publications.html", "Publications", papers),
+        ("tools.html", "Tools", tools),
+        ("people.html", "People", people),
+    ]
+    rows = "".join(f'''    <a class="door rise" href="{h}"><span class="label" style="view-transition-name: t-{h[:-5]}">{n}</span><svg class="peek" viewBox="0 0 220 72" aria-hidden="true">{svg}</svg><span class="go-arrow" aria-hidden="true">{ARROW}</span></a>
+''' for h, n, svg in doors)
+    return head("", "Translational Genetics and Genomics Research Laboratory, Genetics Institute, Tel Aviv Sourasky Medical Center. " + plain(MISSION), "") + f'''<body class="home">
+{bar("index.html")}
+<div class="hero" id="top">
+  <canvas class="helix" data-mode="hero" aria-hidden="true"></canvas>
+  <div class="hero-in">
+    <h1 class="sr">TGGR Lab, Translational Genetics and Genomics Research Laboratory</h1>
+    <div class="tilt" id="tilt"><tggr-logo motion="drawn" label="TGGR Lab logo"></tggr-logo></div>
+    <p class="where">Genetics Institute <b>·</b> Tel Aviv Sourasky Medical Center</p>
+  </div>
+  <span class="cue" aria-hidden="true"></span>
+</div>
+
+<main>
+  <div class="lede"><p class="mission rise">{MISSION}</p></div>
+  <nav class="doors" aria-label="Sections">
+{rows}  </nav>
+{foot()}</main>
+''' + tail()
+
+
+def research():
+    return head("Research", plain(MISSION) + " " + plain(FOCUS), "research.html") + f'''<body class="page">
+{bar("research.html")}{page_head("Research", "Translational Genetics and Genomics Research", "t-research")}
+<main>
+  <section>
+    <p class="mission rise">{MISSION}</p>
+    <p class="focus rise">{FOCUS}</p>
+    <p class="from rise">{FAMILIES}</p>
+  </section>
+{foot()}</main>
+''' + tail()
+
+
+def publications():
+    items = []
+    for y, t, j, v, a, doi in sorted(PUBS, key=lambda r: -r[0]):
+        search = html.escape(" ".join((plain(t), j, str(y), a)).lower(), quote=True)
+        items.append(f'''      <li class="rise" data-year="{y}" data-search="{search}"><details class="pub"><summary><span class="t">{t}</span><span class="j"><i>{j}</i> · {y} · {v}</span><span class="plus" aria-hidden="true"></span></summary>
+        <div class="more"><p class="au">{authors(a)}</p><a class="pm" href="https://doi.org/{doi}">doi.org/{html.escape(doi)} {ARROW}</a></div></details></li>''')
+    return head("Publications", "Publications from the TGGR Lab.", "publications.html") + f'''<body class="page">
+{bar("publications.html")}{page_head("Publications", "Rare disease · novel genes", "t-publications")}
+<main>
+  <section>
+    <div class="filters">
+      <div class="search">
+        <label>{SEARCH}<span class="sr">Search titles, journals and authors</span><input id="q" type="search" placeholder="Gene, journal or author" autocomplete="off"></label>
+        <button class="clear" id="clear" type="button" hidden>Clear</button>
+      </div>
+    </div>
+    <ul class="pubs" data-filter>
+{chr(10).join(items)}
+    </ul>
+    <p class="none" id="none" hidden aria-live="polite">No papers match.</p>
+  </section>
+{foot()}</main>
+''' + tail()
+
+
+def tools():
+    cards = (HERE / "src" / "tools.html").read_text()
+    return head("Tools", "Software and hardware from the TGGR Lab: Pellaeon, GPCompaRe, an incubator CO₂ monitor and GeNest.", "tools.html") + f'''<body class="page">
+{bar("tools.html")}{page_head("Tools", "Open source · software and hardware", "t-tools")}
+<main>
+  <section>
+{cards}  </section>
+{foot()}</main>
+''' + tail()
+
+
+def people():
+    tiles, panels = [], []
+    for i, p in enumerate(PEOPLE):
+        name, role, ini, _ = p
+        ps = mine(p)
+        mono = f'<svg class="mono" viewBox="0 0 76 76" aria-hidden="true"><circle class="base" cx="38" cy="38" r="35"/><circle class="draw" cx="38" cy="38" r="35"/><text x="38" y="47" text-anchor="middle">{ini}</text></svg>'
+        inner = f'{mono}<div><h3>{name}</h3><p>{role}</p></div>'
+        cls = "person lead" if i == 0 else "person"
+        if ps:
+            pid = "p-" + ini.lower()
+            tiles.append(f'      <li class="rise"><button class="{cls}" type="button" aria-expanded="false" aria-controls="{pid}">{inner}</button></li>')
+            rows = "".join(f'<li><a href="https://doi.org/{d}"><span class="t">{t}</span><span class="j"><i>{j}</i> · {y}</span></a></li>' for y, t, j, v, a, d in sorted(ps, key=lambda r: -r[0]))
+            panels.append(f'      <li class="people-panel" id="{pid}" hidden><button class="clear close" type="button">Close</button><p class="kicker">{role}</p><h3>{name}</h3><ul>{rows}</ul></li>')
+        else:
+            tiles.append(f'      <li class="rise"><div class="{cls}">{inner}</div></li>')
+    return head("People", "The people of the TGGR Lab.", "people.html") + f'''<body class="page">
+{bar("people.html")}{page_head("People", "Genetics Institute · Tel Aviv Sourasky Medical Center", "t-people")}
+<main>
+  <section>
+    <ul class="people">
+{chr(10).join(tiles)}
+{chr(10).join(panels)}
+    </ul>
+  </section>
+{foot()}</main>
+''' + tail()
+
+
+for name, fn in (("index.html", home), ("research.html", research), ("publications.html", publications), ("tools.html", tools), ("people.html", people)):
+    (HERE / name).write_text(fn())
+    print(f"{name:20} {len(fn()) / 1024:6.1f} KB")
