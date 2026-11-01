@@ -187,15 +187,18 @@
   // ---- section titles decode from A, C, G and T as they arrive ----
   var BASES = 'ACGT';
   function decode(el) {
-    var text = el.dataset.text || (el.dataset.text = el.textContent), n = text.length, start = 0;
+    var text = el.dataset.text || (el.dataset.text = el.textContent), n = text.length, start = 0, last = -1, held = [];
     if (reduce.matches) { el.textContent = text; return; }
+    var SETTLE = 1600, TICK = 90;
     function frame(now) {
       if (!start) start = now;
-      var done = Math.floor((now - start) / 900 * (n + 3)) - 3, out = '';
+      var done = Math.floor((now - start) / SETTLE * (n + 2)) - 2, tick = Math.floor((now - start) / TICK);
+      if (tick !== last) { last = tick; for (var k = 0; k < n; k++) held[k] = BASES[(Math.random() * 4) | 0]; }
+      var out = '';
       for (var i = 0; i < n; i++) {
         var ch = text[i];
         if (i < done || ch === ' ') out += ch.replace(/[&<>]/g, '');
-        else { var b = BASES[(Math.random() * 4) | 0]; out += '<span class="x' + (b === 'G' || b === 'A' ? ' o' : '') + '">' + b + '</span>'; }
+        else out += '<span class="x' + (held[i] === 'G' || held[i] === 'A' ? ' o' : '') + '">' + held[i] + '</span>';
       }
       el.innerHTML = out;
       if (done < n) requestAnimationFrame(frame); else el.textContent = text;
@@ -208,4 +211,68 @@
     heads.forEach(function (h) { hio.observe(h); });
   }
 
+  // ---- top bar turns solid once the hero has gone ----
+  if (hero && bar) new IntersectionObserver(function (es) {
+    var past = !(es[0].isIntersecting && es[0].intersectionRatio > .35);
+    bar.classList.toggle('solid', past);
+    var mini = bar.querySelector('.mini'); if (mini) mini.tabIndex = past ? 0 : -1;
+  }, { threshold: [0, .35, .7] }).observe(hero);
+
+  // ---- the side helix: a vertical double helix down the left edge; scrolling turns it ----
+  var side = document.querySelector('.side-helix');
+  if (side) {
+    var sctx = side.getContext('2d'), SW = 0, SH = 0, scol = {}, st = 0, slast = 0, sraf = 0, srun = false;
+    var sread = function () { var cs = getComputedStyle(root); scol.a = cs.getPropertyValue('--teal').trim(); scol.b = cs.getPropertyValue('--orange').trim(); };
+    var ssize = function () { var d = Math.min(devicePixelRatio || 1, 2); SW = side.clientWidth; SH = side.clientHeight; side.width = SW * d; side.height = SH * d; sctx.setTransform(d, 0, 0, d, 0, 0); };
+    var sdraw = function () {
+      sctx.clearRect(0, 0, SW, SH);
+      if (!SW) return;
+      var cx = 64, A = 22, k = 2 * Math.PI / 260, dark = isDark(), phase = scrollY * .012 + st;
+      for (var y = -10, i = 0; y < SH + 10; y += 13, i++) {
+        var th = y * k + phase, sn = Math.sin(th), c = Math.cos(th), x1 = cx + A * sn, x2 = cx - A * sn, z1 = (c + 1) / 2, z2 = 1 - z1;
+        var edge = Math.min(1, Math.min(y + 10, SH - y) / 90);
+        if (i % 2 === 0) { sctx.globalAlpha = (dark ? .2 : .14) * edge; sctx.strokeStyle = scol.a; sctx.lineWidth = 1; sctx.beginPath(); sctx.moveTo(x1, y); sctx.lineTo(x2, y); sctx.stroke(); }
+        var beads = [[x2, z2, scol.b], [x1, z1, scol.a]]; if (z2 > z1) beads.reverse();
+        for (var j = 0; j < 2; j++) { var b = beads[j]; sctx.globalAlpha = (.16 + .55 * b[1]) * edge * (dark ? 1 : .85); sctx.fillStyle = b[2]; sctx.beginPath(); sctx.arc(b[0], y, 1.3 + 2.4 * b[1], 0, 6.2832); sctx.fill(); }
+      }
+      sctx.globalAlpha = 1;
+    };
+    var stick = function (now) { var dt = Math.min(50, now - (slast || now)); slast = now; st += dt * .00025; sdraw(); sraf = requestAnimationFrame(stick); };
+    var sstart = function () { if (srun || reduce.matches || document.hidden || !side.clientWidth) return; srun = true; slast = 0; sraf = requestAnimationFrame(stick); };
+    var sstop = function () { srun = false; cancelAnimationFrame(sraf); };
+    sread(); ssize(); sdraw(); sstart();
+    redraws.push(function () { sread(); sdraw(); });
+    addEventListener('resize', function () { ssize(); sdraw(); if (side.clientWidth) sstart(); else sstop(); });
+    addEventListener('scroll', function () { if (!srun) sdraw(); }, { passive: true });
+    document.addEventListener('visibilitychange', function () { if (document.hidden) sstop(); else sstart(); });
+    reduce.addEventListener('change', function () { if (reduce.matches) { sstop(); sdraw(); } else sstart(); });
+  }
+
+  // ---- Pellaeon's picture: a short alpha-helical backbone turning in 3D ----
+  var NS = 'http://www.w3.org/2000/svg';
+  document.querySelectorAll('[data-mol]').forEach(function (g) {
+    var N = 13, atoms = [], bonds = [], card = g.closest('.card'), phi = 0, speed = .5, lastT = 0, live = false, raf2 = 0;
+    for (var i = 0; i < N; i++) {
+      var c = document.createElementNS(NS, 'circle'); c.setAttribute('fill', i % 4 === 2 ? 'var(--orange)' : 'var(--teal)'); atoms.push(c);
+      if (i) { var l = document.createElementNS(NS, 'line'); bonds.push(l); g.appendChild(l); }
+    }
+    atoms.forEach(function (c) { g.appendChild(c); });
+    function place() {
+      var pts = atoms.map(function (c, i) { var th = i * 1.745 + phi; return { x: 62 + i * 9.6, y: 58 + 17 * Math.cos(th), z: Math.sin(th) }; });
+      pts.forEach(function (p, i) {
+        var a = atoms[i], d = (p.z + 1) / 2;
+        a.setAttribute('cx', p.x.toFixed(1)); a.setAttribute('cy', p.y.toFixed(1)); a.setAttribute('r', (2.6 + 2.6 * d).toFixed(2)); a.setAttribute('opacity', (.35 + .65 * d).toFixed(2));
+        if (i) { var b = bonds[i - 1], q = pts[i - 1]; b.setAttribute('x1', q.x.toFixed(1)); b.setAttribute('y1', q.y.toFixed(1)); b.setAttribute('x2', p.x.toFixed(1)); b.setAttribute('y2', p.y.toFixed(1)); b.setAttribute('opacity', (.3 + .35 * ((p.z + q.z) / 2 + 1) / 2).toFixed(2)); }
+      });
+      // nearer atoms drawn last
+      pts.map(function (p, i) { return [p.z, atoms[i]]; }).sort(function (a, b) { return a[0] - b[0]; }).forEach(function (e) { g.appendChild(e[1]); });
+    }
+    function spin(now) { var dt = Math.min(50, now - (lastT || now)); lastT = now; phi += dt * .001 * speed; place(); raf2 = requestAnimationFrame(spin); }
+    place();
+    if (card) { card.addEventListener('pointerenter', function () { speed = 2.2; }); card.addEventListener('pointerleave', function () { speed = .5; }); }
+    new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting && !reduce.matches) { if (!live) { live = true; lastT = 0; raf2 = requestAnimationFrame(spin); } }
+      else { live = false; cancelAnimationFrame(raf2); }
+    }).observe(g.closest('svg'));
+  });
 })();

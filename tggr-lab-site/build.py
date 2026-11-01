@@ -179,26 +179,28 @@ def page():
 </header>
 <nav class="menu" id="menu" aria-label="Sections" hidden>{menu}</nav>
 
+<canvas class="side-helix" aria-hidden="true"></canvas>
 <div class="hero" id="top">
-  <canvas class="helix" data-mode="hero" aria-hidden="true"></canvas>
   <div class="hero-in">
     <h1 class="sr">TGGR Lab, Translational Genetics and Genomics Research Laboratory</h1>
     <div class="tilt" id="tilt"><tggr-logo motion="drawn" label="TGGR Lab logo"></tggr-logo></div>
     <p class="where">Genetics Institute <b>·</b> Tel Aviv Sourasky Medical Center</p>
   </div>
-  <span class="cue" aria-hidden="true"></span>
 </div>
 
 <main>
   <section id="research" aria-labelledby="research-h">
     {big("research", "Research")}
-    <p class="mission rise">{MISSION}</p>
-    <p class="focus rise">{FOCUS}</p>
-    <p class="from rise">{FAMILIES}</p>
+    <div class="sec-body">
+      <p class="mission rise">{MISSION}</p>
+      <p class="focus rise">{FOCUS}</p>
+      <p class="from rise">{FAMILIES}</p>
+    </div>
   </section>
 {gene(3)}
   <section id="publications" aria-labelledby="publications-h">
     {big("publications", "Publications")}
+    <div class="sec-body">
     <div class="search rise">
       <label>{SEARCH}<span class="sr">Search titles, journals and authors</span><input id="q" type="search" placeholder="Gene, journal or author" autocomplete="off"></label>
       <button class="clear" id="clear" type="button" hidden>Clear</button>
@@ -207,17 +209,22 @@ def page():
 {chr(10).join(pubs)}
     </ul>
     <p class="none" id="none" hidden aria-live="polite">No papers match.</p>
+    </div>
   </section>
 {gene(11)}
   <section id="tools" aria-labelledby="tools-h">
     {big("tools", "Tools")}
-{tools}  </section>
+    <div class="sec-body">
+{tools}    </div>
+  </section>
 {gene(29)}
   <section id="people" aria-labelledby="people-h">
     {big("people", "People")}
+    <div class="sec-body">
     <ul class="people">
 {chr(10).join(people)}
     </ul>
+    </div>
   </section>
 
   <footer>

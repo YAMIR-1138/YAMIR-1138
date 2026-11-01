@@ -46,16 +46,13 @@
   .icon svg { width: 18px; height: 18px; }
 
   /* ---------- hero ---------- */
-  .hero { position: relative; min-height: max(560px, 88svh); display: grid; place-items: center; padding: 72px var(--gutter) 40px; isolation: isolate; }
+  .hero { position: relative; display: grid; place-items: center; padding: clamp(96px, 14vh, 140px) var(--gutter) 24px; isolation: isolate; }
   #helix { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
   .hero-in { display: grid; justify-items: center; gap: 22px; text-align: center; }
   .tilt { perspective: 900px; }
-  .tilt tggr-logo { display: block; width: min(76vw, 400px); transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+  .tilt tggr-logo { display: block; width: min(72vw, 340px); transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
   .where { font: 500 12.5px/1.5 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
   .where b { color: var(--orange-text); font-weight: 500; }
-  .cue { position: absolute; bottom: 22px; left: 50%; width: 1px; height: 44px; background: linear-gradient(var(--rule), transparent); overflow: hidden; }
-  .cue::after { content: ""; position: absolute; left: 0; top: -40%; width: 1px; height: 40%; background: var(--orange); animation: drip 2.4s cubic-bezier(.6, 0, .4, 1) infinite; }
-  @keyframes drip { to { top: 100%; } }
 
   /* ---------- sections ---------- */
   main { padding-inline: var(--gutter); }
@@ -119,8 +116,8 @@
   .card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; background: radial-gradient(260px circle at var(--x) var(--y), var(--orange), transparent 70%);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); opacity: 0; transition: opacity .35s; pointer-events: none; }
   .card:hover::before, .card:hover::after, .card:focus-visible::before { opacity: 1; }
-  .fig { height: 120px; border-radius: 14px; background: color-mix(in srgb, var(--teal) 6%, var(--bg)); display: grid; place-items: center; overflow: hidden; }
-  .fig svg { width: 200px; height: 120px; overflow: visible; fill: none; stroke: var(--teal); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .fig { height: 140px; border-radius: 14px; background: color-mix(in srgb, var(--teal) 6%, var(--bg)); display: grid; place-items: center; overflow: hidden; }
+  .fig svg { width: 240px; max-width: 100%; height: 130px; overflow: visible; fill: none; stroke: var(--teal); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   .fig .o { stroke: var(--orange); } .fig .fo { fill: var(--orange); stroke: none; } .fig .ft { fill: var(--teal); stroke: none; }
   .fig * { transition: transform .8s cubic-bezier(.2, .8, .2, 1), stroke .4s, fill .4s, opacity .4s, stroke-dashoffset 1.2s ease; transform-box: fill-box; }
   .name { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
@@ -130,22 +127,49 @@
   .arrow svg { width: 16px; height: 16px; }
   .card:hover .arrow, .card:focus-visible .arrow { transform: rotate(45deg); background: var(--orange); border-color: var(--orange); color: var(--surface); }
 
-  /* Pellaeon: the molecule turns inside the chat bubble */
-  .card:hover .mol { transform: rotate(120deg); }
-  /* GPCompaRe: helix 6 swings out, as it does when a receptor activates */
-  .tm6 { transform-origin: 50% 0%; }
-  .card:hover .tm6 { transform: rotate(-15deg); stroke: var(--orange); }
-  .card:hover .tm7 { transform: translateX(20px); }
-  /* CO2 monitor: the trace draws, the dot pulses */
-  .trace { stroke-dasharray: 220; stroke-dashoffset: 0; }
-  .card:hover .trace { animation: trace 1.6s ease forwards; }
-  @keyframes trace { from { stroke-dashoffset: 220; } to { stroke-dashoffset: 0; } }
-  .live { animation: pulse 1.8s ease-in-out infinite; transform-origin: 50% 50%; }
+  /* Pellaeon: a protein backbone turns in a chat bubble (site.js places the atoms); the dots type on hover */
+  .fig .bubble { stroke-width: 2; }
+  .fig .mol line { stroke: var(--teal); stroke-width: 1.6; transition: none; }
+  .fig .mol circle { stroke: none; transition: none; }
+  .fig .typing circle { fill: var(--orange); stroke: none; opacity: .25; }
+  .card:hover .typing circle { animation: type 1s ease-in-out infinite; }
+  .card:hover .typing circle:nth-child(2) { animation-delay: .15s; } .card:hover .typing circle:nth-child(3) { animation-delay: .3s; }
+  @keyframes type { 50% { opacity: 1; transform: translateY(-3px); } }
+  /* GPCompaRe: helix 6 swings out; two contacts break and two form */
+  .fig .mem { fill: color-mix(in srgb, var(--orange) 7%, transparent); stroke: none; }
+  .fig .memline { stroke: var(--orange); stroke-width: 1.2; stroke-dasharray: 2 5; opacity: .7; }
+  .fig .tm { fill: color-mix(in srgb, var(--teal) 14%, var(--surface)); stroke-width: 1.8; }
+  .fig .tm6 { transform-origin: 50% 0%; }
+  .card:hover .tm6 { transform: rotate(-13deg); stroke: var(--orange); }
+  .card:hover .tm7 { transform: translateX(16px); }
+  .fig .c { stroke-width: 2.6; stroke-dasharray: .5 4.5; stroke-linecap: round; }
+  .fig .keep { stroke: var(--teal); opacity: .75; }
+  .fig .lost { stroke: var(--teal); }
+  .fig .gained { stroke: var(--orange); opacity: 0; }
+  .card:hover .lost { opacity: 0; }
+  .card:hover .gained { opacity: 1; transition-delay: .25s; }
+  /* CO2 monitor: the trace drifts across the screen; bubbles rise on hover */
+  .fig .pcb { fill: color-mix(in srgb, var(--teal) 5%, var(--surface)); stroke-width: 1.8; }
+  .fig .screen { fill: color-mix(in srgb, var(--teal) 10%, var(--bg)); stroke-width: 1.4; }
+  .fig .drift { stroke-width: 2; animation: drift 9s linear infinite; }
+  .card:hover .drift { animation-duration: 3s; }
+  @keyframes drift { to { transform: translateX(-110px); } }
+  .fig .bubbles circle { fill: var(--teal); stroke: none; opacity: 0; }
+  .card:hover .bubbles circle { animation: rise 1.8s ease-in infinite; }
+  .card:hover .bubbles circle:nth-child(2) { animation-delay: .5s; } .card:hover .bubbles circle:nth-child(3) { animation-delay: .9s; } .card:hover .bubbles circle:nth-child(4) { animation-delay: 1.3s; }
+  @keyframes rise { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: .7; } 100% { opacity: 0; transform: translateY(-58px); } }
+  .fig .knob2 { stroke-width: 1.6; } .fig .pins { stroke-width: 4; stroke-dasharray: 2 4; opacity: .5; }
+  .fig .led { animation: pulse 2.4s ease-in-out infinite; }
   @keyframes pulse { 50% { opacity: .25; } }
-  /* GeNest: the nested gene lifts out of its host's intron */
-  .card:hover .nest { transform: translateY(-14px); }
-  .card:hover .slot { opacity: 1; }
-  .slot { opacity: 0; stroke-dasharray: 3 4; }
+  /* GeNest: transcription drifts along the host intron; the lens slides over and the nested gene grows */
+  .fig .host { stroke-width: 2; }
+  .fig .flow { stroke: var(--orange); stroke-width: 2; stroke-dasharray: 2 12; animation: flow 2.4s linear infinite; opacity: .6; }
+  @keyframes flow { to { stroke-dashoffset: -28; } }
+  .fig .nest { transform-origin: 141px 92px; transform-box: view-box; }
+  .card:hover .nest { transform: scale(1.25); }
+  .fig .lens { transform: translateX(-56px); opacity: .55; }
+  .fig .lens circle { fill: none; }
+  .card:hover .lens { transform: none; opacity: 1; }
 
   /* people: monograms whose ring draws on hover */
   .people { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
@@ -222,7 +246,12 @@
   .fnav a { color: var(--muted); } .fnav a:hover { color: var(--teal); }
 
   /* ---------- section titles: large, and they decode from A, C, G and T as they arrive ---------- */
-  .big { font: 500 clamp(56px, 9vw, 120px)/.95 var(--display); letter-spacing: -.02em; margin-bottom: 40px; white-space: nowrap; }
+  .big { font: 500 clamp(48px, 7vw, 64px)/1 var(--display); letter-spacing: -.015em; margin-bottom: 28px; white-space: nowrap; }
+  .sec-body { min-width: 0; }
+  @media (min-width: 1000px) {
+    main section { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 0 48px; align-items: start; }
+    main section .big { position: sticky; top: 104px; margin: 0; }
+  }
   .big .x { color: var(--teal); font-family: var(--mono); font-size: .62em; letter-spacing: 0; display: inline-block; width: .5em; text-align: center; }
   .big .x.o { color: var(--orange); }
 
@@ -268,3 +297,10 @@
   } }
   .lead .draw { animation: none; }
   html { scroll-padding-top: 72px; }
+
+  /* ---------- the side helix: one double helix down the left edge, turning as you scroll ---------- */
+  .side-helix { position: fixed; top: 0; left: 0; width: 120px; height: 100vh; height: 100dvh; z-index: 0; pointer-events: none; }
+  .bar { z-index: 10; }
+  main, .hero { position: relative; z-index: 1; }
+  @media (min-width: 900px) { main, .hero { padding-left: max(var(--gutter), 136px); } }
+  @media (max-width: 899px) { .side-helix { display: none; } }
