@@ -58,9 +58,9 @@ PEOPLE = [
  ("Prof. Hagit Baris Feldman", "Head of the lab", "HB", ["Baris Feldman H", "Baris HN"]),
  ("Dr. Chofit Chai Gadot", "Lab manager", "CG", ["Chai Gadot C"]),
  ("Alina Kurolap, RN, PhD", "Researcher", "AK", ["Kurolap A"]),
- ("Yam Amir", "PhD student", "YA", ["Amir Y"]),
  ("Doha Khair", "PhD student", "DK", []),
  ("Bar Levy Lando", "PhD student", "BL", ["Levy Lando B"]),
+ ("Yam Amir", "PhD student", "YA", ["Amir Y"]),
  ("Lotem Nethanel", "PhD student", "LN", []),
  ("Ahava Dukan", "MSc student", "AD", []),
 ]
