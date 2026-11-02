@@ -73,7 +73,10 @@ GITHUB = '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path 
 THEME = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor"/></svg>'
 MENU = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>'
 SEARCH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>'
-SECTIONS = [("research", "Research"), ("publications", "Publications"), ("tools", "Tools"), ("people", "People")]
+SECTIONS = [("research", "Research"), ("publications", "Publications"), ("tools", "Tools"), ("people", "People"), ("contact", "Contact")]
+# The same Formspree form as the GPCompaRe contact page; the subject line tells the two apart.
+FORMSPREE = "https://formspree.io/f/mljrqazl"
+ENQUIRY = ["Research collaboration", "Joining the lab", "Tools: Pellaeon, GPCompaRe, CO₂ monitor, GeNest", "Publications or data", "Other"]
 plain = lambda t: re.sub(r"<[^>]+>", "", t)
 
 
@@ -95,23 +98,10 @@ def chromosome():
     return f'<div class="chromo" aria-hidden="true"><div class="bands">{cells(False)}</div><div class="bands stain">{cells(True)}</div><span class="here"></span></div>'
 
 
-def gene(seed):
-    """A small gene model for a section divider: exons joined by splice arcs. Hovering switches
-    to an isoform that skips one exon."""
-    import random
-    rnd = random.Random(seed)
-    n = rnd.choice((5, 6, 7)); W = 1120
-    xs = sorted(rnd.sample(range(40, W - 80, 30), n))
-    ex = [(x, rnd.choice((22, 30, 38, 46))) for x in xs]
-    skip = rnd.randrange(1, n - 1)
-    rects = "".join(f'<rect class="ex{" skip" if i == skip else ""}" x="{x}" y="22" width="{w}" height="16" rx="3"/>' for i, (x, w) in enumerate(ex))
-    def arc(a, b, cls):
-        x1 = ex[a][0] + ex[a][1]; x2 = ex[b][0]; h = min(20, 6 + (x2 - x1) * .05)
-        return f'<path class="{cls}" d="M{x1} 22Q{(x1 + x2) / 2:.0f} {22 - h * 2:.0f} {x2} 22" pathLength="1"/>'
-    arcs = "".join(arc(i, i + 1, "arc" + (" via" if skip in (i, i + 1) else "")) for i in range(n - 1))
-    alt = arc(skip - 1, skip + 1, "arc alt")
-    return f'<div class="gene" aria-hidden="true"><svg viewBox="0 0 {W} 44" preserveAspectRatio="xMidYMid meet"><path class="intron" d="M0 30H{W}"/>{arcs}{alt}{rects}</svg></div>\n'
-
+def divider(seed):
+    """A section divider: a Sanger chromatogram, four overlapping peak traces running slowly
+    sideways (drawn by site.js from the seed). Decorative: random peaks, no base calls."""
+    return f'<div class="sep" aria-hidden="true"><canvas class="sanger" data-seed="{seed}"></canvas></div>\n'
 
 def page():
     nav = "".join(f'<a href="#{i}">{n}</a>' for i, n in SECTIONS)
@@ -197,7 +187,7 @@ def page():
       <p class="from rise">{FAMILIES}</p>
     </div>
   </section>
-{gene(3)}
+{divider(3)}
   <section id="publications" aria-labelledby="publications-h">
     {big("publications", "Publications")}
     <div class="sec-body">
@@ -211,19 +201,40 @@ def page():
     <p class="none" id="none" hidden aria-live="polite">No papers match.</p>
     </div>
   </section>
-{gene(11)}
+{divider(10)}
   <section id="tools" aria-labelledby="tools-h">
     {big("tools", "Tools")}
     <div class="sec-body">
 {tools}    </div>
   </section>
-{gene(29)}
+{divider(17)}
   <section id="people" aria-labelledby="people-h">
     {big("people", "People")}
     <div class="sec-body">
     <ul class="people">
 {chr(10).join(people)}
     </ul>
+    </div>
+  </section>
+{divider(31)}
+  <section id="contact" aria-labelledby="contact-h">
+    {big("contact", "Contact")}
+    <div class="sec-body">
+    <form class="contact rise" id="contact-form" action="{FORMSPREE}" method="POST">
+      <input type="hidden" name="_subject" value="TGGR Lab website enquiry">
+      <div class="honey" aria-hidden="true"><label for="c-gotcha">Leave this field empty</label><input type="text" id="c-gotcha" name="_gotcha" tabindex="-1" autocomplete="off"></div>
+      <div class="row">
+        <label class="f"><span>Name <i aria-hidden="true">*</i></span><input type="text" id="c-name" name="name" autocomplete="name" required></label>
+        <label class="f"><span>Email <i aria-hidden="true">*</i></span><input type="email" id="c-email" name="email" autocomplete="email" required></label>
+      </div>
+      <div class="row">
+        <label class="f"><span>Institution <i aria-hidden="true">*</i></span><input type="text" id="c-inst" name="institution" autocomplete="organization" required></label>
+        <label class="f"><span>Type of enquiry <i aria-hidden="true">*</i></span><select id="c-type" name="enquiry_type" required><option value="" disabled selected>Select one</option>{"".join(f'<option>{html.escape(o)}</option>' for o in ENQUIRY)}</select></label>
+      </div>
+      <label class="f"><span>Message <i aria-hidden="true">*</i></span><textarea id="c-msg" name="message" rows="6" required></textarea></label>
+      <p class="note">Do not submit patient-identifiable or other sensitive information through this form.</p>
+      <div class="send"><button type="submit">Send {ARROW}</button><p class="status" id="c-status" role="status" aria-live="polite"></p></div>
+    </form>
     </div>
   </section>
 

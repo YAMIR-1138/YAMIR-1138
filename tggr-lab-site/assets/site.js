@@ -275,4 +275,69 @@
       else { live = false; cancelAnimationFrame(raf2); }
     }).observe(g.closest('svg'));
   });
+  // ---- section dividers: a Sanger chromatogram drifting sideways. Random peaks, no base calls. ----
+  document.querySelectorAll('canvas.sanger').forEach(function (cv) {
+    var ctx = cv.getContext('2d'), seed = +cv.dataset.seed || 1, TILE = 560, W = 0, H = 0, off = 0, lastT = 0, raf = 0, live = false;
+    var rnd = function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    var peaks = [[], [], [], []];
+    for (var x = 8; x < TILE; x += 16) {
+      peaks[(rnd() * 4) | 0].push([x + (rnd() - .5) * 3, .45 + rnd() * .55]);
+      if (rnd() < .35) peaks[(rnd() * 4) | 0].push([x + (rnd() - .5) * 6, .06 + rnd() * .12]);
+    }
+    // sample each channel once over one tile; drawing just shifts the samples
+    var samples = peaks.map(function (ps) {
+      var a = new Float32Array(TILE);
+      for (var i = 0; i < TILE; i++) {
+        var v = 0;
+        ps.forEach(function (p) { var d = ((i - p[0]) % TILE + TILE * 1.5) % TILE - TILE / 2; v += p[1] * Math.exp(-d * d / 14); });
+        a[i] = v;
+      }
+      return a;
+    });
+    var cols = [];
+    var read = function () { var cs = getComputedStyle(root); cols = ['--teal', '--orange', '--fg', '--muted'].map(function (n) { return cs.getPropertyValue(n).trim(); }); };
+    var size = function () { var d = Math.min(devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+    var draw = function () {
+      ctx.clearRect(0, 0, W, H);
+      ctx.lineWidth = 1.2; ctx.lineJoin = 'round';
+      for (var c = 0; c < 4; c++) {
+        ctx.strokeStyle = cols[c]; ctx.globalAlpha = c === 3 ? .4 : .6;
+        ctx.beginPath();
+        for (var px = 0; px <= W; px++) {
+          var v = samples[c][Math.floor(px + off) % TILE];
+          var y = H - 3 - v * (H - 10);
+          if (px) ctx.lineTo(px, y); else ctx.moveTo(px, y);
+        }
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    };
+    var tick = function (now) { var dt = Math.min(50, now - (lastT || now)); lastT = now; off = (off + dt * .018) % TILE; draw(); raf = requestAnimationFrame(tick); };
+    read(); size(); draw();
+    redraws.push(function () { read(); draw(); });
+    addEventListener('resize', function () { size(); draw(); });
+    new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting && !reduce.matches) { if (!live) { live = true; lastT = 0; raf = requestAnimationFrame(tick); } }
+      else { live = false; cancelAnimationFrame(raf); }
+    }).observe(cv);
+  });
+
+  // ---- contact: on the published site the form sends in place; elsewhere it says where it works ----
+  var form = document.getElementById('contact-form');
+  if (form) {
+    var status = document.getElementById('c-status'), sendBtn = form.querySelector('button[type=submit]');
+    var live = /(^|\.)github\.io$/.test(location.hostname) || location.hostname === 'tggr-lab.org';
+    form.addEventListener('submit', function (e) {
+      if (!form.checkValidity()) return;
+      e.preventDefault();
+      status.className = 'status';
+      if (!live) { status.textContent = 'This is a preview. The form sends from the published site.'; return; }
+      sendBtn.disabled = true; status.textContent = 'Sending…';
+      fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(r); })
+        .then(function () { form.reset(); status.className = 'status ok'; status.textContent = 'Thank you. Your message was sent.'; })
+        .catch(function () { status.className = 'status err'; status.textContent = 'The message did not send. Please try again in a moment.'; })
+        .then(function () { sendBtn.disabled = false; });
+    });
+  }
 })();

@@ -268,23 +268,32 @@
   .chromo .stain i.acen { background: var(--orange); }
   .chromo .here { position: absolute; top: 50%; left: calc(var(--p, 0) * 100%); width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 3px color-mix(in srgb, var(--orange) 25%, transparent); }
 
-  /* ---------- gene-model dividers: splice arcs draw on; hover takes the other isoform ---------- */
-  .gene { max-width: 1120px; margin: 0 auto; padding: 8px 0; }
-  .gene svg { display: block; width: 100%; height: auto; overflow: visible; }
-  .gene .intron { stroke: var(--rule); stroke-width: 1.5; fill: none; }
-  .gene .ex { fill: var(--teal); transition: opacity .5s, fill .5s; }
-  .gene .ex.skip { fill: var(--orange); }
-  .gene .arc { fill: none; stroke: var(--teal); stroke-width: 1.5; stroke-dasharray: 1; stroke-dashoffset: 0; transition: opacity .5s; }
-  .gene .alt { stroke: var(--orange); opacity: 0; }
-  .gene:hover .alt { opacity: 1; }
-  .gene:hover .via { opacity: .12; }
-  .gene:hover .ex.skip { opacity: .2; }
-  @supports (animation-timeline: view()) { @media (prefers-reduced-motion: no-preference) {
-    .gene .arc:not(.alt) { animation: splice linear both; animation-timeline: view(); animation-range: entry 20% entry 100%; }
-    @keyframes splice { from { stroke-dashoffset: 1; } }
-    .gene .ex { animation: exon linear both; animation-timeline: view(); animation-range: entry 0% entry 60%; transform-box: fill-box; transform-origin: center; }
-    @keyframes exon { from { transform: scaleY(0); } }
-  } }
+  /* ---------- section dividers: a Sanger trace running slowly sideways ---------- */
+  .sep { max-width: 1120px; margin: 4px auto; height: 44px;
+    -webkit-mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+  .sep canvas { display: block; width: 100%; height: 100%; }
+
+  /* ---------- contact: the form posts to Formspree ---------- */
+  .contact { display: grid; gap: 16px; max-width: 760px; }
+  .contact .row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  @media (min-width: 640px) { .contact .row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .contact .f { display: grid; gap: 6px; min-width: 0; }
+  .contact .f > span { font: 500 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .contact .f i { font-style: normal; color: var(--orange-text); }
+  .contact input, .contact select, .contact textarea { width: 100%; font: 400 16px/1.5 var(--body); color: var(--fg); background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 12px 14px; transition: border-color .25s, box-shadow .25s; }
+  .contact textarea { resize: vertical; min-height: 140px; }
+  .contact select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(-45deg, transparent 50%, var(--muted) 50%); background-position: calc(100% - 20px) 55%, calc(100% - 15px) 55%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 36px; }
+  .contact input:focus, .contact select:focus, .contact textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 4px color-mix(in srgb, var(--teal) 15%, transparent); }
+  .contact .honey { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .contact .note { font-size: 14px; color: var(--muted); }
+  .contact .send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+  .contact button { display: inline-flex; align-items: center; gap: 10px; font: 600 15px var(--body); color: var(--surface); background: var(--teal); border: 0; border-radius: 999px; padding: 13px 20px 13px 22px; cursor: pointer; transition: background .3s, transform .3s; }
+  .contact button svg { width: 14px; height: 14px; transition: transform .35s; }
+  .contact button:hover { background: var(--orange); transform: translateY(-1px); }
+  .contact button:hover svg { transform: translate(2px, -2px); }
+  .contact button:disabled { opacity: .6; cursor: default; transform: none; }
+  .contact .status { font-size: 15px; color: var(--muted); margin: 0; }
+  .contact .status.ok { color: var(--teal); } .contact .status.err { color: var(--orange-text); }
 
   /* ---------- theme switch: the new theme opens as a circle from the button ---------- */
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
