@@ -55,8 +55,8 @@ PUBS = [
 
 # name, role, monogram, how the name appears in author lists
 PEOPLE = [
- ("Prof. Hagit Baris Feldman", "Head of the lab", "HB", ["Baris Feldman H", "Baris HN"]),
- ("Dr. Chofit Chai Gadot", "Lab manager", "CG", ["Chai Gadot C"]),
+ ("Hagit Baris Feldman, MD", "Professor · Head of the lab", "HB", ["Baris Feldman H", "Baris HN"]),
+ ("Chofit Chai Gadot, PhD", "Lab manager", "CG", ["Chai Gadot C"]),
  ("Alina Kurolap, RN, PhD", "Researcher", "AK", ["Kurolap A"]),
  ("Doha Khair", "PhD student", "DK", []),
  ("Bar Levy Lando", "PhD student", "BL", ["Levy Lando B"]),
