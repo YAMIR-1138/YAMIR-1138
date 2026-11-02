@@ -228,8 +228,8 @@ def page():
         <label class="f"><span>Email <i aria-hidden="true">*</i></span><input type="email" id="c-email" name="email" autocomplete="email" required></label>
       </div>
       <div class="row">
-        <label class="f"><span>Institution <i aria-hidden="true">*</i></span><input type="text" id="c-inst" name="institution" autocomplete="organization" required></label>
-        <label class="f"><span>Type of enquiry <i aria-hidden="true">*</i></span><select id="c-type" name="enquiry_type" required><option value="" disabled selected>Select one</option>{"".join(f'<option>{html.escape(o)}</option>' for o in ENQUIRY)}</select></label>
+        <label class="f"><span>Institution</span><input type="text" id="c-inst" name="institution" autocomplete="organization"></label>
+        <label class="f"><span>Type of enquiry</span><select id="c-type" name="enquiry_type"><option value="" selected>Select one</option>{"".join(f'<option>{html.escape(o)}</option>' for o in ENQUIRY)}</select></label>
       </div>
       <label class="f"><span>Message <i aria-hidden="true">*</i></span><textarea id="c-msg" name="message" rows="6" required></textarea></label>
       <p class="note">Do not submit patient-identifiable or other sensitive information through this form.</p>
