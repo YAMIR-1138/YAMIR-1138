@@ -113,7 +113,7 @@ def page():
         <div class="more"><p class="au">{authors(a)}</p><a class="pm" href="https://doi.org/{doi}">doi.org/{html.escape(doi)} {ARROW}</a></div></details></li>''')
     people = []
     for k, (name, role, ini, _) in enumerate(PEOPLE):
-        people.append(f'      <li class="rise"><div class="person{" lead" if k == 0 else ""}"><svg class="mono" viewBox="0 0 76 76" aria-hidden="true"><circle class="base" cx="38" cy="38" r="35"/><circle class="draw" cx="38" cy="38" r="35"/><text x="38" y="47" text-anchor="middle">{ini}</text></svg><div><h3>{name}</h3><p>{role}</p></div></div></li>')
+        people.append(f'      <li class="rise"><div class="person{" lead" if k == 0 else ""}"><svg class="mono" viewBox="0 0 76 76" aria-hidden="true"><circle class="base" cx="38" cy="38" r="35"/><circle class="draw" cx="38" cy="38" r="35"/><text x="38" y="47" text-anchor="middle">{ini}</text></svg><div><h3>{name.split(", ", 1)[0]}{('<span class="sr">, </span><span class="deg">' + name.split(', ', 1)[1] + '</span>') if ', ' in name else ''}</h3><p>{role}</p></div></div></li>')
     tools = (HERE / "src" / "tools.html").read_text()
     ld = json.dumps({
         "@context": "https://schema.org", "@type": "ResearchOrganization", "name": "TGGR Lab",

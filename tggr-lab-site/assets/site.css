@@ -182,6 +182,7 @@
   .mono text { font: 500 26px var(--display); fill: var(--fg); transition: fill .3s; }
   .lead .draw { stroke: var(--orange); stroke-dashoffset: 0; }
   .person h3 { font: 600 15.5px/1.3 var(--body); }
+  .person h3 .deg { display: block; font-weight: 400; font-size: 14px; color: var(--muted); }
   .person p { font: 500 11.5px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
 
   /* footer */
