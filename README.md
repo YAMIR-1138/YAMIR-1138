@@ -1,6 +1,5 @@
-# [**yamir-1138.github.io/YAMIR-1138 →**](https://yamir-1138.github.io/YAMIR-1138/)
+# [**yamir-1138.github.io/YAMIR-1138**](https://yamir-1138.github.io/YAMIR-1138/)
 
-**My homepage:** selected work, side quests, a terminal, and a cat. Everything below lives there too.
 
 ---
 
