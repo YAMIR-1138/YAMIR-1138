@@ -495,6 +495,7 @@
   @media (min-width: 900px) {
     .inst-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 12px; margin: 56px 0 0; }
     .inst-row + .panel--log, .inst-row + #term { margin-top: 14px; }   /* the row heads the console at the foot of the page */
+    .inst-row.four { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }   /* four in a row would cut every readout short: two by two */
   }
   .panel--inst[hidden] { display: none; }
   .panel.panel--inst { padding: 14px 14px 10px; min-height: 84px; }
@@ -676,6 +677,11 @@
   #standby .msg { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 12.5px/1.6 var(--mono); letter-spacing: 3px; color: var(--dim); text-shadow: none; white-space: nowrap; animation: breathe 3s ease-in-out infinite alternate; }
   @keyframes breathe { from { opacity: .4; } to { opacity: .8; } }
   #standby.dark canvas, #standby.dark .clk { display: none; }
+  /* the night watch (FEATURES.nightwatch): the whole tube a little dimmer, under the scanlines. 9 % keeps every phosphor's
+     dim text well over 4.5 : 1 */
+  #night { position: fixed; inset: 0; z-index: 49; pointer-events: none; background: #000; opacity: 0; transition: opacity 4s ease-in-out; }
+  #night.on { opacity: .09; }
+  .still #night { transition: none; }
   /* the jump to lightspeed (FEATURES.lightspeed): under the scanlines, over everything else */
   #jump { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 49; pointer-events: none; }
   /* the cat, small, at the foot of the stars (FEATURES.catwarm) */
@@ -972,6 +978,7 @@
     mitosis: true,     // once in a long while the chromosome in the margin divides, or a point mutation on it is repaired
     lightspeed: true,  // a link to another site jumps to lightspeed: half a second of star streaks on the way out
     kpstatic: true,    // in a real geomagnetic storm (NOAA's planetary K index 5 or more) the tubes take more static
+    nightwatch: true,  // the tube dims a little in the visitor's night, and a MOON instrument shows the real phase
     bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
@@ -991,6 +998,13 @@
   };
 
   $('#year').textContent = new Date().getFullYear();
+  // the date and time, for the things that go by the calendar. Under a debug flag, &date=2026-05-04 or
+  // &date=2026-05-04T23:30 sets it, and it runs on from there
+  T.now = (function () {
+    const d = T.debug && params.get('date'), at = d && /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(d) ? new Date(d.length === 10 ? d + 'T12:00' : d) : null;
+    const off = at && !isNaN(at) ? at.getTime() - Date.now() : 0;
+    return () => new Date(Date.now() + off);
+  })();
 
   // ---- phosphor theme. Amber unless the visitor chose otherwise.
   const themeBtn = $('#theme');
@@ -2091,7 +2105,7 @@
     const row = document.createElement('div');
     row.className = 'inst-row'; row.setAttribute('aria-hidden', 'true');
     const mk = (name, title) => '<div class="panel panel--inst" data-inst="' + name + '"><p class="path">' + title + '</p><div class="inst"><span class="read"></span><canvas width="110" height="28"></canvas></div></div>';
-    row.innerHTML = mk('tube', 'TUBE') + mk('pow', 'POWER') + mk('con', 'CONTACTS');
+    row.innerHTML = mk('tube', 'TUBE') + mk('pow', 'POWER') + mk('con', 'CONTACTS') + (F.nightwatch ? mk('moon', 'MOON') : '');
     // at the foot of the page, at the head of the console: above the ship log if there is one, else above the terminal
     ($('.panel--log') || $('#term')).before(row);
     const P = {};
@@ -2139,6 +2153,7 @@
     if (navigator.getBattery) navigator.getBattery().then((b) => {
       if (!b) return;
       batt = b; pow.el.hidden = false; pow.lo = 0; pow.hi = 100; pow.pts = [b.level * 100];
+      row.classList.toggle('four', $$('.panel--inst', row).filter((q) => !q.hidden).length > 3);
       const upd = () => { readPow(); trace(pow); };
       b.addEventListener('levelchange', upd); b.addEventListener('chargingchange', upd);
       upd();
@@ -2163,13 +2178,57 @@
       set(con, '<span class="two"><span>' + T.esc(c) + '</span><span>cat · ' + (d < 0 ? (T.catAway && T.catAway() ? 'other terminal' : 'off deck') : 'deck ' + 'ABCDEFGH'[d]) + '</span></span>');
     }
     con.pts = [heads(crew())];
+    // 4. the moon (FEATURES.nightwatch): its real phase for this moment, worked out from the date (Meeus, Astronomical
+    // Algorithms, ch. 48, the short form, good to a percent or so). The trace is the lit fraction a fortnight either side
+    // of now, the dot is now, and beside it the moon as it looks from the north
+    const moon = P.moon, rad = Math.PI / 180;
+    function phase(ms) {
+      const t = (ms / 86400000 + 2440587.5 - 2451545) / 36525;
+      const D = (297.8501921 + 445267.1114034 * t) % 360, M = (357.5291092 + 35999.0502909 * t) % 360, Mp = (134.9633964 + 477198.8675055 * t) % 360;
+      const i = 180 - D - 6.289 * Math.sin(Mp * rad) + 2.1 * Math.sin(M * rad) - 1.274 * Math.sin((2 * D - Mp) * rad) - .658 * Math.sin(2 * D * rad) - .214 * Math.sin(2 * Mp * rad) - .11 * Math.sin(D * rad);
+      return { lit: (1 + Math.cos(i * rad)) / 2, age: ((D % 360) + 360) % 360 / 360 };
+    }
+    const NAMES = [[.034, 'new moon'], [.216, 'waxing crescent'], [.284, 'first quarter'], [.466, 'waxing gibbous'], [.534, 'full moon'], [.716, 'waning gibbous'], [.784, 'last quarter'], [.966, 'waning crescent'], [1, 'new moon']];
+    let moonAt = -1, moonNow = null;
+    function drawMoon() {
+      if (!moon || !moonNow) return;
+      const c = moon.cv, r = Math.min(3, window.devicePixelRatio || 1);
+      if (c.width !== 110 * r) { c.width = 110 * r; c.height = 28 * r; }
+      const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(), k = { faint: v('--faint'), dim: v('--dim'), fg: v('--fg'), hi: v('--hi') };
+      const g = c.getContext('2d'); g.setTransform(r, 0, 0, r, 0, 0); g.clearRect(0, 0, 110, 28);
+      // a month of it, a point every nine hours, now in the middle
+      const t = T.now().getTime(), y = (lit) => 24.5 - lit * 21;
+      g.strokeStyle = k.dim; g.lineWidth = 1; g.beginPath();
+      for (let x = 0; x <= 74; x++) { const l = phase(t + (x - 37) * 9 * 3600000).lit; x ? g.lineTo(x + .5, y(l)) : g.moveTo(x + .5, y(l)); }
+      g.stroke();
+      g.fillStyle = k.fg; g.fillRect(36.5, Math.round(y(moonNow.lit)) - 1, 2, 2);
+      // the moon, thirteen pixels across: lit from the right while it waxes, from the left while it wanes
+      const N = 13, px = 2, x0 = 110 - N * px - 1, y0 = 1, e = 1 - 2 * moonNow.lit, wax = moonNow.age < .5;
+      const SEAS = { '4,4': 1, '5,4': 1, '4,5': 1, '7,3': 1, '8,6': 1, '6,8': 1, '7,8': 1, '3,7': 1, '9,9': 1 };
+      for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+        const u = (i + .5 - N / 2) / (N / 2), w = (j + .5 - N / 2) / (N / 2), rr = u * u + w * w;
+        if (rr > 1) continue;
+        const edge = Math.sqrt(1 - w * w), lit = wax ? u >= e * edge : -u >= e * edge;
+        g.fillStyle = lit ? (SEAS[i + ',' + j] ? k.fg : k.hi) : (rr > .78 ? k.faint : 'rgba(0,0,0,0)');
+        g.fillRect(x0 + i * px, y0 + j * px, px, px);
+      }
+    }
+    function readMoon() {
+      if (!moon) return;
+      const t = T.now().getTime(), m = Math.floor(t / 60000);
+      if (m === moonAt) return;
+      moonAt = m; moonNow = phase(t);
+      const name = NAMES.find((q) => moonNow.age < q[0])[1];
+      set(moon, '<span class="two"><span><b>' + Math.round(moonNow.lit * 100) + ' %</b> · lit</span><span>' + name + '</span></span>');
+      drawMoon();
+    }
     // one tick a second while the row is on the screen: the readouts every second, a point on each trace every four
     let timer = 0, n = 0;
     const all = () => [tube, pow, con];
     function tick() {
       if (document.hidden || !T.motion) { counter(false); return; }
       counter(true);
-      readTube(); readCon();
+      readTube(); readCon(); readMoon();
       if (n++ % 4) return;
       if (hz) push(tube, hz);
       if (batt) push(pow, batt.level * 100);
@@ -2178,14 +2237,15 @@
     }
     function run() {
       const on = wide.matches;
-      if (on && !timer) { counter(T.motion); readTube(); readPow(); readCon(); all().forEach(trace); timer = setInterval(tick, 1000); }
+      if (on && !timer) { counter(T.motion); readTube(); readPow(); readCon(); readMoon(); all().forEach(trace); timer = setInterval(tick, 1000); }
       if (!on && timer) { clearInterval(timer); timer = 0; counter(false); }
     }
     if (wide.addEventListener) wide.addEventListener('change', run); else wide.addListener(run);
     T.onReady(run);
-    const retint = () => { ink = null; readTube(); all().forEach(trace); };
+    const retint = () => { ink = null; readTube(); all().forEach(trace); drawMoon(); };
     if (T.onTheme) T.onTheme(retint);
-    else T.onReady(() => T.onTheme && T.onTheme(retint));
+    // (the boot can finish before the script that keeps the list of these has run, as it does under ?debug: wait for it)
+    else (function hook() { if (T.onTheme) T.onTheme(retint); else setTimeout(hook, 50); })();
     // the row opens with the other screens' power-on when there is one
     // the row switches on the first time it comes into view, the way the sections' screens do
     if (T.powerUp && T.motion && !T.reduceMotion && 'IntersectionObserver' in window) {
@@ -2479,6 +2539,26 @@
     const man = COMMANDS.man;
     COMMANDS.man = (arg) => { if (/^(shutdown|halt|poweroff)$/i.test(arg || '')) print((arg || '').toLowerCase() + ' - switch the ship off. a key or a click turns it on again'); else man(arg); };
   }
+
+  // ---- the night watch: between ten at night and six in the morning, by the visitor's own clock, the tube is turned
+  // down a little, the way a ship dims its lights for the night. One line in the log when it does, and when it comes up
+  if (F.nightwatch) (function () {
+    const el = document.createElement('div');
+    el.id = 'night'; el.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(el);
+    let on = null;
+    const night = () => { const h = T.now().getHours(); return h >= 22 || h < 6; };
+    function look(force) {
+      const n = force === undefined ? night() : !!force;
+      if (n === on) return;
+      const first = on === null; on = n;
+      el.classList.toggle('on', n);
+      if (n) T.log('night watch', 'tube dimmed until 06:00');
+      else if (!first) T.log('morning watch', 'tube at full');
+    }
+    T.onReady(() => { look(); setInterval(look, 60000); });
+    T.events.night = (v) => look(v === undefined ? !on : v);
+  })();
 
   // ---- a link to another site is a jump to lightspeed: the stars stretch into lines for half a second. A link that stays
   // in this tab waits that half second before it goes. One that opens a new tab (by its target, or a modifier key, or the
