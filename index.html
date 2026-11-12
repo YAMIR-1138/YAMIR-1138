@@ -676,6 +676,9 @@
   #standby .msg { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 12.5px/1.6 var(--mono); letter-spacing: 3px; color: var(--dim); text-shadow: none; white-space: nowrap; animation: breathe 3s ease-in-out infinite alternate; }
   @keyframes breathe { from { opacity: .4; } to { opacity: .8; } }
   #standby.dark canvas, #standby.dark .clk { display: none; }
+  /* the cat, small, at the foot of the stars (FEATURES.catwarm) */
+  #standby canvas.gazer { inset: auto; left: 50%; bottom: 18px; width: auto; transform: translateX(-50%); }
+  #standby canvas.gazer.flip { transform: translateX(-50%) scaleX(-1); }
   #standby.dark .msg { animation: none; opacity: 1; color: var(--faint); }
   .still #standby .msg { animation: none; opacity: .6; }
 
@@ -963,6 +966,7 @@
     catwatch: true,    // the cat goes and watches the display when it changes channel, if she is in the mood
     twotabs: true,     // tabs of the page in one browser see each other, and the one cat walks between them
     catkeys: true,     // rarely, the cat walks across the open terminal's empty prompt and types on it, and it clears
+    catwarm: true,     // the cat naps on the screen that has really been busiest lately, and watches the stars in standby
     bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
@@ -3932,6 +3936,7 @@ window.CATDATA = {
     // the display has a ledge along its top edge, for when she goes to watch it (FEATURES.catwatch)
     const dsp = T.FEATURES.catwatch && $('.panel--display');
     if (dsp && dsp.getClientRects().length) { const c = rel(dsp.getBoundingClientRect()); add('display', dsp, 'perch', c.x, c.r, c.y, { label: 'the display' }); }
+    warmLedges(add);
     const form = $('#form'), input = $('#cmd');
     if (form) { const f = rel(form.getBoundingClientRect()), n = rel(input.getBoundingClientRect()); add('prompt', form, 'prompt', n.x, f.r, f.b + 2, { label: 'the prompt' }); }
     if (T.helix) { const h = rel(T.helix.el.getBoundingClientRect()); add('helix', T.helix.el, 'top', h.x - W * .3, h.r + W * .3, h.y + 5, { label: 'the helix' }); }
@@ -3966,6 +3971,74 @@ window.CATDATA = {
     return rand(l.x0, l.x1);
   }
   function setU() { if (C.ledge) C.u = (C.x - C.ledge.x0) / cw; }
+
+  // ------------------------------------------------------------ warm screens (FEATURES.catwarm)
+  // How busy each screen has really been lately: a point a second while its picture is moving on the screen, a little for
+  // each change in what it shows, more for each time the visitor points at it, clicks in it or types in it. It all cools
+  // by half in about two minutes. When she picks a place to nap, she picks the warmest screen in view
+  const WARM = new Map();       // screen element: warmth
+  function warmLedges(add) {
+    if (!T.FEATURES.catwarm) return;
+    // the screens that have no ledge of their own get one along their top edge, used only for napping
+    $$('.panel:not(.panel--inst), #term').forEach((p, i) => {
+      if (!p.getClientRects().length || (p.classList.contains('panel--display') && T.FEATURES.catwatch)) return;
+      const c = rel(p.getBoundingClientRect()), strip = p.id === 'term' ? null : $(':scope > .path', p);
+      const name = strip ? Array.from(strip.childNodes).filter((n) => n.nodeType === 3).map((n) => n.data).join(' ').trim().toLowerCase() : 'terminal';
+      add('warm-' + i, p, 'warm', c.x, c.r, c.y, { label: 'the ' + (name || 'screen'), screen: p });
+    });
+  }
+  // the ledge that goes with a screen: a card's roof, the display's strip, or one of the above
+  const ledgeOf = (s) => ledges.find((l) => (l.kind === 'perch' && (l.card === s || (l.id === 'display' && l.el === s))) || (l.kind === 'warm' && l.screen === s));
+  function warmest() {
+    if (!T.FEATURES.catwarm) return null;
+    let best = null, heat = 1;      // a screen has to have done something to count
+    WARM.forEach((h, s) => { if (h > heat) { const l = ledgeOf(s); if (l && vis(l)) { best = l; heat = h; } } });
+    return best;
+  }
+  if (T.FEATURES.catwarm) (function () {
+    const SCREENS = '.card:not([hidden]), .panel, #term';
+    const heat = (s, n) => { if (s) WARM.set(s, (WARM.get(s) || 0) + n); };
+    const screenOf = (n) => (n && n.closest ? n.closest(SCREENS) : null);
+    let pics = [], at = 0;
+    setInterval(() => {
+      if (document.hidden) return;
+      // which moving pictures sit in which screen, looked up again whenever the scheduler gains items
+      if (T.Anim.items.length !== at) { at = T.Anim.items.length; pics = T.Anim.items.map((it) => [it, screenOf(it.el)]).filter((q) => q[1]); }
+      WARM.forEach((h, s) => WARM.set(s, h * .994));
+      if (T.motion) pics.forEach(([it, s]) => { if (it.on && it.visible) heat(s, 1); });
+    }, 1000);
+    // what a screen shows changing: a caption, a readout, a line of the log
+    const mo = new MutationObserver((ms) => { const seen = new Set(); ms.forEach((m) => { const s = screenOf(m.target.nodeType === 3 ? m.target.parentNode : m.target); if (s && !seen.has(s)) { seen.add(s); heat(s, .25); } }); });
+    T.onReady(() => $$(SCREENS).forEach((s) => mo.observe(s, { childList: true, characterData: true, subtree: true })));
+    // the visitor at it
+    let over = null, overAt = 0;
+    document.addEventListener('pointerover', (e) => { over = screenOf(e.target); overAt = now(); }, { passive: true });
+    setInterval(() => { if (over && now() - overAt < 30000 && !document.hidden) heat(over, .5); }, 1000);
+    document.addEventListener('pointerdown', (e) => heat(screenOf(e.target), 4), { passive: true, capture: true });
+    document.addEventListener('keydown', () => heat(screenOf(document.activeElement), 1), { passive: true, capture: true });
+    T.warmth = () => Array.from(WARM.entries()).sort((a, b) => b[1] - a[1]).map(([s, h]) => [((s.querySelector('.path') || s.querySelector('summary') || s).textContent || '').trim().slice(0, 24), Math.round(h)]);
+  })();
+  // in standby she sits small at the foot of the stars, her back to you, and watches them go by
+  let gazer = null;
+  function stargaze(on) {
+    if (!on) { if (gazer) { gazer.el.parentNode.removeChild(gazer.el); gazer = null; } return; }
+    const ov = $('#standby');
+    if (!ov) return;
+    if (!gazer) {
+      const c = document.createElement('canvas'), k = window.innerWidth <= 760 ? .4 : .5, r = Math.min(3, window.devicePixelRatio || 1);
+      c.className = 'gazer'; c.width = Math.round(A.BW * k * r); c.height = Math.round(A.BH * k * r); c.style.width = A.BW * k + 'px'; c.style.height = A.BH * k + 'px';
+      ov.appendChild(c);
+      gazer = { el: c, k: k * r, pose: '', turn: now() + rand(14, 26) * 1000 };
+      T.log('cat', 'watching the stars');
+    }
+    // her back, mostly; now and then she turns her head after one going by
+    const t = now(), pose = t > gazer.turn ? 'SIT_ALERT' : 'BACK';
+    if (t > gazer.turn + 2600) gazer.turn = t + rand(14, 30) * 1000;
+    if (pose !== gazer.pose && A.has(pose)) {
+      gazer.pose = pose; const g = gazer.el.getContext('2d'); g.clearRect(0, 0, gazer.el.width, gazer.el.height);
+      A.draw(g, pose, gazer.k, COL); gazer.el.classList.toggle('flip', pose === 'SIT_ALERT');
+    }
+  }
 
   // ------------------------------------------------------------ movement
   function* wait(n) { for (let i = 0; i < n; i++) yield; }
@@ -4276,14 +4349,16 @@ window.CATDATA = {
   const meter = () => '<span class="batt"><i style="width:' + Math.round(C.energy) + '%"></i></span>' + Math.round(C.energy) + '%';
   function* chargeNap() {
     mark('nap');
-    if (!C.onstage || !inView()) {
+    const w = warmest();
+    if (w && (!C.onstage || !C.ledge || C.ledge.key !== w.key)) { setMode('looking for a warm spot'); yield* goTo(w, restX(w)); }
+    else if (!C.onstage || !inView()) {
       const l = pick(perches()) || ledges.find((k) => k.id === 'footer' && vis(k));
       if (!l) { yield* wait(sec(3)); return; }
       if (C.onstage) hide();
       setMode('looking for a spot');
       yield* enter(l, restX(l));
     }
-    setMode('asleep, charging ' + where(C.ledge), true);
+    setMode('asleep, charging ' + where(C.ledge) + (w && C.ledge === w ? ', the warmest screen' : ''), true);
     C.asleep = true;
     yield* cycle(['LOAF_LOOK', 'LOAF'], 6, 12);
     let i = 0;
@@ -4398,7 +4473,10 @@ window.CATDATA = {
   const night = () => { const h = new Date().getHours(); return h >= 23 || h < 6; };
   function* catnap() {
     mark('catnap');
-    setMode('napping ' + where(C.ledge), true);
+    // somewhere warm first, if a screen has been busier than this one
+    const w = warmest();
+    if (w && (!C.ledge || C.ledge.key !== w.key)) { setMode('looking for a warm spot'); yield* goTo(w, restX(w)); }
+    setMode('napping ' + where(C.ledge) + (w && C.ledge === w ? ', the warmest screen' : ''), true);
     C.asleep = true;
     yield* cycle(['LOAF_LOOK', 'LOAF'], 6, 12);
     const n = sec(rand(30, 70) * (night() ? 1.6 : 1));
@@ -5002,6 +5080,7 @@ window.CATDATA = {
   }
 
   function tick() {
+    if (T.FEATURES.catwarm) stargaze(!!(T.standby && T.standby.on && T.standby.mode === 'standby' && enabled && !offsite && T.motion));
     if (!enabled || (T.standby && T.standby.on)) return;     // she holds still while the ship is in standby
     if (offsite) { if (C.onstage) hide(); return; }          // another tab has her
     C.annoy = Math.max(0, C.annoy - (TICK / 1000 * FAST) / 15);
