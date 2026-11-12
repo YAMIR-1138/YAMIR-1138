@@ -979,6 +979,7 @@
     lightspeed: true,  // a link to another site jumps to lightspeed: half a second of star streaks on the way out
     kpstatic: true,    // in a real geomagnetic storm (NOAA's planetary K index 5 or more) the tubes take more static
     nightwatch: true,  // the tube dims a little in the visitor's night, and a MOON instrument shows the real phase
+    translate: true,   // translate <text>: a name read as amino acids and written back as mRNA, run through the ribosome
     bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
@@ -1324,6 +1325,7 @@
       row('ls', 'the projects on this page');
       row('open', 'open one of them. open pellaeon');
       row('whoami', 'who runs this');
+      if (F.translate) row('translate', 'your name, in codons. translate yam');
       row('theme', F.phosphor3 ? 'amber, green or white phosphor' : 'amber or green phosphor');
       row('motion', 'stop or start the animation');
       row('sound', 'off unless you turn it on');
@@ -1451,7 +1453,7 @@
       const M = {
         ls: 'list the projects on this page', open: 'open a project in a new tab. open pellaeon', cat: 'print a file. with no file, reports on the ship\'s cat', exit: 'close the terminal',
         cd: 'scroll to a section. cd side', grep: 'search the projects. grep gpcr', neofetch: 'system summary, with cat',
-        transcribe: 'DNA to mRNA', translate: 'DNA or RNA to protein, reading frame 1', revcomp: 'reverse complement of a DNA string', gc: 'length and GC content',
+        transcribe: 'DNA to mRNA', translate: F.translate ? 'A C G T U to protein, frame 1; any other text read as amino acids and written back as mRNA' : 'DNA or RNA to protein, reading frame 1', revcomp: 'reverse complement of a DNA string', gc: 'length and GC content',
         theme: 'switch the phosphor. theme green', motion: 'stop or start all animation', degauss: 'clear the magnetic build-up on the tube', reboot: 'start again',
         keys: 'turn the / and ~ shortcuts off or on. keys off', mother: 'ask the ship. mother where is the cat', tracker: 'the motion tracker in the margin, on wide screens. tracker off', sound: 'key clicks and tube noises. off unless you ask. sound on',
         portal: 'open a pair of portals for the cat', pazaak: 'the card game. first to three sets. pazaak table opens the full table', replicate: 'copy the helix. or click it', pet: 'pet the cat', feed: 'feed the cat', pspsps: 'call the cat. she may come', zoomies: 'you will regret this', shoo: 'ask the cat to leave',
@@ -2539,6 +2541,81 @@
     const man = COMMANDS.man;
     COMMANDS.man = (arg) => { if (/^(shutdown|halt|poweroff)$/i.test(arg || '')) print((arg || '').toLowerCase() + ' - switch the ship off. a key or a click turns it on again'); else man(arg); };
   }
+
+  // ---- translate <text> (FEATURES.translate). Only A C G T U, three or more: read as RNA in frame 1 and translated.
+  // Anything else: the letters are taken as one-letter amino-acid codes and written back as an mRNA, one codon each (the
+  // one human genes use most), with a start and a stop. All twenty-six letters mean something: the twenty, plus O
+  // (pyrrolysine) and U (selenocysteine), which ride on stop codons, and B, Z, J and X, which say one of two or any, and
+  // are written with the IUPAC letters that say the same. Then the TRANSLATION screen reads it, once
+  if (F.translate) (function () {
+    const AA3 = { A: 'Ala', C: 'Cys', D: 'Asp', E: 'Glu', F: 'Phe', G: 'Gly', H: 'His', I: 'Ile', K: 'Lys', L: 'Leu', M: 'Met', N: 'Asn', P: 'Pro', Q: 'Gln', R: 'Arg', S: 'Ser', T: 'Thr', V: 'Val', W: 'Trp', Y: 'Tyr',
+      O: 'Pyl', U: 'Sec', B: 'Asx', Z: 'Glx', J: 'Xle', X: 'Xaa', '*': 'Stop' };
+    // the codon used most for each in human genes (Kazusa codon usage table, Homo sapiens)
+    const BACK = { A: 'GCC', C: 'UGC', D: 'GAC', E: 'GAG', F: 'UUC', G: 'GGC', H: 'CAC', I: 'AUC', K: 'AAG', L: 'CUG', M: 'AUG', N: 'AAC', P: 'CCC', Q: 'CAG', R: 'AGA', S: 'AGC', T: 'ACC', V: 'GUG', W: 'UGG', Y: 'UAC',
+      O: 'UAG', U: 'UGA', B: 'RAY', Z: 'SAR', J: 'MUH', X: 'NNN' };
+    const NOTE = {
+      O: 'O is pyrrolysine: read from UAG, but only in the archaea and bacteria that recode it. anywhere else UAG is a stop.',
+      U: 'U is selenocysteine: read from UGA, but only with a SECIS element in the mRNA to say so. otherwise UGA is a stop.',
+      B: 'B is Asp or Asn: RAY (R = A or G, Y = C or U) codes for exactly those two.',
+      Z: 'Z is Glu or Gln: SAR (S = G or C, R = A or G) codes for exactly those two.',
+      J: 'J is Leu or Ile: MUH (M = A or C, H = A, C or U) codes for exactly those two.',
+      X: 'X is any residue: NNN, any codon, which could also be a stop.',
+    };
+    const narrow = () => matchMedia('(max-width: 480px)').matches;
+    // codons over their residues, a dozen to a line (half that on a phone)
+    function table(codons, res, pre) {
+      const per = narrow() ? 6 : 12;
+      for (let i = 0; i < codons.length; i += per) {
+        T.print((i ? '   ' : pre[0]) + codons.slice(i, i + per).join(' ') + (i + per >= codons.length ? pre[1] : ''));
+        T.print('   ' + res.slice(i, i + per).map((r) => r.padEnd(3)).join(' '), 'in');
+      }
+    }
+    const SHOW = 30;      // the screen in about has room for so many
+    T.COMMANDS.translate = function (arg) {
+      const text = (arg || '').toUpperCase().replace(/[^A-Z]/g, '');
+      if (!text) { T.print('usage: translate <text>. a name is read as amino acids and written back as mRNA; A C G T U is read as RNA. translate yam'); return; }
+      let msg;
+      if (/^[ACGTU]+$/.test(text) && text.length >= 3) {
+        // forward: frame 1, from the first base, to the first stop
+        const rna = text.replace(/T/g, 'U'), codons = [];
+        for (let i = 0; i + 3 <= rna.length; i += 3) codons.push(rna.slice(i, i + 3));
+        const stop = codons.findIndex((c) => T.CODON[c] === '*'), read = stop >= 0 ? codons.slice(0, stop + 1) : codons, aa = read.map((c) => T.CODON[c]);
+        T.print('translate: ' + rna.length + ' nt, read as mRNA in frame 1');
+        table(read, aa.map((r) => AA3[r]), ["5'-", stop >= 0 || read.length * 3 === rna.length ? "-3'" : ''] );
+        const pep = aa.filter((r) => r !== '*').join('');
+        T.print('peptide: ' + (pep || '(none)') + (pep ? ' · ' + pep.length + ' aa' : ''));
+        if (stop >= 0) T.print('the ribosome lets go at ' + codons[stop] + (stop < codons.length - 1 ? '; ' + (codons.length - stop - 1) + ' codon' + (codons.length - stop - 1 === 1 ? ' after it is' : 's after it are') + ' not read' : '') + '.', 'in');
+        if (rna.length % 3) T.print(rna.length % 3 + ' nt left over at the end, short of a codon.', 'in');
+        if (codons[0] !== 'AUG') T.print('no AUG at the start: a cell would begin at one. this reads from the first base.', 'in');
+        msg = { codons: read.slice(0, SHOW), aa: aa.slice(0, SHOW), names: aa.slice(0, SHOW).map((r) => AA3[r]), ends: stop >= 0 && read.length <= SHOW, cap: 'YOUR SEQUENCE · ' + pep.length + ' AA' };
+      } else {
+        // back: one codon a residue, a start before and a stop after
+        const res = Array.from(text), start = res[0] !== 'M';
+        const aa = (start ? ['M'] : []).concat(res).concat(['*']), codons = aa.map((r) => (r === '*' ? 'UAA' : BACK[r]));
+        T.print('translate: ' + text + ', read as amino acids and written back as mRNA');
+        table(codons, aa.map((r) => AA3[r]), ["5'-", "-3'"]);
+        T.print((start ? 'AUG and UAA added: a message needs a start and a stop. ' : 'UAA added: a message needs a stop. ') + 'each codon is the one human genes use most.', 'in');
+        Object.keys(NOTE).forEach((k) => { if (res.indexOf(k) >= 0) T.print(NOTE[k], 'in'); });
+        const cut = aa.length > SHOW;
+        msg = { codons: cut ? codons.slice(0, SHOW) : codons, aa: cut ? aa.slice(0, SHOW) : aa, names: (cut ? aa.slice(0, SHOW) : aa).map((r) => AA3[r]), ends: !cut, cap: text.slice(0, 18) + ' · ' + res.length + ' AA · TRANSLATED FOR YOU' };
+      }
+      if (!T.ribo) return;
+      T.ribo.read(msg);
+      // the screen that reads it is in about. If it is not in view the visitor is told, and once they have stopped typing
+      // for a few seconds it comes into view; any key before then and the page stays where it is
+      const panel = $('.panel--ribo'), r = panel && panel.getBoundingClientRect();
+      if (!r || (r.bottom > 0 && r.top < window.innerHeight)) return;
+      T.print('the TRANSLATION screen, in about, is reading it now.', 'in');
+      let typed = false;
+      const key = () => { typed = true; };
+      document.addEventListener('keydown', key, { once: true, capture: true });
+      setTimeout(() => {
+        document.removeEventListener('keydown', key, { capture: true });
+        if (typed || $('#cmd').value) return;
+        panel.scrollIntoView({ block: 'center', behavior: T.motion ? 'smooth' : 'auto' });
+      }, 3000);
+    };
+  })();
 
   // ---- the night watch: between ten at night and six in the morning, by the visitor's own clock, the tube is turned
   // down a little, the way a ship dims its lights for the night. One line in the log when it does, and when it comes up
@@ -3646,29 +3723,39 @@
       ['GENETICS', '8 AA · READS: GENETICS'], ['SCIENCE', '7 AA · READS: SCIENCE'], ['CAMILLE', '7 AA · THE CAT, IN AMINO ACIDS'],
       ['WHISKERS', '8 AA · READS: WHISKERS'], ['ALIEN', '5 AA · IN SPACE NO ONE CAN HEAR YOU TRANSLATE'], ['FEEDTHECAT', '10 AA · A MESSAGE'], ['LIHI', '4 AA · Leu-Ile-His-Ile'],
     ];
-    let which = -1, CODONS = [], aa = [], spans = [], beads = [], N = 0, STOP = 0, REL = 0, CUT = 0, HOLD = 0, PERIOD = 1, cap = '';
-    function load(i) {
-      which = i;
-      const word = REPERTOIRE[i][0]; cap = REPERTOIRE[i][1];
-      CODONS = ['AUG'].concat(Array.from(word).map((c) => BACK[c])).concat(['UAA']);
-      N = CODONS.length - 1; STOP = N; REL = N + 1; CUT = N + 2; HOLD = N + 3; PERIOD = N + 8;
-      aa = CODONS.map((c) => T.CODON[c]);
+    let which = -1, CODONS = [], aa = [], names = [], spans = [], beads = [], N = 0, STOP = 0, REL = 0, CUT = 0, HOLD = 0, PERIOD = 1, cap = '', ends = true, met = true;
+    // a message: its codons, the residue each one gives, and whether it ends on a stop codon. Without one the ribosome
+    // runs off the end; without a Met at the start there is no initiator to cleave
+    function use(m) {
+      CODONS = m.codons; aa = m.aa; names = m.names || m.aa.map((r) => AA3[r]); cap = m.cap; ends = m.ends !== false; met = aa[0] === 'M';
+      N = ends ? CODONS.length - 1 : CODONS.length; STOP = N; REL = N + 1; CUT = N + 2; HOLD = N + 3; PERIOD = N + 8;
       mrna.textContent = ''; chain.textContent = '';
       spans = CODONS.map((c) => { const s = document.createElement('span'); s.textContent = c; mrna.appendChild(s); return s; });
-      beads = aa.slice(0, N).map((r) => { const b = document.createElement('b'); b.textContent = r; b.title = AA3[r]; chain.appendChild(b); return b; });
+      beads = aa.slice(0, N).map((r, i) => { const b = document.createElement('b'); b.textContent = r; b.title = names[i]; chain.appendChild(b); return b; });
     }
-    let t0 = 0;
+    function load(i) {
+      which = i;
+      const word = REPERTOIRE[i][0], codons = ['AUG'].concat(Array.from(word).map((c) => BACK[c])).concat(['UAA']);
+      use({ codons, aa: codons.map((c) => T.CODON[c]), cap: REPERTOIRE[i][1] });
+    }
+    let t0 = 0, asked = null, back = 0;
     const draw = (t) => {
-      if (T.reduceMotion) { if (which < 0) load(0); t = HOLD + 1; }
-      else if (which < 0 || t - t0 >= PERIOD) { t0 = t; load(which < 0 ? 0 : which < 2 ? which + 1 : 3 + Math.floor(Math.random() * (REPERTOIRE.length - 3))); }
+      // a message someone asked for is read once, in place of the next of its own, and then it goes back to those
+      if (asked && (T.reduceMotion || !T.motion)) { use(asked); asked = null; which = -2; t0 = t = 0; t = HOLD + 1; clearTimeout(back); back = setTimeout(() => { which = -1; draw(0); }, 30000); }
+      else if (asked) { t0 = t; use(asked); asked = null; which = -2; }
+      else if (which === -2 && (T.reduceMotion || !T.motion)) t = HOLD + 1;
+      else if (T.reduceMotion) { if (which < 0) load(0); t = HOLD + 1; }
+      else if (which === -1 || t - t0 >= PERIOD) { t0 = t; load(which < 0 ? 0 : which < 2 ? which + 1 : 3 + Math.floor(Math.random() * (REPERTOIRE.length - 3))); }
       const k = (t - t0) % PERIOD;                       // reading, stop, release, cleave, then hold
       spans.forEach((s, i) => { s.className = k <= STOP ? (i === k ? 'cur' : i < k ? 'done' : '') : 'done'; });
-      beads.forEach((b, i) => { b.className = (i <= Math.min(k, N - 1) ? 'on' : '') + (i === 0 && k >= CUT ? ' cut' : '') + (k >= HOLD && i > 0 ? ' hi' : ''); });
-      const c = k < STOP ? 'CODON ' + (k + 1) + '/' + CODONS.length + ' · ' + CODONS[k] + ' → ' + AA3[aa[k]]
-        : k === STOP ? 'UAA · STOP' : k === REL ? 'CHAIN RELEASED' : k === CUT ? 'INITIATOR MET CLEAVED' : cap;
+      beads.forEach((b, i) => { b.className = (i <= Math.min(k, N - 1) ? 'on' : '') + (met && i === 0 && k >= CUT ? ' cut' : '') + (k >= HOLD && (i > 0 || !met) ? ' hi' : ''); });
+      const c = k < STOP ? 'CODON ' + (k + 1) + '/' + CODONS.length + ' · ' + CODONS[k] + ' → ' + names[k]
+        : k === STOP ? (ends ? CODONS[STOP] + ' · STOP' : 'END OF MESSAGE · NO STOP CODON') : k === REL ? 'CHAIN RELEASED' : k === CUT && met ? 'INITIATOR MET CLEAVED' : cap;
       if (rcap.textContent !== c) rcap.textContent = c;
     };
-    T.Anim.add(mrna, draw, 1.1);
+    const ribo = T.Anim.add(mrna, draw, 1.1);
+    // T.ribo.read({ codons, aa, names, ends, cap }): read this next. Off the screen it waits there until it is looked at
+    T.ribo = { read(m) { asked = m; if (!T.motion || T.reduceMotion) draw(0); else { ribo.acc = ribo.step; T.Anim.wake(); } } };
   }
 
   // ---- the name is a sign of glass tubes, and one of them is not what it was. Rarely, a letter dips for a frame.
