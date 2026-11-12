@@ -682,6 +682,11 @@
   #night { position: fixed; inset: 0; z-index: 49; pointer-events: none; background: #000; opacity: 0; transition: opacity 4s ease-in-out; }
   #night.on { opacity: .09; }
   .still #night { transition: none; }
+  /* the days the ship marks (FEATURES.surprises): the helix's rungs a little brighter on DNA Day, the cursor the colour of a
+     warning on Alien Day, and on the 4th of May the dotted leaders after the headings are lit, as blades */
+  html.day-dna #helix { color: var(--dim); }
+  html.day-alien #cursor { color: var(--warn); text-shadow: 0 0 6px var(--warn), 0 0 16px var(--warn); }
+  html.day-may4 h2 .ld { background: var(--hi); height: 2px; border-radius: 1px; box-shadow: 0 0 4px rgba(var(--glow-rgb), .9), 0 0 12px rgba(var(--glow-rgb), .45); opacity: .85; }
   /* the jump to lightspeed (FEATURES.lightspeed): under the scanlines, over everything else */
   #jump { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 49; pointer-events: none; }
   /* the cat, small, at the foot of the stars (FEATURES.catwarm) */
@@ -1026,6 +1031,7 @@
     nightwatch: true,  // the tube dims a little in the visitor's night, and a MOON instrument shows the real phase
     translate: true,   // translate <text>: a name read as amino acids and written back as mRNA, run through the ribosome
     printout: true,    // printing the page gives a plain CV on white paper, in the manner of a dot-matrix printout
+    surprises: true,   // a line and a small touch on DNA Day, Alien Day and the 4th of May; a word for whoever opens the console
     bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
@@ -1267,6 +1273,20 @@
   } : null;
   const watchLine = () => 'watch ............... [ ' + watchNow() + ' ]';
   if (watchNow) { const at = BOOT.findIndex((l) => l[0].indexOf('crew ') === 0); BOOT.splice(at < 0 ? BOOT.length : at + 1, 0, [watchLine(), 'ok']); }
+  // ---- three days in the year the ship marks (FEATURES.surprises): a line at the end of the boot log and in the ship's log,
+  // and one small touch on the page, nothing more. DNA Day, 25 April: the papers on the double helix were printed on that day
+  // in 1953. Alien Day, 26 April: 4/26, for LV-426, the moon in the film. And the 4th of May. Debug only: &date=2026-05-04
+  const DAY = F.surprises ? (function () {
+    const d = T.now(), md = (d.getMonth() + 1) + '-' + d.getDate();
+    return { '4-25': ['dna', 'DNA day', '25 April · the double helix, 1953', 'DNA day. the double helix went to print on 25 April 1953'],
+      '4-26': ['alien', 'alien day', '26 April · LV-426', 'alien day. 4/26, for LV-426, the moon in the film Alien'],
+      '5-4': ['may4', 'may the fourth', 'be with you', 'may the fourth be with you'] }[md] || null;
+  })() : null;
+  if (DAY) {
+    BOOT.push([(DAY[1] + ' ').padEnd(21, '.') + ' [ ' + DAY[2] + ' ]', 'ok']);
+    document.documentElement.classList.add('day-' + DAY[0]);
+    T.ready.push(() => T.log('calendar', DAY[3]));
+  }
   const bootEl = $('#boot'), main = $('#main');
   const bootLine = (l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>';
   // the long boot plays once. After that the ship remembers, and starts warm
@@ -2758,6 +2778,18 @@
     const d = T.now ? T.now() : new Date(), two = (v) => String(v).padStart(2, '0');
     $('.bar').dataset.printed = d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate());
   });
+
+  // ---- a word for whoever opens the developer console (FEATURES.surprises), once, as the page loads
+  if (F.surprises) {
+    try {
+      const amber = 'color:#ffb000;background:#060402;font:12px/1.35 monospace;padding:2px 6px;text-shadow:0 0 4px rgba(255,176,0,.6)';
+      console.log('%c' + [
+        ' /\\_/\\    YAMIR-1138 · TGGR-LINK INTERFACE 1138',
+        '( o.o )   you have found the engine room.',
+        ' > ^ <    press / on the page for the terminal (try help). add ?debug=cat to the address for a quicker cat',
+      ].join('\n'), amber);
+    } catch (e) {}
+  }
 
   // "/" reaches the prompt from anywhere on the page
   document.addEventListener('keydown', (e) => {
