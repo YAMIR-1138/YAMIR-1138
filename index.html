@@ -961,6 +961,7 @@
     shutdown: true,    // shutdown, halt and poweroff. needs standby on too: it goes dark on the same screen
     instruments: true, // small screens above the ship log on a wide window: the tube's real refresh rate, the battery if there is one, who is aboard
     catwatch: true,    // the cat goes and watches the display when it changes channel, if she is in the mood
+    twotabs: true,     // tabs of the page in one browser see each other, and the one cat walks between them
     bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
@@ -2125,7 +2126,10 @@
     const crew = () => (T.crew ? T.crew() : '1 human · 1 cat');
     function readCon() {
       const d = catDeck();
-      set(con, '<span class="two"><span>' + T.esc(crew()) + '</span><span>cat · ' + (d < 0 ? 'off deck' : 'deck ' + 'ABCDEFGH'[d]) + '</span></span>');
+      // with more than one terminal open, the count leads, so the line still fits its small screen
+      let c = crew(); const tm = c.match(/ · (\d+) terminals/);
+      if (tm) c = tm[1] + ' terminals · ' + c.replace(tm[0], '').replace(/^1 human · /, '');
+      set(con, '<span class="two"><span>' + T.esc(c) + '</span><span>cat · ' + (d < 0 ? (T.catAway && T.catAway() ? 'other terminal' : 'off deck') : 'deck ' + 'ABCDEFGH'[d]) + '</span></span>');
     }
     con.pts = [heads(crew())];
     // one tick a second while the row is on the screen: the readouts every second, a point on each trace every four
@@ -3795,6 +3799,11 @@ window.CATDATA = {
   };
   let W = 112, H = 74, cw = 5.4, layerW = 0, SL = -120, SR = 2000, ledges = [], hot = [];
   let cur = null, enabled = true, saveTimer = 0, lastBlocked = null, offTicks = 0;
+  // with the page open in more than one tab, only one has the cat (FEATURES.twotabs). Until the tabs have spoken she is
+  // nowhere ('pending'); while another tab has her, 'other'. A lone tab has her at once
+  let offsite = T.FEATURES.twotabs && 'BroadcastChannel' in window ? 'pending' : false;
+  const own = () => { offsite = false; if (!T.motion && T.booted) park(); };
+  if (offsite) setTimeout(() => { if (offsite === 'pending') own(); }, 3000);   // the tabs never answered: she is here
   let lastInput = now(), lastScroll = 0, pointer = { x: -1, y: -1 };
   const last = {};
   const cool = (name, s) => now() - (last[name] || -1e9) > s * 1000 / FAST;
@@ -4827,6 +4836,7 @@ window.CATDATA = {
   // with motion off she does not move at all: she is simply there, at the end of the footer
   function park() {
     settle(); measure(); cur = null;
+    if (offsite) { hide(); return; }                 // she is in another tab
     const l = ledges.find((k) => k.id === 'footer');
     if (!l) { hide(); return; }
     C.ledge = l; C.x = l.x1 - 8 * cw; C.y = topOf(l); C.face = 1; setU(); paint('LOAF_LOOK', true); show(); el.classList.remove('ghost');
@@ -4990,6 +5000,7 @@ window.CATDATA = {
 
   function tick() {
     if (!enabled || (T.standby && T.standby.on)) return;     // she holds still while the ship is in standby
+    if (offsite) { if (C.onstage) hide(); return; }          // another tab has her
     C.annoy = Math.max(0, C.annoy - (TICK / 1000 * FAST) / 15);
     let r;
     try { if (!cur) cur = director(); r = cur.next(); } catch (e) { console.error('camille:', e); cur = null; settle(); hide(); return; }
@@ -5021,11 +5032,12 @@ window.CATDATA = {
   // ------------------------------------------------------------ shell
   const P = T.print;
   const mood = () => (C.annoy >= 4 ? 'furious' : C.annoy >= 3 ? 'annoyed' : C.annoy >= 1.5 ? 'wary' : C.asleep ? 'asleep' : C.mode === 'zoomies' ? 'unhinged' : 'content');
-  T.catStatus = () => 'Camille · ' + (C.onstage ? C.mode : 'elsewhere') + ' · energy ' + Math.round(C.energy) + ' %';
+  T.catStatus = () => 'Camille · ' + (C.onstage ? C.mode : offsite === 'other' ? 'in another terminal' : 'elsewhere') + ' · energy ' + Math.round(C.energy) + ' %';
   // the manifest: who is aboard right now. Visitors through a portal count, and so do the ones nobody invited
   T.crew = () => {
     const guests = riders.some((r) => r.kind === 'ciri' || r.kind === 'girl') ? 1 : 0, hunt = riders.filter(hostile).length;
-    return '1 human · 1 cat' + (guenHere() ? ' · 1 panther' : '') + (guests ? ' · ' + guests + ' visitor' : '') + (hunt ? ' · ' + hunt + ' UNINVITED' : '');
+    const terms = T.terminals ? T.terminals() : 1;
+    return '1 human · 1 cat' + (terms > 1 ? ' · ' + terms + ' terminals' : '') + (guenHere() ? ' · 1 panther' : '') + (guests ? ' · ' + guests + ' visitor' : '') + (hunt ? ' · ' + hunt + ' UNINVITED' : '');
   };
   // a draft beside the real thing: Camille as a sprite from the kit, or her traced outline
   const fileCat = T.COMMANDS.cat;
@@ -5069,6 +5081,7 @@ window.CATDATA = {
     if (Date.now() - C.fedAt < 600000 / FAST) { P('Camille is full.'); return; }
     C.fed++; C.fedAt = Date.now(); C.energy = Math.min(99, C.energy + 25); C.annoy = Math.max(0, C.annoy - 1); C.awayUntil = 0; save();
     P('you put down a bowl. Camille is on her way.');
+    if (offsite === 'other' && T.catCall) { T.catCall(); return; }
     if (T.motion) take((function* () {
       T.openTerm(false); measure(); const l = ledges.find((k) => k.id === 'prompt'); if (!l) return;
       setMode('running to dinner');
@@ -5080,6 +5093,7 @@ window.CATDATA = {
   };
   T.COMMANDS.pspsps = function () {
     if (Math.random() < .3) { P('Camille heard you. Camille does not care.'); return; }
+    if (offsite === 'other' && T.catCall) { T.catCall(); P('... (she is in another terminal)'); return; }
     C.awayUntil = 0;
     P('...');
     if (T.motion) take((function* () {
@@ -5322,6 +5336,135 @@ window.CATDATA = {
     T.onTheme(() => { if (bug) { const f = bug.frame; bug.frame = ''; paintBug(bug, f); } });
   })();
 
+  // ------------------------------------------------------------ two terminals (FEATURES.twotabs)
+  // Tabs of the page open in one browser hear each other on a BroadcastChannel: each says hello, answers the hellos it
+  // hears, says something every twenty seconds and goodbye when it closes. The log notes a terminal logging in and out, and
+  // the crew counts them. Only one tab has the cat. Now and then she walks off the edge of her window and into another,
+  // a tab on the screen rather than one put away; if it does not answer she comes back. When the tab she is in closes,
+  // the tab longest open (one on the screen first) takes her in. Should two ever both have her, the older one keeps her
+  if (offsite) (function () {
+    const ch = new BroadcastChannel('yamir-1138-terminals'), me = Math.random().toString(36).slice(2, 10);
+    let born = Date.now();
+    const peers = new Map();          // id: { born, seen, vis, cat }
+    const older = (a, b) => a.born < b.born || (a.born === b.born && a.id < b.id);
+    let shut = false;                 // after goodbye, nothing more is said until the page is shown again
+    const send = (type, o) => { if (shut) return; try { ch.postMessage(Object.assign({ type, id: me, born, vis: !document.hidden, cat: !offsite }, o)); } catch (e) {} };
+    T.terminals = () => peers.size + 1;
+    T.catAway = () => offsite === 'other';
+    function note(m) {
+      const known = peers.has(m.id);
+      peers.set(m.id, { id: m.id, born: m.born, seen: Date.now(), vis: !!m.vis, cat: !!m.cat });
+      if (!known) T.log('termlink', 'another terminal logged in · ' + T.terminals() + ' open');
+      // two cats: the younger tab lets hers go
+      if (m.cat && !offsite && older({ id: m.id, born: m.born }, { id: me, born })) { offsite = 'other'; settle(); hide(); cur = null; if (handing) { clearTimeout(handing.timer); handing = null; } }
+    }
+    function gone(id) {
+      const p = peers.get(id);
+      if (!p) return;
+      peers.delete(id);
+      T.log('termlink', 'a terminal logged out · ' + T.terminals() + ' open');
+      if (p.cat) adopt();
+    }
+    // nobody has her: of the tabs left, one on the screen takes her, the oldest of those; the others wait to hear
+    function adopt() {
+      if (!offsite || [...peers.values()].some((p) => p.cat)) return;
+      const all = [...peers.values()].concat([{ id: me, born, vis: !document.hidden }]);
+      const pool = all.some((p) => p.vis) ? all.filter((p) => p.vis) : all;
+      const first = pool.reduce((a, b) => (older(a, b) ? a : b));
+      if (first.id === me) arrive(Math.random() < .5 ? -1 : 1, null);
+    }
+    // she arrives in this tab, from the side she left the other by: out of its right edge, in at this one's left
+    function arrive(side, m) {
+      own();
+      if (m && typeof m.energy === 'number') { C.energy = clamp(m.energy, 0, 100); C.annoy = Math.max(0, +m.annoy || 0); }
+      C.awayUntil = 0; send('beat');
+      if (!T.motion) { park(); return; }
+      take((function* () {
+        measure();
+        const l = pick(perches()) || ledges.find((k) => k.id === 'footer' && vis(k));
+        if (!l) return;
+        C.mode = 'arriving'; C.rest = false;
+        yield* fromEdge(l, side);
+        if (m) T.log('cat', 'came in from another terminal');
+        C.mode = 'sitting ' + where(l); C.rest = true;
+        paint('SIT_LOOK'); yield* wait(sec(1.5)); yield* sitFor(sec(rand(4, 8)));
+      })());
+    }
+    // in at the very edge of the window, not the edge of the stage, and a trot if it is a long way in
+    function* fromEdge(l, side) {
+      appear(l, side); C.x = side < 0 ? -W - 4 : layerW + 4; place();
+      const x = restX(l);
+      yield* walkTo(x, Math.abs(x - C.x) > 480 ? 2 : 1);
+    }
+    // she goes: to the nearer edge of the window and off it, and the other tab is told to expect her
+    let handing = null;
+    function* crossOut(to, done) {
+      C.mode = 'heading for another terminal'; C.rest = false;
+      const side = middle().x < layerW / 2 ? -1 : 1, x = side < 0 ? -W - 6 : layerW + 6;
+      yield* walkTo(x, Math.abs(x - C.x) > 480 ? 2 : 1);
+      yield* vanish();
+      offsite = 'other';
+      const p = peers.get(to);
+      if (!p) { back(side, done, false); return; }
+      handing = { to, side, done, timer: setTimeout(() => back(side, done, true), 3000) };
+      send('give', { to, side, energy: Math.round(C.energy), annoy: C.annoy });
+    }
+    // nobody took her: she comes back the way she went
+    function back(side, done, said) {
+      handing = null;
+      if (said) T.log('cat', 'came back. the other terminal did not answer');
+      offsite = false; C.awayUntil = 0;
+      if (T.motion) take((function* () { measure(); const l = pick(perches()) || ledges.find((k) => k.id === 'footer'); C.mode = 'coming back'; C.rest = false; if (l) { yield* fromEdge(l, side); C.mode = 'sitting ' + where(l); C.rest = true; yield* sitFor(sec(4)); } })());
+      else park();
+      if (done) done();
+    }
+    ch.onmessage = (e) => {
+      const m = e.data;
+      if (!m || typeof m !== 'object' || m.id === me || typeof m.id !== 'string') return;
+      if (m.type === 'bye') { const p = peers.get(m.id); if (p) p.cat = !!m.cat; gone(m.id); return; }
+      note(m);
+      if (m.type === 'hello') send('here');
+      else if (m.type === 'give' && m.to === me) {
+        if (offsite === 'other') { send('took', { to: m.id }); arrive(-(+m.side || 1), m); }
+      } else if (m.type === 'took' && m.to === me && handing && handing.to === m.id) {
+        clearTimeout(handing.timer); const d = handing.done; handing = null;
+        T.log('cat', 'went to another terminal'); if (d) d();
+      } else if (m.type === 'call' && !offsite && !handing && T.events.crossing && !T.events.busy && enabled && T.motion && C.onstage && !riders.length && !guenHere()) T.events.crossing({ to: m.id });
+    };
+    T.catCall = () => send('call');
+    // the first word: who else is here, and does anyone have the cat
+    function hello() {
+      offsite = 'pending'; born = born || Date.now(); send('hello');
+      setTimeout(() => {
+        if (offsite !== 'pending') return;
+        if ([...peers.values()].some((p) => p.cat)) { offsite = 'other'; return; }
+        own(); send('beat');      // nobody has her: here she is
+      }, 700);
+    }
+    hello();
+    // a word every twenty seconds; a tab silent for over two minutes has gone without saying so
+    setInterval(() => {
+      send('beat');
+      const t = Date.now();
+      peers.forEach((p, id) => { if (t - p.seen > 130000) gone(id); });
+    }, 20000);
+    document.addEventListener('visibilitychange', () => send('beat'));
+    // closing, or going into the back-forward cache: goodbye, and she is left for the others to take in
+    window.addEventListener('pagehide', () => { send('bye'); shut = true; if (!offsite) { settle(); hide(); cur = null; } offsite = 'pending'; peers.clear(); });
+    window.addEventListener('pageshow', (e) => { if (e.persisted) { shut = false; born = Date.now(); hello(); } });
+    // the crossing is one of the events: rare, and only from a tab on the screen with the cat settled in it
+    const target = (o) => {
+      if (o && o.to) return peers.has(o.to) ? o.to : null;
+      const shown = [...peers.values()].filter((p) => p.vis);
+      if (shown.length) return pick(shown).id;
+      return peers.size && Math.random() < .2 ? pick([...peers.keys()]) : null;   // a tab put away, once in a while
+    };
+    T.events.add('crossing', { every: 360, weight: 2, max: 40000,
+      can: (o) => !offsite && !handing && peers.size > 0 && (o.force ? enabled && T.motion && C.onstage : free()),
+      // stopped on her way out (standby, the tab put away), she simply stays; once the other tab is asked, it plays out
+      start(done, o) { const to = target(o); if (!to) return false; take(crossOut(to, done)); return null; } });
+  })();
+
   // ------------------------------------------------------------ the tracker
   // A map of the page in the margin of a wide screen, decks A to G, with a contact where the cat is.
   // After the one Ash built, which also found the cat first.
@@ -5533,7 +5676,7 @@ window.CATDATA = {
       run(name, arg) {
         const B = { watch: () => watch(true), intro, climb, portal, ciri: () => portal(true), guen: () => guenhwyvar(window.GUEN()), perch, patrol, block, box, catnap, meddle, startle, chase, zoomies, chargeNap, promptNap, leave, knock, rest, offPrompt };
         // the events are run by their own director, with the cat's part asked for
-        const EVENTS = { hunt: () => T.events.bughunt && T.events.bughunt({ hunt: true }) };
+        const EVENTS = { hunt: () => T.events.bughunt && T.events.bughunt({ hunt: true }), cross: () => T.events.crossing && T.events.crossing() };
         if (EVENTS[name]) return EVENTS[name](arg) ? name : false;
         C.awayUntil = 0; take(B[name](arg)); return name;
       },
