@@ -967,6 +967,7 @@
     twotabs: true,     // tabs of the page in one browser see each other, and the one cat walks between them
     catkeys: true,     // rarely, the cat walks across the open terminal's empty prompt and types on it, and it clears
     catwarm: true,     // the cat naps on the screen that has really been busiest lately, and watches the stars in standby
+    mitosis: true,     // once in a long while the chromosome in the margin divides, or a point mutation on it is repaired
     bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
@@ -3329,15 +3330,10 @@
     let W = 0, H = 0, dpr = 0, ink = null, queued = false;
     T.onTheme(() => { ink = null; draw(); });
     function arm(x, y0, y1, w) { const r = Math.min(w / 2, (y1 - y0) / 2); g.beginPath(); g.roundRect(x, y0, w, y1 - y0, r); }
-    function draw() {
-      queued = false;
-      if (!ideo.getClientRects().length) return;
-      const box = ideo.getBoundingClientRect(), r = Math.min(3, window.devicePixelRatio || 1);
-      if (box.width !== W || box.height !== H || r !== dpr) { W = box.width; H = box.height; dpr = r; ideo.width = W * r; ideo.height = H * r; }
-      if (!ink) { const cs = getComputedStyle(document.documentElement), v = (k) => cs.getPropertyValue(k).trim(); ink = { glow: v('--glow-rgb'), fg: v('--fg'), dim: v('--dim'), hi: v('--hi'), warn: v('--warn') }; }
-      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
-      const top = 6, bottom = H - 6, k = (bottom - top) / LEN, cw = 12, x = Math.round(W / 2 - cw / 2) + .5;
-      const y = (pos) => top + pos * k;
+    // one chromosome: its middle at cx, from y0 to y1, so wide, so bright
+    function chrom(cx, y0, y1, cw, alpha) {
+      const k = (y1 - y0) / LEN, x = Math.round(cx - cw / 2) + .5, y = (pos) => y0 + pos * k;
+      g.globalAlpha = alpha;
       // the two arms, each a capsule, the bands painted inside them
       [[0, CEN0], [CEN1, LEN]].forEach((a) => {
         g.save(); arm(x, y(a[0]), y(a[1]), cw); g.clip();
@@ -3349,14 +3345,113 @@
         arm(x, y(a[0]), y(a[1]), cw); g.strokeStyle = ink.fg; g.lineWidth = 1; g.stroke();
       });
       // the centromere: a waist between the arms
-      g.fillStyle = ink.warn; g.globalAlpha = .7; g.fillRect(x + 3, y(CEN0), cw - 6, Math.max(2, (CEN1 - CEN0) * k)); g.globalAlpha = 1;
+      g.fillStyle = ink.warn; g.globalAlpha = .7 * alpha; g.fillRect(x + cw / 4, y(CEN0), cw / 2, Math.max(2, (CEN1 - CEN0) * k)); g.globalAlpha = 1;
+      return { x, y };
+    }
+    let mit = null, frac = [0, 1];
+    function draw() {
+      queued = false;
+      // while something plays on it the sizes are the ones last measured: no layout is read a frame
+      if (!mit) {
+        if (!ideo.getClientRects().length) return;
+        const box = ideo.getBoundingClientRect(), r = Math.min(3, window.devicePixelRatio || 1);
+        if (box.width !== W || box.height !== H || r !== dpr) { W = box.width; H = box.height; dpr = r; ideo.width = W * r; ideo.height = H * r; }
+        const doc = document.documentElement, total = Math.max(1, doc.scrollHeight);
+        frac = [window.pageYOffset / total, Math.min(1, (window.pageYOffset + window.innerHeight) / total)];
+      }
+      if (!W) return;
+      if (!ink) { const cs = getComputedStyle(document.documentElement), v = (k) => cs.getPropertyValue(k).trim(); ink = { glow: v('--glow-rgb'), fg: v('--fg'), dim: v('--dim'), hi: v('--hi'), warn: v('--warn') }; }
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+      const top = 6, bottom = H - 6, k = (bottom - top) / LEN, cw = 12, x = Math.round(W / 2 - cw / 2) + .5;
+      const y = (pos) => top + pos * k;
+      let bracket = 1;
+      if (mit) bracket = mitosis(top, bottom);
+      else chrom(W / 2, top, bottom, cw, 1);
+      if (bracket <= 0) return;
       // where the reader is
-      const doc = document.documentElement, total = Math.max(1, doc.scrollHeight), s0 = window.pageYOffset / total, s1 = Math.min(1, (window.pageYOffset + window.innerHeight) / total);
-      const by0 = y(s0 * LEN), by1 = Math.max(by0 + 6, y(s1 * LEN));
-      g.strokeStyle = ink.hi; g.lineWidth = 1; g.shadowColor = ink.hi; g.shadowBlur = 5;
+      const by0 = y(frac[0] * LEN), by1 = Math.max(by0 + 6, y(frac[1] * LEN));
+      g.globalAlpha = bracket; g.strokeStyle = ink.hi; g.lineWidth = 1; g.shadowColor = ink.hi; g.shadowBlur = 5;
       g.beginPath(); g.moveTo(x - 6, by0 + .5); g.lineTo(x - 3, by0 + .5); g.lineTo(x - 3, by1 - .5); g.lineTo(x - 6, by1 - .5); g.stroke();
       g.beginPath(); g.moveTo(x + cw + 6, by0 + .5); g.lineTo(x + cw + 3, by0 + .5); g.lineTo(x + cw + 3, by1 - .5); g.lineTo(x + cw + 6, by1 - .5); g.stroke();
-      g.shadowBlur = 0;
+      g.shadowBlur = 0; g.globalAlpha = 1;
+    }
+    // ---- once in a long while (FEATURES.mitosis) the chromosome divides: it condenses, its two sister chromatids come
+    // apart and stand as two, and then there is one again. More rarely a point mutation shows on it, and a repair enzyme, a
+    // clamp round the strand, slides along to it and mends it. Never while the cat is climbing or anywhere near it, and
+    // she keeps clear until it is over. The chromosome is only drawn on a wide window, so this is only seen there
+    const ramp = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a))), ease = (v) => v * v * (3 - 2 * v);
+    function mitosis(top, bottom) {
+      const t = mit.still ? mit.at : (performance.now() - mit.t0) / 1000, mid = (top + bottom) / 2, cx = W / 2;
+      if (mit.kind === 'divide') {
+        const cond = ease(ramp(t, 0, 1.6)) * (1 - ease(ramp(t, 5.4, 6.6))), sep = ease(ramp(t, 2.4, 4)), back = ramp(t, 5.4, 6.4);
+        const len = 1 - .45 * cond, y0 = mid - (mid - top) * len, y1 = mid + (bottom - mid) * len, cw = 12 + 5 * cond;
+        if (sep <= 0) {
+          const c = chrom(cx, y0, y1, cw, 1);
+          // the two sister chromatids show as a seam down the middle, held at the centromere
+          if (t > 1.2) { g.globalAlpha = ramp(t, 1.2, 1.8) * .8; g.fillStyle = 'rgba(0,0,0,.85)'; g.fillRect(Math.round(cx) - .5, y0 + 3, 1, c.y(CEN0) - y0 - 3); g.fillRect(Math.round(cx) - .5, c.y(CEN1), 1, y1 - c.y(CEN1) - 3); g.globalAlpha = 1; }
+        } else {
+          const w = cw * (1 - .4 * sep), d = sep * 11;
+          chrom(cx - d, y0, y1, w, 1 - back); chrom(cx + d, y0, y1, w, 1 - back);
+          if (back > 0) chrom(cx, top, bottom, 12, ramp(t, 5.6, 6.6));
+        }
+        if (t >= 6.8) end();
+        return sep <= 0 ? 1 - Math.min(1, cond * 3) : back >= 1 ? 1 : 0;
+      }
+      // the repair: the mismatch shows, the clamp comes down the strand to it, holds, and it is gone; the clamp goes on and fades
+      const c = chrom(cx, top, bottom, 12, 1), py = c.y(mit.pos), from = top - 6;
+      const fixed = t >= 4.1;
+      if (!fixed && t > .3) { const on = mit.still || Math.floor(t * 4) % 4 !== 3; if (on) { g.fillStyle = ink.warn; g.shadowColor = ink.warn; g.shadowBlur = 6; g.fillRect(c.x - 2, Math.round(py) - 1, 12 + 4, 2); g.shadowBlur = 0; } }
+      const go = ease(ramp(t, 1, 3.2)), away = ramp(t, 4.4, 5.6);
+      if (t > 1 && away < 1) {
+        const ey = Math.round(from + (py - from) * go + away * 30);
+        g.globalAlpha = 1 - away; g.strokeStyle = ink.hi; g.fillStyle = ink.hi; g.shadowColor = ink.hi; g.shadowBlur = 5; g.lineWidth = 2;
+        g.strokeRect(c.x - 4, ey - 3, 12 + 8, 6);
+        // its two jaws, closed on the strand while it works
+        const j = t > 3.2 && t < 4.4 ? 1 : 3;
+        g.fillRect(c.x - 4 + j, ey - 1, 2, 2); g.fillRect(c.x + 12 + 2 - j, ey - 1, 2, 2);
+        g.shadowBlur = 0; g.globalAlpha = 1;
+      }
+      if (t >= 5.8) end();
+      return t < .3 || t > 5.6 ? 1 : 0;
+    }
+    let item = null, done = null, hold = 0;
+    function end() {
+      if (!mit) return;
+      const m = mit; mit = null;
+      if (item) item.on = false;
+      clearTimeout(hold);
+      if (T.cat && T.cat.keepOff) T.cat.keepOff(0);
+      if (!m.quiet) T.log('chromosome 5', m.kind === 'divide' ? 'divided in two, and back to one' : 'point mutation at ' + (m.pos < CEN0 ? '5p' : '5q') + ', ' + Math.round(m.pos / 10) + ' Mb, repaired');
+      const d = done; done = null;
+      queue();
+      if (d) d();
+    }
+    if (T.FEATURES.mitosis) {
+      // a place on an arm, away from the ends and the centromere, for the mutation
+      const spot = () => { let p; do p = 30 + Math.random() * (LEN - 60); while (p > CEN0 - 30 && p < CEN1 + 30); return Math.round(p); };
+      const clear = () => {
+        if (!T.cat) return true;
+        const r = ideo.getBoundingClientRect();
+        return !T.cat.climbing() && !T.cat.near({ left: r.left - 30, right: r.right + 30, top: r.top - 30, bottom: r.bottom + 30 });
+      };
+      T.events.add('mitosis', { every: 900, weight: 1, max: 15000, still: true,
+        can: () => !!ideo.getClientRects().length && !mit && clear(),
+        start(d, o) {
+          draw();
+          if (!W) return false;
+          done = d;
+          mit = { kind: o.kind === 'repair' || o.kind === 'divide' ? o.kind : Math.random() < .3 ? 'repair' : 'divide', t0: performance.now(), pos: spot(), still: !!o.still };
+          if (T.cat && T.cat.keepOff) T.cat.keepOff(ideo.getBoundingClientRect().right + 24);
+          if (mit.still) {
+            // with motion off: the middle of it, held a few seconds, then the one chromosome again
+            mit.at = mit.kind === 'divide' ? 4.5 : 3.6; draw();
+            hold = setTimeout(end, 3500);
+          } else {
+            if (!item) item = T.Anim.add(ideo, draw, 24, false);
+            item.on = true; T.Anim.wake();
+          }
+          return () => { if (mit) { mit.quiet = true; end(); } };
+        } });
     }
     const queue = () => { if (!queued) { queued = true; requestAnimationFrame(draw); } };
     window.addEventListener('scroll', queue, { passive: true });
@@ -3803,7 +3898,7 @@ window.CATDATA = {
     blocking: null, boxed: false, asleep: false, onPrompt: false, awayUntil: 0, clicks: 0,
   };
   let W = 112, H = 74, cw = 5.4, layerW = 0, SL = -120, SR = 2000, ledges = [], hot = [];
-  let cur = null, enabled = true, saveTimer = 0, lastBlocked = null, offTicks = 0;
+  let cur = null, enabled = true, saveTimer = 0, lastBlocked = null, offTicks = 0, keepOffX = 0;
   // with the page open in more than one tab, only one has the cat (FEATURES.twotabs). Until the tabs have spoken she is
   // nowhere ('pending'); while another tab has her, 'other'. A lone tab has her at once
   let offsite = T.FEATURES.twotabs && 'BroadcastChannel' in window ? 'pending' : false;
@@ -3916,6 +4011,7 @@ window.CATDATA = {
     // she comes and goes near the column of content, not from the far edge of a very wide window
     const col = rel($('.screen').getBoundingClientRect());
     SL = Math.max(-W - 6, col.x - 170 - W); SR = Math.min(layerW + 6, col.r + 170);
+    if (keepOffX) SL = Math.max(SL, keepOffX - layer.getBoundingClientRect().left);   // something is happening in the margin: she keeps clear of it
     const out = [];
     const add = (id, node, kind, x0, x1, y, extra) => {
       if (x1 - x0 < W) return;
@@ -5064,7 +5160,7 @@ window.CATDATA = {
     if (C.annoy < 3 && cool('box', 150) && ledges.some((l) => l.kind === 'box' && vis(l))) opts.push([4, box]);
     if (T.blipA && cool('blipa', 900) && Math.random() < .15) { mark('blipa'); T.blipA(); }
     if (T.hk47 && cool('hk47', 1500) && Math.random() < .04) { mark('hk47'); T.hk47(false); }
-    if (T.helix && !T.helix.rep && cool('climb', 150) && rectVisible(rel(T.helix.el.getBoundingClientRect()))) opts.push([4, climb]);
+    if (T.helix && !T.helix.rep && !keepOffX && cool('climb', 150) && rectVisible(rel(T.helix.el.getBoundingClientRect()))) opts.push([4, climb]);
     if (C.onstage && C.ledge && cool('portal', 200)) opts.push([3, portal]);
     if (T.toy && T.toy.balanced() && cool('meddle', 240) && rectVisible(rel(T.toy.canvas.getBoundingClientRect()))) opts.push([2, meddle]);
     if (C.onstage && inView()) {
@@ -5299,6 +5395,14 @@ window.CATDATA = {
   T.COMMANDS.shoo = function () {
     P('Camille leaves, slowly, to make a point.');
     if (C.onstage && T.motion) take((function* () { yield* exit(1); C.awayUntil = now() + 60000 / FAST; })());
+  };
+
+  // what the rest of the ship may ask about her: is she near this (a rect in the window's terms), is she climbing, and keep
+  // clear of the margin left of this x while something happens there
+  T.cat = {
+    near: (r) => { if (!C.onstage) return false; const b = canvas.getBoundingClientRect(); return b.right > r.left && b.left < r.right && b.bottom > r.top && b.top < r.bottom; },
+    climbing: () => el.classList.contains('up') || /helix/.test(C.mode),
+    keepOff: (x) => { keepOffX = +x || 0; queueMeasure(); },
   };
 
   // ------------------------------------------------------------ free to be called away
@@ -5825,7 +5929,8 @@ window.CATDATA = {
       run(name, arg) {
         const B = { watch: () => watch(true), intro, climb, portal, ciri: () => portal(true), guen: () => guenhwyvar(window.GUEN()), perch, patrol, block, box, catnap, meddle, startle, chase, zoomies, chargeNap, promptNap, leave, knock, rest, offPrompt };
         // the events are run by their own director, with the cat's part asked for
-        const EVENTS = { hunt: () => T.events.bughunt && T.events.bughunt({ hunt: true }), cross: () => T.events.crossing && T.events.crossing(), keys: () => T.events.catkeys && T.events.catkeys() };
+        const EVENTS = { hunt: () => T.events.bughunt && T.events.bughunt({ hunt: true }), cross: () => T.events.crossing && T.events.crossing(), keys: () => T.events.catkeys && T.events.catkeys(),
+          mitosis: () => T.events.mitosis && T.events.mitosis({ kind: 'divide' }), repair: () => T.events.mitosis && T.events.mitosis({ kind: 'repair' }) };
         if (EVENTS[name]) return EVENTS[name](arg) ? name : false;
         C.awayUntil = 0; take(B[name](arg)); return name;
       },
