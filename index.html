@@ -971,6 +971,7 @@
     catwarm: true,     // the cat naps on the screen that has really been busiest lately, and watches the stars in standby
     mitosis: true,     // once in a long while the chromosome in the margin divides, or a point mutation on it is repaired
     lightspeed: true,  // a link to another site jumps to lightspeed: half a second of star streaks on the way out
+    kpstatic: true,    // in a real geomagnetic storm (NOAA's planetary K index 5 or more) the tubes take more static
     bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
@@ -1906,7 +1907,9 @@
     function snow() { if (!ok()) return false; snowUntil = performance.now() + 250; return true; }
     // one scheduler for all of it: a chain of timeouts each, stopped whenever the page is hidden or motion is off
     const CHAINS = { sag: [12, 30, () => sag()], tear: [40, 90, () => tear()], beat: [120, 300, () => { beat = true; }] };
-    function arm(name) { const c = CHAINS[name]; timers[name] = setTimeout(() => { c[2](); arm(name); }, T.rand(c[0], c[1]) * 1000); }
+    // rate: how much more often the tubes are troubled than usual. 1, unless space weather says otherwise (below)
+    let rate = 1;
+    function arm(name) { const c = CHAINS[name]; timers[name] = setTimeout(() => { c[2](); arm(name); }, T.rand(c[0], c[1]) * 1000 / (name === 'beat' ? 1 : rate)); }
     function sync() {
       const want = ok() && !document.hidden && !!T.booted;
       if (want === running) return;
@@ -1919,12 +1922,31 @@
       get active() { return running; },
       snowing: () => performance.now() < snowUntil,
       takeBeat: () => { const b = beat && ok(); beat = false; return b; },
+      get rate() { return rate; },
+      set rate(v) { rate = Math.max(1, +v || 1); },
     };
     document.addEventListener('visibilitychange', sync);
     if (contrast.addEventListener) contrast.addEventListener('change', sync);
     // the motion switch shows as .still on the page: watch for it, so the cat keeps T.onMotion to herself
     new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     T.onReady(sync);
+  })();
+
+  // ---- space weather you can feel: when NOAA's planetary K index is at storm level (Kp 5 or more), the screens sag, lose
+  // their hold and snow more often, the more so the higher it is, and the log says why. The number is the one the tracker
+  // fetches (the same request and the same cache, whether or not the tracker is on the screen). No number, no effect
+  if (F.kpstatic) (function () {
+    let storm = false;
+    const show = (kp) => String(Math.round(kp * 100) / 100);
+    T.onSpaceWeather = (d) => {
+      const kp = d && +d.kp;
+      if (!isFinite(kp) || !T.fx) return;
+      const now = kp >= 5;
+      T.fx.rate = now ? Math.min(2.4, 1.6 + (kp - 5) * .25) : 1;
+      if (now && !storm) T.log('space weather', 'Kp ' + show(kp) + ', a geomagnetic storm' + (T.reduceMotion ? '' : '. more static on the tubes'));   // with reduced motion there is no static to add to
+      else if (!now && storm) T.log('space weather', 'Kp ' + show(kp) + ', the storm is over. static as usual');
+      storm = now;
+    };
   })();
 
   // ---- the events: the rarer things that happen aboard (a bug in the system, the cat on the keyboard, a cell dividing).
@@ -2914,7 +2936,7 @@
       if (!cache[k]) { p.clear(); I.draw(p, cur); cache[k] = I.image ? I.image(p, cur, PAL) : p.image(PAL); }
       ctx.putImageData(cache[k], 0, 0);
       // now and then a little static on the picture. Never cached: the next frame is clean
-      if (T.fx && T.fx.ok() && (Math.random() < 1 / 45 || T.fx.snowing())) {
+      if (T.fx && T.fx.ok() && (Math.random() < (T.fx.rate || 1) / 45 || T.fx.snowing())) {
         const dots = (c, n) => { ctx.fillStyle = 'rgb(' + c.join(',') + ')'; for (let i = 0; i < n; i++) ctx.fillRect(Math.floor(Math.random() * I.w), Math.floor(Math.random() * I.h), 1, 1); };
         dots(PAL[2], 8 + Math.floor(Math.random() * 7)); dots(PAL[3], 2 + Math.floor(Math.random() * 2));
       }
@@ -5952,7 +5974,7 @@ window.CATDATA = {
         json('https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json').then((d) => d.find((r) => r.proton_speed != null) || d[0]),
         json('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json').then((d) => d[d.length - 1]),
       ]).then(([wind, kp]) => ({ v: Math.round(wind.proton_speed), n: +wind.proton_density, kp: +(kp.Kp != null ? kp.Kp : kp[1]) })))
-        .then((d) => { if (!d || !d.v) return; w.textContent = 'WIND ' + d.v + ' km/s\nKp ' + d.kp.toFixed(0) + (d.kp >= 5 ? ' · STORM' : ''); w.classList.toggle('storm', d.kp >= 5); w.hidden = false; T.spaceWeather = d; })
+        .then((d) => { if (!d || !d.v) return; w.textContent = 'WIND ' + d.v + ' km/s\nKp ' + d.kp.toFixed(0) + (d.kp >= 5 ? ' · STORM' : ''); w.classList.toggle('storm', d.kp >= 5); w.hidden = false; T.spaceWeather = d; if (T.onSpaceWeather) T.onSpaceWeather(d); })
         .catch(() => {});
       T.onReady(weather); setInterval(weather, 20 * 60 * 1000);
     }
