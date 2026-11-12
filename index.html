@@ -746,6 +746,51 @@
     .profile a { border: 0; padding: 0; }
     .profile, .card .links { display: block; } .profile li { display: block; }
     footer { border-top: 1pt solid #999; }
+
+    /* the printout (FEATURES.printout): light ink on white, in the ship's own letters, the way its line printer would put
+       it. The name and what he does, every link with its address written out, then the work, the side quests and the
+       crew file in reading order. Nothing that moves, glows or needs a screen */
+    @page { margin: 15mm 16mm 16mm; }
+    html.f-printout, html.f-printout body { font: 9.5pt/1.55 var(--mono); letter-spacing: .15px; }
+    html.f-printout *, html.f-printout *::before, html.f-printout *::after { color: #2b2b2b !important; background: none !important; }
+    html.f-printout { color-scheme: light; }
+    html.f-printout, html.f-printout body { background: #fff !important; }
+    html.f-printout #jump, html.f-printout #night, html.f-printout .bug, html.f-printout .gazer { display: none !important; }
+    html.f-printout .bar { position: static !important; display: flex !important; margin: 0 0 14pt !important; padding: 0 0 4pt !important; border-bottom: 1pt dashed #9a9a9a; font-size: 7.5pt; letter-spacing: 1.5px; }
+    html.f-printout .bar[data-printed]::after { content: "PRINTOUT · " attr(data-printed); color: #6b6b6b !important; }
+    html.f-printout .bar .id b { font-weight: 400; }
+    html.f-printout h1, html.f-printout h2, html.f-printout .card h3 { font-family: var(--display); font-weight: 400; letter-spacing: 1px; color: #111 !important; }
+    html.f-printout h1 { font-size: 46pt; line-height: .9; margin: 4pt 0 8pt; }
+    html.f-printout h1 .tube { max-width: none !important; opacity: 1 !important; }
+    html.f-printout .fallen { transform: none !important; opacity: 1 !important; }
+    html.f-printout .callsign { font-size: 8pt; letter-spacing: 3px; margin: 0; }
+    html.f-printout .role { font-size: 10.5pt; margin: 0 0 2pt; }
+    html.f-printout .where { margin: 0 0 8pt; }
+    html.f-printout .tagline { max-width: none; margin: 0 0 10pt; }
+    html.f-printout .profile { margin: 0 0 6pt; }
+    html.f-printout .profile li { margin: 0 0 1pt; }
+    html.f-printout .profile a { display: inline; }
+    html.f-printout .profile a::before { content: "" !important; }
+    html.f-printout h2 { font-size: 19pt; margin: 18pt 0 6pt; padding-bottom: 2pt; border-bottom: 1pt dotted #9a9a9a; display: block; break-after: avoid; page-break-after: avoid; }
+    html.f-printout h2 .ch { visibility: visible !important; }
+    html.f-printout section { margin: 0; }
+    html.f-printout .card { border-top: 1pt dotted #bdbdbd; padding: 7pt 0 8pt; }
+    html.f-printout .grid > .card:first-child { border-top: 0; break-before: avoid; page-break-before: avoid; }
+    html.f-printout .card .path, html.f-printout .panel > .path { font-size: 7pt; letter-spacing: 2px; color: #6b6b6b !important; }
+    html.f-printout .card h3 { font-size: 17pt; margin: 1pt 0 3pt; }
+    html.f-printout .card--featured h3 { font-size: 21pt; }
+    html.f-printout .card p, html.f-printout .card .facts { font-size: 9.5pt; margin: 0 0 4pt; }
+    html.f-printout .card .quip { font-style: italic; }
+    /* the links of a card, each on its own line, with the address after it */
+    html.f-printout .card .links { margin-top: 4pt; font-size: 8.5pt; }
+    html.f-printout .card .links a { display: block; }
+    html.f-printout .card .links a::before, html.f-printout .card .links a.primary::before { content: "» " !important; }
+    html.f-printout .card .links a::after, html.f-printout .card .links a.primary::after, html.f-printout a[href^="http"]::after { content: "  " attr(href) !important; font-size: 7.5pt; color: #6b6b6b !important; word-break: break-all; }
+    html.f-printout .panel--crew { break-inside: avoid; }
+    html.f-printout .panel--crew > .path { display: flex; justify-content: space-between; margin: 0 0 4pt; }
+    html.f-printout .kv { display: grid !important; grid-template-columns: max-content minmax(0, 1fr); gap: 2pt 12pt; }
+    html.f-printout .kv dd a { display: inline; }
+    html.f-printout footer { margin-top: 18pt; padding-top: 4pt; border-top: 1pt dashed #9a9a9a; font-size: 7.5pt; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -980,6 +1025,7 @@
     kpstatic: true,    // in a real geomagnetic storm (NOAA's planetary K index 5 or more) the tubes take more static
     nightwatch: true,  // the tube dims a little in the visitor's night, and a MOON instrument shows the real phase
     translate: true,   // translate <text>: a name read as amino acids and written back as mRNA, run through the ribosome
+    printout: true,    // printing the page gives a plain CV on white paper, in the manner of a dot-matrix printout
     bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
@@ -2706,6 +2752,12 @@
     window.addEventListener('pageshow', stop);
     T.lightspeed = () => streak(false);
   })();
+
+  // ---- the printout puts the date it was printed at the head of the page (FEATURES.printout)
+  if (F.printout) window.addEventListener('beforeprint', () => {
+    const d = T.now ? T.now() : new Date(), two = (v) => String(v).padStart(2, '0');
+    $('.bar').dataset.printed = d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate());
+  });
 
   // "/" reaches the prompt from anywhere on the page
   document.addEventListener('keydown', (e) => {
