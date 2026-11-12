@@ -962,6 +962,7 @@
     instruments: true, // small screens above the ship log on a wide window: the tube's real refresh rate, the battery if there is one, who is aboard
     catwatch: true,    // the cat goes and watches the display when it changes channel, if she is in the mood
     twotabs: true,     // tabs of the page in one browser see each other, and the one cat walks between them
+    catkeys: true,     // rarely, the cat walks across the open terminal's empty prompt and types on it, and it clears
     bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
@@ -4822,7 +4823,9 @@ window.CATDATA = {
     spots.sort((a, b) => far(a) - far(b));
     const l = spots[0]; C.ledge = l; C.x = clamp(C.x, l.x0, l.x1); C.y = topOf(l); setU(); paint('SIT'); place();
   }
+  const settleHooks = [];      // the features that leave something on the page while she is busy put it back from here
   function settle() {
+    settleHooks.forEach((f) => f());
     trail.length = 0; ghosts.forEach((g) => { g.dataset.pose = ''; g.style.visibility = 'hidden'; });
     el.classList.remove('hiss', 'up'); el.style.opacity = ''; hush(); closePortals(); dropRiders();
     if (T.helix) { T.helix.slow = false; T.helix.held = -1; }
@@ -5465,6 +5468,73 @@ window.CATDATA = {
       start(done, o) { const to = target(o); if (!to) return false; take(crossOut(to, done)); return null; } });
   })();
 
+  // ------------------------------------------------------------ the cat on the keyboard (FEATURES.catkeys)
+  // Rarely, with the terminal open, nobody at it and its prompt empty, she walks along the prompt line and what her paws
+  // press comes up in it: jjjkkk;; and the like. She looks round at it, and it is wiped. Nothing is ever entered. Any key
+  // from the visitor, a click on the prompt or a change of focus stops it at once and takes her letters away first
+  if (T.FEATURES.catkeys) (function () {
+    const input = $('#cmd'), term = $('#term'), ROWS = ['qwertyuiop', 'asdfghjkl;', 'zxcvbnm,./'];
+    let run = null;
+    // her letters go, and only hers: if the prompt holds anything else, it is the visitor's and stays
+    function clear() { if (run && input.value === run.typed) input.value = ''; }
+    function abort() {
+      if (!run) return;
+      const r = run; clear(); run = null;
+      listen(false);
+      if (r.done) r.done();
+    }
+    const real = (e) => { if (e.isTrusted) abort(); };
+    function listen(on) {
+      const f = on ? 'addEventListener' : 'removeEventListener';
+      ['keydown', 'focusin', 'focusout', 'paste'].forEach((k) => window[f](k, real, true));
+      input[f]('pointerdown', real, true); term[f]('toggle', abort);
+    }
+    settleHooks.push(abort);       // whatever takes her off the prompt takes her letters with it
+    const quiet = () => term.open && !input.value && document.activeElement !== input && idleSeconds() > 12;
+    function* keys(done) {
+      measure();
+      const l = ledges.find((k) => k.id === 'prompt');
+      if (!l || !quiet()) { if (done) done(); return; }
+      run = { typed: '', done }; listen(true);
+      const mine = run;
+      C.mode = 'crossing the keyboard'; C.rest = false;
+      yield* goTo(l, l.x0 - W * .2);
+      if (run !== mine || input.value !== run.typed) return;
+      // across, one step a tick; now and then a paw comes down, often more than once on the same key
+      let i = 0, key = '', left = 0;
+      const span = Math.max(1, l.x1 - (l.x0 - W * .2)), end = l.x0 + span * T.rand(.55, .8);
+      while (C.x < end && run === mine) {
+        C.face = 1; C.x += cw; paint('W' + (i++ % 8)); place(); setU();
+        if (left > 0) { run.typed += key; left--; }
+        else if (Math.random() < .3 && run.typed.length < 18) {
+          const at = clamp(Math.floor((C.x + W * .7 - l.x0) / span * 10), 0, 9), row = Math.random() < .7 ? 1 : Math.random() < .5 ? 0 : 2;
+          key = ROWS[row][at]; left = Math.floor(rand(1, 4)); run.typed += key;
+        }
+        if (input.value !== run.typed.slice(0, -1) && input.value !== run.typed) { abort(); return; }
+        input.value = run.typed;
+        yield;
+      }
+      if (run !== mine) return;
+      // she stops, looks back at what she has written, and it goes, a few letters a tick
+      paint('SIT_LOOK'); C.face = -1; place();
+      yield* wait(sec(1.4));
+      while (run === mine && run.typed) {
+        if (input.value !== run.typed) { abort(); return; }
+        run.typed = run.typed.slice(0, -2); input.value = run.typed;
+        yield;
+      }
+      if (run !== mine) return;
+      run = null; listen(false);
+      T.log('shell', 'cat on the keyboard. input discarded');
+      if (done) done();
+      C.mode = 'sitting by the prompt'; C.rest = true;
+      yield* sitFor(sec(rand(3, 6)));
+    }
+    T.events.add('catkeys', { every: 900, weight: 1, max: 45000,
+      can: (o) => !offsite && quiet() && (o.force ? enabled && T.motion : free() || (!C.onstage && enabled && T.motion && now() > C.awayUntil && !riders.length && !guenHere())),
+      start(done) { take(keys(done)); return abort; } });
+  })();
+
   // ------------------------------------------------------------ the tracker
   // A map of the page in the margin of a wide screen, decks A to G, with a contact where the cat is.
   // After the one Ash built, which also found the cat first.
@@ -5676,7 +5746,7 @@ window.CATDATA = {
       run(name, arg) {
         const B = { watch: () => watch(true), intro, climb, portal, ciri: () => portal(true), guen: () => guenhwyvar(window.GUEN()), perch, patrol, block, box, catnap, meddle, startle, chase, zoomies, chargeNap, promptNap, leave, knock, rest, offPrompt };
         // the events are run by their own director, with the cat's part asked for
-        const EVENTS = { hunt: () => T.events.bughunt && T.events.bughunt({ hunt: true }), cross: () => T.events.crossing && T.events.crossing() };
+        const EVENTS = { hunt: () => T.events.bughunt && T.events.bughunt({ hunt: true }), cross: () => T.events.crossing && T.events.crossing(), keys: () => T.events.catkeys && T.events.catkeys() };
         if (EVENTS[name]) return EVENTS[name](arg) ? name : false;
         C.awayUntil = 0; take(B[name](arg)); return name;
       },
