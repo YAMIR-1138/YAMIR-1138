@@ -5830,11 +5830,11 @@ window.CATDATA = {
     function start(done, o) {
       if (bug) return false;
       const top = $('.bar') && window.innerWidth > 760 ? $('.bar').getBoundingClientRect().bottom + 10 : 10;
-      // a screen wholly in view, wide enough to cross, and not one the visitor has the pointer on
+      // a screen whose top edge is well in view (the bug only walks the top edge, and a card is taller than a phone), wide enough to cross, and not one the visitor has the pointer on
       let opts = $$('.card:not([hidden]), .panel').filter((s) => {
         if (!s.getClientRects().length || s.closest('#standby')) return false;
         const r = s.getBoundingClientRect();
-        return r.width >= 180 && r.top >= top && r.bottom <= window.innerHeight - 10 && !(pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom);
+        return r.width >= 180 && r.top >= top && r.top <= window.innerHeight - 140 && !(pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom);
       });
       if (!opts.length) return false;
       const want = free() || (o.hunt && enabled && C.onstage && T.motion);
