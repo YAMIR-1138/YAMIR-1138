@@ -580,6 +580,9 @@
     transform: scale(0, 0); transition: transform .35s cubic-bezier(.3, 1.4, .5, 1); pointer-events: none;
   }
   .portal.on { transform: none; }
+  /* a bug on the top edge of a screen (FEATURES.bughunt) */
+  .bug { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; }
+  .bug canvas { display: block; filter: drop-shadow(0 0 2px rgba(var(--glow-rgb), .55)); }
   .rider { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; transition: transform 95ms linear; }
   .rider canvas { display: block; }
   .rider.flip canvas { transform: scaleX(-1); }
@@ -958,6 +961,7 @@
     shutdown: true,    // shutdown, halt and poweroff. needs standby on too: it goes dark on the same screen
     instruments: true, // small screens above the ship log on a wide window: the tube's real refresh rate, the battery if there is one, who is aboard
     catwatch: true,    // the cat goes and watches the display when it changes channel, if she is in the mood
+    bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
   Object.keys(F).forEach((k) => { if (F[k]) document.documentElement.classList.add('f-' + k); });
@@ -1911,6 +1915,64 @@
     // the motion switch shows as .still on the page: watch for it, so the cat keeps T.onMotion to herself
     new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     T.onReady(sync);
+  })();
+
+  // ---- the events: the rarer things that happen aboard (a bug in the system, the cat on the keyboard, a cell dividing).
+  // One slot for all of them, so two never run at once. The clock only runs while the page is in view and the ship is
+  // not in standby; the first comes a few minutes into a visit and each is followed by a long quiet. Every event can be
+  // called by hand, T.events.bughunt() and so on, which skips the waiting but not the sense: it still needs what it needs
+  (function () {
+    const FAST = T.debug === 'cat' ? (T.speed || 6) : 1;
+    const E = {};
+    let busy = null, stop = null, safety = 0, seen = 0, prev = performance.now(), next = 150000 / FAST;
+    const counting = () => !document.hidden && !!T.booted && !(T.standby && T.standby.on);
+    function finish(name) {
+      if (busy !== name) return;
+      const e = E[name]; busy = null; stop = null; clearTimeout(safety);
+      e.last = seen; next = seen + T.rand(240, 480) * 1000 / FAST;
+    }
+    // e: { every: seconds between two of these, weight, can(), start(done, opts) -> a function that ends it at once, or false, max: ms }
+    function add(name, e) {
+      E[name] = Object.assign({ every: 600, weight: 1, max: 90000, last: -1e12, can: () => true }, e);
+      T.events[name] = (o) => run(name, Object.assign({ force: true }, o));
+    }
+    function run(name, o) {
+      const e = E[name]; o = o || {};
+      if (!e) return false;
+      if (busy) { if (!o.force) return false; end(); }
+      // with motion off an event plays its still version, if it has one, and otherwise does not happen
+      const still = !T.motion;
+      if (still && !e.still) return false;
+      if (!e.can(Object.assign({ still }, o))) return false;
+      busy = name;
+      let ended = false;
+      const done = () => { if (!ended) { ended = true; finish(name); } };
+      let s = null;
+      try { s = e.start(done, Object.assign({ still }, o)); } catch (err) { console.error(err); s = false; }
+      if (s === false) { busy = null; return false; }
+      if (busy === name) { stop = typeof s === 'function' ? s : null; clearTimeout(safety); safety = setTimeout(end, e.max); }
+      return true;
+    }
+    // the slot is cleared, whatever the event was doing
+    function end() {
+      const name = busy, s = stop;
+      if (!name) return;
+      try { if (s) s(); } catch (err) { console.error(err); }
+      finish(name);
+    }
+    setInterval(() => {
+      const t = performance.now(), dt = t - prev; prev = t;
+      if (busy && !counting() && !E[busy].hidden) { end(); return; }   // standby, or the tab put away: whatever was running stops
+      if (!counting()) return;
+      seen += Math.min(dt, 5000);
+      if (busy || seen < next) return;
+      const ok = Object.keys(E).filter((k) => { const e = E[k]; return seen - e.last >= e.every * 1000 / FAST && (T.motion || e.still) && e.can({ still: !T.motion }); });
+      if (!ok.length) { next = seen + 20000 / FAST; return; }
+      let roll = Math.random() * ok.reduce((a, k) => a + E[k].weight, 0);
+      const k = ok.find((n) => (roll -= E[n].weight) <= 0) || ok[0];
+      if (!run(k)) next = seen + 20000 / FAST;
+    }, 1000);
+    T.events = { add, end, get busy() { return busy; }, get names() { return Object.keys(E); } };
   })();
 
   // ---- the block cursor in the prompt: drawn just after the last letter, while you type at the end of the line
@@ -5143,6 +5205,123 @@ window.CATDATA = {
     if (C.onstage && T.motion) take((function* () { yield* exit(1); C.awayUntil = now() + 60000 / FAST; })());
   };
 
+  // ------------------------------------------------------------ free to be called away
+  // settled somewhere and not in the middle of anything: no visitors through a portal, no cursor hunt, not asleep
+  const free = () => !!(enabled && T.motion && C.onstage && C.rest && !C.asleep && !C.blocking && !C.onPrompt && !C.boxed && !riders.length && !guenHere() && !T.cursorBusy());
+  // the middle of her, in the layer's terms
+  const middle = () => ({ x: C.x + W / 2, y: C.y + H * .6 });
+
+  // ------------------------------------------------------------ a bug in the system (FEATURES.bughunt)
+  // A small bug comes out at one corner of a screen and crawls along its top edge. If the cat is settled near enough she
+  // sees it, stalks it and pounces, and it is gone. If not, it walks off the far edge on its own. One line in the log either way
+  if (T.FEATURES.bughunt) (function () {
+    // two frames of legs, facing right: b body, h head, d legs and feelers. A pixel is two of the page's
+    const ART = { a: ['.....d.d', '..bbbbd.', '.bbbbbhh', 'bbbbbbhh', '.d.d.d..', 'd.d.d...'],
+      b: ['.....d.d', '..bbbbd.', '.bbbbbhh', 'bbbbbbhh', 'd.d.d...', '.d.d.d..'],
+      pop: ['d.....d.', '..d.d...', '...h....', '..d.d...', 'd.....d.', '........'] };
+    const PX = 2, BW = 8 * PX, BH = 6 * PX;
+    let bug = null, item = null;
+    function paintBug(b, frame) {
+      if (b.frame === frame) return;
+      b.frame = frame;
+      const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(), ink = { b: v('--fg'), h: v('--hi'), d: v('--dim') };
+      const r = Math.min(3, window.devicePixelRatio || 1), g = b.cv.getContext('2d');
+      g.setTransform(r, 0, 0, r, 0, 0); g.clearRect(0, 0, BW, BH);
+      ART[frame].forEach((row, y) => Array.from(row).forEach((ch, x) => {
+        if (!ink[ch]) return;
+        g.fillStyle = ink[ch]; g.fillRect((b.dir > 0 ? x : 7 - x) * PX, y * PX, PX, PX);
+      }));
+    }
+    function placeBug(b) {
+      b.el.style.transform = 'translate(' + Math.round(b.x) + 'px,' + Math.round(b.y - BH + 1) + 'px)';
+      // past the edge of its screen it is cut off, the way the cat is at a portal
+      const over = b.dir > 0 ? b.x + BW - b.right : b.left - b.x;
+      b.el.style.clipPath = over > 0 ? (b.dir > 0 ? 'inset(0 ' + Math.min(BW, over) + 'px 0 0)' : 'inset(0 0 0 ' + Math.min(BW, over) + 'px)') : '';
+    }
+    function remove(b, why) {
+      if (b.gone) return;
+      b.gone = why || 'gone';
+      if (item) item.on = false;
+      const out = () => { b.el.remove(); if (bug === b) bug = null; };
+      if (why === 'caught') { paintBug(b, 'pop'); setTimeout(out, 260); } else out();
+      if (why === 'caught') T.log('cat', 'bug removed, screen ' + b.n);
+      else if (why === 'off') T.log('screen ' + b.n, 'a bug crossed it and left');
+      b.done();
+    }
+    // the bug's own clock: twelve steps a second, about thirty pixels a second, with stops
+    function step() {
+      const b = bug;
+      if (!b || b.gone) return;
+      const t = performance.now();
+      if (b.hold || t < b.pauseUntil) { paintBug(b, 'a'); return; }
+      if (Math.random() < 1 / 40) { b.pauseUntil = t + T.rand(400, 1100); return; }
+      b.x += b.dir * 2.4; b.k++;
+      paintBug(b, b.k % 4 < 2 ? 'a' : 'b'); placeBug(b);
+      if (!b.seen && t - b.t0 > b.notice) { b.seen = true; if (b.want && (b.force ? enabled && C.onstage && T.motion : free())) { const m = middle(); if (b.force || (inView() && Math.hypot(m.x - b.x, m.y - b.y) < 600)) take(hunt(b)); } }
+      if ((b.dir > 0 && b.x > b.right) || (b.dir < 0 && b.x + BW < b.left)) remove(b, 'off');
+    }
+    function* hunt(b) {
+      // what she is doing goes in the cat's state but not in the log: the bug's end is this event's one line
+      C.mode = 'stalking a bug'; C.rest = false;
+      const line = { key: 'line@bug', id: 'line', kind: 'line', x0: -1e5, x1: 1e5, y: b.y, label: 'a screen' };
+      const paw = () => (C.face > 0 ? W * .74 : W * .26);   // her front paws, from the left of her box
+      const side = middle().x < b.x ? -1 : 1;
+      yield* goTo(line, b.x + BW / 2 + side * 78 * unit - W / 2);
+      if (b.gone) { paint('SIT_LOOK'); say('?', 1200); C.mode = 'sitting on a screen'; C.rest = true; yield* sitFor(sec(3)); return; }
+      C.face = b.x + BW / 2 > middle().x ? 1 : -1; place();
+      for (let i = 0; i < sec(1.3) && !b.gone; i++) { paint(Math.floor(i / 2) % 2 ? 'STALK_B' : 'STALK_A'); yield; }
+      if (b.gone) return;
+      // it stops dead, the way they do, and she goes
+      b.hold = true;
+      C.face = b.x + BW / 2 > middle().x ? 1 : -1;
+      yield* hopTo(line, b.x + BW / 2 - paw());
+      if (!b.gone) { remove(b, 'caught'); paint('SWAT_B'); say('mrrp.', 1400); yield* wait(sec(.6)); }
+      C.mode = 'sitting on a screen'; C.rest = true;
+      paint('SIT_LOOK'); yield* wait(sec(1.5));
+      yield* sitFor(sec(rand(3, 6)));
+    }
+    const SCREENS = () => $$('.card:not([hidden]), .panel, #term, #tracker');
+    function start(done, o) {
+      if (bug) return false;
+      const top = $('.bar') && window.innerWidth > 760 ? $('.bar').getBoundingClientRect().bottom + 10 : 10;
+      // a screen wholly in view, wide enough to cross, and not one the visitor has the pointer on
+      let opts = $$('.card:not([hidden]), .panel').filter((s) => {
+        if (!s.getClientRects().length || s.closest('#standby')) return false;
+        const r = s.getBoundingClientRect();
+        return r.width >= 180 && r.top >= top && r.bottom <= window.innerHeight - 10 && !(pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom);
+      });
+      if (!opts.length) return false;
+      const want = free() || (o.hunt && enabled && C.onstage && T.motion);
+      if (want) {
+        // with the cat about, mostly a screen near her
+        const m = middle(), d = (s) => { const r = rel(s.getBoundingClientRect()); return Math.hypot(r.x + r.w / 2 - m.x, r.y - m.y); };
+        opts.sort((a, b) => d(a) - d(b));
+        if (o.hunt || Math.random() < .7) opts = opts.slice(0, 2);
+      }
+      const s = pick(opts), r = rel(s.getBoundingClientRect()), dir = Math.random() < .5 ? 1 : -1;
+      const el = document.createElement('div'), cv = document.createElement('canvas'), k = Math.min(3, window.devicePixelRatio || 1);
+      el.className = 'bug'; cv.width = BW * k; cv.height = BH * k; cv.style.width = BW + 'px'; cv.style.height = BH + 'px';
+      el.appendChild(cv); layer.appendChild(el);
+      bug = { el, cv, dir, screen: s, left: r.x + 2, right: r.r - 2, y: r.y, x: dir > 0 ? r.x + 6 : r.r - 6 - BW, k: 0, t0: performance.now(), pauseUntil: 0,
+        notice: (o.hunt ? 800 : T.rand(1400, 2600)), want, force: !!o.hunt, n: SCREENS().indexOf(s) + 1, done, frame: '' };
+      paintBug(bug, 'a'); placeBug(bug);
+      if (!item) item = T.Anim.add(null, step, 12);
+      item.on = true; T.Anim.wake();
+      const b = bug;
+      return () => remove(b, 'stopped');
+    }
+    T.events.add('bughunt', { every: 480, weight: 3, max: 60000, start,
+      // the cat is not needed: without her the bug walks off. Not with motion off, when there is nobody to see it walk
+      can: () => !bug && !(T.standby && T.standby.on) });
+    // the page changing shape under it: it is simply gone. (Some of the page's own resize events move nothing)
+    window.addEventListener('resize', () => {
+      if (!bug) return;
+      const r = rel(bug.screen.getBoundingClientRect());
+      if (Math.abs(r.y - bug.y) > 1 || Math.abs(r.x + 2 - bug.left) > 1 || Math.abs(r.r - 2 - bug.right) > 1) remove(bug, 'stopped');
+    });
+    T.onTheme(() => { if (bug) { const f = bug.frame; bug.frame = ''; paintBug(bug, f); } });
+  })();
+
   // ------------------------------------------------------------ the tracker
   // A map of the page in the margin of a wide screen, decks A to G, with a contact where the cat is.
   // After the one Ash built, which also found the cat first.
@@ -5353,6 +5532,9 @@ window.CATDATA = {
       rider: makeRider, paintRider,
       run(name, arg) {
         const B = { watch: () => watch(true), intro, climb, portal, ciri: () => portal(true), guen: () => guenhwyvar(window.GUEN()), perch, patrol, block, box, catnap, meddle, startle, chase, zoomies, chargeNap, promptNap, leave, knock, rest, offPrompt };
+        // the events are run by their own director, with the cat's part asked for
+        const EVENTS = { hunt: () => T.events.bughunt && T.events.bughunt({ hunt: true }) };
+        if (EVENTS[name]) return EVENTS[name](arg) ? name : false;
         C.awayUntil = 0; take(B[name](arg)); return name;
       },
       poses: A.names,
