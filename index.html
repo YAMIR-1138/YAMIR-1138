@@ -6009,7 +6009,7 @@ window.CATDATA = {
     const ART = { a: ['.....d.d', '..bbbbd.', '.bbbbbhh', 'bbbbbbhh', '.d.d.d..', 'd.d.d...'],
       b: ['.....d.d', '..bbbbd.', '.bbbbbhh', 'bbbbbbhh', 'd.d.d...', '.d.d.d..'],
       pop: ['d.....d.', '..d.d...', '...h....', '..d.d...', 'd.....d.', '........'] };
-    const PX = 2, BW = 8 * PX, BH = 6 * PX;
+    const PX = 2, BW = 8 * PX, BH = 6 * PX, LINGER = 40000;   // how long it will pace a screen waiting for the cat, ms
     let bug = null, item = null;
     function paintBug(b, frame) {
       if (b.frame === frame) return;
@@ -6043,11 +6043,18 @@ window.CATDATA = {
       const b = bug;
       if (!b || b.gone) return;
       const t = performance.now();
+      // something else took her off the hunt: the bug is nobody's again, and stays only a little longer
+      if (b.hunted && C.mode !== 'stalking a bug') { b.hunted = false; b.hold = false; b.force = false; b.t0 = Math.min(b.t0, t - LINGER + 8000); }
       if (b.hold || t < b.pauseUntil) { paintBug(b, 'a'); return; }
       if (Math.random() < 1 / 40) { b.pauseUntil = t + T.rand(400, 1100); return; }
+      // a cat is rarely free the moment a bug turns up: while there is one about who has not come yet, it paces the edge
+      // instead of leaving, and once she is after it, it stays until she has it
+      const about = !!(enabled && C.onstage && T.motion && !C.asleep);
+      if ((b.hunted || (about && t - b.t0 < LINGER)) && ((b.dir > 0 && b.x + BW >= b.right) || (b.dir < 0 && b.x <= b.left))) { b.dir = -b.dir; b.frame = ''; }
       b.x += b.dir * 2.4; b.k++;
       paintBug(b, b.k % 4 < 2 ? 'a' : 'b'); placeBug(b);
-      if (!b.seen && t - b.t0 > b.notice) { b.seen = true; if (b.want && (b.force ? enabled && C.onstage && T.motion : free())) { const m = middle(); if (b.force || (inView() && Math.hypot(m.x - b.x, m.y - b.y) < 600)) take(hunt(b)); } }
+      // she is asked every step, not once: wherever she is on the page, she comes as soon as she has nothing better to do
+      if (!b.hunted && t - b.t0 > b.notice && (b.force ? about : free())) { b.hunted = true; take(hunt(b)); }
       if ((b.dir > 0 && b.x > b.right) || (b.dir < 0 && b.x + BW < b.left)) remove(b, 'off');
     }
     function* hunt(b) {
@@ -6055,8 +6062,12 @@ window.CATDATA = {
       C.mode = 'stalking a bug'; C.rest = false;
       const line = { key: 'line@bug', id: 'line', kind: 'line', x0: -1e5, x1: 1e5, y: b.y, label: 'a screen' };
       const paw = () => (C.face > 0 ? W * .74 : W * .26);   // her front paws, from the left of her box
-      const side = middle().x < b.x ? -1 : 1;
-      yield* goTo(line, b.x + BW / 2 + side * 78 * unit - W / 2);
+      // she comes at a run, and the bug has moved on by the time she is there, so she closes in until she is beside it
+      for (let tries = 0; tries < 4 && !b.gone; tries++) {
+        const side = middle().x < b.x + BW / 2 ? -1 : 1, x = b.x + BW / 2 + side * 78 * unit - W / 2;
+        if (tries && Math.abs(x - C.x) < 40 * unit) break;
+        yield* goTo(line, x, tries ? 2 : 3);
+      }
       if (b.gone) { paint('SIT_LOOK'); say('?', 1200); C.mode = 'sitting on a screen'; C.rest = true; yield* sitFor(sec(3)); return; }
       C.face = b.x + BW / 2 > middle().x ? 1 : -1; place();
       for (let i = 0; i < sec(1.3) && !b.gone; i++) { paint(Math.floor(i / 2) % 2 ? 'STALK_B' : 'STALK_A'); yield; }
@@ -6081,7 +6092,7 @@ window.CATDATA = {
         return r.width >= 180 && r.top >= top && r.top <= window.innerHeight - 140 && !(pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom);
       });
       if (!opts.length) return false;
-      const want = free() || (o.hunt && enabled && C.onstage && T.motion);
+      const want = !!(enabled && C.onstage && T.motion);
       if (want) {
         // with the cat about, mostly a screen near her
         const m = middle(), d = (s) => { const r = rel(s.getBoundingClientRect()); return Math.hypot(r.x + r.w / 2 - m.x, r.y - m.y); };
@@ -6100,14 +6111,19 @@ window.CATDATA = {
       const b = bug;
       return () => remove(b, 'stopped');
     }
-    T.events.add('bughunt', { every: 480, weight: 3, max: 60000, start,
+    T.events.add('bughunt', { every: 480, weight: 3, max: 100000, start,
       // the cat is not needed: without her the bug walks off. Not with motion off, when there is nobody to see it walk
       can: () => !bug && !(T.standby && T.standby.on) });
-    // the page changing shape under it: it is simply gone. (Some of the page's own resize events move nothing)
+    // the page changing shape under it (a section opening above, a window resized): it goes with its screen, and is only
+    // gone if the screen is. The cat drops what she is doing when the page moves, and comes for it again from where she lands
     window.addEventListener('resize', () => {
-      if (!bug) return;
-      const r = rel(bug.screen.getBoundingClientRect());
-      if (Math.abs(r.y - bug.y) > 1 || Math.abs(r.x + 2 - bug.left) > 1 || Math.abs(r.r - 2 - bug.right) > 1) remove(bug, 'stopped');
+      if (!bug || bug.gone) return;
+      if (!bug.screen.getClientRects().length) { remove(bug, 'stopped'); return; }
+      const r = rel(bug.screen.getBoundingClientRect()), dx = r.x + 2 - bug.left;
+      if (Math.abs(r.y - bug.y) <= 1 && Math.abs(dx) <= 1 && Math.abs(r.r - 2 - bug.right) <= 1) return;
+      bug.left = r.x + 2; bug.right = r.r - 2; bug.y = r.y;
+      bug.x = Math.max(bug.left, Math.min(bug.right - BW, bug.x + dx));
+      placeBug(bug);
     });
     T.onTheme(() => { if (bug) { const f = bug.frame; bug.frame = ''; paintBug(bug, f); } });
   })();
