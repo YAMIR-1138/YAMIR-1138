@@ -23,6 +23,7 @@
     riders.png, riders-fill.png   the sprite frames of the visitors who come through the cat's portals
     guen.png, guen-fill.png       the frames of the panther in the onyx figurine, fetched only when someone calls her
     droids.png, droids-fill.png   the frames of the two droids on the ship's screens, fetched only when one is called
+    drizzt.png, drizzt-fill.png   the frames of the ranger who comes out of the dark, fetched only when someone calls him
 -->
 <html lang="en" data-theme="amber">
 <head>
@@ -581,6 +582,27 @@
     transform: scale(0, 0); transition: transform .35s cubic-bezier(.3, 1.4, .5, 1); pointer-events: none;
   }
   .portal.on { transform: none; }
+  /* a globe of darkness (FEATURES.drizzt): a round patch of the page gone black, its edge given away by a faint rim and a few motes */
+  .dz-dark {
+    position: absolute; left: 0; top: 0; border-radius: 50%; pointer-events: none; opacity: 0; transform: scale(.45); will-change: opacity, transform;
+    background: radial-gradient(circle closest-side, #000 0, #000 60%, rgba(0,0,0,.9) 76%, rgba(0,0,0,.45) 90%, rgba(0,0,0,0) 100%);
+    transition: opacity 1.1s ease-out, transform 1.3s cubic-bezier(.2, .8, .3, 1);
+  }
+  .dz-dark::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle closest-side, rgba(0,0,0,0) 78%, rgba(var(--glow-rgb), .13) 87%, rgba(0,0,0,0) 96%); }
+  .dz-dark.on { opacity: 1; transform: none; }
+  .dz-dark.thin { opacity: 0; transform: scale(1.1); transition-duration: 1.6s, 1.8s; }
+  .dz-dark b { position: absolute; inset: 0; animation: dz-turn 11s linear infinite; }
+  .dz-dark b::before { content: ""; position: absolute; left: 50%; top: 8%; width: 2px; height: 2px; border-radius: 50%; background: var(--hi); box-shadow: 0 0 4px var(--fg), 0 0 9px rgba(var(--glow-rgb), .6); animation: dz-flicker 2.3s ease-in-out infinite alternate; }
+  .dz-dark b:nth-child(2) { animation-duration: 15s; animation-direction: reverse; animation-delay: -5s; }
+  .dz-dark b:nth-child(2)::before { top: 5%; animation-delay: -.8s; }
+  .dz-dark b:nth-child(3) { animation-duration: 9s; animation-delay: -2s; }
+  .dz-dark b:nth-child(3)::before { top: 11%; width: 1.5px; height: 1.5px; animation-delay: -1.6s; }
+  .dz-dark b:nth-child(4) { animation-duration: 19s; animation-direction: reverse; animation-delay: -11s; }
+  .dz-dark b:nth-child(4)::before { top: 7%; animation-duration: 3.1s; }
+  .dz-dark b:nth-child(5) { animation-duration: 13s; animation-delay: -7s; }
+  .dz-dark b:nth-child(5)::before { top: 13%; width: 1.5px; height: 1.5px; animation-delay: -.3s; }
+  @keyframes dz-turn { to { transform: rotate(360deg); } }
+  @keyframes dz-flicker { from { opacity: .15; } to { opacity: .8; } }
   /* a bug on the top edge of a screen (FEATURES.bughunt) */
   .bug { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; }
   .bug canvas { display: block; filter: drop-shadow(0 0 2px rgba(var(--glow-rgb), .55)); }
@@ -1033,6 +1055,7 @@
     printout: true,    // printing the page gives a plain CV on white paper, in the manner of a dot-matrix printout
     surprises: true,   // a line and a small touch on DNA Day, Alien Day and the 4th of May; a word for whoever opens the console
     bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
+    drizzt: true,      // a ranger out of a globe of darkness, if called by name; he and the panther know each other
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
   Object.keys(F).forEach((k) => { if (F[k]) document.documentElement.classList.add('f-' + k); });
@@ -4192,6 +4215,15 @@ window.CATDATA = {
   // first and last are the idle again). droids.png and droids-fill.png are only fetched when one of them is called.
   const DROIDDATA = {"groups":{"HK_IDLE":{"n":2,"ms":600},"HK_LOOK":{"n":4,"ms":170},"T3_IDLE":{"n":2,"ms":500},"T3_SCAN":{"n":4,"ms":170}},"frames":{"HK_IDLE0":[364,0,31,50,1,12,0,14.8,49.8],"HK_IDLE1":[396,0,31,50,1,12,1,14.8,49.8],"HK_LOOK0":[331,0,32,51,1,12,1,13.8,49.8],"HK_LOOK1":[462,0,33,49,1,14,0,14.8,48.8],"HK_LOOK2":[0,57,33,49,1,14,0,14.8,48.8],"HK_LOOK3":[428,0,33,50,1,13,1,14.8,49.8],"T3_IDLE0":[109,0,55,55,1,17,0,31.4,55.6],"T3_IDLE1":[165,0,55,55,1,18,0,30.4,55.6],"T3_SCAN0":[0,0,54,56,1,18,0,30.4,56.6],"T3_SCAN1":[55,0,53,56,1,19,1,30.4,56.6],"T3_SCAN2":[221,0,54,55,1,18,0,30.4,55.6],"T3_SCAN3":[276,0,54,55,1,17,0,30.4,55.6]}};
   root.DROIDS = () => root.DROIDS.rig || (root.DROIDS.rig = spriteRig(DROIDDATA, 'droids.png', 'droids-fill.png', 64, 64, 32, 62, 1));
+  // Drizzt, the drow ranger (FEATURES.drizzt), at the same scale as Guenhwyvar's first kit, so the two stand together as drawn.
+  // Standing and breathing with his scimitars out, and standing with her at his feet, are from the second kit; looking about
+  // and drawing his blades from the first, brought down 3 px onto the same ground line, their tones matched to the idle's,
+  // and each frame held where the idle has the middle of his body (the first kit lets him wander about the cell by up to
+  // 11 px). His sheets (drizzt.png, drizzt-fill.png) are only fetched the first time someone calls him.
+  if (root.TGGR && root.TGGR.FEATURES.drizzt) {
+    const DZDATA = {"groups":{"D_IDLE":{"n":7,"ms":180},"D_LOOK":{"n":4,"ms":180},"D_DRAW":{"n":6,"ms":130},"D_TOGETHER":{"n":5,"ms":270}},"frames":{"D_IDLE0":[395,0,133,127,1,73,1,70.3,126.0],"D_IDLE1":[529,0,133,127,1,74,1,71.3,126.0],"D_IDLE2":[0,135,137,126,1,75,0,74.3,125.0],"D_IDLE3":[663,0,131,127,1,70,1,69.3,126.0],"D_IDLE4":[138,135,136,126,1,77,1,73.3,125.0],"D_IDLE5":[275,135,137,126,1,75,0,73.3,125.0],"D_IDLE6":[413,135,134,126,1,73,0,70.3,125.0],"D_LOOK0":[429,262,117,123,1,62,0,61.0,122.0],"D_LOOK1":[686,262,117,122,1,62,0,59.0,122.0],"D_LOOK2":[804,262,121,122,1,58,0,61.9,121.0],"D_LOOK3":[0,389,117,122,1,64,0,59.9,121.0],"D_DRAW0":[548,135,99,126,1,66,0,64.7,125.0],"D_DRAW1":[648,135,106,126,1,65,0,62.3,125.0],"D_DRAW2":[133,0,113,130,1,43,0,64.3,129.0],"D_DRAW3":[0,0,132,134,1,69,0,64.6,133.0],"D_DRAW4":[547,262,138,123,1,69,0,69.3,122.0],"D_DRAW5":[298,262,130,124,1,66,0,65.8,122.0],"D_TOGETHER0":[755,135,147,126,1,93,0,83.7,125.0],"D_TOGETHER1":[0,262,147,126,1,92,0,83.7,125.0],"D_TOGETHER2":[148,262,149,126,1,93,0,84.7,125.0],"D_TOGETHER3":[247,0,147,128,1,89,0,83.7,127.0],"D_TOGETHER4":[795,0,143,127,1,89,1,83.7,126.0]}};
+    root.DRIZZT = () => root.DRIZZT.rig || (root.DRIZZT.rig = spriteRig(DZDATA, 'drizzt.png', 'drizzt-fill.png', 280, 220, 140, 217, 1.6));
+  }
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 
@@ -5221,7 +5253,7 @@ window.CATDATA = {
   // her distance and does not take her eyes off her. Guenhwyvar takes no notice of the cat at all.
   const GUEN_REST = 600;                                     // seconds on the Astral Plane before she will come again
   const guenResting = () => Date.now() - (+T.store.get('guen', 0) || 0) < GUEN_REST * 1000 / FAST;
-  const guenHere = () => riders.some((r) => r.kind === 'guen');
+  const guenHere = () => riders.some((r) => r.kind === 'guen') || DZ.guen;      // DZ.guen: she is sitting with Drizzt
   // where she stands: the footer if it is in view, then the prompt, then any ledge in view, on the longest clear stretch.
   // A stretch is where the middle of her can go; if Camille is in the way, it is the longer side of her.
   function guenStage(K) {
@@ -5319,6 +5351,177 @@ window.CATDATA = {
     yield* hold(sec(1.3));
     drop(fig);
     if (look) { setMode('sitting ' + where(C.ledge), true); yield* sitFor(sec(rand(3, 6))); }
+  }
+
+  // ------------------------------------------------------------ a globe of darkness (FEATURES.drizzt)
+  // Say his name and a patch of the page goes black: a globe of darkness, the one place aboard where the dark is the point.
+  // It thins, and a drow ranger is standing where it was, his scimitars on his back. He draws them and stands a while,
+  // breathing, now and then looking about; then the dark comes back for him. If Guenhwyvar is out when he comes, or is
+  // called while he is here, she goes to him by her mist and sits at his feet, and either of them may leave first. Camille
+  // watches him as she watches the panther: from a distance, the whole time.
+  const DZ_REST = 600;                                       // seconds before he will come again
+  const DZ = { r: null, busy: false, guen: false, want: '', still: null, globe: null };
+  const dzResting = () => Date.now() - (+T.store.get('drizzt', 0) || 0) < DZ_REST * 1000 / FAST;
+  const dzHere = () => !!(DZ.r || DZ.still);
+  // where he stands: as for her, but the dark around him must clear the top bar, and he keeps further from the cat
+  function dzStage() {
+    const up = 250 * unit, half = 120 * unit, t = viewTop(), lo = Math.max(SL, 0), hi = Math.min(SR, layerW);
+    const bar = $('.bar'), top = t + Math.max(0, bar ? bar.getBoundingClientRect().bottom : 0) + 4;
+    const seen = (l) => l.y - up >= top && l.y <= t + window.innerHeight - 4;
+    const stretch = (l) => {
+      let a = Math.max(l.x0, lo) + half, b = Math.min(l.x1 + W, hi) - half, cat = 0;
+      if (C.onstage && C.y < l.y && C.y + H > l.y - up) {
+        const c0 = C.x - 40 - half, c1 = C.x + W + 40 + half;
+        if (c1 > a && c0 < b) { if (c0 - a >= b - c1) { b = c0; cat = 1; } else { a = c1; cat = -1; } }
+      }
+      return { l, a, b, cat };
+    };
+    const order = (l) => (l.id === 'footer' ? 0 : l.id === 'prompt' ? 1 : 2);
+    const all = ledges.filter((l) => (l.kind === 'walk' || l.kind === 'prompt' || l.kind === 'perch') && seen(l)).map(stretch).filter((s) => s.b - s.a >= 0);
+    all.sort((p, q) => order(p.l) - order(q.l) || (q.b - q.a) - (p.b - p.a));
+    return all[0] || null;
+  }
+  // the dark itself: a soft round patch of black over the page, under the cat and anyone aboard. It gathers when made;
+  // lift() thins it away and takes it off the page
+  function darkness(cx, cy, d) {
+    const g = document.createElement('div'); g.className = 'dz-dark'; g.innerHTML = '<b></b><b></b><b></b><b></b><b></b>';
+    g.style.left = Math.round(cx - d / 2) + 'px'; g.style.top = Math.round(cy - d / 2) + 'px'; g.style.width = g.style.height = Math.round(d) + 'px';
+    layer.insertBefore(g, el);
+    DZ.globe = g; void g.offsetWidth; g.classList.add('on');
+    return g;
+  }
+  function lift(g) { if (!g) return; g.classList.add('thin'); setTimeout(() => { g.remove(); if (DZ.globe === g) DZ.globe = null; }, 2000); }
+  function* drizzt(K, carry) {
+    mark('drizzt'); T.store.set('drizzt', Date.now());
+    DZ.busy = true;
+    setMode(C.mode);                                         // not resting: nothing may take the scene while the cat is out of sight
+    // Guenhwyvar and her figurine, if she was out: kept from the scene before, not swept off with it
+    carry = carry || []; carry.forEach((r) => riders.push(r));
+    let pg = carry.find((r) => r.kind === 'guen') || null;
+    const fig = carry.find((r) => r.kind === 'figurine');
+    if (pg) setLoop(pg, 'P_IDLE');
+    const off = (r) => { if (!r) return; r.el.remove(); const i = riders.indexOf(r); if (i >= 0) riders.splice(i, 1); };
+    const fade = (r, s) => { r.el.style.transition = 'transform 95ms linear, opacity ' + s + 's'; r.el.style.opacity = 0; };
+    // the cat, if she is about, keeps her eyes on him; t counts the ticks he has been here
+    let gx = 0, eyes = false, t = 0;
+    const watch = () => { if (!eyes || !C.onstage) return; const f = gx + sdx() > C.x + W / 2 ? 1 : -1; if (f !== C.face) { C.face = f; place(); } };
+    function* held(n) { for (let i = 0; i < n; i++) { tickLoops(); watch(); t++; yield; } }
+    function* acted(gen) { for (;;) { const s = gen.next(); if (s.done) return; tickLoops(); watch(); t++; yield; } }
+    let ok = false; K.ready(() => { ok = true; });
+    // his sheets, the first time, and the page settled from any scroll it was in the middle of
+    for (let i = 0, y = -1, still = 0; i < 40 && !(ok && still > 2); i++) { still = viewTop() === y ? still + 1 : 0; y = viewTop(); tickLoops(); yield; }
+    measure();
+    let st = ok && dzStage();
+    if (ok && !st) {
+      $('#cmd').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      for (let i = 0, y = -1, still = 0; i < 30 && still < 3; i++) { tickLoops(); yield; still = viewTop() === y ? still + 1 : 0; y = viewTop(); }
+      st = dzStage();
+      if (!st) { $('#cmd').scrollIntoView({ block: 'center', behavior: 'instant' }); st = dzStage(); }
+    }
+    if (!st) {
+      T.print(ok ? 'there is no room for him here. scroll to somewhere with a clear line and call again.' : 'the dark stays empty.', 'err');
+      T.store.set('drizzt', 0); DZ.want = '';
+      if (pg) { pg.loop = null; yield* acted(play(pg, 'P_VANISH')); off(pg); }
+      if (fig) { fade(fig, 1.2); yield* held(sec(1.3)); off(fig); }
+      DZ.busy = false; return;
+    }
+    setStage(st.l);
+    const room = st.b - st.a, ground = st.l.y;
+    gx = st.cat > 0 ? st.a + room * .3 : st.cat < 0 ? st.b - room * .3 : st.a + room * rand(.3, .7);
+    const face = gx > layerW / 2 ? -1 : 1;                  // toward the middle of the page
+    const seat = gx - face * 75 * unit;                      // where she sits with him: behind him, at his feet
+    const d = makeRider('drizzt', K); DZ.r = d;
+    d.face = face; d.x = gx - K.GX * unit; d.y = ground - (K.GY + 1) * unit;
+    d.el.style.opacity = 0; paintRider(d, 'D_DRAW0'); placeRider(d);
+    eyes = C.onstage && !!C.ledge && inView();
+    const near = () => Math.abs(gx - (C.x + W / 2)) < 260 * unit && Math.abs(C.y + H - ground) < 230 * unit;
+    // the dark gathers where he will stand, holds, and thins; and he is there
+    darkness(gx, ground - 106 * unit, 280 * unit);
+    if (eyes) { watch(); paint('SIT_ALERT', true); setMode('watching the dark'); }
+    yield* held(sec(1.9));
+    d.el.style.transition = 'transform 95ms linear, opacity 1.5s ease-in'; d.el.style.opacity = '';
+    lift(DZ.globe);
+    T.log('darkness', 'drizzt is aboard');
+    yield* held(sec(1.2));
+    if (eyes) { if (near()) { paint('HISS_A', true); say('hss', 900); } setMode('watching a drow'); }
+    if (fig) { fade(fig, 1.2); setTimeout(() => off(fig), 1300); }
+    yield* held(sec(1.4));
+    d.el.style.transition = '';
+    if (eyes && C.pose === 'HISS_A') paint('SIT_ALERT', true);
+    // he draws his scimitars, once
+    yield* acted(play(d, 'D_DRAW', 2));
+    setLoop(d, 'D_IDLE');
+    if (pg) DZ.want = 'guen';
+    // Guenhwyvar's mist, at his feet: it hides the change from one drawing to the other
+    function* mist(K2, at, swap) {
+      const m = makeRider('guen-mist', K2), fr = K2.group('F_MIST');
+      m.face = face; m.x = seat - K2.GX * unit; m.y = ground - (K2.GY + 1) * unit; m.el.style.opacity = .5; paintRider(m, fr[0]); placeRider(m);
+      for (let i = 0; i < fr.length * 2; i++) { paintRider(m, fr[Math.floor(i / 2)]); if (i === at) swap(); yield* held(1); }
+      off(m);
+    }
+    function* comes() {
+      const K2 = window.GUEN(); let ready = false; K2.ready(() => { ready = true; });
+      for (let i = 0; !ready && i < sec(20); i++) yield* held(1);
+      if (!ready) return;
+      const was = !!pg;
+      if (pg) { pg.loop = null; yield* acted(play(pg, 'P_VANISH')); off(pg); pg = null; yield* held(sec(.4)); }   // she goes into the mist where she was
+      yield* mist(K2, 7, () => { setLoop(d, 'D_TOGETHER'); DZ.guen = true; if (!was) T.log('figurine', 'guenhwyvar is aboard'); });
+    }
+    function* look() {
+      d.loop = null;
+      for (const [f, n] of [['D_LOOK0', 2], ['D_LOOK1', 3], ['D_LOOK2', sec(1.4)], ['D_LOOK3', 3]]) { paintRider(d, f); yield* held(n); }
+      setLoop(d, 'D_IDLE');
+    }
+    let stay = t + sec(rand(38, 52)), lookAt = t + sec(rand(4, 7)), parting = 0;
+    for (;;) {
+      const w = DZ.want; DZ.want = '';
+      if (w === 'leave') break;
+      if (w === 'guen' && !DZ.guen) { yield* comes(); parting = t + sec(rand(14, 22)); stay = Math.max(stay, parting + sec(4)); continue; }
+      if (DZ.guen && (w === 'guenLeave' || t >= parting)) {
+        if (w !== 'guenLeave' && Math.random() < .5) break;                       // he goes first, and she stays a moment
+        yield* mist(window.GUEN(), 7, () => { setLoop(d, 'D_IDLE'); DZ.guen = false; });
+        stay = Math.max(stay, t + sec(rand(6, 10))); lookAt = Math.max(lookAt, t + sec(2.5)); continue;
+      }
+      if (!DZ.guen && t >= stay) break;
+      if (!DZ.guen && t >= lookAt) { yield* look(); lookAt = t + sec(rand(9, 15)); continue; }
+      yield* held(1);
+    }
+    // the dark comes back for him. If she is with him she stays where she sat, for a moment, and then goes too
+    const withHer = DZ.guen;
+    darkness(gx + sdx(), ground + sdy() - 106 * unit, 280 * unit);
+    if (eyes && C.onstage) { paint('SIT_ALERT', true); setMode('watching the dark'); }
+    yield* held(sec(1.3));
+    fade(d, 1.3);
+    let g = null;
+    if (withHer) {
+      const K2 = window.GUEN(); g = makeRider('guen-sat', K2);
+      g.face = face; g.x = seat - K2.GX * unit; g.y = ground - (K2.GY + 1) * unit; g.el.style.opacity = 0; paintRider(g, 'P_SIT0'); placeRider(g);
+      void g.el.offsetWidth; g.el.style.transition = 'transform 95ms linear, opacity 1.3s ease-in'; g.el.style.opacity = '';
+      setLoop(g, 'P_SIT');
+    }
+    yield* held(sec(1.4));
+    off(d); DZ.r = null; T.log('darkness', 'drizzt has gone');
+    lift(DZ.globe);
+    yield* held(sec(1.8));
+    if (g) {
+      g.el.style.transition = '';
+      if (eyes && C.onstage) setMode('watching a panther');
+      yield* held(sec(2.4)); setLoop(g, 'P_IDLE'); yield* held(sec(.6));
+      yield* acted(play(g, 'P_VANISH')); off(g); DZ.guen = false;
+    }
+    DZ.busy = false; setStage(null);
+    const look2 = eyes && C.onstage && C.ledge;
+    if (look2) { paint('SIT_LOOK', true); say('?', 1200); }
+    // called for while he was going: she comes on her own, the usual way
+    if (DZ.want === 'guen') { DZ.want = ''; yield* guenhwyvar(window.GUEN()); return; }
+    if (look2) { setMode('sitting ' + where(C.ledge), true); yield* sitFor(sec(rand(3, 6))); }
+  }
+  // the panther, if she is out, goes along into his scene rather than off the page with the last one
+  function dzCall(K, wantGuen) {
+    const carry = riders.filter((r) => r.kind === 'guen' || r.kind === 'figurine');
+    carry.forEach((r) => riders.splice(riders.indexOf(r), 1));
+    take(drizzt(K, carry));
+    if (wantGuen) DZ.want = 'guen';
   }
 
   // ------------------------------------------------------------ interruptions
@@ -5561,7 +5764,7 @@ window.CATDATA = {
   T.crew = () => {
     const guests = riders.some((r) => r.kind === 'ciri' || r.kind === 'girl') ? 1 : 0, hunt = riders.filter(hostile).length;
     const terms = T.terminals ? T.terminals() : 1;
-    return '1 human · 1 cat' + (terms > 1 ? ' · ' + terms + ' terminals' : '') + (guenHere() ? ' · 1 panther' : '') + (guests ? ' · ' + guests + ' visitor' : '') + (hunt ? ' · ' + hunt + ' UNINVITED' : '');
+    return '1 human · 1 cat' + (terms > 1 ? ' · ' + terms + ' terminals' : '') + (guenHere() ? ' · 1 panther' : '') + (dzHere() ? ' · 1 ranger' : '') + (guests ? ' · ' + guests + ' visitor' : '') + (hunt ? ' · ' + hunt + ' UNINVITED' : '');
   };
   // a draft beside the real thing: Camille as a sprite from the kit, or her traced outline
   const fileCat = T.COMMANDS.cat;
@@ -5577,6 +5780,7 @@ window.CATDATA = {
     P('  yam ................ human · at the keyboard, presumably');
     P('  camille ............ cat · ' + (C.onstage ? C.mode : 'elsewhere'));
     if (guenHere()) P('  guenhwyvar ......... panther · from the onyx figurine · ignoring the cat');
+    if (dzHere()) P('  drizzt ............. drow ranger · out of the dark · ' + (DZ.guen ? 'the panther at his feet' : 'watching the cat watch him'));
     P('  t3-m4 .............. utility droid · ' + (T.t3Busy ? 'at the CO2 monitor' : 'standing by'));
     if (T.hkSeen) P('  hk-47 .............. assassin droid · ' + (T.hkHere && T.hkHere() ? 'on the tracker · friendly (probably)' : 'somewhere aboard'));
     if (guests) P('  ciri ............... visitor · wrong world · armed');
@@ -5641,6 +5845,8 @@ window.CATDATA = {
     if (guenResting()) { P('the figurine is cold. Guenhwyvar is resting on the Astral Plane.', 'err'); return; }
     const K = window.GUEN();
     P('you set the onyx figurine down and say her name. grey mist, and a black panther.');
+    // Drizzt is here (FEATURES.drizzt): she goes to him, and his scene takes her in
+    if (DZ.busy && T.motion) { T.store.set('guen', Date.now()); DZ.want = 'guen'; return; }
     if (T.motion) { T.openTerm(false); take(guenhwyvar(K)); return; }
     // with motion off she is simply there, in the log, for as long as you like
     T.store.set('guen', Date.now());
@@ -5653,6 +5859,29 @@ window.CATDATA = {
       const log = $('#log'); log.appendChild(pic); P('Guenhwyvar sits by the prompt, the figurine at her feet, looking past the cat.');
     });
   };
+  // Drizzt. Not in help: his name turns up in cat scimitars.txt, as hers does in onyx.txt
+  if (T.FEATURES.drizzt) {
+    settleHooks.push(() => { $$('.dz-dark', layer).forEach((g) => g.remove()); Object.assign(DZ, { r: null, busy: false, guen: false, want: '', globe: null }); });
+    T.FILES['scimitars.txt'] = () => 'Two scimitars in a worn baldric, left by the airlock. Neither of them is ours.\nA name is scratched into one hilt: drizzt';
+    T.COMMANDS.drizzt = T.COMMANDS.drow = function () {
+      if (dzHere()) { P('Drizzt is already here.'); return; }
+      if (DZ.busy || dzResting()) { P('the dark stays empty. the ranger is somewhere on the surface.', 'err'); return; }
+      const K = window.DRIZZT();
+      P('you say his name to the dark, and the dark answers.');
+      if (T.motion) { T.openTerm(false); dzCall(K); return; }
+      // with motion off he is simply there, in the log, for a while
+      T.store.set('drizzt', Date.now()); DZ.still = true;
+      K.ready(() => {
+        const pic = document.createElement('canvas'), k = 2 * Math.min(3, window.devicePixelRatio || 1);
+        pic.width = K.BW * k; pic.height = K.BH * k; pic.style.width = K.BW * .9 + 'px'; pic.style.maxWidth = '100%';
+        K.draw(pic.getContext('2d'), 'D_IDLE0', k, COL);
+        pic.setAttribute('aria-hidden', 'true'); pic.className = 'drizzt';
+        $('#log').appendChild(pic); P('Drizzt stands by the prompt, scimitars drawn, watching the cat watch him.');
+        DZ.still = pic; T.log('darkness', 'drizzt is aboard');
+        setTimeout(() => { if (DZ.still !== pic) return; pic.remove(); DZ.still = null; T.log('darkness', 'drizzt has gone'); }, 45000 / FAST);
+      });
+    };
+  }
   // HK-47 on the motion tracker. Not in help. On a screen too narrow for the tracker, or with motion off, the log reads him out
   T.COMMANDS.hk47 = T.COMMANDS['hk-47'] = T.COMMANDS.hk = function () {
     if (T.hkHere && T.hkHere()) { P('tracker: he is on it already.'); return; }
@@ -6273,6 +6502,8 @@ window.CATDATA = {
       C, hitAt, canvas, get ledges() { return ledges; }, measure, say, poke, paint, place, show, hide,
       rider: makeRider, paintRider,
       run(name, arg) {
+        // Drizzt: run('drizzt'), or run('drizzt', 'guen') to have the panther come to him as soon as he has drawn
+        if (name === 'drizzt') { if (!window.DRIZZT) return false; C.awayUntil = 0; dzCall(window.DRIZZT(), arg === 'guen'); return name; }
         const B = { watch: () => watch(true), intro, climb, portal, ciri: () => portal(true), guen: () => guenhwyvar(window.GUEN()), perch, patrol, block, box, catnap, meddle, startle, chase, zoomies, chargeNap, promptNap, leave, knock, rest, offPrompt };
         // the events are run by their own director, with the cat's part asked for
         const EVENTS = { hunt: () => T.events.bughunt && T.events.bughunt({ hunt: true }), cross: () => T.events.crossing && T.events.crossing(), keys: () => T.events.catkeys && T.events.catkeys(),
@@ -6281,6 +6512,8 @@ window.CATDATA = {
         C.awayUntil = 0; take(B[name](arg)); return name;
       },
       poses: A.names,
+      // while he is here: drizzt.guen() calls her to him, drizzt.leave() sends him off, drizzt.guenLeave() sends her off first
+      drizzt: { guen() { DZ.want = 'guen'; }, leave() { DZ.want = 'leave'; }, guenLeave() { DZ.want = 'guenLeave'; }, get state() { return { here: dzHere(), busy: DZ.busy, guen: DZ.guen, globe: !!DZ.globe }; } },
       put(id, frac) {
         const l = ledges.find((k) => k.id === id || k.key === id); if (!l) return null;
         C.ledge = l; C.x = l.x0 + (l.x1 - l.x0) * (frac == null ? .5 : frac); C.y = topOf(l); setU(); place(); show(); return l.key;
