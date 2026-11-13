@@ -5272,8 +5272,9 @@ window.CATDATA = {
     all.sort((p, q) => order(p.l) - order(q.l) || (q.b - q.a) - (p.b - p.a));
     return all[0] || null;
   }
+  let guenShown = false;                                     // her scene has put her on the page (for FEATURES.drizzt)
   function* guenhwyvar(K) {
-    mark('guen'); T.store.set('guen', Date.now());
+    mark('guen'); T.store.set('guen', Date.now()); guenShown = false;
     setMode(C.mode);                                         // not resting: nothing may take the scene from her while the cat is out of sight
     let ok = false; K.ready(() => { ok = true; });
     // her sheets, the first time, and the page settled from any scroll it was in the middle of
@@ -5296,6 +5297,7 @@ window.CATDATA = {
     const put = (r, pose) => { r.y = st.l.y - (K.GY + 1) * unit; r.face = dir; r.x = x0 - GX; if (pose) paintRider(r, pose); r.el.style.transition = 'none'; placeRider(r); void r.el.offsetWidth; r.el.style.transition = ''; };
     const drop = (r) => { r.el.remove(); const i = riders.indexOf(r); if (i >= 0) riders.splice(i, 1); };
     const fig = makeRider('figurine', K), g = makeRider('guen', K), mist = makeRider('guen-mist', K);   // back to front
+    guenShown = true;
     put(fig, 'F_FIG0'); put(g); put(mist);
     mist.el.style.opacity = .5;                              // in the pale of the phosphor, and thin: a mist, not a fire
     fig.el.style.opacity = 0; void fig.el.offsetWidth; fig.el.style.transition = 'opacity .5s'; fig.el.style.opacity = '';
@@ -5360,7 +5362,7 @@ window.CATDATA = {
   // called while he is here, she goes to him by her mist and sits at his feet, and either of them may leave first. Camille
   // watches him as she watches the panther: from a distance, the whole time.
   const DZ_REST = 600;                                       // seconds before he will come again
-  const DZ = { r: null, busy: false, guen: false, want: '', still: null, globe: null };
+  const DZ = { r: null, busy: false, gone: false, guen: false, want: '', still: null, globe: null };   // gone: he has left, the dark has not
   const dzResting = () => Date.now() - (+T.store.get('drizzt', 0) || 0) < DZ_REST * 1000 / FAST;
   const dzHere = () => !!(DZ.r || DZ.still);
   // where he stands: as for her, but the dark around him must clear the top bar, and he keeps further from the cat
@@ -5393,7 +5395,7 @@ window.CATDATA = {
   function lift(g) { if (!g) return; g.classList.add('thin'); setTimeout(() => { g.remove(); if (DZ.globe === g) DZ.globe = null; }, 2000); }
   function* drizzt(K, carry) {
     mark('drizzt'); T.store.set('drizzt', Date.now());
-    DZ.busy = true;
+    DZ.busy = true; DZ.gone = false;
     setMode(C.mode);                                         // not resting: nothing may take the scene while the cat is out of sight
     // Guenhwyvar and her figurine, if she was out: kept from the scene before, not swept off with it
     carry = carry || []; carry.forEach((r) => riders.push(r));
@@ -5500,7 +5502,7 @@ window.CATDATA = {
       setLoop(g, 'P_SIT');
     }
     yield* held(sec(1.4));
-    off(d); DZ.r = null; T.log('darkness', 'drizzt has gone');
+    off(d); DZ.r = null; DZ.gone = true; T.log('darkness', 'drizzt has gone');
     lift(DZ.globe);
     yield* held(sec(1.8));
     if (g) {
@@ -5520,6 +5522,8 @@ window.CATDATA = {
   function dzCall(K, wantGuen) {
     const carry = riders.filter((r) => r.kind === 'guen' || r.kind === 'figurine');
     carry.forEach((r) => riders.splice(riders.indexOf(r), 1));
+    // she was called but is not out yet (her sheets still coming): she comes to him instead, rather than not at all
+    if (cur && cur.guen && !guenShown) wantGuen = true;
     take(drizzt(K, carry));
     if (wantGuen) DZ.want = 'guen';
   }
@@ -5847,7 +5851,7 @@ window.CATDATA = {
     P('you set the onyx figurine down and say her name. grey mist, and a black panther.');
     // Drizzt is here (FEATURES.drizzt): she goes to him, and his scene takes her in
     if (DZ.busy && T.motion) { T.store.set('guen', Date.now()); DZ.want = 'guen'; return; }
-    if (T.motion) { T.openTerm(false); take(guenhwyvar(K)); return; }
+    if (T.motion) { T.openTerm(false); const run = guenhwyvar(K); run.guen = true; take(run); return; }
     // with motion off she is simply there, in the log, for as long as you like
     T.store.set('guen', Date.now());
     K.ready(() => {
@@ -5864,7 +5868,7 @@ window.CATDATA = {
     settleHooks.push(() => { $$('.dz-dark', layer).forEach((g) => g.remove()); Object.assign(DZ, { r: null, busy: false, guen: false, want: '', globe: null }); });
     T.FILES['scimitars.txt'] = () => 'Two scimitars in a worn baldric, left by the airlock. Neither of them is ours.\nA name is scratched into one hilt: drizzt';
     T.COMMANDS.drizzt = T.COMMANDS.drow = function () {
-      if (dzHere()) { P('Drizzt is already here.'); return; }
+      if (dzHere() || (DZ.busy && !DZ.gone)) { P('Drizzt is already here.'); return; }
       if (DZ.busy || dzResting()) { P('the dark stays empty. the ranger is somewhere on the surface.', 'err'); return; }
       const K = window.DRIZZT();
       P('you say his name to the dark, and the dark answers.');
