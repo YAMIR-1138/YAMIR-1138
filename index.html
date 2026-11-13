@@ -5444,10 +5444,13 @@ window.CATDATA = {
     // frames in turn, so many ticks each
     function* seq(r, frames, per) { r.loop = null; for (const f of frames) { paintRider(r, f); yield* held(per); } }
     let ok = false; K.ready(() => { ok = true; });
-    // his sheets, the first time, and the page settled from any scroll it was in the middle of
-    for (let i = 0, y = -1, still = 0; i < 40 && !(ok && still > 2); i++) { still = viewTop() === y ? still + 1 : 0; y = viewTop(); tickLoops(); yield; }
-    measure();
-    let st = ok && dzStage();
+    // his sheets, the first time, and the page settled from any scroll it was in the middle of, and from the screen's
+    // power-on after standby (the page is drawn scaled while it plays, and no ledge is where it will be)
+    const sc = $('.screen'), powering = () => !!(sc && sc.getAnimations && sc.getAnimations().some((a) => a.playState === 'running' && a.effect && a.effect.getTiming().iterations !== Infinity));
+    for (let i = 0, y = -1, still = 0; i < 60 && !(ok && still > 2 && !powering()); i++) { still = viewTop() === y ? still + 1 : 0; y = viewTop(); tickLoops(); yield; }
+    // a few tries before giving up on where he is: the screen can start its power-on a moment after a wake
+    let st = null;
+    for (let i = 0; ok && i < 25; i++) { if (!powering()) { measure(); st = dzStage(); if (st) break; } tickLoops(); yield; }
     if (ok && !st) {
       $('#cmd').scrollIntoView({ block: 'center', behavior: 'smooth' });
       for (let i = 0, y = -1, still = 0; i < 30 && still < 3; i++) { tickLoops(); yield; still = viewTop() === y ? still + 1 : 0; y = viewTop(); }
