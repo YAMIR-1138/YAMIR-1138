@@ -4216,12 +4216,15 @@ window.CATDATA = {
   const DROIDDATA = {"groups":{"HK_IDLE":{"n":2,"ms":600},"HK_LOOK":{"n":4,"ms":170},"T3_IDLE":{"n":2,"ms":500},"T3_SCAN":{"n":4,"ms":170}},"frames":{"HK_IDLE0":[364,0,31,50,1,12,0,14.8,49.8],"HK_IDLE1":[396,0,31,50,1,12,1,14.8,49.8],"HK_LOOK0":[331,0,32,51,1,12,1,13.8,49.8],"HK_LOOK1":[462,0,33,49,1,14,0,14.8,48.8],"HK_LOOK2":[0,57,33,49,1,14,0,14.8,48.8],"HK_LOOK3":[428,0,33,50,1,13,1,14.8,49.8],"T3_IDLE0":[109,0,55,55,1,17,0,31.4,55.6],"T3_IDLE1":[165,0,55,55,1,18,0,30.4,55.6],"T3_SCAN0":[0,0,54,56,1,18,0,30.4,56.6],"T3_SCAN1":[55,0,53,56,1,19,1,30.4,56.6],"T3_SCAN2":[221,0,54,55,1,18,0,30.4,55.6],"T3_SCAN3":[276,0,54,55,1,17,0,30.4,55.6]}};
   root.DROIDS = () => root.DROIDS.rig || (root.DROIDS.rig = spriteRig(DROIDDATA, 'droids.png', 'droids-fill.png', 64, 64, 32, 62, 1));
   // Drizzt, the drow ranger (FEATURES.drizzt), at the same scale as Guenhwyvar's first kit, so the two stand together as drawn.
-  // Standing and breathing with his scimitars out, and standing with her at his feet, are from the second kit; looking about
-  // and drawing his blades from the first, brought down 3 px onto the same ground line, their tones matched to the idle's,
-  // and each frame held where the idle has the middle of his body (the first kit lets him wander about the cell by up to
-  // 11 px). His sheets (drizzt.png, drizzt-fill.png) are only fetched the first time someone calls him.
+  // Standing and breathing with his scimitars out (D_IDLE), and with her at his feet (D_TOGETHER), are from the second kit;
+  // drawing his blades (D_DRAW) from the first, brought down 3 px onto the same ground line, its tones matched to the idle's,
+  // each frame held where the idle has the middle of his body (the first kit lets him wander about the cell by up to 11 px).
+  // From the third: at rest with the blades on his back (D_REST, held exactly where D_DRAW starts), and the middle frames of
+  // a look at you (D_LOOK, from D_IDLE0 and back) and of a hand on her head (D_GREET, from D_TOGETHER0 and back); on the
+  // two of them her part of the drawing has a lighter tone curve, or the panther is near-black on the tube.
+  // His sheets (drizzt.png, drizzt-fill.png) are only fetched the first time someone calls him.
   if (root.TGGR && root.TGGR.FEATURES.drizzt) {
-    const DZDATA = {"groups":{"D_IDLE":{"n":7,"ms":180},"D_LOOK":{"n":4,"ms":180},"D_DRAW":{"n":6,"ms":130},"D_TOGETHER":{"n":5,"ms":270}},"frames":{"D_IDLE0":[247,0,133,127,1,73,1,70.3,126.0],"D_IDLE1":[381,0,133,127,1,74,1,71.3,126.0],"D_IDLE2":[795,0,137,126,1,75,0,74.3,125.0],"D_IDLE3":[515,0,131,127,1,70,1,69.3,126.0],"D_IDLE4":[0,135,136,126,1,77,1,73.3,125.0],"D_IDLE5":[137,135,137,126,1,75,0,73.3,125.0],"D_IDLE6":[275,135,134,126,1,73,0,70.3,125.0],"D_LOOK0":[429,262,117,123,1,62,0,61.0,122.0],"D_LOOK1":[686,262,117,122,1,62,0,59.0,122.0],"D_LOOK2":[804,262,121,122,1,58,0,61.9,121.0],"D_LOOK3":[0,388,117,122,1,64,0,59.9,121.0],"D_DRAW0":[410,135,99,126,1,66,0,64.7,125.0],"D_DRAW1":[510,135,106,126,1,65,0,62.3,125.0],"D_DRAW2":[133,0,113,130,1,43,0,64.3,129.0],"D_DRAW3":[0,0,132,134,1,69,0,64.6,133.0],"D_DRAW4":[547,262,138,123,1,69,0,69.3,122.0],"D_DRAW5":[298,262,130,124,1,66,0,65.8,122.0],"D_TOGETHER0":[761,135,147,125,1,93,0,86.7,124.0],"D_TOGETHER1":[0,262,147,125,1,92,0,86.7,124.0],"D_TOGETHER2":[148,262,149,125,1,93,0,87.7,124.0],"D_TOGETHER3":[647,0,147,127,1,89,0,86.7,126.0],"D_TOGETHER4":[617,135,143,126,1,89,1,86.7,125.0]}};
+    const DZDATA = {"groups":{"D_IDLE":{"n":7,"ms":180},"D_DRAW":{"n":6,"ms":130},"D_TOGETHER":{"n":5,"ms":270},"D_REST":{"n":8,"ms":180},"D_LOOK":{"n":3,"ms":125},"D_GREET":{"n":4,"ms":170}},"frames":{"D_IDLE0":[247,0,133,127,1,73,1,70.3,126.0],"D_IDLE1":[381,0,133,127,1,74,1,71.3,126.0],"D_IDLE2":[268,135,137,126,1,75,0,74.3,125.0],"D_IDLE3":[515,0,131,127,1,70,1,69.3,126.0],"D_IDLE4":[406,135,136,126,1,77,1,73.3,125.0],"D_IDLE5":[543,135,137,126,1,75,0,73.3,125.0],"D_IDLE6":[681,135,134,126,1,73,0,70.3,125.0],"D_DRAW0":[816,135,99,126,1,66,0,64.7,125.0],"D_DRAW1":[916,135,106,126,1,65,0,62.3,125.0],"D_DRAW2":[133,0,113,130,1,43,0,64.3,129.0],"D_DRAW3":[0,0,132,134,1,69,0,64.6,133.0],"D_DRAW4":[279,516,138,123,1,69,0,69.3,122.0],"D_DRAW5":[148,516,130,124,1,66,0,65.8,122.0],"D_TOGETHER0":[0,390,147,125,1,93,0,86.7,124.0],"D_TOGETHER1":[148,390,147,125,1,92,0,86.7,124.0],"D_TOGETHER2":[296,390,149,125,1,93,0,87.7,124.0],"D_TOGETHER3":[647,0,147,127,1,89,0,86.7,126.0],"D_TOGETHER4":[0,263,143,126,1,89,1,86.7,125.0],"D_REST0":[144,263,99,126,1,66,0,64.7,125.0],"D_REST1":[244,263,99,126,1,66,0,64.7,125.0],"D_REST2":[344,263,99,126,1,66,0,64.7,125.0],"D_REST3":[444,263,99,126,1,66,0,64.7,125.0],"D_REST4":[544,263,100,126,1,67,0,65.7,125.0],"D_REST5":[645,263,100,126,1,67,0,65.7,125.0],"D_REST6":[746,263,100,126,1,67,0,65.7,125.0],"D_REST7":[847,263,100,126,1,67,0,65.7,125.0],"D_LOOK0":[795,0,133,127,1,74,1,70.3,126.0],"D_LOOK1":[0,135,133,127,1,71,1,70.3,126.0],"D_LOOK2":[134,135,133,127,1,69,1,71.3,125.0],"D_GREET0":[446,390,147,125,1,93,0,86.7,124.0],"D_GREET1":[594,390,147,125,1,93,0,86.7,124.0],"D_GREET2":[742,390,147,125,1,93,0,86.7,124.0],"D_GREET3":[0,516,147,125,1,93,0,86.7,124.0]}};
     root.DRIZZT = () => root.DRIZZT.rig || (root.DRIZZT.rig = spriteRig(DZDATA, 'drizzt.png', 'drizzt-fill.png', 280, 220, 140, 217, 1.6));
   }
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -5434,7 +5437,7 @@ window.CATDATA = {
     const seat = gx - face * 75 * unit;                      // where she sits with him: behind him, at his feet
     const d = makeRider('drizzt', K); DZ.r = d;
     d.face = face; d.x = gx - K.GX * unit; d.y = ground - (K.GY + 1) * unit;
-    d.el.style.opacity = 0; paintRider(d, 'D_DRAW0'); placeRider(d);
+    d.el.style.opacity = 0; paintRider(d, 'D_REST0'); placeRider(d); setLoop(d, 'D_REST');
     eyes = C.onstage && !!C.ledge && inView();
     const near = () => Math.abs(gx - (C.x + W / 2)) < 260 * unit && Math.abs(C.y + H - ground) < 230 * unit;
     // the dark gathers where he will stand, holds, and thins; and he is there
@@ -5450,10 +5453,12 @@ window.CATDATA = {
     yield* held(sec(1.4));
     d.el.style.transition = '';
     if (eyes && C.pose === 'HISS_A') paint('SIT_ALERT', true);
-    // he draws his scimitars, once
-    yield* acted(play(d, 'D_DRAW', 2));
-    setLoop(d, 'D_IDLE');
     if (pg) DZ.want = 'guen';
+    // a cycle that is about to start again: the moment to go into a move drawn from its first frame
+    function* first() { const l = d.loop; if (!l) return; const n = l.g.length * l.per; for (let i = 0; i < n && l.i % n !== l.per; i++) yield* held(1); }
+    // he draws his scimitars, once: soon if the cat is close, or when the panther comes, else after a few breaths
+    let drawn = false;
+    function* draw() { yield* first(); yield* acted(play(d, 'D_DRAW', 2)); setLoop(d, 'D_IDLE'); drawn = true; }
     // Guenhwyvar's mist, at his feet: it hides the change from one drawing to the other
     function* mist(K2, at, swap) {
       const m = makeRider('guen-mist', K2), fr = K2.group('F_MIST');
@@ -5469,23 +5474,29 @@ window.CATDATA = {
       if (pg) { pg.loop = null; yield* acted(play(pg, 'P_VANISH')); off(pg); pg = null; yield* held(sec(.4)); }   // she goes into the mist where she was
       yield* mist(K2, 7, () => { setLoop(d, 'D_TOGETHER'); DZ.guen = true; if (!was) T.log('figurine', 'guenhwyvar is aboard'); });
     }
-    function* look() {
-      d.loop = null;
-      for (const [f, n] of [['D_LOOK0', 2], ['D_LOOK1', 3], ['D_LOOK2', sec(1.4)], ['D_LOOK3', 3]]) { paintRider(d, f); yield* held(n); }
-      setLoop(d, 'D_IDLE');
+    // a move out of a loop and back to the start of it: the look turns his head to you and back, the greeting is his
+    // hand on her head
+    function* turn(frames, hold, loop) {
+      yield* first(); d.loop = null;
+      for (let i = 0; i < frames.length; i++) { paintRider(d, frames[i]); yield* held(i === hold ? sec(1.2) : 2); }
+      setLoop(d, loop);
     }
-    let stay = t + sec(rand(38, 52)), lookAt = t + sec(rand(4, 7)), parting = 0;
+    const look = () => turn(['D_LOOK0', 'D_LOOK1', 'D_LOOK2', 'D_LOOK1', 'D_LOOK0'], 2, 'D_IDLE');
+    const greet = () => turn(['D_GREET0', 'D_GREET1', 'D_GREET2', 'D_GREET3', 'D_GREET1', 'D_GREET0'], 3, 'D_TOGETHER');
+    let stay = t + sec(rand(38, 52)), drawAt = t + sec(eyes && near() ? 1 : rand(3.5, 6)), lookAt = 0, parting = 0, greetAt = 0, greets = 0;
     for (;;) {
       const w = DZ.want; DZ.want = '';
       if (w === 'leave') break;
-      if (w === 'guen' && !DZ.guen) { yield* comes(); parting = t + sec(rand(14, 22)); stay = Math.max(stay, parting + sec(4)); continue; }
+      if (!drawn && (t >= drawAt || w === 'guen')) { if (w) DZ.want = w; yield* draw(); lookAt = t + sec(rand(3, 6)); continue; }
+      if (w === 'guen' && !DZ.guen) { yield* comes(); parting = t + sec(rand(14, 22)); stay = Math.max(stay, parting + sec(4)); greetAt = t + sec(rand(2.5, 5)); greets = 0; continue; }
+      if (DZ.guen && greets < 2 && t >= greetAt && t < parting - sec(3)) { yield* greet(); greets++; greetAt = t + sec(rand(6, 9)); continue; }
       if (DZ.guen && (w === 'guenLeave' || t >= parting)) {
         if (w !== 'guenLeave' && Math.random() < .5) break;                       // he goes first, and she stays a moment
         yield* mist(window.GUEN(), 7, () => { setLoop(d, 'D_IDLE'); DZ.guen = false; });
         stay = Math.max(stay, t + sec(rand(6, 10))); lookAt = Math.max(lookAt, t + sec(2.5)); continue;
       }
       if (!DZ.guen && t >= stay) break;
-      if (!DZ.guen && t >= lookAt) { yield* look(); lookAt = t + sec(rand(9, 15)); continue; }
+      if (drawn && !DZ.guen && t >= lookAt) { yield* look(); lookAt = t + sec(rand(9, 15)); continue; }
       yield* held(1);
     }
     // the dark comes back for him. If she is with him she stays where she sat, for a moment, and then goes too
@@ -6517,7 +6528,7 @@ window.CATDATA = {
       },
       poses: A.names,
       // while he is here: drizzt.guen() calls her to him, drizzt.leave() sends him off, drizzt.guenLeave() sends her off first
-      drizzt: { guen() { DZ.want = 'guen'; }, leave() { DZ.want = 'leave'; }, guenLeave() { DZ.want = 'guenLeave'; }, get state() { return { here: dzHere(), busy: DZ.busy, guen: DZ.guen, globe: !!DZ.globe }; } },
+      drizzt: { guen() { DZ.want = 'guen'; }, leave() { DZ.want = 'leave'; }, guenLeave() { DZ.want = 'guenLeave'; }, get state() { return { here: dzHere(), busy: DZ.busy, guen: DZ.guen, globe: !!DZ.globe, pose: DZ.r ? DZ.r.pose : '' }; } },
       put(id, frac) {
         const l = ledges.find((k) => k.id === id || k.key === id); if (!l) return null;
         C.ledge = l; C.x = l.x0 + (l.x1 - l.x0) * (frac == null ? .5 : frac); C.y = topOf(l); setU(); place(); show(); return l.key;
