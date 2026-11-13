@@ -4224,7 +4224,7 @@ window.CATDATA = {
   // two of them her part of the drawing has a lighter tone curve, or the panther is near-black on the tube.
   // His sheets (drizzt.png, drizzt-fill.png) are only fetched the first time someone calls him.
   if (root.TGGR && root.TGGR.FEATURES.drizzt) {
-    const DZDATA = {"groups":{"D_IDLE":{"n":7,"ms":180},"D_DRAW":{"n":6,"ms":130},"D_TOGETHER":{"n":5,"ms":270},"D_REST":{"n":8,"ms":180},"D_LOOK":{"n":3,"ms":125},"D_GREET":{"n":4,"ms":170}},"frames":{"D_IDLE0":[247,0,133,127,1,73,1,70.3,126.0],"D_IDLE1":[381,0,133,127,1,74,1,71.3,126.0],"D_IDLE2":[268,135,137,126,1,75,0,74.3,125.0],"D_IDLE3":[515,0,131,127,1,70,1,69.3,126.0],"D_IDLE4":[406,135,136,126,1,77,1,73.3,125.0],"D_IDLE5":[543,135,137,126,1,75,0,73.3,125.0],"D_IDLE6":[681,135,134,126,1,73,0,70.3,125.0],"D_DRAW0":[816,135,99,126,1,66,0,64.7,125.0],"D_DRAW1":[916,135,106,126,1,65,0,62.3,125.0],"D_DRAW2":[133,0,113,130,1,43,0,64.3,129.0],"D_DRAW3":[0,0,132,134,1,69,0,64.6,133.0],"D_DRAW4":[279,516,138,123,1,69,0,69.3,122.0],"D_DRAW5":[148,516,130,124,1,66,0,65.8,122.0],"D_TOGETHER0":[0,390,147,125,1,93,0,86.7,124.0],"D_TOGETHER1":[148,390,147,125,1,92,0,86.7,124.0],"D_TOGETHER2":[296,390,149,125,1,93,0,87.7,124.0],"D_TOGETHER3":[647,0,147,127,1,89,0,86.7,126.0],"D_TOGETHER4":[0,263,143,126,1,89,1,86.7,125.0],"D_REST0":[144,263,99,126,1,66,0,64.7,125.0],"D_REST1":[244,263,99,126,1,66,0,64.7,125.0],"D_REST2":[344,263,99,126,1,66,0,64.7,125.0],"D_REST3":[444,263,99,126,1,66,0,64.7,125.0],"D_REST4":[544,263,100,126,1,67,0,65.7,125.0],"D_REST5":[645,263,100,126,1,67,0,65.7,125.0],"D_REST6":[746,263,100,126,1,67,0,65.7,125.0],"D_REST7":[847,263,100,126,1,67,0,65.7,125.0],"D_LOOK0":[795,0,133,127,1,74,1,70.3,126.0],"D_LOOK1":[0,135,133,127,1,71,1,70.3,126.0],"D_LOOK2":[134,135,133,127,1,69,1,71.3,125.0],"D_GREET0":[446,390,147,125,1,93,0,86.7,124.0],"D_GREET1":[594,390,147,125,1,93,0,86.7,124.0],"D_GREET2":[742,390,147,125,1,93,0,86.7,124.0],"D_GREET3":[0,516,147,125,1,93,0,86.7,124.0]}};
+    const DZDATA = {"groups":{"D_IDLE":{"n":7,"ms":180},"D_DRAW":{"n":6,"ms":130},"D_TOGETHER":{"n":6,"ms":270},"D_REST":{"n":8,"ms":180},"D_LOOK":{"n":3,"ms":125},"D_SHEATHE":{"n":4,"ms":150},"D_GREET":{"n":4,"ms":170},"D_UNDER":{"n":1,"ms":300},"G_APPEAR":{"n":6,"ms":110},"G_SIT":{"n":4,"ms":125},"G_REST":{"n":6,"ms":170}},"frames":{"D_IDLE0":[666,0,133,127,1,73,1,70.3,126.0],"D_IDLE1":[800,0,133,127,1,74,1,71.3,126.0],"D_IDLE2":[534,135,137,126,1,75,0,74.3,125.0],"D_IDLE3":[0,135,131,127,1,70,1,69.3,126.0],"D_IDLE4":[672,135,136,126,1,77,1,73.3,125.0],"D_IDLE5":[809,135,137,126,1,75,0,73.3,125.0],"D_IDLE6":[0,263,134,126,1,73,0,70.3,125.0],"D_DRAW0":[135,263,99,126,1,66,0,64.7,125.0],"D_DRAW1":[235,263,106,126,1,65,0,62.3,125.0],"D_DRAW2":[552,0,113,130,1,43,0,64.3,129.0],"D_DRAW3":[0,0,132,134,1,69,0,64.6,133.0],"D_DRAW4":[0,643,138,123,1,69,0,69.3,122.0],"D_DRAW5":[888,517,130,124,1,66,0,65.8,122.0],"D_TOGETHER0":[202,390,147,125,1,93,0,86.7,124.0],"D_TOGETHER1":[350,390,147,125,1,93,0,86.7,124.0],"D_TOGETHER2":[498,390,147,125,1,93,0,86.7,124.0],"D_TOGETHER3":[646,390,147,125,1,93,0,86.7,124.0],"D_TOGETHER4":[794,390,147,125,1,93,0,86.7,124.0],"D_TOGETHER5":[0,517,147,125,1,93,0,86.7,124.0],"D_REST0":[342,263,99,126,1,66,0,64.7,125.0],"D_REST1":[442,263,99,126,1,66,0,64.7,125.0],"D_REST2":[542,263,99,126,1,66,0,64.7,125.0],"D_REST3":[642,263,99,126,1,66,0,64.7,125.0],"D_REST4":[742,263,100,126,1,67,0,65.7,125.0],"D_REST5":[843,263,100,126,1,67,0,65.7,125.0],"D_REST6":[0,390,100,126,1,67,0,65.7,125.0],"D_REST7":[101,390,100,126,1,67,0,65.7,125.0],"D_LOOK0":[132,135,133,127,1,74,1,70.3,126.0],"D_LOOK1":[266,135,133,127,1,71,1,70.3,126.0],"D_LOOK2":[400,135,133,127,1,69,1,71.3,125.0],"D_SHEATHE0":[133,0,104,133,1,38,0,65.7,132.0],"D_SHEATHE1":[238,0,111,131,1,45,0,66.7,130.0],"D_SHEATHE2":[350,0,102,131,1,53,0,66.7,130.0],"D_SHEATHE3":[453,0,98,131,1,51,0,61.7,130.0],"D_GREET0":[148,517,147,125,1,93,0,86.7,124.0],"D_GREET1":[296,517,147,125,1,93,0,86.7,124.0],"D_GREET2":[444,517,147,125,1,93,0,86.7,124.0],"D_GREET3":[592,517,147,125,1,93,0,86.7,124.0],"D_UNDER0":[740,517,147,125,1,93,0,86.7,124.0],"G_APPEAR0":[344,767,1,1,1,0,0,0.7,1.0],"G_APPEAR1":[857,643,84,49,1,67,1,97.7,48.0],"G_APPEAR2":[0,767,85,49,1,68,0,98.7,48.0],"G_APPEAR3":[86,767,85,49,1,68,0,98.7,48.0],"G_APPEAR4":[172,767,85,49,1,68,0,98.7,48.0],"G_APPEAR5":[258,767,85,49,1,68,0,98.7,48.0],"G_SIT0":[777,643,79,50,1,63,0,96.7,49.0],"G_SIT1":[702,643,74,52,1,58,0,94.7,51.0],"G_SIT2":[631,643,70,60,1,55,0,92.7,59.0],"G_SIT3":[565,643,65,62,1,52,0,87.7,61.0],"G_REST0":[139,643,70,65,1,53,0,86.7,64.0],"G_REST1":[210,643,70,65,1,53,0,86.7,64.0],"G_REST2":[281,643,70,65,1,53,0,86.7,64.0],"G_REST3":[352,643,70,65,1,52,0,86.7,64.0],"G_REST4":[423,643,70,65,1,52,0,86.7,64.0],"G_REST5":[494,643,70,65,1,52,0,86.7,64.0]}};
     root.DRIZZT = () => root.DRIZZT.rig || (root.DRIZZT.rig = spriteRig(DZDATA, 'drizzt.png', 'drizzt-fill.png', 280, 220, 140, 217, 1.6));
   }
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -5410,8 +5410,20 @@ window.CATDATA = {
     // the cat, if she is about, keeps her eyes on him; t counts the ticks he has been here
     let gx = 0, eyes = false, t = 0;
     const watch = () => { if (!eyes || !C.onstage) return; const f = gx + sdx() > C.x + W / 2 ? 1 : -1; if (f !== C.face) { C.face = f; place(); } };
-    function* held(n) { for (let i = 0; i < n; i++) { tickLoops(); watch(); t++; yield; } }
-    function* acted(gen) { for (;;) { const s = gen.next(); if (s.done) return; tickLoops(); watch(); t++; yield; } }
+    // after the first few seconds she settles: she sits, still facing him, and now and then gives him a look. Anything
+    // new (the panther, the dark coming back) puts her on the alert again for a while
+    let calmAt = 0, calm = false, glance = 0;
+    const settle = () => {
+      if (!eyes || !C.onstage || !calmAt || t < calmAt) return;
+      if (!calm) { calm = true; paint('SIT', true); setMode('keeping an eye on a drow'); glance = t + sec(rand(3, 6)); return; }
+      if (t < glance) return;
+      if (C.pose === 'SIT') { paint('SIT_LOOK', true); glance = t + sec(rand(1.2, 2.2)); } else { paint('SIT', true); glance = t + sec(rand(5, 9)); }
+    };
+    const alert = (s) => { if (!eyes || !C.onstage) return; paint('SIT_ALERT', true); calm = false; calmAt = s ? t + sec(s) : 0; };
+    function* held(n) { for (let i = 0; i < n; i++) { tickLoops(); watch(); settle(); t++; yield; } }
+    function* acted(gen) { for (;;) { const s = gen.next(); if (s.done) return; tickLoops(); watch(); settle(); t++; yield; } }
+    // frames in turn, so many ticks each
+    function* seq(r, frames, per) { r.loop = null; for (const f of frames) { paintRider(r, f); yield* held(per); } }
     let ok = false; K.ready(() => { ok = true; });
     // his sheets, the first time, and the page settled from any scroll it was in the middle of
     for (let i = 0, y = -1, still = 0; i < 40 && !(ok && still > 2); i++) { still = viewTop() === y ? still + 1 : 0; y = viewTop(); tickLoops(); yield; }
@@ -5434,7 +5446,7 @@ window.CATDATA = {
     const room = st.b - st.a, ground = st.l.y;
     gx = st.cat > 0 ? st.a + room * .3 : st.cat < 0 ? st.b - room * .3 : st.a + room * rand(.3, .7);
     const face = gx > layerW / 2 ? -1 : 1;                  // toward the middle of the page
-    const seat = gx - face * 75 * unit;                      // where she sits with him: behind him, at his feet
+    const seat = gx - face * 83 * unit;                      // where she sits with him: behind him, at his feet
     const d = makeRider('drizzt', K); DZ.r = d;
     d.face = face; d.x = gx - K.GX * unit; d.y = ground - (K.GY + 1) * unit;
     d.el.style.opacity = 0; paintRider(d, 'D_REST0'); placeRider(d); setLoop(d, 'D_REST');
@@ -5453,26 +5465,51 @@ window.CATDATA = {
     yield* held(sec(1.4));
     d.el.style.transition = '';
     if (eyes && C.pose === 'HISS_A') paint('SIT_ALERT', true);
+    if (eyes) calmAt = t + sec(rand(6, 9));
     if (pg) DZ.want = 'guen';
     // a cycle that is about to start again: the moment to go into a move drawn from its first frame
     function* first() { const l = d.loop; if (!l) return; const n = l.g.length * l.per; for (let i = 0; i < n && l.i % n !== l.per; i++) yield* held(1); }
     // he draws his scimitars, once: soon if the cat is close, or when the panther comes, else after a few breaths
     let drawn = false;
     function* draw() { yield* first(); yield* acted(play(d, 'D_DRAW', 2)); setLoop(d, 'D_IDLE'); drawn = true; }
-    // Guenhwyvar's mist, at his feet: it hides the change from one drawing to the other
-    function* mist(K2, at, swap) {
+    // With him she is drawn at the pair's scale, from his own sheets: the pair, him alone with a cut-out where she sits
+    // (D_UNDER) and her frames (G_*) share one cell, so her canvas goes at his origin, in front of him. Seated, the two
+    // canvases make exactly the pair's drawing, so it can be split into the two and joined again without a change.
+    // Her mist is the figurine's, at her seat; it hides the one change that is not exact, him from his stance alone to his
+    // stance beside her
+    let gp = null;
+    function pair(pose) { const r = makeRider('guen-pair', K); r.face = face; r.x = d.x; r.y = d.y; paintRider(r, pose); placeRider(r); return r; }
+    function* mist(K2, each) {
       const m = makeRider('guen-mist', K2), fr = K2.group('F_MIST');
       m.face = face; m.x = seat - K2.GX * unit; m.y = ground - (K2.GY + 1) * unit; m.el.style.opacity = .5; paintRider(m, fr[0]); placeRider(m);
-      for (let i = 0; i < fr.length * 2; i++) { paintRider(m, fr[Math.floor(i / 2)]); if (i === at) swap(); yield* held(1); }
+      for (let i = 0; i < fr.length * 2; i++) { paintRider(m, fr[Math.floor(i / 2)]); each(i); yield* held(1); }
       off(m);
     }
+    const APPEAR = K.group('G_APPEAR'), SIT = K.group('G_SIT');
     function* comes() {
       const K2 = window.GUEN(); let ready = false; K2.ready(() => { ready = true; });
       for (let i = 0; !ready && i < sec(20); i++) yield* held(1);
       if (!ready) return;
       const was = !!pg;
       if (pg) { pg.loop = null; yield* acted(play(pg, 'P_VANISH')); off(pg); pg = null; yield* held(sec(.4)); }   // she goes into the mist where she was
-      yield* mist(K2, 7, () => { setLoop(d, 'D_TOGETHER'); DZ.guen = true; if (!was) T.log('figurine', 'guenhwyvar is aboard'); });
+      alert(5);
+      // out of the mist at his side, standing; she sits down; and the two are one drawing again
+      gp = pair(APPEAR[0]);
+      yield* mist(K2, (i) => {
+        if (i >= 4 && i < 4 + APPEAR.length * 2) paintRider(gp, APPEAR[Math.floor((i - 4) / 2)]);
+        if (i === 6) { d.loop = null; paintRider(d, 'D_UNDER0'); DZ.guen = true; if (!was) T.log('figurine', 'guenhwyvar is aboard'); }
+      });
+      yield* seq(gp, SIT.concat(['G_REST0']), 2);
+      off(gp); gp = null; setLoop(d, 'D_TOGETHER'); paintRider(d, 'D_TOGETHER0');
+    }
+    // the pair's drawing back into the two of them, at the start of its breath
+    function* split() { yield* first(); d.loop = null; paintRider(d, 'D_UNDER0'); gp = pair('G_REST0'); setLoop(gp, 'G_REST'); }
+    // she gets up, and goes back into the mist
+    function* away(swap) {
+      yield* seq(gp, SIT.slice().reverse().concat([APPEAR[APPEAR.length - 1]]), 2);
+      const back = APPEAR.slice().reverse();
+      yield* mist(window.GUEN(), (i) => { if (i >= 2 && i < 2 + back.length * 2) paintRider(gp, back[Math.floor((i - 2) / 2)]); if (i === 6 && swap) swap(); });
+      off(gp); gp = null; DZ.guen = false;
     }
     // a move out of a loop and back to the start of it: the look turns his head to you and back, the greeting is his
     // hand on her head
@@ -5492,35 +5529,31 @@ window.CATDATA = {
       if (DZ.guen && greets < 2 && t >= greetAt && t < parting - sec(3)) { yield* greet(); greets++; greetAt = t + sec(rand(6, 9)); continue; }
       if (DZ.guen && (w === 'guenLeave' || t >= parting)) {
         if (w !== 'guenLeave' && Math.random() < .5) break;                       // he goes first, and she stays a moment
-        yield* mist(window.GUEN(), 7, () => { setLoop(d, 'D_IDLE'); DZ.guen = false; });
+        yield* split(); yield* held(sec(.8));
+        yield* away(() => setLoop(d, 'D_IDLE'));
         stay = Math.max(stay, t + sec(rand(6, 10))); lookAt = Math.max(lookAt, t + sec(2.5)); continue;
       }
       if (!DZ.guen && t >= stay) break;
       if (drawn && !DZ.guen && t >= lookAt) { yield* look(); lookAt = t + sec(rand(9, 15)); continue; }
       yield* held(1);
     }
-    // the dark comes back for him. If she is with him she stays where she sat, for a moment, and then goes too
+    // the dark comes back for him. Alone, he sheathes his blades first and stands a breath at rest. If she is with him
+    // the pair is split into the two of them and she stays where she sat, for a moment, and then goes too
     const withHer = DZ.guen;
+    if (withHer) yield* split();
+    else if (drawn) { yield* first(); yield* seq(d, K.group('D_SHEATHE'), 2); setLoop(d, 'D_REST'); yield* held(sec(1.2)); }
+    calmAt = 0; alert(0); if (eyes && C.onstage) setMode('watching the dark');
     darkness(gx + sdx(), ground + sdy() - 106 * unit, 280 * unit);
-    if (eyes && C.onstage) { paint('SIT_ALERT', true); setMode('watching the dark'); }
     yield* held(sec(1.3));
     fade(d, 1.3);
-    let g = null;
-    if (withHer) {
-      const K2 = window.GUEN(); g = makeRider('guen-sat', K2);
-      g.face = face; g.x = seat - K2.GX * unit; g.y = ground - (K2.GY + 1) * unit; g.el.style.opacity = 0; paintRider(g, 'P_SIT0'); placeRider(g);
-      void g.el.offsetWidth; g.el.style.transition = 'transform 95ms linear, opacity 1.3s ease-in'; g.el.style.opacity = '';
-      setLoop(g, 'P_SIT');
-    }
     yield* held(sec(1.4));
     off(d); DZ.r = null; DZ.gone = true; T.log('darkness', 'drizzt has gone');
     lift(DZ.globe);
     yield* held(sec(1.8));
-    if (g) {
-      g.el.style.transition = '';
+    if (gp) {
       if (eyes && C.onstage) setMode('watching a panther');
-      yield* held(sec(2.4)); setLoop(g, 'P_IDLE'); yield* held(sec(.6));
-      yield* acted(play(g, 'P_VANISH')); off(g); DZ.guen = false;
+      yield* held(sec(2.4));
+      yield* away(null);
     }
     DZ.busy = false; setStage(null);
     const look2 = eyes && C.onstage && C.ledge;
