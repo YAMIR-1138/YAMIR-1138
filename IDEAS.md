@@ -19,8 +19,9 @@ Standing rules: nothing fake presented as real data, events stay rare and quiet,
 
 ## Cats
 
-- **Guenhwyvar.** The locomotion patch written earlier was never integrated.
-- **Drizzt.** The egg was planned and put on hold ("not yet").
+- **Guenhwyvar.** The locomotion patch written earlier was never integrated. Its own notes say the walk is an appearance fix, not a corrected gait.
+- **Drizzt, next art.** A frame or two of him moving between his stance alone and his stance beside the panther, and a sheathe from that stance, so he can put the scimitars away when he leaves with her. No walk exists; he arrives and leaves in the dark.
+- **A drawn bug.** The four-pose crawl and catch spark, redrawn at 8x6 logical pixels to match the bug the page draws now.
 
 ## Housekeeping
 
