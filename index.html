@@ -23,6 +23,7 @@
     riders.png, riders-fill.png   the sprite frames of the visitors who come through the cat's portals
     guen.png, guen-fill.png       the frames of the panther in the onyx figurine, fetched only when someone calls her
     droids.png, droids-fill.png   the frames of the two droids on the ship's screens, fetched only when one is called
+    drizzt.png, drizzt-fill.png   the frames of the ranger who comes out of the dark, fetched only when someone calls him
 -->
 <html lang="en" data-theme="amber">
 <head>
@@ -495,6 +496,7 @@
   @media (min-width: 900px) {
     .inst-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 12px; margin: 56px 0 0; }
     .inst-row + .panel--log, .inst-row + #term { margin-top: 14px; }   /* the row heads the console at the foot of the page */
+    .inst-row.four { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }   /* four in a row would cut every readout short: two by two */
   }
   .panel--inst[hidden] { display: none; }
   .panel.panel--inst { padding: 14px 14px 10px; min-height: 84px; }
@@ -580,6 +582,30 @@
     transform: scale(0, 0); transition: transform .35s cubic-bezier(.3, 1.4, .5, 1); pointer-events: none;
   }
   .portal.on { transform: none; }
+  /* a globe of darkness (FEATURES.drizzt): a round patch of the page gone black, its edge given away by a faint rim and a few motes */
+  .dz-dark {
+    position: absolute; left: 0; top: 0; border-radius: 50%; pointer-events: none; opacity: 0; transform: scale(.45); will-change: opacity, transform;
+    background: radial-gradient(circle closest-side, #000 0, #000 60%, rgba(0,0,0,.9) 76%, rgba(0,0,0,.45) 90%, rgba(0,0,0,0) 100%);
+    transition: opacity 1.1s ease-out, transform 1.3s cubic-bezier(.2, .8, .3, 1);
+  }
+  .dz-dark::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle closest-side, rgba(0,0,0,0) 78%, rgba(var(--glow-rgb), .13) 87%, rgba(0,0,0,0) 96%); }
+  .dz-dark.on { opacity: 1; transform: none; }
+  .dz-dark.thin { opacity: 0; transform: scale(1.1); transition-duration: 1.6s, 1.8s; }
+  .dz-dark b { position: absolute; inset: 0; animation: dz-turn 11s linear infinite; }
+  .dz-dark b::before { content: ""; position: absolute; left: 50%; top: 8%; width: 2px; height: 2px; border-radius: 50%; background: var(--hi); box-shadow: 0 0 4px var(--fg), 0 0 9px rgba(var(--glow-rgb), .6); animation: dz-flicker 2.3s ease-in-out infinite alternate; }
+  .dz-dark b:nth-child(2) { animation-duration: 15s; animation-direction: reverse; animation-delay: -5s; }
+  .dz-dark b:nth-child(2)::before { top: 5%; animation-delay: -.8s; }
+  .dz-dark b:nth-child(3) { animation-duration: 9s; animation-delay: -2s; }
+  .dz-dark b:nth-child(3)::before { top: 11%; width: 1.5px; height: 1.5px; animation-delay: -1.6s; }
+  .dz-dark b:nth-child(4) { animation-duration: 19s; animation-direction: reverse; animation-delay: -11s; }
+  .dz-dark b:nth-child(4)::before { top: 7%; animation-duration: 3.1s; }
+  .dz-dark b:nth-child(5) { animation-duration: 13s; animation-delay: -7s; }
+  .dz-dark b:nth-child(5)::before { top: 13%; width: 1.5px; height: 1.5px; animation-delay: -.3s; }
+  @keyframes dz-turn { to { transform: rotate(360deg); } }
+  @keyframes dz-flicker { from { opacity: .15; } to { opacity: .8; } }
+  /* a bug on the top edge of a screen (FEATURES.bughunt) */
+  .bug { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; }
+  .bug canvas { display: block; filter: drop-shadow(0 0 2px rgba(var(--glow-rgb), .55)); }
   .rider { position: absolute; left: 0; top: 0; pointer-events: none; will-change: transform; transition: transform 95ms linear; }
   .rider canvas { display: block; }
   .rider.flip canvas { transform: scaleX(-1); }
@@ -673,6 +699,21 @@
   #standby .msg { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font: 12.5px/1.6 var(--mono); letter-spacing: 3px; color: var(--dim); text-shadow: none; white-space: nowrap; animation: breathe 3s ease-in-out infinite alternate; }
   @keyframes breathe { from { opacity: .4; } to { opacity: .8; } }
   #standby.dark canvas, #standby.dark .clk { display: none; }
+  /* the night watch (FEATURES.nightwatch): the whole tube a little dimmer, under the scanlines. 9 % keeps every phosphor's
+     dim text well over 4.5 : 1 */
+  #night { position: fixed; inset: 0; z-index: 49; pointer-events: none; background: #000; opacity: 0; transition: opacity 4s ease-in-out; }
+  #night.on { opacity: .09; }
+  .still #night { transition: none; }
+  /* the days the ship marks (FEATURES.surprises): the helix's rungs a little brighter on DNA Day, the cursor the colour of a
+     warning on Alien Day, and on the 4th of May the dotted leaders after the headings are lit, as blades */
+  html.day-dna #helix { color: var(--dim); }
+  html.day-alien #cursor { color: var(--warn); text-shadow: 0 0 6px var(--warn), 0 0 16px var(--warn); }
+  html.day-may4 h2 .ld { background: var(--hi); height: 2px; border-radius: 1px; box-shadow: 0 0 4px rgba(var(--glow-rgb), .9), 0 0 12px rgba(var(--glow-rgb), .45); opacity: .85; }
+  /* the jump to lightspeed (FEATURES.lightspeed): under the scanlines, over everything else */
+  #jump { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 49; pointer-events: none; }
+  /* the cat, small, at the foot of the stars (FEATURES.catwarm) */
+  #standby canvas.gazer { inset: auto; left: 50%; bottom: 18px; width: auto; transform: translateX(-50%); }
+  #standby canvas.gazer.flip { transform: translateX(-50%) scaleX(-1); }
   #standby.dark .msg { animation: none; opacity: 1; color: var(--faint); }
   .still #standby .msg { animation: none; opacity: .6; }
 
@@ -732,6 +773,51 @@
     .profile a { border: 0; padding: 0; }
     .profile, .card .links { display: block; } .profile li { display: block; }
     footer { border-top: 1pt solid #999; }
+
+    /* the printout (FEATURES.printout): light ink on white, in the ship's own letters, the way its line printer would put
+       it. The name and what he does, every link with its address written out, then the work, the side quests and the
+       crew file in reading order. Nothing that moves, glows or needs a screen */
+    @page { margin: 15mm 16mm 16mm; }
+    html.f-printout, html.f-printout body { font: 9.5pt/1.55 var(--mono); letter-spacing: .15px; }
+    html.f-printout *, html.f-printout *::before, html.f-printout *::after { color: #2b2b2b !important; background: none !important; }
+    html.f-printout { color-scheme: light; }
+    html.f-printout, html.f-printout body { background: #fff !important; }
+    html.f-printout #jump, html.f-printout #night, html.f-printout .bug, html.f-printout .gazer { display: none !important; }
+    html.f-printout .bar { position: static !important; display: flex !important; margin: 0 0 14pt !important; padding: 0 0 4pt !important; border-bottom: 1pt dashed #9a9a9a; font-size: 7.5pt; letter-spacing: 1.5px; }
+    html.f-printout .bar[data-printed]::after { content: "PRINTOUT · " attr(data-printed); color: #6b6b6b !important; }
+    html.f-printout .bar .id b { font-weight: 400; }
+    html.f-printout h1, html.f-printout h2, html.f-printout .card h3 { font-family: var(--display); font-weight: 400; letter-spacing: 1px; color: #111 !important; }
+    html.f-printout h1 { font-size: 46pt; line-height: .9; margin: 4pt 0 8pt; }
+    html.f-printout h1 .tube { max-width: none !important; opacity: 1 !important; }
+    html.f-printout .fallen { transform: none !important; opacity: 1 !important; }
+    html.f-printout .callsign { font-size: 8pt; letter-spacing: 3px; margin: 0; }
+    html.f-printout .role { font-size: 10.5pt; margin: 0 0 2pt; }
+    html.f-printout .where { margin: 0 0 8pt; }
+    html.f-printout .tagline { max-width: none; margin: 0 0 10pt; }
+    html.f-printout .profile { margin: 0 0 6pt; }
+    html.f-printout .profile li { margin: 0 0 1pt; }
+    html.f-printout .profile a { display: inline; }
+    html.f-printout .profile a::before { content: "" !important; }
+    html.f-printout h2 { font-size: 19pt; margin: 18pt 0 6pt; padding-bottom: 2pt; border-bottom: 1pt dotted #9a9a9a; display: block; break-after: avoid; page-break-after: avoid; }
+    html.f-printout h2 .ch { visibility: visible !important; }
+    html.f-printout section { margin: 0; }
+    html.f-printout .card { border-top: 1pt dotted #bdbdbd; padding: 7pt 0 8pt; }
+    html.f-printout .grid > .card:first-child { border-top: 0; break-before: avoid; page-break-before: avoid; }
+    html.f-printout .card .path, html.f-printout .panel > .path { font-size: 7pt; letter-spacing: 2px; color: #6b6b6b !important; }
+    html.f-printout .card h3 { font-size: 17pt; margin: 1pt 0 3pt; }
+    html.f-printout .card--featured h3 { font-size: 21pt; }
+    html.f-printout .card p, html.f-printout .card .facts { font-size: 9.5pt; margin: 0 0 4pt; }
+    html.f-printout .card .quip { font-style: italic; }
+    /* the links of a card, each on its own line, with the address after it */
+    html.f-printout .card .links { margin-top: 4pt; font-size: 8.5pt; }
+    html.f-printout .card .links a { display: block; }
+    html.f-printout .card .links a::before, html.f-printout .card .links a.primary::before { content: "» " !important; }
+    html.f-printout .card .links a::after, html.f-printout .card .links a.primary::after, html.f-printout a[href^="http"]::after { content: "  " attr(href) !important; font-size: 7.5pt; color: #6b6b6b !important; word-break: break-all; }
+    html.f-printout .panel--crew { break-inside: avoid; }
+    html.f-printout .panel--crew > .path { display: flex; justify-content: space-between; margin: 0 0 4pt; }
+    html.f-printout .kv { display: grid !important; grid-template-columns: max-content minmax(0, 1fr); gap: 2pt 12pt; }
+    html.f-printout .kv dd a { display: inline; }
+    html.f-printout footer { margin-top: 18pt; padding-top: 4pt; border-top: 1pt dashed #9a9a9a; font-size: 7.5pt; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -958,6 +1044,18 @@
     shutdown: true,    // shutdown, halt and poweroff. needs standby on too: it goes dark on the same screen
     instruments: true, // small screens above the ship log on a wide window: the tube's real refresh rate, the battery if there is one, who is aboard
     catwatch: true,    // the cat goes and watches the display when it changes channel, if she is in the mood
+    twotabs: true,     // tabs of the page in one browser see each other, and the one cat walks between them
+    catkeys: true,     // rarely, the cat walks across the open terminal's empty prompt and types on it, and it clears
+    catwarm: true,     // the cat naps on the screen that has really been busiest lately, and watches the stars in standby
+    mitosis: true,     // once in a long while the chromosome in the margin divides, or a point mutation on it is repaired
+    lightspeed: true,  // a link to another site jumps to lightspeed: half a second of star streaks on the way out
+    kpstatic: true,    // in a real geomagnetic storm (NOAA's planetary K index 5 or more) the tubes take more static
+    nightwatch: true,  // the tube dims a little in the visitor's night, and a MOON instrument shows the real phase
+    translate: true,   // translate <text>: a name read as amino acids and written back as mRNA, run through the ribosome
+    printout: true,    // printing the page gives a plain CV on white paper, in the manner of a dot-matrix printout
+    surprises: true,   // a line and a small touch on DNA Day, Alien Day and the 4th of May; a word for whoever opens the console
+    bughunt: true,     // now and then a bug crawls along the top of a screen, and the cat removes it if she is near
+    drizzt: true,      // a ranger out of a globe of darkness, if called by name; he and the panther know each other
   };
   // a switch that is on puts a word on the page, f-leds and so on, for the styles that go with it
   Object.keys(F).forEach((k) => { if (F[k]) document.documentElement.classList.add('f-' + k); });
@@ -976,6 +1074,13 @@
   };
 
   $('#year').textContent = new Date().getFullYear();
+  // the date and time, for the things that go by the calendar. Under a debug flag, &date=2026-05-04 or
+  // &date=2026-05-04T23:30 sets it, and it runs on from there
+  T.now = (function () {
+    const d = T.debug && params.get('date'), at = d && /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(d) ? new Date(d.length === 10 ? d + 'T12:00' : d) : null;
+    const off = at && !isNaN(at) ? at.getTime() - Date.now() : 0;
+    return () => new Date(Date.now() + off);
+  })();
 
   // ---- phosphor theme. Amber unless the visitor chose otherwise.
   const themeBtn = $('#theme');
@@ -1191,6 +1296,20 @@
   } : null;
   const watchLine = () => 'watch ............... [ ' + watchNow() + ' ]';
   if (watchNow) { const at = BOOT.findIndex((l) => l[0].indexOf('crew ') === 0); BOOT.splice(at < 0 ? BOOT.length : at + 1, 0, [watchLine(), 'ok']); }
+  // ---- three days in the year the ship marks (FEATURES.surprises): a line at the end of the boot log and in the ship's log,
+  // and one small touch on the page, nothing more. DNA Day, 25 April: the papers on the double helix were printed on that day
+  // in 1953. Alien Day, 26 April: 4/26, for LV-426, the moon in the film. And the 4th of May. Debug only: &date=2026-05-04
+  const DAY = F.surprises ? (function () {
+    const d = T.now(), md = (d.getMonth() + 1) + '-' + d.getDate();
+    return { '4-25': ['dna', 'DNA day', '25 April · the double helix, 1953', 'DNA day. the double helix went to print on 25 April 1953'],
+      '4-26': ['alien', 'alien day', '26 April · LV-426', 'alien day. 4/26, for LV-426, the moon in the film Alien'],
+      '5-4': ['may4', 'may the fourth', 'be with you', 'may the fourth be with you'] }[md] || null;
+  })() : null;
+  if (DAY) {
+    BOOT.push([(DAY[1] + ' ').padEnd(21, '.') + ' [ ' + DAY[2] + ' ]', 'ok']);
+    document.documentElement.classList.add('day-' + DAY[0]);
+    T.ready.push(() => T.log('calendar', DAY[3]));
+  }
   const bootEl = $('#boot'), main = $('#main');
   const bootLine = (l) => '<span class="' + l[1] + '">' + T.esc(l[0]) + '</span>';
   // the long boot plays once. After that the ship remembers, and starts warm
@@ -1295,6 +1414,7 @@
       row('ls', 'the projects on this page');
       row('open', 'open one of them. open pellaeon');
       row('whoami', 'who runs this');
+      if (F.translate) row('translate', 'your name, in codons. translate yam');
       row('theme', F.phosphor3 ? 'amber, green or white phosphor' : 'amber or green phosphor');
       row('motion', 'stop or start the animation');
       row('sound', 'off unless you turn it on');
@@ -1422,7 +1542,7 @@
       const M = {
         ls: 'list the projects on this page', open: 'open a project in a new tab. open pellaeon', cat: 'print a file. with no file, reports on the ship\'s cat', exit: 'close the terminal',
         cd: 'scroll to a section. cd side', grep: 'search the projects. grep gpcr', neofetch: 'system summary, with cat',
-        transcribe: 'DNA to mRNA', translate: 'DNA or RNA to protein, reading frame 1', revcomp: 'reverse complement of a DNA string', gc: 'length and GC content',
+        transcribe: 'DNA to mRNA', translate: F.translate ? 'A C G T U to protein, frame 1; any other text read as amino acids and written back as mRNA' : 'DNA or RNA to protein, reading frame 1', revcomp: 'reverse complement of a DNA string', gc: 'length and GC content',
         theme: 'switch the phosphor. theme green', motion: 'stop or start all animation', degauss: 'clear the magnetic build-up on the tube', reboot: 'start again',
         keys: 'turn the / and ~ shortcuts off or on. keys off', mother: 'ask the ship. mother where is the cat', tracker: 'the motion tracker in the margin, on wide screens. tracker off', sound: 'key clicks and tube noises. off unless you ask. sound on',
         portal: 'open a pair of portals for the cat', pazaak: 'the card game. first to three sets. pazaak table opens the full table', replicate: 'copy the helix. or click it', pet: 'pet the cat', feed: 'feed the cat', pspsps: 'call the cat. she may come', zoomies: 'you will regret this', shoo: 'ask the cat to leave',
@@ -1892,7 +2012,9 @@
     function snow() { if (!ok()) return false; snowUntil = performance.now() + 250; return true; }
     // one scheduler for all of it: a chain of timeouts each, stopped whenever the page is hidden or motion is off
     const CHAINS = { sag: [12, 30, () => sag()], tear: [40, 90, () => tear()], beat: [120, 300, () => { beat = true; }] };
-    function arm(name) { const c = CHAINS[name]; timers[name] = setTimeout(() => { c[2](); arm(name); }, T.rand(c[0], c[1]) * 1000); }
+    // rate: how much more often the tubes are troubled than usual. 1, unless space weather says otherwise (below)
+    let rate = 1;
+    function arm(name) { const c = CHAINS[name]; timers[name] = setTimeout(() => { c[2](); arm(name); }, T.rand(c[0], c[1]) * 1000 / (name === 'beat' ? 1 : rate)); }
     function sync() {
       const want = ok() && !document.hidden && !!T.booted;
       if (want === running) return;
@@ -1905,12 +2027,89 @@
       get active() { return running; },
       snowing: () => performance.now() < snowUntil,
       takeBeat: () => { const b = beat && ok(); beat = false; return b; },
+      get rate() { return rate; },
+      set rate(v) { rate = Math.max(1, +v || 1); },
     };
     document.addEventListener('visibilitychange', sync);
     if (contrast.addEventListener) contrast.addEventListener('change', sync);
     // the motion switch shows as .still on the page: watch for it, so the cat keeps T.onMotion to herself
     new MutationObserver(sync).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     T.onReady(sync);
+  })();
+
+  // ---- space weather you can feel: when NOAA's planetary K index is at storm level (Kp 5 or more), the screens sag, lose
+  // their hold and snow more often, the more so the higher it is, and the log says why. The number is the one the tracker
+  // fetches (the same request and the same cache, whether or not the tracker is on the screen). No number, no effect
+  if (F.kpstatic) (function () {
+    let storm = false;
+    const show = (kp) => String(Math.round(kp * 100) / 100);
+    T.onSpaceWeather = (d) => {
+      const kp = d && +d.kp;
+      if (!isFinite(kp) || !T.fx) return;
+      const now = kp >= 5;
+      T.fx.rate = now ? Math.min(2.4, 1.6 + (kp - 5) * .25) : 1;
+      if (now && !storm) T.log('space weather', 'Kp ' + show(kp) + ', a geomagnetic storm' + (T.reduceMotion ? '' : '. more static on the tubes'));   // with reduced motion there is no static to add to
+      else if (!now && storm) T.log('space weather', 'Kp ' + show(kp) + ', the storm is over. static as usual');
+      storm = now;
+    };
+  })();
+
+  // ---- the events: the rarer things that happen aboard (a bug in the system, the cat on the keyboard, a cell dividing).
+  // One slot for all of them, so two never run at once. The clock only runs while the page is in view and the ship is
+  // not in standby; the first comes a few minutes into a visit and each is followed by a long quiet. Every event can be
+  // called by hand, T.events.bughunt() and so on, which skips the waiting but not the sense: it still needs what it needs
+  (function () {
+    const FAST = T.debug === 'cat' ? (T.speed || 6) : 1;
+    const E = {};
+    let busy = null, stop = null, safety = 0, seen = 0, prev = performance.now(), next = 150000 / FAST;
+    const counting = () => !document.hidden && !!T.booted && !(T.standby && T.standby.on);
+    function finish(name) {
+      if (busy !== name) return;
+      const e = E[name]; busy = null; stop = null; clearTimeout(safety);
+      e.last = seen; next = seen + T.rand(240, 480) * 1000 / FAST;
+    }
+    // e: { every: seconds between two of these, weight, can(), start(done, opts) -> a function that ends it at once, or false, max: ms }
+    function add(name, e) {
+      E[name] = Object.assign({ every: 600, weight: 1, max: 90000, last: -1e12, can: () => true }, e);
+      T.events[name] = (o) => run(name, Object.assign({ force: true }, o));
+    }
+    function run(name, o) {
+      const e = E[name]; o = o || {};
+      if (!e) return false;
+      if (busy) { if (!o.force) return false; end(); }
+      // with motion off an event plays its still version, if it has one, and otherwise does not happen
+      const still = !T.motion;
+      if (still && !e.still) return false;
+      if (!e.can(Object.assign({ still }, o))) return false;
+      busy = name;
+      let ended = false;
+      const done = () => { if (!ended) { ended = true; finish(name); } };
+      let s = null;
+      try { s = e.start(done, Object.assign({ still }, o)); } catch (err) { console.error(err); s = false; }
+      if (s === false) { busy = null; return false; }
+      if (busy === name) { stop = typeof s === 'function' ? s : null; clearTimeout(safety); safety = setTimeout(end, e.max); }
+      return true;
+    }
+    // the slot is cleared, whatever the event was doing
+    function end() {
+      const name = busy, s = stop;
+      if (!name) return;
+      try { if (s) s(); } catch (err) { console.error(err); }
+      finish(name);
+    }
+    setInterval(() => {
+      const t = performance.now(), dt = t - prev; prev = t;
+      if (busy && !counting() && !E[busy].hidden) { end(); return; }   // standby, or the tab put away: whatever was running stops
+      if (!counting()) return;
+      seen += Math.min(dt, 5000);
+      if (busy || seen < next) return;
+      const ok = Object.keys(E).filter((k) => { const e = E[k]; return seen - e.last >= e.every * 1000 / FAST && (T.motion || e.still) && e.can({ still: !T.motion }); });
+      if (!ok.length) { next = seen + 20000 / FAST; return; }
+      let roll = Math.random() * ok.reduce((a, k) => a + E[k].weight, 0);
+      const k = ok.find((n) => (roll -= E[n].weight) <= 0) || ok[0];
+      if (!run(k)) next = seen + 20000 / FAST;
+    }, 1000);
+    T.events = { add, end, get busy() { return busy; }, get names() { return Object.keys(E); } };
   })();
 
   // ---- the block cursor in the prompt: drawn just after the last letter, while you type at the end of the line
@@ -1997,7 +2196,7 @@
     const row = document.createElement('div');
     row.className = 'inst-row'; row.setAttribute('aria-hidden', 'true');
     const mk = (name, title) => '<div class="panel panel--inst" data-inst="' + name + '"><p class="path">' + title + '</p><div class="inst"><span class="read"></span><canvas width="110" height="28"></canvas></div></div>';
-    row.innerHTML = mk('tube', 'TUBE') + mk('pow', 'POWER') + mk('con', 'CONTACTS');
+    row.innerHTML = mk('tube', 'TUBE') + mk('pow', 'POWER') + mk('con', 'CONTACTS') + (F.nightwatch ? mk('moon', 'MOON') : '');
     // at the foot of the page, at the head of the console: above the ship log if there is one, else above the terminal
     ($('.panel--log') || $('#term')).before(row);
     const P = {};
@@ -2045,6 +2244,7 @@
     if (navigator.getBattery) navigator.getBattery().then((b) => {
       if (!b) return;
       batt = b; pow.el.hidden = false; pow.lo = 0; pow.hi = 100; pow.pts = [b.level * 100];
+      row.classList.toggle('four', $$('.panel--inst', row).filter((q) => !q.hidden).length > 3);
       const upd = () => { readPow(); trace(pow); };
       b.addEventListener('levelchange', upd); b.addEventListener('chargingchange', upd);
       upd();
@@ -2063,16 +2263,63 @@
     const crew = () => (T.crew ? T.crew() : '1 human · 1 cat');
     function readCon() {
       const d = catDeck();
-      set(con, '<span class="two"><span>' + T.esc(crew()) + '</span><span>cat · ' + (d < 0 ? 'off deck' : 'deck ' + 'ABCDEFGH'[d]) + '</span></span>');
+      // with more than one terminal open, the count leads, so the line still fits its small screen
+      let c = crew(); const tm = c.match(/ · (\d+) terminals/);
+      if (tm) c = tm[1] + ' terminals · ' + c.replace(tm[0], '').replace(/^1 human · /, '');
+      set(con, '<span class="two"><span>' + T.esc(c) + '</span><span>cat · ' + (d < 0 ? (T.catAway && T.catAway() ? 'other terminal' : 'off deck') : 'deck ' + 'ABCDEFGH'[d]) + '</span></span>');
     }
     con.pts = [heads(crew())];
+    // 4. the moon (FEATURES.nightwatch): its real phase for this moment, worked out from the date (Meeus, Astronomical
+    // Algorithms, ch. 48, the short form, good to a percent or so). The trace is the lit fraction a fortnight either side
+    // of now, the dot is now, and beside it the moon as it looks from the north
+    const moon = P.moon, rad = Math.PI / 180;
+    function phase(ms) {
+      const t = (ms / 86400000 + 2440587.5 - 2451545) / 36525;
+      const D = (297.8501921 + 445267.1114034 * t) % 360, M = (357.5291092 + 35999.0502909 * t) % 360, Mp = (134.9633964 + 477198.8675055 * t) % 360;
+      const i = 180 - D - 6.289 * Math.sin(Mp * rad) + 2.1 * Math.sin(M * rad) - 1.274 * Math.sin((2 * D - Mp) * rad) - .658 * Math.sin(2 * D * rad) - .214 * Math.sin(2 * Mp * rad) - .11 * Math.sin(D * rad);
+      return { lit: (1 + Math.cos(i * rad)) / 2, age: ((D % 360) + 360) % 360 / 360 };
+    }
+    const NAMES = [[.034, 'new moon'], [.216, 'waxing crescent'], [.284, 'first quarter'], [.466, 'waxing gibbous'], [.534, 'full moon'], [.716, 'waning gibbous'], [.784, 'last quarter'], [.966, 'waning crescent'], [1, 'new moon']];
+    let moonAt = -1, moonNow = null;
+    function drawMoon() {
+      if (!moon || !moonNow) return;
+      const c = moon.cv, r = Math.min(3, window.devicePixelRatio || 1);
+      if (c.width !== 110 * r) { c.width = 110 * r; c.height = 28 * r; }
+      const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(), k = { faint: v('--faint'), dim: v('--dim'), fg: v('--fg'), hi: v('--hi') };
+      const g = c.getContext('2d'); g.setTransform(r, 0, 0, r, 0, 0); g.clearRect(0, 0, 110, 28);
+      // a month of it, a point every nine hours, now in the middle
+      const t = T.now().getTime(), y = (lit) => 24.5 - lit * 21;
+      g.strokeStyle = k.dim; g.lineWidth = 1; g.beginPath();
+      for (let x = 0; x <= 74; x++) { const l = phase(t + (x - 37) * 9 * 3600000).lit; x ? g.lineTo(x + .5, y(l)) : g.moveTo(x + .5, y(l)); }
+      g.stroke();
+      g.fillStyle = k.fg; g.fillRect(36.5, Math.round(y(moonNow.lit)) - 1, 2, 2);
+      // the moon, thirteen pixels across: lit from the right while it waxes, from the left while it wanes
+      const N = 13, px = 2, x0 = 110 - N * px - 1, y0 = 1, e = 1 - 2 * moonNow.lit, wax = moonNow.age < .5;
+      const SEAS = { '4,4': 1, '5,4': 1, '4,5': 1, '7,3': 1, '8,6': 1, '6,8': 1, '7,8': 1, '3,7': 1, '9,9': 1 };
+      for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+        const u = (i + .5 - N / 2) / (N / 2), w = (j + .5 - N / 2) / (N / 2), rr = u * u + w * w;
+        if (rr > 1) continue;
+        const edge = Math.sqrt(1 - w * w), lit = wax ? u >= e * edge : -u >= e * edge;
+        g.fillStyle = lit ? (SEAS[i + ',' + j] ? k.fg : k.hi) : (rr > .78 ? k.faint : 'rgba(0,0,0,0)');
+        g.fillRect(x0 + i * px, y0 + j * px, px, px);
+      }
+    }
+    function readMoon() {
+      if (!moon) return;
+      const t = T.now().getTime(), m = Math.floor(t / 60000);
+      if (m === moonAt) return;
+      moonAt = m; moonNow = phase(t);
+      const name = NAMES.find((q) => moonNow.age < q[0])[1];
+      set(moon, '<span class="two"><span><b>' + Math.round(moonNow.lit * 100) + ' %</b> · lit</span><span>' + name + '</span></span>');
+      drawMoon();
+    }
     // one tick a second while the row is on the screen: the readouts every second, a point on each trace every four
     let timer = 0, n = 0;
     const all = () => [tube, pow, con];
     function tick() {
       if (document.hidden || !T.motion) { counter(false); return; }
       counter(true);
-      readTube(); readCon();
+      readTube(); readCon(); readMoon();
       if (n++ % 4) return;
       if (hz) push(tube, hz);
       if (batt) push(pow, batt.level * 100);
@@ -2081,14 +2328,15 @@
     }
     function run() {
       const on = wide.matches;
-      if (on && !timer) { counter(T.motion); readTube(); readPow(); readCon(); all().forEach(trace); timer = setInterval(tick, 1000); }
+      if (on && !timer) { counter(T.motion); readTube(); readPow(); readCon(); readMoon(); all().forEach(trace); timer = setInterval(tick, 1000); }
       if (!on && timer) { clearInterval(timer); timer = 0; counter(false); }
     }
     if (wide.addEventListener) wide.addEventListener('change', run); else wide.addListener(run);
     T.onReady(run);
-    const retint = () => { ink = null; readTube(); all().forEach(trace); };
+    const retint = () => { ink = null; readTube(); all().forEach(trace); drawMoon(); };
     if (T.onTheme) T.onTheme(retint);
-    else T.onReady(() => T.onTheme && T.onTheme(retint));
+    // (the boot can finish before the script that keeps the list of these has run, as it does under ?debug: wait for it)
+    else (function hook() { if (T.onTheme) T.onTheme(retint); else setTimeout(hook, 50); })();
     // the row opens with the other screens' power-on when there is one
     // the row switches on the first time it comes into view, the way the sections' screens do
     if (T.powerUp && T.motion && !T.reduceMotion && 'IntersectionObserver' in window) {
@@ -2381,6 +2629,189 @@
     };
     const man = COMMANDS.man;
     COMMANDS.man = (arg) => { if (/^(shutdown|halt|poweroff)$/i.test(arg || '')) print((arg || '').toLowerCase() + ' - switch the ship off. a key or a click turns it on again'); else man(arg); };
+  }
+
+  // ---- translate <text> (FEATURES.translate). Only A C G T U, three or more: read as RNA in frame 1 and translated.
+  // Anything else: the letters are taken as one-letter amino-acid codes and written back as an mRNA, one codon each (the
+  // one human genes use most), with a start and a stop. All twenty-six letters mean something: the twenty, plus O
+  // (pyrrolysine) and U (selenocysteine), which ride on stop codons, and B, Z, J and X, which say one of two or any, and
+  // are written with the IUPAC letters that say the same. Then the TRANSLATION screen reads it, once
+  if (F.translate) (function () {
+    const AA3 = { A: 'Ala', C: 'Cys', D: 'Asp', E: 'Glu', F: 'Phe', G: 'Gly', H: 'His', I: 'Ile', K: 'Lys', L: 'Leu', M: 'Met', N: 'Asn', P: 'Pro', Q: 'Gln', R: 'Arg', S: 'Ser', T: 'Thr', V: 'Val', W: 'Trp', Y: 'Tyr',
+      O: 'Pyl', U: 'Sec', B: 'Asx', Z: 'Glx', J: 'Xle', X: 'Xaa', '*': 'Stop' };
+    // the codon used most for each in human genes (Kazusa codon usage table, Homo sapiens)
+    const BACK = { A: 'GCC', C: 'UGC', D: 'GAC', E: 'GAG', F: 'UUC', G: 'GGC', H: 'CAC', I: 'AUC', K: 'AAG', L: 'CUG', M: 'AUG', N: 'AAC', P: 'CCC', Q: 'CAG', R: 'AGA', S: 'AGC', T: 'ACC', V: 'GUG', W: 'UGG', Y: 'UAC',
+      O: 'UAG', U: 'UGA', B: 'RAY', Z: 'SAR', J: 'MUH', X: 'NNN' };
+    const NOTE = {
+      O: 'O is pyrrolysine: read from UAG, but only in the archaea and bacteria that recode it. anywhere else UAG is a stop.',
+      U: 'U is selenocysteine: read from UGA, but only with a SECIS element in the mRNA to say so. otherwise UGA is a stop.',
+      B: 'B is Asp or Asn: RAY (R = A or G, Y = C or U) codes for exactly those two.',
+      Z: 'Z is Glu or Gln: SAR (S = G or C, R = A or G) codes for exactly those two.',
+      J: 'J is Leu or Ile: MUH (M = A or C, H = A, C or U) codes for exactly those two.',
+      X: 'X is any residue: NNN, any codon, which could also be a stop.',
+    };
+    const narrow = () => matchMedia('(max-width: 480px)').matches;
+    // codons over their residues, a dozen to a line (half that on a phone)
+    function table(codons, res, pre) {
+      const per = narrow() ? 6 : 12;
+      for (let i = 0; i < codons.length; i += per) {
+        T.print((i ? '   ' : pre[0]) + codons.slice(i, i + per).join(' ') + (i + per >= codons.length ? pre[1] : ''));
+        T.print('   ' + res.slice(i, i + per).map((r) => r.padEnd(3)).join(' '), 'in');
+      }
+    }
+    const SHOW = 30;      // the screen in about has room for so many
+    T.COMMANDS.translate = function (arg) {
+      const text = (arg || '').toUpperCase().replace(/[^A-Z]/g, '');
+      if (!text) { T.print('usage: translate <text>. a name is read as amino acids and written back as mRNA; A C G T U is read as RNA. translate yam'); return; }
+      let msg;
+      if (/^[ACGTU]+$/.test(text) && text.length >= 3) {
+        // forward: frame 1, from the first base, to the first stop
+        const rna = text.replace(/T/g, 'U'), codons = [];
+        for (let i = 0; i + 3 <= rna.length; i += 3) codons.push(rna.slice(i, i + 3));
+        const stop = codons.findIndex((c) => T.CODON[c] === '*'), read = stop >= 0 ? codons.slice(0, stop + 1) : codons, aa = read.map((c) => T.CODON[c]);
+        T.print('translate: ' + rna.length + ' nt, read as mRNA in frame 1');
+        table(read, aa.map((r) => AA3[r]), ["5'-", stop >= 0 || read.length * 3 === rna.length ? "-3'" : ''] );
+        const pep = aa.filter((r) => r !== '*').join('');
+        T.print('peptide: ' + (pep || '(none)') + (pep ? ' · ' + pep.length + ' aa' : ''));
+        if (stop >= 0) T.print('the ribosome lets go at ' + codons[stop] + (stop < codons.length - 1 ? '; ' + (codons.length - stop - 1) + ' codon' + (codons.length - stop - 1 === 1 ? ' after it is' : 's after it are') + ' not read' : '') + '.', 'in');
+        if (rna.length % 3) T.print(rna.length % 3 + ' nt left over at the end, short of a codon.', 'in');
+        if (codons[0] !== 'AUG') T.print('no AUG at the start: a cell would begin at one. this reads from the first base.', 'in');
+        msg = { codons: read.slice(0, SHOW), aa: aa.slice(0, SHOW), names: aa.slice(0, SHOW).map((r) => AA3[r]), ends: stop >= 0 && read.length <= SHOW, cap: 'YOUR SEQUENCE · ' + pep.length + ' AA' };
+      } else {
+        // back: one codon a residue, a start before and a stop after
+        const res = Array.from(text), start = res[0] !== 'M';
+        const aa = (start ? ['M'] : []).concat(res).concat(['*']), codons = aa.map((r) => (r === '*' ? 'UAA' : BACK[r]));
+        T.print('translate: ' + text + ', read as amino acids and written back as mRNA');
+        table(codons, aa.map((r) => AA3[r]), ["5'-", "-3'"]);
+        T.print((start ? 'AUG and UAA added: a message needs a start and a stop. ' : 'UAA added: a message needs a stop. ') + 'each codon is the one human genes use most.', 'in');
+        Object.keys(NOTE).forEach((k) => { if (res.indexOf(k) >= 0) T.print(NOTE[k], 'in'); });
+        const cut = aa.length > SHOW;
+        msg = { codons: cut ? codons.slice(0, SHOW) : codons, aa: cut ? aa.slice(0, SHOW) : aa, names: (cut ? aa.slice(0, SHOW) : aa).map((r) => AA3[r]), ends: !cut, cap: text.slice(0, 18) + ' · ' + res.length + ' AA · TRANSLATED FOR YOU' };
+      }
+      if (!T.ribo) return;
+      T.ribo.read(msg);
+      // the screen that reads it is in about. If it is not in view the visitor is told, and once they have stopped typing
+      // for a few seconds it comes into view; any key before then and the page stays where it is
+      const panel = $('.panel--ribo'), r = panel && panel.getBoundingClientRect();
+      if (!r || (r.bottom > 0 && r.top < window.innerHeight)) return;
+      T.print('the TRANSLATION screen, in about, is reading it now.', 'in');
+      let typed = false;
+      const key = () => { typed = true; };
+      document.addEventListener('keydown', key, { once: true, capture: true });
+      setTimeout(() => {
+        document.removeEventListener('keydown', key, { capture: true });
+        if (typed || $('#cmd').value) return;
+        panel.scrollIntoView({ block: 'center', behavior: T.motion ? 'smooth' : 'auto' });
+      }, 3000);
+    };
+  })();
+
+  // ---- the night watch: between ten at night and six in the morning, by the visitor's own clock, the tube is turned
+  // down a little, the way a ship dims its lights for the night. One line in the log when it does, and when it comes up
+  if (F.nightwatch) (function () {
+    const el = document.createElement('div');
+    el.id = 'night'; el.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(el);
+    let on = null;
+    const night = () => { const h = T.now().getHours(); return h >= 22 || h < 6; };
+    function look(force) {
+      const n = force === undefined ? night() : !!force;
+      if (n === on) return;
+      const first = on === null; on = n;
+      el.classList.toggle('on', n);
+      if (n) T.log('night watch', 'tube dimmed until 06:00');
+      else if (!first) T.log('morning watch', 'tube at full');
+    }
+    T.onReady(() => { look(); setInterval(look, 60000); });
+    T.events.night = (v) => look(v === undefined ? !on : v);
+  })();
+
+  // ---- a link to another site is a jump to lightspeed: the stars stretch into lines for half a second. A link that stays
+  // in this tab waits that half second before it goes. One that opens a new tab (by its target, or a modifier key, or the
+  // middle button) is never held or stopped: the streak plays in the page left behind. Not with motion off, and never for
+  // a link within the site. Come back with the back button and the page is as it was
+  if (F.lightspeed) (function () {
+    const MS = 500;
+    let jump = null;
+    const outbound = (a) => { try { const u = new URL(a.href, location.href); return /^https?:$/.test(u.protocol) && u.origin !== location.origin ? u : null; } catch (e) { return null; } };
+    function stop() {
+      if (!jump) return;
+      cancelAnimationFrame(jump.raf); clearTimeout(jump.timer); clearTimeout(jump.safety);
+      if (jump.cv.parentNode) jump.cv.parentNode.removeChild(jump.cv);
+      jump = null;
+    }
+    // stay: the streak holds on its last frame until the page is gone. Otherwise it lets go and the picture comes back
+    function streak(stay, then) {
+      stop();
+      const cv = document.createElement('canvas'), g = cv.getContext('2d'), r = Math.min(2, window.devicePixelRatio || 1), W = window.innerWidth, H = window.innerHeight;
+      cv.id = 'jump'; cv.setAttribute('aria-hidden', 'true'); cv.width = Math.round(W * r); cv.height = Math.round(H * r);
+      document.body.appendChild(cv);
+      const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(), ink = { hi: v('--hi'), fg: v('--fg'), dim: v('--dim'), glow: v('--glow-rgb') };
+      const cx = W / 2, cy = H * .42, far = Math.hypot(W, H) / 2;
+      const stars = Array.from({ length: 170 }, () => ({ a: Math.random() * Math.PI * 2, d: Math.pow(Math.random(), .7) * far * .9 + 6, k: Math.random() < .25 ? 2 : Math.random() < .5 ? 1 : 0 }));
+      const t0 = performance.now();
+      const J = jump = { cv, raf: 0, timer: 0, safety: 0 };
+      const frame = () => {
+        if (jump !== J) return;
+        const t = Math.min(1, (performance.now() - t0) / MS), out = stay ? 0 : Math.max(0, (performance.now() - t0 - MS) / 250);
+        g.setTransform(r, 0, 0, r, 0, 0); g.clearRect(0, 0, W, H);
+        // the tube darkens behind the stars as it goes, and a little light gathers at the middle
+        g.fillStyle = cs.getPropertyValue('--bg').trim(); g.globalAlpha = Math.min(.92, t * 1.1) * (1 - out); g.fillRect(0, 0, W, H);
+        g.globalAlpha = (1 - out); g.lineCap = 'round';
+        const pull = t * t;                  // slow to start, then all at once
+        stars.forEach((st) => {
+          const d0 = st.d * (1 + pull * .35), d1 = d0 * (1 + pull * 1.8) + pull * 40, ca = Math.cos(st.a), sa = Math.sin(st.a);
+          g.strokeStyle = [ink.dim, ink.fg, ink.hi][st.k]; g.lineWidth = st.k === 2 ? 1.6 : 1;
+          g.beginPath(); g.moveTo(cx + ca * d0, cy + sa * d0); g.lineTo(cx + ca * d1, cy + sa * d1); g.stroke();
+        });
+        const glow = g.createRadialGradient(cx, cy, 0, cx, cy, 60 + 160 * pull);
+        glow.addColorStop(0, 'rgba(' + ink.glow + ',' + (.5 * pull).toFixed(3) + ')'); glow.addColorStop(1, 'rgba(' + ink.glow + ',0)');
+        g.fillStyle = glow; g.fillRect(0, 0, W, H); g.globalAlpha = 1;
+        if (t < 1 || (!stay && out < 1)) J.raf = requestAnimationFrame(frame);
+        else if (!stay) stop();
+      };
+      frame();
+      if (then) J.timer = setTimeout(then, MS);
+      // if the page has not gone a few seconds later (a blocked or slow link), the picture comes back
+      if (stay) J.safety = setTimeout(stop, 6000);
+    }
+    document.addEventListener('click', (e) => {
+      if (e.defaultPrevented || e.button !== 0) return;
+      const a = e.target && e.target.closest ? e.target.closest('a[href]') : null, u = a && outbound(a);
+      if (!u || !T.motion || T.reduceMotion) return;
+      if (jump && jump.timer) { e.preventDefault(); return; }       // already on the way out
+      const away = e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || (a.target && a.target !== '_self') || a.hasAttribute('download');
+      T.log('helm', 'jump to ' + u.hostname.replace(/^www\./, ''));
+      if (away) { streak(false); return; }
+      e.preventDefault();
+      streak(true, () => { location.href = a.href; });
+    });
+    // the middle button opens a tab of its own; the streak plays here and nothing else is touched
+    document.addEventListener('auxclick', (e) => {
+      if (e.button !== 1 || !T.motion || T.reduceMotion) return;
+      const a = e.target && e.target.closest ? e.target.closest('a[href]') : null, u = a && outbound(a);
+      if (u) { T.log('helm', 'jump to ' + u.hostname.replace(/^www\./, '')); streak(false); }
+    });
+    window.addEventListener('pageshow', stop);
+    T.lightspeed = () => streak(false);
+  })();
+
+  // ---- the printout puts the date it was printed at the head of the page (FEATURES.printout)
+  if (F.printout) window.addEventListener('beforeprint', () => {
+    const d = T.now ? T.now() : new Date(), two = (v) => String(v).padStart(2, '0');
+    $('.bar').dataset.printed = d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate());
+  });
+
+  // ---- a word for whoever opens the developer console (FEATURES.surprises), once, as the page loads
+  if (F.surprises) {
+    try {
+      const amber = 'color:#ffb000;background:#060402;font:12px/1.35 monospace;padding:2px 6px;text-shadow:0 0 4px rgba(255,176,0,.6)';
+      console.log('%c' + [
+        ' /\\_/\\    YAMIR-1138 · TGGR-LINK INTERFACE 1138',
+        '( o.o )   you have found the engine room.',
+        ' > ^ <    press / on the page for the terminal (try help). add ?debug=cat to the address for a quicker cat',
+      ].join('\n'), amber);
+    } catch (e) {}
   }
 
   // "/" reaches the prompt from anywhere on the page
@@ -2769,7 +3200,7 @@
       if (!cache[k]) { p.clear(); I.draw(p, cur); cache[k] = I.image ? I.image(p, cur, PAL) : p.image(PAL); }
       ctx.putImageData(cache[k], 0, 0);
       // now and then a little static on the picture. Never cached: the next frame is clean
-      if (T.fx && T.fx.ok() && (Math.random() < 1 / 45 || T.fx.snowing())) {
+      if (T.fx && T.fx.ok() && (Math.random() < (T.fx.rate || 1) / 45 || T.fx.snowing())) {
         const dots = (c, n) => { ctx.fillStyle = 'rgb(' + c.join(',') + ')'; for (let i = 0; i < n; i++) ctx.fillRect(Math.floor(Math.random() * I.w), Math.floor(Math.random() * I.h), 1, 1); };
         dots(PAL[2], 8 + Math.floor(Math.random() * 7)); dots(PAL[3], 2 + Math.floor(Math.random() * 2));
       }
@@ -3258,15 +3689,10 @@
     let W = 0, H = 0, dpr = 0, ink = null, queued = false;
     T.onTheme(() => { ink = null; draw(); });
     function arm(x, y0, y1, w) { const r = Math.min(w / 2, (y1 - y0) / 2); g.beginPath(); g.roundRect(x, y0, w, y1 - y0, r); }
-    function draw() {
-      queued = false;
-      if (!ideo.getClientRects().length) return;
-      const box = ideo.getBoundingClientRect(), r = Math.min(3, window.devicePixelRatio || 1);
-      if (box.width !== W || box.height !== H || r !== dpr) { W = box.width; H = box.height; dpr = r; ideo.width = W * r; ideo.height = H * r; }
-      if (!ink) { const cs = getComputedStyle(document.documentElement), v = (k) => cs.getPropertyValue(k).trim(); ink = { glow: v('--glow-rgb'), fg: v('--fg'), dim: v('--dim'), hi: v('--hi'), warn: v('--warn') }; }
-      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
-      const top = 6, bottom = H - 6, k = (bottom - top) / LEN, cw = 12, x = Math.round(W / 2 - cw / 2) + .5;
-      const y = (pos) => top + pos * k;
+    // one chromosome: its middle at cx, from y0 to y1, so wide, so bright
+    function chrom(cx, y0, y1, cw, alpha) {
+      const k = (y1 - y0) / LEN, x = Math.round(cx - cw / 2) + .5, y = (pos) => y0 + pos * k;
+      g.globalAlpha = alpha;
       // the two arms, each a capsule, the bands painted inside them
       [[0, CEN0], [CEN1, LEN]].forEach((a) => {
         g.save(); arm(x, y(a[0]), y(a[1]), cw); g.clip();
@@ -3278,14 +3704,113 @@
         arm(x, y(a[0]), y(a[1]), cw); g.strokeStyle = ink.fg; g.lineWidth = 1; g.stroke();
       });
       // the centromere: a waist between the arms
-      g.fillStyle = ink.warn; g.globalAlpha = .7; g.fillRect(x + 3, y(CEN0), cw - 6, Math.max(2, (CEN1 - CEN0) * k)); g.globalAlpha = 1;
+      g.fillStyle = ink.warn; g.globalAlpha = .7 * alpha; g.fillRect(x + cw / 4, y(CEN0), cw / 2, Math.max(2, (CEN1 - CEN0) * k)); g.globalAlpha = 1;
+      return { x, y };
+    }
+    let mit = null, frac = [0, 1];
+    function draw() {
+      queued = false;
+      // while something plays on it the sizes are the ones last measured: no layout is read a frame
+      if (!mit) {
+        if (!ideo.getClientRects().length) return;
+        const box = ideo.getBoundingClientRect(), r = Math.min(3, window.devicePixelRatio || 1);
+        if (box.width !== W || box.height !== H || r !== dpr) { W = box.width; H = box.height; dpr = r; ideo.width = W * r; ideo.height = H * r; }
+        const doc = document.documentElement, total = Math.max(1, doc.scrollHeight);
+        frac = [window.pageYOffset / total, Math.min(1, (window.pageYOffset + window.innerHeight) / total)];
+      }
+      if (!W) return;
+      if (!ink) { const cs = getComputedStyle(document.documentElement), v = (k) => cs.getPropertyValue(k).trim(); ink = { glow: v('--glow-rgb'), fg: v('--fg'), dim: v('--dim'), hi: v('--hi'), warn: v('--warn') }; }
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+      const top = 6, bottom = H - 6, k = (bottom - top) / LEN, cw = 12, x = Math.round(W / 2 - cw / 2) + .5;
+      const y = (pos) => top + pos * k;
+      let bracket = 1;
+      if (mit) bracket = mitosis(top, bottom);
+      else chrom(W / 2, top, bottom, cw, 1);
+      if (bracket <= 0) return;
       // where the reader is
-      const doc = document.documentElement, total = Math.max(1, doc.scrollHeight), s0 = window.pageYOffset / total, s1 = Math.min(1, (window.pageYOffset + window.innerHeight) / total);
-      const by0 = y(s0 * LEN), by1 = Math.max(by0 + 6, y(s1 * LEN));
-      g.strokeStyle = ink.hi; g.lineWidth = 1; g.shadowColor = ink.hi; g.shadowBlur = 5;
+      const by0 = y(frac[0] * LEN), by1 = Math.max(by0 + 6, y(frac[1] * LEN));
+      g.globalAlpha = bracket; g.strokeStyle = ink.hi; g.lineWidth = 1; g.shadowColor = ink.hi; g.shadowBlur = 5;
       g.beginPath(); g.moveTo(x - 6, by0 + .5); g.lineTo(x - 3, by0 + .5); g.lineTo(x - 3, by1 - .5); g.lineTo(x - 6, by1 - .5); g.stroke();
       g.beginPath(); g.moveTo(x + cw + 6, by0 + .5); g.lineTo(x + cw + 3, by0 + .5); g.lineTo(x + cw + 3, by1 - .5); g.lineTo(x + cw + 6, by1 - .5); g.stroke();
-      g.shadowBlur = 0;
+      g.shadowBlur = 0; g.globalAlpha = 1;
+    }
+    // ---- once in a long while (FEATURES.mitosis) the chromosome divides: it condenses, its two sister chromatids come
+    // apart and stand as two, and then there is one again. More rarely a point mutation shows on it, and a repair enzyme, a
+    // clamp round the strand, slides along to it and mends it. Never while the cat is climbing or anywhere near it, and
+    // she keeps clear until it is over. The chromosome is only drawn on a wide window, so this is only seen there
+    const ramp = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a))), ease = (v) => v * v * (3 - 2 * v);
+    function mitosis(top, bottom) {
+      const t = mit.still ? mit.at : (performance.now() - mit.t0) / 1000, mid = (top + bottom) / 2, cx = W / 2;
+      if (mit.kind === 'divide') {
+        const cond = ease(ramp(t, 0, 1.6)) * (1 - ease(ramp(t, 5.4, 6.6))), sep = ease(ramp(t, 2.4, 4)), back = ramp(t, 5.4, 6.4);
+        const len = 1 - .45 * cond, y0 = mid - (mid - top) * len, y1 = mid + (bottom - mid) * len, cw = 12 + 5 * cond;
+        if (sep <= 0) {
+          const c = chrom(cx, y0, y1, cw, 1);
+          // the two sister chromatids show as a seam down the middle, held at the centromere
+          if (t > 1.2) { g.globalAlpha = ramp(t, 1.2, 1.8) * .8; g.fillStyle = 'rgba(0,0,0,.85)'; g.fillRect(Math.round(cx) - .5, y0 + 3, 1, c.y(CEN0) - y0 - 3); g.fillRect(Math.round(cx) - .5, c.y(CEN1), 1, y1 - c.y(CEN1) - 3); g.globalAlpha = 1; }
+        } else {
+          const w = cw * (1 - .4 * sep), d = sep * 11;
+          chrom(cx - d, y0, y1, w, 1 - back); chrom(cx + d, y0, y1, w, 1 - back);
+          if (back > 0) chrom(cx, top, bottom, 12, ramp(t, 5.6, 6.6));
+        }
+        if (t >= 6.8) end();
+        return sep <= 0 ? 1 - Math.min(1, cond * 3) : back >= 1 ? 1 : 0;
+      }
+      // the repair: the mismatch shows, the clamp comes down the strand to it, holds, and it is gone; the clamp goes on and fades
+      const c = chrom(cx, top, bottom, 12, 1), py = c.y(mit.pos), from = top - 6;
+      const fixed = t >= 4.1;
+      if (!fixed && t > .3) { const on = mit.still || Math.floor(t * 4) % 4 !== 3; if (on) { g.fillStyle = ink.warn; g.shadowColor = ink.warn; g.shadowBlur = 6; g.fillRect(c.x - 2, Math.round(py) - 1, 12 + 4, 2); g.shadowBlur = 0; } }
+      const go = ease(ramp(t, 1, 3.2)), away = ramp(t, 4.4, 5.6);
+      if (t > 1 && away < 1) {
+        const ey = Math.round(from + (py - from) * go + away * 30);
+        g.globalAlpha = 1 - away; g.strokeStyle = ink.hi; g.fillStyle = ink.hi; g.shadowColor = ink.hi; g.shadowBlur = 5; g.lineWidth = 2;
+        g.strokeRect(c.x - 4, ey - 3, 12 + 8, 6);
+        // its two jaws, closed on the strand while it works
+        const j = t > 3.2 && t < 4.4 ? 1 : 3;
+        g.fillRect(c.x - 4 + j, ey - 1, 2, 2); g.fillRect(c.x + 12 + 2 - j, ey - 1, 2, 2);
+        g.shadowBlur = 0; g.globalAlpha = 1;
+      }
+      if (t >= 5.8) end();
+      return t < .3 || t > 5.6 ? 1 : 0;
+    }
+    let item = null, done = null, hold = 0;
+    function end() {
+      if (!mit) return;
+      const m = mit; mit = null;
+      if (item) item.on = false;
+      clearTimeout(hold);
+      if (T.cat && T.cat.keepOff) T.cat.keepOff(0);
+      if (!m.quiet) T.log('chromosome 5', m.kind === 'divide' ? 'divided in two, and back to one' : 'point mutation at ' + (m.pos < CEN0 ? '5p' : '5q') + ', ' + Math.round(m.pos / 10) + ' Mb, repaired');
+      const d = done; done = null;
+      queue();
+      if (d) d();
+    }
+    if (T.FEATURES.mitosis) {
+      // a place on an arm, away from the ends and the centromere, for the mutation
+      const spot = () => { let p; do p = 30 + Math.random() * (LEN - 60); while (p > CEN0 - 30 && p < CEN1 + 30); return Math.round(p); };
+      const clear = () => {
+        if (!T.cat) return true;
+        const r = ideo.getBoundingClientRect();
+        return !T.cat.climbing() && !T.cat.near({ left: r.left - 30, right: r.right + 30, top: r.top - 30, bottom: r.bottom + 30 });
+      };
+      T.events.add('mitosis', { every: 900, weight: 1, max: 15000, still: true,
+        can: () => !!ideo.getClientRects().length && !mit && clear(),
+        start(d, o) {
+          draw();
+          if (!W) return false;
+          done = d;
+          mit = { kind: o.kind === 'repair' || o.kind === 'divide' ? o.kind : Math.random() < .3 ? 'repair' : 'divide', t0: performance.now(), pos: spot(), still: !!o.still };
+          if (T.cat && T.cat.keepOff) T.cat.keepOff(ideo.getBoundingClientRect().right + 24);
+          if (mit.still) {
+            // with motion off: the middle of it, held a few seconds, then the one chromosome again
+            mit.at = mit.kind === 'divide' ? 4.5 : 3.6; draw();
+            hold = setTimeout(end, 3500);
+          } else {
+            if (!item) item = T.Anim.add(ideo, draw, 24, false);
+            item.on = true; T.Anim.wake();
+          }
+          return () => { if (mit) { mit.quiet = true; end(); } };
+        } });
     }
     const queue = () => { if (!queued) { queued = true; requestAnimationFrame(draw); } };
     window.addEventListener('scroll', queue, { passive: true });
@@ -3305,29 +3830,39 @@
       ['GENETICS', '8 AA · READS: GENETICS'], ['SCIENCE', '7 AA · READS: SCIENCE'], ['CAMILLE', '7 AA · THE CAT, IN AMINO ACIDS'],
       ['WHISKERS', '8 AA · READS: WHISKERS'], ['ALIEN', '5 AA · IN SPACE NO ONE CAN HEAR YOU TRANSLATE'], ['FEEDTHECAT', '10 AA · A MESSAGE'], ['LIHI', '4 AA · Leu-Ile-His-Ile'],
     ];
-    let which = -1, CODONS = [], aa = [], spans = [], beads = [], N = 0, STOP = 0, REL = 0, CUT = 0, HOLD = 0, PERIOD = 1, cap = '';
-    function load(i) {
-      which = i;
-      const word = REPERTOIRE[i][0]; cap = REPERTOIRE[i][1];
-      CODONS = ['AUG'].concat(Array.from(word).map((c) => BACK[c])).concat(['UAA']);
-      N = CODONS.length - 1; STOP = N; REL = N + 1; CUT = N + 2; HOLD = N + 3; PERIOD = N + 8;
-      aa = CODONS.map((c) => T.CODON[c]);
+    let which = -1, CODONS = [], aa = [], names = [], spans = [], beads = [], N = 0, STOP = 0, REL = 0, CUT = 0, HOLD = 0, PERIOD = 1, cap = '', ends = true, met = true;
+    // a message: its codons, the residue each one gives, and whether it ends on a stop codon. Without one the ribosome
+    // runs off the end; without a Met at the start there is no initiator to cleave
+    function use(m) {
+      CODONS = m.codons; aa = m.aa; names = m.names || m.aa.map((r) => AA3[r]); cap = m.cap; ends = m.ends !== false; met = aa[0] === 'M';
+      N = ends ? CODONS.length - 1 : CODONS.length; STOP = N; REL = N + 1; CUT = N + 2; HOLD = N + 3; PERIOD = N + 8;
       mrna.textContent = ''; chain.textContent = '';
       spans = CODONS.map((c) => { const s = document.createElement('span'); s.textContent = c; mrna.appendChild(s); return s; });
-      beads = aa.slice(0, N).map((r) => { const b = document.createElement('b'); b.textContent = r; b.title = AA3[r]; chain.appendChild(b); return b; });
+      beads = aa.slice(0, N).map((r, i) => { const b = document.createElement('b'); b.textContent = r; b.title = names[i]; chain.appendChild(b); return b; });
     }
-    let t0 = 0;
+    function load(i) {
+      which = i;
+      const word = REPERTOIRE[i][0], codons = ['AUG'].concat(Array.from(word).map((c) => BACK[c])).concat(['UAA']);
+      use({ codons, aa: codons.map((c) => T.CODON[c]), cap: REPERTOIRE[i][1] });
+    }
+    let t0 = 0, asked = null, back = 0;
     const draw = (t) => {
-      if (T.reduceMotion) { if (which < 0) load(0); t = HOLD + 1; }
-      else if (which < 0 || t - t0 >= PERIOD) { t0 = t; load(which < 0 ? 0 : which < 2 ? which + 1 : 3 + Math.floor(Math.random() * (REPERTOIRE.length - 3))); }
+      // a message someone asked for is read once, in place of the next of its own, and then it goes back to those
+      if (asked && (T.reduceMotion || !T.motion)) { use(asked); asked = null; which = -2; t0 = t = 0; t = HOLD + 1; clearTimeout(back); back = setTimeout(() => { which = -1; draw(0); }, 30000); }
+      else if (asked) { t0 = t; use(asked); asked = null; which = -2; }
+      else if (which === -2 && (T.reduceMotion || !T.motion)) t = HOLD + 1;
+      else if (T.reduceMotion) { if (which < 0) load(0); t = HOLD + 1; }
+      else if (which === -1 || t - t0 >= PERIOD) { t0 = t; load(which < 0 ? 0 : which < 2 ? which + 1 : 3 + Math.floor(Math.random() * (REPERTOIRE.length - 3))); }
       const k = (t - t0) % PERIOD;                       // reading, stop, release, cleave, then hold
       spans.forEach((s, i) => { s.className = k <= STOP ? (i === k ? 'cur' : i < k ? 'done' : '') : 'done'; });
-      beads.forEach((b, i) => { b.className = (i <= Math.min(k, N - 1) ? 'on' : '') + (i === 0 && k >= CUT ? ' cut' : '') + (k >= HOLD && i > 0 ? ' hi' : ''); });
-      const c = k < STOP ? 'CODON ' + (k + 1) + '/' + CODONS.length + ' · ' + CODONS[k] + ' → ' + AA3[aa[k]]
-        : k === STOP ? 'UAA · STOP' : k === REL ? 'CHAIN RELEASED' : k === CUT ? 'INITIATOR MET CLEAVED' : cap;
+      beads.forEach((b, i) => { b.className = (i <= Math.min(k, N - 1) ? 'on' : '') + (met && i === 0 && k >= CUT ? ' cut' : '') + (k >= HOLD && (i > 0 || !met) ? ' hi' : ''); });
+      const c = k < STOP ? 'CODON ' + (k + 1) + '/' + CODONS.length + ' · ' + CODONS[k] + ' → ' + names[k]
+        : k === STOP ? (ends ? CODONS[STOP] + ' · STOP' : 'END OF MESSAGE · NO STOP CODON') : k === REL ? 'CHAIN RELEASED' : k === CUT && met ? 'INITIATOR MET CLEAVED' : cap;
       if (rcap.textContent !== c) rcap.textContent = c;
     };
-    T.Anim.add(mrna, draw, 1.1);
+    const ribo = T.Anim.add(mrna, draw, 1.1);
+    // T.ribo.read({ codons, aa, names, ends, cap }): read this next. Off the screen it waits there until it is looked at
+    T.ribo = { read(m) { asked = m; if (!T.motion || T.reduceMotion) draw(0); else { ribo.acc = ribo.step; T.Anim.wake(); } } };
   }
 
   // ---- the name is a sign of glass tubes, and one of them is not what it was. Rarely, a letter dips for a frame.
@@ -3638,7 +4173,8 @@ window.CATDATA = {
       layer(tmp, fill, b, col.body); layer(tmp2, ink, b, col.line); tc.drawImage(tmp2, 0, 0);
       tc.globalCompositeOperation = 'source-atop'; tc.globalAlpha = .17; tc.fillStyle = col.line;
       const pitch = Math.max(2, Math.round(3 * px));
-      for (let yy = 0; yy < tmp.height; yy += pitch) tc.fillRect(0, yy, tmp.width, Math.max(1, Math.round(px)));
+      // D.lock: the lines keep to the canvas rather than the frame, so frames drawn on two canvases at one origin line up
+      for (let yy = D.lock ? ((-y % pitch) + pitch) % pitch : 0; yy < tmp.height; yy += pitch) tc.fillRect(0, yy, tmp.width, Math.max(1, Math.round(px)));
       tc.globalAlpha = 1; tc.globalCompositeOperation = 'source-over';
       ctx.shadowColor = col.line; ctx.shadowBlur = 5 * px; ctx.drawImage(tmp, x, y);
       ctx.shadowBlur = 0;
@@ -3666,6 +4202,15 @@ window.CATDATA = {
   // Her sheets ride inside the page so her outline can still be read back for the hit test from a file: URL.
   root.CATS = spriteRig({ groups: {}, frames: {"SIT":[0,0,56,69,1,41,7,35.5,64.1],"SIT_LOOK":[57,0,60,69,1,31,7,35.5,64.1],"SIT_ALERT":[118,0,57,71,1,38,6,35.5,65.1],"LOAF":[176,0,67,54,1,51,6,35.5,49.1],"LOAF_LOOK":[244,0,67,51,1,47,6,35.5,46.1],"STARE":[312,0,61,63,1,26,6,25.5,57.1],"SLEEP_A":[374,0,70,44,1,29,7,34.5,38.1],"SLEEP_B":[445,0,68,43,1,28,6,36.5,38.1],"STAND":[514,0,82,64,1,64,6,45.5,58.1],"STAND_LOOK":[597,0,82,62,1,61,6,45.5,56.1],"BACK":[680,0,59,67,1,26,6,26.5,61.1],"PURR":[740,0,59,65,1,39,6,33.5,59.1],"W0":[800,0,91,61,1,13,6,52.5,54.1],"W1":[892,0,90,61,1,13,6,51.5,54.1],"W2":[0,72,91,62,1,14,7,52.5,55.1],"W3":[92,72,91,62,1,14,7,52.5,55.1],"W4":[184,72,90,61,1,13,7,51.5,55.1],"W5":[275,72,91,61,1,13,7,52.5,55.1],"W6":[367,72,90,61,1,13,7,51.5,55.1],"W7":[458,72,90,60,1,12,6,51.5,54.1],"RUN_0":[549,72,95,48,1,22,7,48.5,50.1],"RUN_1":[645,72,84,51,1,24,6,47.5,45.1],"RUN_2":[730,72,88,48,1,64,6,46.5,48.1],"RUN_3":[819,72,96,51,1,18,6,49.5,47.1],"LEAP":[916,72,93,70,1,63,6,47.5,64.1],"LAND":[0,143,84,62,1,16,6,43.5,56.1],"STALK_A":[85,143,94,43,1,47,6,47.5,36.1],"STALK_B":[180,143,82,44,1,46,7,44.5,37.1],"SWAT_A":[263,143,56,70,1,41,6,31.5,65.1],"SWAT_B":[320,143,76,71,1,38,6,33.5,65.1],"HISS_A":[397,143,79,86,1,20,6,41.5,80.1],"HISS_B":[477,143,77,86,1,19,7,41.5,79.1],"STRETCH":[555,143,79,77,1,25,7,41.5,70.1],"YAWN":[635,143,64,74,1,40,6,33.5,69.1],"EAT_A":[700,143,80,53,1,38,7,42.5,46.1],"EAT_B":[781,143,80,52,1,37,6,41.5,46.1],"GROOM_A":[862,143,57,62,1,39,6,34.5,57.1],"GROOM_B":[920,143,63,69,1,43,6,33.5,63.1],"BLINK_A":[0,230,57,70,1,41,7,31.5,64.1],"BLINK_B":[58,230,58,70,1,40,7,33.5,64.1]} },
     'data:image/png;base64,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', 'data:image/png;base64,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', BW, BH, GX, GY, 1.33, F, {});
+  // In standby, the stargazer turns her head after a star going by (FEATURES.catwarm): three poses of the head going round,
+  // on her BACK pose with her haunches and tail still, played out and back. Only for her sprite; the outline cat keeps
+  // the old turn
+  if (root.TGGR && root.TGGR.FEATURES.catwarm) {
+    const at = (x) => [x, 0, 59, 67, 1, 26, 6, 26.5, 61.1];
+    root.CATS_TURN = spriteRig({ groups: {}, frames: { T1: at(0), T2: at(60), T3: at(120) } }, 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALMAAABDCAMAAADgWMTYAAABj1BMVEX////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////ujRlpAAAAhXRSTlMAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9hYmNlZmdpamtsbW9wcXJzdHV4eXt8f4GHiYyPmJman6Kvv8/v0w/BzAAABelJREFUeNrtmPl/EkcUwN/uAss9IRxBEhg0RIw5JoZAYtKwRJNao2Vsa2K0qdt6tFbs3VJb2mLa/uGd2eXYBdRZ+wP7A/NDMsuH78673xsAJmuyJmuy/u86X84mpd4TmksUQw5o7/l4dysH3uX4TFqBuQtOZY5+c5rqPsRqz5byXgf0/MunCQm4ziG65H8Hi13PQvLRE9UZFUxeOXie8k+tLEWlc88OzgXhvDgsVXc/+dY4MP9ZvZoAyaHI+MTrXz0t1S85w/w4Jq8/oMX17bu3v9iAyGK06EDhQ//Mw7pUWN5+eCl6N+TUytP1GVh/fgE2P3CmLdqUwLecvnJQXS7lJEhoMQexMV0BKV6jT/aPgqB+F3Vq58oqRD5lbr144ggLLWT9HpAypZiS4KkQuxkXl1nemGJ/CzcDGywTfR/FHMksQWg9Ku/zsAieFBzJXJtDjJ/ysC1P/JlNMisstHeex3Iy7DVSoHLLYWjkdyCW5WoG9748dZBFhdqKj8nMSMljVoKnaWFDhW/MKWyjBHjFUPc+31KciKyUMPiifJcupUvHWUE4tVwqZWWPRY6p3M/roi5WyofmOV6ZPSRymz8uOAmN4Gmss42GmSh1Ye8u3Y5anwOebL0UEpX53oollwMBXNtxIvOFu729ApK8WABZCCxeK8Wtz7I3d6Moemj8waxFu4hPSf1wzkGdvF+wHgzLr6pJkWNTNX3AnWrufj0sWDWq9QHDHP9eDYkmsLL7W99akl9lwfXesQi4sn8Q9tjViC6+KPmFzOz9uqzYhdYOy3UQygZW6J5u900eNP7F7wmZ6mRXVW2W8cHMYxoXOJfl0NWbNlTxp6/vHYiW9qmj+b6VzWFnKyUS0LvlnYzte76AL//hviJkK3/1stf2PXnx9iOPaNHZfN8WvapauTMrwvkWj3c8A7rJBy+FeoMkp15cgoBtIgt/fzUoxCqKPH+KrPUKLte9YmVjQysHrf71Sf7U9WZBJH8hFiludk6ReFsKKyldSwWFxsrpsLxW9EZ6Y7fqV9ZQWoSNBcqlbSOqeEDJHpW1Q3nr2scZkUrlzWU2NvghTGdJBQ+bojN1vIyEWJwuHBVkj0c1zuVVILA3vSrAMmvW1ma5oPxE3sC5yvHKYV5gGgRYy6/wXJVVsxMyU0OxtJkWYSVysbLARDU6MMtA9orIVrkiNDQsPN4OW3KV7xCO3HosAuePt5LGpayfc1OXU9fuJYXYbcxYS/xKkVxyX4g9+jXhBbBX1Oz8ydWoAHvnp7QfzOmqW/xgrnhUiYiwv2R81mNZF4TZ4rEIm3tWne44uu9ykGt/rb6dzX5VjfMzozbWU/tjRZiVBtk/BVhoNAlgag01zP4QHWO3srjdRoB0i6UxAgKItjRwKwvQxIAQ4xDqvIA/s3cS17Ko1ex4yFTXeAP7gOi6a1lCGqCTgarLffZ2dGwsNHVKjWDqhxoPNNpwL4vbegObSnZxnreaznznUpb8jQjq+sais05x68ydLG42iK2doP6GvKXqjItFlOWB1tMUdVmMWb1vUleytMk40ms8uNeRuKpa27Us9CsO7kUYz2dMiftYhNvU8ArCA4XSvEC3sPtYraUbOmI0cDnARhVCb0qGcbGYakaBHHaF+YnexK5jaRPsk/OAm/AZuI3VWo3Ot7CtrqNOmGGsMR9qrmJxUzOzAA26ojMFsARu6QgTzT2sxho+eo2TzOhqttpE/+df3T0s1uhgmbG+mfVXSglBWqPR0IcyfEwsnL1hVm0QrY0JdxYhtD08a42JxWfY0jdtIGV1iJBORiDQmm3dHSyfBkd1ScwaEekmBDaTpYmJO1igw9qyjm/U+g5jxhMmg5P4uFigxoUMjajq/ctwxwRD8LhYhBuvqTiox5ujLaIUu4Pl4Y5GMai37TiJTWJuYYGOuBIgS0PtO6nVcAs7fCVAI12GNILcwgLSBH4N5GVoRHEaF8s+NUbZN6N09G1nXKw1B0aryscvDO5jhwolMm+TyP6LiVvZyZqsyZqsEes/uY1fMh1z8wEAAAAASUVORK5CYII=',
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALMAAABDAQMAAADtSKapAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMA/1uRIrUAAAHMSURBVHjazdOxalRBFMbx351szKKBLCLEQvCms8wDBPbiE+QhfAS7FLnqi1ja2VpupwiChZ3NlgGbFUSWsNljMTO76+KaNlPd/3DmO9/5Zi53bt1czOHgx6kh9pc9kubVIUj7n81xr+lAcxlzeBDX4Dg6JDDEwAA8y6dXbRYWWsxMwUlkneO4gcNxfEXSlfpPUo+HrcdIXhexD6KjmbUeIWlL/TvNgLg/9RvsRSxgHPECo4gbpOKOGWf4OZH6Ir2Ec86hE7V+vxyZQl/mGpT6KS1Sr5FzyQNFxFukgp6u96c4iLhGciUf7It+zeyo5BMRkzUmIwbymQkVk1k+HOjyeFlrXsxn3yt0VPJZ6y9q73pp7dpPMsrzNiWHgn/1tdl3lD+asj/amG1R9ib1ZdyiU+ftNudtq7Hsc4Vdrh2UngXTjsefdv4WERE9R5GDL5ia/DaMco+KaTswa0/+kcX6f9m4myEpycJtFq6Y6/dK/amKaVug4l5ERMyMIyJihWlZ0p3msCumarTNRismO4z+X39Y3nJfcWf+W/cdq3vZeq/9bfc1zgaykRUm36/GzCzfv5wJFfH8yWV0DE4+xq81Ynj2Dbz50m3inVp/ADK116Kkc+0IAAAAAElFTkSuQmCC', BW, BH, GX, GY, 1.33, F, {});
+    root.CATS_TURN.ready(() => { root.CATS_TURN.ok = true; });
+  }
   // Guenhwyvar, the panther in the onyx figurine, from the same kind of kit: 256-pixel cells cut to two thirds, the walk's
   // tones matched to the idle's, every frame on the cell's own ground point. The kit lets the body wander about the cell
   // in the run and the walk, so the run's is held where the idle has it, and the walk's halfway there (its last five
@@ -3680,6 +4225,22 @@ window.CATDATA = {
   // first and last are the idle again). droids.png and droids-fill.png are only fetched when one of them is called.
   const DROIDDATA = {"groups":{"HK_IDLE":{"n":2,"ms":600},"HK_LOOK":{"n":4,"ms":170},"T3_IDLE":{"n":2,"ms":500},"T3_SCAN":{"n":4,"ms":170}},"frames":{"HK_IDLE0":[364,0,31,50,1,12,0,14.8,49.8],"HK_IDLE1":[396,0,31,50,1,12,1,14.8,49.8],"HK_LOOK0":[331,0,32,51,1,12,1,13.8,49.8],"HK_LOOK1":[462,0,33,49,1,14,0,14.8,48.8],"HK_LOOK2":[0,57,33,49,1,14,0,14.8,48.8],"HK_LOOK3":[428,0,33,50,1,13,1,14.8,49.8],"T3_IDLE0":[109,0,55,55,1,17,0,31.4,55.6],"T3_IDLE1":[165,0,55,55,1,18,0,30.4,55.6],"T3_SCAN0":[0,0,54,56,1,18,0,30.4,56.6],"T3_SCAN1":[55,0,53,56,1,19,1,30.4,56.6],"T3_SCAN2":[221,0,54,55,1,18,0,30.4,55.6],"T3_SCAN3":[276,0,54,55,1,17,0,30.4,55.6]}};
   root.DROIDS = () => root.DROIDS.rig || (root.DROIDS.rig = spriteRig(DROIDDATA, 'droids.png', 'droids-fill.png', 64, 64, 32, 62, 1));
+  // Drizzt, the drow ranger (FEATURES.drizzt), at the same scale as Guenhwyvar's first kit, so the two stand together as drawn.
+  // Standing and breathing with his scimitars out (D_IDLE), and with her at his feet (D_TOGETHER), are from the second kit;
+  // drawing his blades (D_DRAW) from the first, brought down 3 px onto the same ground line, its tones matched to the idle's,
+  // each frame held where the idle has the middle of his body (the first kit lets him wander about the cell by up to 11 px).
+  // From the third: at rest with the blades on his back (D_REST, held exactly where D_DRAW starts). From the fourth: the
+  // middle frames of a look at you with light on his face (D_LOOK, from D_IDLE0 and back) and of sheathing (D_SHEATHE,
+  // D_IDLE0 to D_REST0); the pair re-lit (D_TOGETHER) and his hand on her head (D_GREET, from D_TOGETHER0 and back); him
+  // alone with a cut-out where she sits (D_UNDER); and the panther herself at the pair's scale, appearing, sitting down and
+  // sitting (G_APPEAR, G_SIT, G_REST). The pair's frames share one cell, one crop and one anchor, so her canvas laid over
+  // D_UNDER makes D_TOGETHER0 exactly; on all of them her part of the cell has a lighter tone curve, or she is near-black.
+  // His sheets (drizzt.png, drizzt-fill.png) are only fetched the first time someone calls him.
+  if (root.TGGR && root.TGGR.FEATURES.drizzt) {
+    const DZDATA = {"groups":{"D_IDLE":{"n":7,"ms":180},"D_DRAW":{"n":6,"ms":130},"D_TOGETHER":{"n":6,"ms":270},"D_REST":{"n":8,"ms":180},"D_LOOK":{"n":3,"ms":125},"D_SHEATHE":{"n":4,"ms":150},"D_GREET":{"n":4,"ms":170},"D_UNDER":{"n":1,"ms":300},"G_APPEAR":{"n":6,"ms":110},"G_SIT":{"n":4,"ms":125},"G_REST":{"n":6,"ms":170}},"frames":{"D_IDLE0":[666,0,133,127,1,73,1,70.3,126.0],"D_IDLE1":[800,0,133,127,1,74,1,71.3,126.0],"D_IDLE2":[534,135,137,126,1,75,0,74.3,125.0],"D_IDLE3":[0,135,131,127,1,70,1,69.3,126.0],"D_IDLE4":[672,135,136,126,1,77,1,73.3,125.0],"D_IDLE5":[809,135,137,126,1,75,0,73.3,125.0],"D_IDLE6":[0,263,134,126,1,73,0,70.3,125.0],"D_DRAW0":[135,263,99,126,1,66,0,64.7,125.0],"D_DRAW1":[235,263,106,126,1,65,0,62.3,125.0],"D_DRAW2":[552,0,113,130,1,43,0,64.3,129.0],"D_DRAW3":[0,0,132,134,1,69,0,64.6,133.0],"D_DRAW4":[771,895,138,123,1,69,0,69.3,122.0],"D_DRAW5":[640,895,130,124,1,66,0,65.8,122.0],"D_TOGETHER0":[202,390,159,125,1,105,0,98.7,124.0],"D_TOGETHER1":[362,390,159,125,1,105,0,98.7,124.0],"D_TOGETHER2":[522,390,159,125,1,105,0,98.7,124.0],"D_TOGETHER3":[682,390,159,125,1,105,0,98.7,124.0],"D_TOGETHER4":[842,390,159,125,1,105,0,98.7,124.0],"D_TOGETHER5":[0,517,159,125,1,105,0,98.7,124.0],"D_REST0":[342,263,99,126,1,66,0,64.7,125.0],"D_REST1":[442,263,99,126,1,66,0,64.7,125.0],"D_REST2":[542,263,99,126,1,66,0,64.7,125.0],"D_REST3":[642,263,99,126,1,66,0,64.7,125.0],"D_REST4":[742,263,100,126,1,67,0,65.7,125.0],"D_REST5":[843,263,100,126,1,67,0,65.7,125.0],"D_REST6":[0,390,100,126,1,67,0,65.7,125.0],"D_REST7":[101,390,100,126,1,67,0,65.7,125.0],"D_LOOK0":[132,135,133,127,1,74,1,70.3,126.0],"D_LOOK1":[266,135,133,127,1,71,1,70.3,126.0],"D_LOOK2":[400,135,133,127,1,69,1,71.3,125.0],"D_SHEATHE0":[133,0,104,133,1,38,0,65.7,132.0],"D_SHEATHE1":[238,0,111,131,1,45,0,66.7,130.0],"D_SHEATHE2":[350,0,102,131,1,53,0,66.7,130.0],"D_SHEATHE3":[453,0,98,131,1,51,0,61.7,130.0],"D_GREET0":[160,517,159,125,1,105,0,98.7,124.0],"D_GREET1":[320,517,159,125,1,105,0,98.7,124.0],"D_GREET2":[480,517,159,125,1,105,0,98.7,124.0],"D_GREET3":[640,517,159,125,1,105,0,98.7,124.0],"D_UNDER0":[800,517,159,125,1,105,0,98.7,124.0],"G_APPEAR0":[0,643,159,125,1,0,0,98.7,124.0],"G_APPEAR1":[160,643,159,125,1,68,77,98.7,124.0],"G_APPEAR2":[320,643,159,125,1,68,76,98.7,124.0],"G_APPEAR3":[480,643,159,125,1,68,76,98.7,124.0],"G_APPEAR4":[640,643,159,125,1,68,76,98.7,124.0],"G_APPEAR5":[800,643,159,125,1,68,76,98.7,124.0],"G_SIT0":[0,769,159,125,1,65,75,98.7,124.0],"G_SIT1":[160,769,159,125,1,62,73,98.7,124.0],"G_SIT2":[320,769,159,125,1,61,65,98.7,124.0],"G_SIT3":[480,769,159,125,1,63,63,98.7,124.0],"G_REST0":[640,769,159,125,1,65,60,98.7,124.0],"G_REST1":[800,769,159,125,1,65,60,98.7,124.0],"G_REST2":[0,895,159,125,1,65,60,98.7,124.0],"G_REST3":[160,895,159,125,1,64,60,98.7,124.0],"G_REST4":[320,895,159,125,1,64,60,98.7,124.0],"G_REST5":[480,895,159,125,1,64,60,98.7,124.0]}};
+    DZDATA.lock = 1;
+    root.DRIZZT = () => root.DRIZZT.rig || (root.DRIZZT.rig = spriteRig(DZDATA, 'drizzt.png', 'drizzt-fill.png', 280, 220, 140, 217, 1.6));
+  }
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 
@@ -3732,7 +4293,12 @@ window.CATDATA = {
     blocking: null, boxed: false, asleep: false, onPrompt: false, awayUntil: 0, clicks: 0,
   };
   let W = 112, H = 74, cw = 5.4, layerW = 0, SL = -120, SR = 2000, ledges = [], hot = [];
-  let cur = null, enabled = true, saveTimer = 0, lastBlocked = null, offTicks = 0;
+  let cur = null, enabled = true, saveTimer = 0, lastBlocked = null, offTicks = 0, keepOffX = 0;
+  // with the page open in more than one tab, only one has the cat (FEATURES.twotabs). Until the tabs have spoken she is
+  // nowhere ('pending'); while another tab has her, 'other'. A lone tab has her at once
+  let offsite = T.FEATURES.twotabs && 'BroadcastChannel' in window ? 'pending' : false;
+  const own = () => { offsite = false; if (!T.motion && T.booted) park(); };
+  if (offsite) setTimeout(() => { if (offsite === 'pending') own(); }, 3000);   // the tabs never answered: she is here
   let lastInput = now(), lastScroll = 0, pointer = { x: -1, y: -1 };
   const last = {};
   const cool = (name, s) => now() - (last[name] || -1e9) > s * 1000 / FAST;
@@ -3840,6 +4406,7 @@ window.CATDATA = {
     // she comes and goes near the column of content, not from the far edge of a very wide window
     const col = rel($('.screen').getBoundingClientRect());
     SL = Math.max(-W - 6, col.x - 170 - W); SR = Math.min(layerW + 6, col.r + 170);
+    if (keepOffX) SL = Math.max(SL, keepOffX - layer.getBoundingClientRect().left);   // something is happening in the margin: she keeps clear of it
     const out = [];
     const add = (id, node, kind, x0, x1, y, extra) => {
       if (x1 - x0 < W) return;
@@ -3860,6 +4427,7 @@ window.CATDATA = {
     // the display has a ledge along its top edge, for when she goes to watch it (FEATURES.catwatch)
     const dsp = T.FEATURES.catwatch && $('.panel--display');
     if (dsp && dsp.getClientRects().length) { const c = rel(dsp.getBoundingClientRect()); add('display', dsp, 'perch', c.x, c.r, c.y, { label: 'the display' }); }
+    warmLedges(add);
     const form = $('#form'), input = $('#cmd');
     if (form) { const f = rel(form.getBoundingClientRect()), n = rel(input.getBoundingClientRect()); add('prompt', form, 'prompt', n.x, f.r, f.b + 2, { label: 'the prompt' }); }
     if (T.helix) { const h = rel(T.helix.el.getBoundingClientRect()); add('helix', T.helix.el, 'top', h.x - W * .3, h.r + W * .3, h.y + 5, { label: 'the helix' }); }
@@ -3894,6 +4462,79 @@ window.CATDATA = {
     return rand(l.x0, l.x1);
   }
   function setU() { if (C.ledge) C.u = (C.x - C.ledge.x0) / cw; }
+
+  // ------------------------------------------------------------ warm screens (FEATURES.catwarm)
+  // How busy each screen has really been lately: a point a second while its picture is moving on the screen, a little for
+  // each change in what it shows, more for each time the visitor points at it, clicks in it or types in it. It all cools
+  // by half in about two minutes. When she picks a place to nap, she picks the warmest screen in view
+  const WARM = new Map();       // screen element: warmth
+  function warmLedges(add) {
+    if (!T.FEATURES.catwarm) return;
+    // the screens that have no ledge of their own get one along their top edge, used only for napping
+    $$('.panel:not(.panel--inst), #term').forEach((p, i) => {
+      if (!p.getClientRects().length || (p.classList.contains('panel--display') && T.FEATURES.catwatch)) return;
+      const c = rel(p.getBoundingClientRect()), strip = p.id === 'term' ? null : $(':scope > .path', p);
+      const name = strip ? Array.from(strip.childNodes).filter((n) => n.nodeType === 3).map((n) => n.data).join(' ').trim().toLowerCase() : 'terminal';
+      add('warm-' + i, p, 'warm', c.x, c.r, c.y, { label: 'the ' + (name || 'screen'), screen: p });
+    });
+  }
+  // the ledge that goes with a screen: a card's roof, the display's strip, or one of the above
+  const ledgeOf = (s) => ledges.find((l) => (l.kind === 'perch' && (l.card === s || (l.id === 'display' && l.el === s))) || (l.kind === 'warm' && l.screen === s));
+  function warmest() {
+    if (!T.FEATURES.catwarm) return null;
+    let best = null, heat = 1;      // a screen has to have done something to count
+    WARM.forEach((h, s) => { if (h > heat) { const l = ledgeOf(s); if (l && vis(l)) { best = l; heat = h; } } });
+    return best;
+  }
+  if (T.FEATURES.catwarm) (function () {
+    const SCREENS = '.card:not([hidden]), .panel, #term';
+    const heat = (s, n) => { if (s) WARM.set(s, (WARM.get(s) || 0) + n); };
+    const screenOf = (n) => (n && n.closest ? n.closest(SCREENS) : null);
+    let pics = [], at = 0;
+    setInterval(() => {
+      if (document.hidden) return;
+      // which moving pictures sit in which screen, looked up again whenever the scheduler gains items
+      if (T.Anim.items.length !== at) { at = T.Anim.items.length; pics = T.Anim.items.map((it) => [it, screenOf(it.el)]).filter((q) => q[1]); }
+      WARM.forEach((h, s) => WARM.set(s, h * .994));
+      if (T.motion) pics.forEach(([it, s]) => { if (it.on && it.visible) heat(s, 1); });
+    }, 1000);
+    // what a screen shows changing: a caption, a readout, a line of the log
+    const mo = new MutationObserver((ms) => { const seen = new Set(); ms.forEach((m) => { const s = screenOf(m.target.nodeType === 3 ? m.target.parentNode : m.target); if (s && !seen.has(s)) { seen.add(s); heat(s, .25); } }); });
+    T.onReady(() => $$(SCREENS).forEach((s) => mo.observe(s, { childList: true, characterData: true, subtree: true })));
+    // the visitor at it
+    let over = null, overAt = 0;
+    document.addEventListener('pointerover', (e) => { over = screenOf(e.target); overAt = now(); }, { passive: true });
+    setInterval(() => { if (over && now() - overAt < 30000 && !document.hidden) heat(over, .5); }, 1000);
+    document.addEventListener('pointerdown', (e) => heat(screenOf(e.target), 4), { passive: true, capture: true });
+    document.addEventListener('keydown', () => heat(screenOf(document.activeElement), 1), { passive: true, capture: true });
+    T.warmth = () => Array.from(WARM.entries()).sort((a, b) => b[1] - a[1]).map(([s, h]) => [((s.querySelector('.path') || s.querySelector('summary') || s).textContent || '').trim().slice(0, 24), Math.round(h)]);
+  })();
+  // in standby she sits small at the foot of the stars, her back to you, and watches them go by
+  let gazer = null;
+  function stargaze(on) {
+    if (!on) { if (gazer) { gazer.el.parentNode.removeChild(gazer.el); gazer = null; } return; }
+    const ov = $('#standby');
+    if (!ov) return;
+    if (!gazer) {
+      const c = document.createElement('canvas'), k = window.innerWidth <= 760 ? .4 : .5, r = Math.min(3, window.devicePixelRatio || 1);
+      c.className = 'gazer'; c.width = Math.round(A.BW * k * r); c.height = Math.round(A.BH * k * r); c.style.width = A.BW * k + 'px'; c.style.height = A.BH * k + 'px';
+      ov.appendChild(c);
+      gazer = { el: c, k: k * r, pose: '', turn: now() + rand(14, 26) * 1000 };
+      T.log('cat', 'watching the stars');
+    }
+    // her back, mostly; now and then she turns her head after one going by. From her sprite the head goes round and back
+    // over two seconds, the rest of her still; the outline cat turns round to look instead
+    const t = now(), TURN = A === window.CATS && window.CATS_TURN && window.CATS_TURN.ok ? window.CATS_TURN : null;
+    let pose = 'BACK', rig = A;
+    if (t > gazer.turn) {
+      if (TURN) { const i = Math.floor((t - gazer.turn) / 250); pose = ['BACK', 'T1', 'T2', 'T3', 'T3', 'T2', 'T1', 'BACK'][Math.min(7, i)]; if (pose[0] === 'T') rig = TURN; if (i > 7) gazer.turn = t + rand(14, 30) * 1000; }
+      else { pose = 'SIT_ALERT'; if (t > gazer.turn + 2600) gazer.turn = t + rand(14, 30) * 1000; }
+    }
+    if (pose !== gazer.pose && rig.has(pose)) {
+      gazer.pose = pose; const g = gazer.el.getContext('2d'); g.clearRect(0, 0, gazer.el.width, gazer.el.height);
+      rig.draw(g, pose, gazer.k, COL); gazer.el.classList.toggle('flip', pose === 'SIT_ALERT');
+    }
+  }
 
   // ------------------------------------------------------------ movement
   function* wait(n) { for (let i = 0; i < n; i++) yield; }
@@ -4204,14 +4845,16 @@ window.CATDATA = {
   const meter = () => '<span class="batt"><i style="width:' + Math.round(C.energy) + '%"></i></span>' + Math.round(C.energy) + '%';
   function* chargeNap() {
     mark('nap');
-    if (!C.onstage || !inView()) {
+    const w = warmest();
+    if (w && (!C.onstage || !C.ledge || C.ledge.key !== w.key)) { setMode('looking for a warm spot'); yield* goTo(w, restX(w)); }
+    else if (!C.onstage || !inView()) {
       const l = pick(perches()) || ledges.find((k) => k.id === 'footer' && vis(k));
       if (!l) { yield* wait(sec(3)); return; }
       if (C.onstage) hide();
       setMode('looking for a spot');
       yield* enter(l, restX(l));
     }
-    setMode('asleep, charging ' + where(C.ledge), true);
+    setMode('asleep, charging ' + where(C.ledge) + (w && C.ledge === w ? ', the warmest screen' : ''), true);
     C.asleep = true;
     yield* cycle(['LOAF_LOOK', 'LOAF'], 6, 12);
     let i = 0;
@@ -4326,7 +4969,10 @@ window.CATDATA = {
   const night = () => { const h = new Date().getHours(); return h >= 23 || h < 6; };
   function* catnap() {
     mark('catnap');
-    setMode('napping ' + where(C.ledge), true);
+    // somewhere warm first, if a screen has been busier than this one
+    const w = warmest();
+    if (w && (!C.ledge || C.ledge.key !== w.key)) { setMode('looking for a warm spot'); yield* goTo(w, restX(w)); }
+    setMode('napping ' + where(C.ledge) + (w && C.ledge === w ? ', the warmest screen' : ''), true);
     C.asleep = true;
     yield* cycle(['LOAF_LOOK', 'LOAF'], 6, 12);
     const n = sec(rand(30, 70) * (night() ? 1.6 : 1));
@@ -4629,7 +5275,7 @@ window.CATDATA = {
   // her distance and does not take her eyes off her. Guenhwyvar takes no notice of the cat at all.
   const GUEN_REST = 600;                                     // seconds on the Astral Plane before she will come again
   const guenResting = () => Date.now() - (+T.store.get('guen', 0) || 0) < GUEN_REST * 1000 / FAST;
-  const guenHere = () => riders.some((r) => r.kind === 'guen');
+  const guenHere = () => riders.some((r) => r.kind === 'guen') || DZ.guen;      // DZ.guen: she is sitting with Drizzt
   // where she stands: the footer if it is in view, then the prompt, then any ledge in view, on the longest clear stretch.
   // A stretch is where the middle of her can go; if Camille is in the way, it is the longer side of her.
   function guenStage(K) {
@@ -4648,8 +5294,9 @@ window.CATDATA = {
     all.sort((p, q) => order(p.l) - order(q.l) || (q.b - q.a) - (p.b - p.a));
     return all[0] || null;
   }
+  let guenShown = false;                                     // her scene has put her on the page (for FEATURES.drizzt)
   function* guenhwyvar(K) {
-    mark('guen'); T.store.set('guen', Date.now());
+    mark('guen'); T.store.set('guen', Date.now()); guenShown = false;
     setMode(C.mode);                                         // not resting: nothing may take the scene from her while the cat is out of sight
     let ok = false; K.ready(() => { ok = true; });
     // her sheets, the first time, and the page settled from any scroll it was in the middle of
@@ -4672,6 +5319,7 @@ window.CATDATA = {
     const put = (r, pose) => { r.y = st.l.y - (K.GY + 1) * unit; r.face = dir; r.x = x0 - GX; if (pose) paintRider(r, pose); r.el.style.transition = 'none'; placeRider(r); void r.el.offsetWidth; r.el.style.transition = ''; };
     const drop = (r) => { r.el.remove(); const i = riders.indexOf(r); if (i >= 0) riders.splice(i, 1); };
     const fig = makeRider('figurine', K), g = makeRider('guen', K), mist = makeRider('guen-mist', K);   // back to front
+    guenShown = true;
     put(fig, 'F_FIG0'); put(g); put(mist);
     mist.el.style.opacity = .5;                              // in the pale of the phosphor, and thin: a mist, not a fire
     fig.el.style.opacity = 0; void fig.el.offsetWidth; fig.el.style.transition = 'opacity .5s'; fig.el.style.opacity = '';
@@ -4729,6 +5377,223 @@ window.CATDATA = {
     if (look) { setMode('sitting ' + where(C.ledge), true); yield* sitFor(sec(rand(3, 6))); }
   }
 
+  // ------------------------------------------------------------ a globe of darkness (FEATURES.drizzt)
+  // Say his name and a patch of the page goes black: a globe of darkness, the one place aboard where the dark is the point.
+  // It thins, and a drow ranger is standing where it was, his scimitars on his back. He draws them and stands a while,
+  // breathing, now and then looking about; then the dark comes back for him. If Guenhwyvar is out when he comes, or is
+  // called while he is here, she goes to him by her mist and sits at his feet, and either of them may leave first. Camille
+  // watches him as she watches the panther: from a distance, the whole time.
+  const DZ_REST = 600;                                       // seconds before he will come again
+  const DZ = { r: null, busy: false, gone: false, guen: false, want: '', still: null, globe: null };   // gone: he has left, the dark has not
+  const dzResting = () => Date.now() - (+T.store.get('drizzt', 0) || 0) < DZ_REST * 1000 / FAST;
+  const dzHere = () => !!(DZ.r || DZ.still);
+  // where he stands: as for her, but the dark around him must clear the top bar, and he keeps further from the cat
+  function dzStage() {
+    const up = 250 * unit, half = 120 * unit, t = viewTop(), lo = Math.max(SL, 0), hi = Math.min(SR, layerW);
+    const bar = $('.bar'), top = t + Math.max(0, bar ? bar.getBoundingClientRect().bottom : 0) + 4;
+    const seen = (l) => l.y - up >= top && l.y <= t + window.innerHeight - 4;
+    const stretch = (l) => {
+      let a = Math.max(l.x0, lo) + half, b = Math.min(l.x1 + W, hi) - half, cat = 0;
+      if (C.onstage && C.y < l.y && C.y + H > l.y - up) {
+        const c0 = C.x - 40 - half, c1 = C.x + W + 40 + half;
+        if (c1 > a && c0 < b) { if (c0 - a >= b - c1) { b = c0; cat = 1; } else { a = c1; cat = -1; } }
+      }
+      return { l, a, b, cat };
+    };
+    const order = (l) => (l.id === 'footer' ? 0 : l.id === 'prompt' ? 1 : 2);
+    const all = ledges.filter((l) => (l.kind === 'walk' || l.kind === 'prompt' || l.kind === 'perch') && seen(l)).map(stretch).filter((s) => s.b - s.a >= 0);
+    all.sort((p, q) => order(p.l) - order(q.l) || (q.b - q.a) - (p.b - p.a));
+    return all[0] || null;
+  }
+  // the dark itself: a soft round patch of black over the page, under the cat and anyone aboard. It gathers when made;
+  // lift() thins it away and takes it off the page
+  function darkness(cx, cy, d) {
+    const g = document.createElement('div'); g.className = 'dz-dark'; g.innerHTML = '<b></b><b></b><b></b><b></b><b></b>';
+    g.style.left = Math.round(cx - d / 2) + 'px'; g.style.top = Math.round(cy - d / 2) + 'px'; g.style.width = g.style.height = Math.round(d) + 'px';
+    layer.insertBefore(g, el);
+    DZ.globe = g; void g.offsetWidth; g.classList.add('on');
+    return g;
+  }
+  function lift(g) { if (!g) return; g.classList.add('thin'); setTimeout(() => { g.remove(); if (DZ.globe === g) DZ.globe = null; }, 2000); }
+  function* drizzt(K, carry) {
+    mark('drizzt'); T.store.set('drizzt', Date.now());
+    DZ.busy = true; DZ.gone = false;
+    setMode(C.mode);                                         // not resting: nothing may take the scene while the cat is out of sight
+    // Guenhwyvar and her figurine, if she was out: kept from the scene before, not swept off with it
+    carry = carry || []; carry.forEach((r) => riders.push(r));
+    let pg = carry.find((r) => r.kind === 'guen') || null;
+    const fig = carry.find((r) => r.kind === 'figurine');
+    if (pg) setLoop(pg, 'P_IDLE');
+    const off = (r) => { if (!r) return; r.el.remove(); const i = riders.indexOf(r); if (i >= 0) riders.splice(i, 1); };
+    const fade = (r, s) => { r.el.style.transition = 'transform 95ms linear, opacity ' + s + 's'; r.el.style.opacity = 0; };
+    // the cat, if she is about, keeps her eyes on him; t counts the ticks he has been here
+    let gx = 0, eyes = false, t = 0;
+    const watch = () => { if (!eyes || !C.onstage) return; const f = gx + sdx() > C.x + W / 2 ? 1 : -1; if (f !== C.face) { C.face = f; place(); } };
+    // after the first few seconds she settles: she sits, still facing him, and now and then gives him a look. Anything
+    // new (the panther, the dark coming back) puts her on the alert again for a while
+    let calmAt = 0, calm = false, glance = 0;
+    const settle = () => {
+      if (!eyes || !C.onstage || !calmAt || t < calmAt) return;
+      if (!calm) { calm = true; paint('SIT', true); setMode('keeping an eye on a drow'); glance = t + sec(rand(3, 6)); return; }
+      if (t < glance) return;
+      if (C.pose === 'SIT') { paint('SIT_LOOK', true); glance = t + sec(rand(1.2, 2.2)); } else { paint('SIT', true); glance = t + sec(rand(5, 9)); }
+    };
+    const alert = (s) => { if (!eyes || !C.onstage) return; paint('SIT_ALERT', true); calm = false; calmAt = s ? t + sec(s) : 0; };
+    function* held(n) { for (let i = 0; i < n; i++) { tickLoops(); watch(); settle(); t++; yield; } }
+    function* acted(gen) { for (;;) { const s = gen.next(); if (s.done) return; tickLoops(); watch(); settle(); t++; yield; } }
+    // frames in turn, so many ticks each
+    function* seq(r, frames, per) { r.loop = null; for (const f of frames) { paintRider(r, f); yield* held(per); } }
+    let ok = false; K.ready(() => { ok = true; });
+    // his sheets, the first time, and the page settled from any scroll it was in the middle of, and from the screen's
+    // power-on after standby (the page is drawn scaled while it plays, and no ledge is where it will be)
+    const sc = $('.screen'), powering = () => !!(sc && sc.getAnimations && sc.getAnimations().some((a) => a.playState === 'running' && a.effect && a.effect.getTiming().iterations !== Infinity));
+    for (let i = 0, y = -1, still = 0; i < 60 && !(ok && still > 2 && !powering()); i++) { still = viewTop() === y ? still + 1 : 0; y = viewTop(); tickLoops(); yield; }
+    // a few tries before giving up on where he is: the screen can start its power-on a moment after a wake
+    let st = null;
+    for (let i = 0; ok && i < 25; i++) { if (!powering()) { measure(); st = dzStage(); if (st) break; } tickLoops(); yield; }
+    if (ok && !st) {
+      $('#cmd').scrollIntoView({ block: 'center', behavior: 'smooth' });
+      for (let i = 0, y = -1, still = 0; i < 30 && still < 3; i++) { tickLoops(); yield; still = viewTop() === y ? still + 1 : 0; y = viewTop(); }
+      st = dzStage();
+      if (!st) { $('#cmd').scrollIntoView({ block: 'center', behavior: 'instant' }); st = dzStage(); }
+    }
+    if (!st) {
+      T.print(ok ? 'there is no room for him here. scroll to somewhere with a clear line and call again.' : 'the dark stays empty.', 'err');
+      T.store.set('drizzt', 0); DZ.want = '';
+      if (pg) { pg.loop = null; yield* acted(play(pg, 'P_VANISH')); off(pg); }
+      if (fig) { fade(fig, 1.2); yield* held(sec(1.3)); off(fig); }
+      DZ.busy = false; return;
+    }
+    setStage(st.l);
+    const room = st.b - st.a, ground = st.l.y;
+    gx = st.cat > 0 ? st.a + room * .3 : st.cat < 0 ? st.b - room * .3 : st.a + room * rand(.3, .7);
+    const face = gx > layerW / 2 ? -1 : 1;                  // toward the middle of the page
+    const seat = gx - face * 83 * unit;                      // where she sits with him: behind him, at his feet
+    const d = makeRider('drizzt', K); DZ.r = d;
+    d.face = face; d.x = gx - K.GX * unit; d.y = ground - (K.GY + 1) * unit;
+    d.el.style.opacity = 0; paintRider(d, 'D_REST0'); placeRider(d); setLoop(d, 'D_REST');
+    eyes = C.onstage && !!C.ledge && inView();
+    const near = () => Math.abs(gx - (C.x + W / 2)) < 260 * unit && Math.abs(C.y + H - ground) < 230 * unit;
+    // the dark gathers where he will stand, holds, and thins; and he is there
+    darkness(gx, ground - 106 * unit, 280 * unit);
+    if (eyes) { watch(); paint('SIT_ALERT', true); setMode('watching the dark'); }
+    yield* held(sec(1.9));
+    d.el.style.transition = 'transform 95ms linear, opacity 1.5s ease-in'; d.el.style.opacity = '';
+    lift(DZ.globe);
+    T.log('darkness', 'drizzt is aboard');
+    yield* held(sec(1.2));
+    if (eyes) { if (near()) { paint('HISS_A', true); say('hss', 900); } setMode('watching a drow'); }
+    if (fig) { fade(fig, 1.2); setTimeout(() => off(fig), 1300); }
+    yield* held(sec(1.4));
+    d.el.style.transition = '';
+    if (eyes && C.pose === 'HISS_A') paint('SIT_ALERT', true);
+    if (eyes) calmAt = t + sec(rand(6, 9));
+    if (pg) DZ.want = 'guen';
+    // a cycle that is about to start again: the moment to go into a move drawn from its first frame
+    function* first() { const l = d.loop; if (!l) return; const n = l.g.length * l.per; for (let i = 0; i < n && l.i % n !== l.per; i++) yield* held(1); }
+    // he draws his scimitars, once: soon if the cat is close, or when the panther comes, else after a few breaths
+    let drawn = false;
+    function* draw() { yield* first(); yield* acted(play(d, 'D_DRAW', 2)); setLoop(d, 'D_IDLE'); drawn = true; }
+    // With him she is drawn at the pair's scale, from his own sheets: the pair, him alone with a cut-out where she sits
+    // (D_UNDER) and her frames (G_*) share one cell, so her canvas goes at his origin, in front of him. Seated, the two
+    // canvases make exactly the pair's drawing, so it can be split into the two and joined again without a change.
+    // Her mist is the figurine's, at her seat; it hides the one change that is not exact, him from his stance alone to his
+    // stance beside her
+    let gp = null;
+    function pair(pose) { const r = makeRider('guen-pair', K); r.face = face; r.x = d.x; r.y = d.y; paintRider(r, pose); placeRider(r); return r; }
+    function* mist(K2, each) {
+      const m = makeRider('guen-mist', K2), fr = K2.group('F_MIST');
+      m.face = face; m.x = seat - K2.GX * unit; m.y = ground - (K2.GY + 1) * unit; m.el.style.opacity = .5; paintRider(m, fr[0]); placeRider(m);
+      for (let i = 0; i < fr.length * 2; i++) { paintRider(m, fr[Math.floor(i / 2)]); each(i); yield* held(1); }
+      off(m);
+    }
+    const APPEAR = K.group('G_APPEAR'), SIT = K.group('G_SIT');
+    function* comes() {
+      const K2 = window.GUEN(); let ready = false; K2.ready(() => { ready = true; });
+      for (let i = 0; !ready && i < sec(20); i++) yield* held(1);
+      if (!ready) return;
+      const was = !!pg;
+      if (pg) { pg.loop = null; yield* acted(play(pg, 'P_VANISH')); off(pg); pg = null; yield* held(sec(.4)); }   // she goes into the mist where she was
+      alert(5);
+      // out of the mist at his side, standing; she sits down; and the two are one drawing again
+      gp = pair(APPEAR[0]);
+      yield* mist(K2, (i) => {
+        if (i >= 4 && i < 4 + APPEAR.length * 2) paintRider(gp, APPEAR[Math.floor((i - 4) / 2)]);
+        if (i === 6) { d.loop = null; paintRider(d, 'D_UNDER0'); DZ.guen = true; if (!was) T.log('figurine', 'guenhwyvar is aboard'); }
+      });
+      yield* seq(gp, SIT.concat(['G_REST0']), 2);
+      off(gp); gp = null; setLoop(d, 'D_TOGETHER'); paintRider(d, 'D_TOGETHER0');
+    }
+    // the pair's drawing back into the two of them, at the start of its breath
+    function* split() { yield* first(); d.loop = null; paintRider(d, 'D_UNDER0'); gp = pair('G_REST0'); setLoop(gp, 'G_REST'); }
+    // she gets up, and goes back into the mist
+    function* away(swap) {
+      yield* seq(gp, SIT.slice().reverse().concat([APPEAR[APPEAR.length - 1]]), 2);
+      const back = APPEAR.slice().reverse();
+      yield* mist(window.GUEN(), (i) => { if (i >= 2 && i < 2 + back.length * 2) paintRider(gp, back[Math.floor((i - 2) / 2)]); if (i === 6 && swap) swap(); });
+      off(gp); gp = null; DZ.guen = false;
+    }
+    // a move out of a loop and back to the start of it: the look turns his head to you and back, the greeting is his
+    // hand on her head
+    function* turn(frames, hold, loop) {
+      yield* first(); d.loop = null;
+      for (let i = 0; i < frames.length; i++) { paintRider(d, frames[i]); yield* held(i === hold ? sec(1.2) : 2); }
+      setLoop(d, loop);
+    }
+    const look = () => turn(['D_LOOK0', 'D_LOOK1', 'D_LOOK2', 'D_LOOK1', 'D_LOOK0'], 2, 'D_IDLE');
+    const greet = () => turn(['D_GREET0', 'D_GREET1', 'D_GREET2', 'D_GREET3', 'D_GREET1', 'D_GREET0'], 3, 'D_TOGETHER');
+    let stay = t + sec(rand(38, 52)), drawAt = t + sec(eyes && near() ? 1 : rand(3.5, 6)), lookAt = 0, parting = 0, greetAt = 0, greets = 0;
+    for (;;) {
+      const w = DZ.want; DZ.want = '';
+      if (w === 'leave') break;
+      if (!drawn && (t >= drawAt || w === 'guen')) { if (w) DZ.want = w; yield* draw(); lookAt = t + sec(rand(3, 6)); continue; }
+      if (w === 'guen' && !DZ.guen) { yield* comes(); parting = t + sec(rand(14, 22)); stay = Math.max(stay, parting + sec(4)); greetAt = t + sec(rand(2.5, 5)); greets = 0; continue; }
+      if (DZ.guen && greets < 2 && t >= greetAt && t < parting - sec(3)) { yield* greet(); greets++; greetAt = t + sec(rand(6, 9)); continue; }
+      if (DZ.guen && (w === 'guenLeave' || t >= parting)) {
+        if (w !== 'guenLeave' && Math.random() < .5) break;                       // he goes first, and she stays a moment
+        yield* split(); yield* held(sec(.8));
+        yield* away(() => setLoop(d, 'D_IDLE'));
+        stay = Math.max(stay, t + sec(rand(6, 10))); lookAt = Math.max(lookAt, t + sec(2.5)); continue;
+      }
+      if (!DZ.guen && t >= stay) break;
+      if (drawn && !DZ.guen && t >= lookAt) { yield* look(); lookAt = t + sec(rand(9, 15)); continue; }
+      yield* held(1);
+    }
+    // the dark comes back for him. Alone, he sheathes his blades first and stands a breath at rest. If she is with him
+    // the pair is split into the two of them and she stays where she sat, for a moment, and then goes too
+    const withHer = DZ.guen;
+    if (withHer) yield* split();
+    else if (drawn) { yield* first(); yield* seq(d, K.group('D_SHEATHE'), 2); setLoop(d, 'D_REST'); yield* held(sec(1.2)); }
+    calmAt = 0; alert(0); if (eyes && C.onstage) setMode('watching the dark');
+    darkness(gx + sdx(), ground + sdy() - 106 * unit, 280 * unit);
+    yield* held(sec(1.3));
+    fade(d, 1.3);
+    yield* held(sec(1.4));
+    off(d); DZ.r = null; DZ.gone = true; T.log('darkness', 'drizzt has gone');
+    lift(DZ.globe);
+    yield* held(sec(1.8));
+    if (gp) {
+      if (eyes && C.onstage) setMode('watching a panther');
+      yield* held(sec(2.4));
+      yield* away(null);
+    }
+    DZ.busy = false; setStage(null);
+    const look2 = eyes && C.onstage && C.ledge;
+    if (look2) { paint('SIT_LOOK', true); say('?', 1200); }
+    // called for while he was going: she comes on her own, the usual way
+    if (DZ.want === 'guen') { DZ.want = ''; yield* guenhwyvar(window.GUEN()); return; }
+    if (look2) { setMode('sitting ' + where(C.ledge), true); yield* sitFor(sec(rand(3, 6))); }
+  }
+  // the panther, if she is out, goes along into his scene rather than off the page with the last one
+  function dzCall(K, wantGuen) {
+    const carry = riders.filter((r) => r.kind === 'guen' || r.kind === 'figurine');
+    carry.forEach((r) => riders.splice(riders.indexOf(r), 1));
+    // she was called but is not out yet (her sheets still coming): she comes to him instead, rather than not at all
+    if (cur && cur.guen && !guenShown) wantGuen = true;
+    take(drizzt(K, carry));
+    if (wantGuen) DZ.want = 'guen';
+  }
+
   // ------------------------------------------------------------ interruptions
   // Whatever she was in the middle of, the page is left as it should be.
   const fallen = [];           // letters she has taken hold of, each with the timer that puts it back
@@ -4751,7 +5616,9 @@ window.CATDATA = {
     spots.sort((a, b) => far(a) - far(b));
     const l = spots[0]; C.ledge = l; C.x = clamp(C.x, l.x0, l.x1); C.y = topOf(l); setU(); paint('SIT'); place();
   }
+  const settleHooks = [];      // the features that leave something on the page while she is busy put it back from here
   function settle() {
+    settleHooks.forEach((f) => f());
     trail.length = 0; ghosts.forEach((g) => { g.dataset.pose = ''; g.style.visibility = 'hidden'; });
     el.classList.remove('hiss', 'up'); el.style.opacity = ''; hush(); closePortals(); dropRiders();
     if (T.helix) { T.helix.slow = false; T.helix.held = -1; }
@@ -4765,6 +5632,7 @@ window.CATDATA = {
   // with motion off she does not move at all: she is simply there, at the end of the footer
   function park() {
     settle(); measure(); cur = null;
+    if (offsite) { hide(); return; }                 // she is in another tab
     const l = ledges.find((k) => k.id === 'footer');
     if (!l) { hide(); return; }
     C.ledge = l; C.x = l.x1 - 8 * cw; C.y = topOf(l); C.face = 1; setU(); paint('LOAF_LOOK', true); show(); el.classList.remove('ghost');
@@ -4911,7 +5779,7 @@ window.CATDATA = {
     if (C.annoy < 3 && cool('box', 150) && ledges.some((l) => l.kind === 'box' && vis(l))) opts.push([4, box]);
     if (T.blipA && cool('blipa', 900) && Math.random() < .15) { mark('blipa'); T.blipA(); }
     if (T.hk47 && cool('hk47', 1500) && Math.random() < .04) { mark('hk47'); T.hk47(false); }
-    if (T.helix && !T.helix.rep && cool('climb', 150) && rectVisible(rel(T.helix.el.getBoundingClientRect()))) opts.push([4, climb]);
+    if (T.helix && !T.helix.rep && !keepOffX && cool('climb', 150) && rectVisible(rel(T.helix.el.getBoundingClientRect()))) opts.push([4, climb]);
     if (C.onstage && C.ledge && cool('portal', 200)) opts.push([3, portal]);
     if (T.toy && T.toy.balanced() && cool('meddle', 240) && rectVisible(rel(T.toy.canvas.getBoundingClientRect()))) opts.push([2, meddle]);
     if (C.onstage && inView()) {
@@ -4927,7 +5795,9 @@ window.CATDATA = {
   }
 
   function tick() {
+    if (T.FEATURES.catwarm) stargaze(!!(T.standby && T.standby.on && T.standby.mode === 'standby' && enabled && !offsite && T.motion));
     if (!enabled || (T.standby && T.standby.on)) return;     // she holds still while the ship is in standby
+    if (offsite) { if (C.onstage) hide(); return; }          // another tab has her
     C.annoy = Math.max(0, C.annoy - (TICK / 1000 * FAST) / 15);
     let r;
     try { if (!cur) cur = director(); r = cur.next(); } catch (e) { console.error('camille:', e); cur = null; settle(); hide(); return; }
@@ -4959,11 +5829,12 @@ window.CATDATA = {
   // ------------------------------------------------------------ shell
   const P = T.print;
   const mood = () => (C.annoy >= 4 ? 'furious' : C.annoy >= 3 ? 'annoyed' : C.annoy >= 1.5 ? 'wary' : C.asleep ? 'asleep' : C.mode === 'zoomies' ? 'unhinged' : 'content');
-  T.catStatus = () => 'Camille · ' + (C.onstage ? C.mode : 'elsewhere') + ' · energy ' + Math.round(C.energy) + ' %';
+  T.catStatus = () => 'Camille · ' + (C.onstage ? C.mode : offsite === 'other' ? 'in another terminal' : 'elsewhere') + ' · energy ' + Math.round(C.energy) + ' %';
   // the manifest: who is aboard right now. Visitors through a portal count, and so do the ones nobody invited
   T.crew = () => {
     const guests = riders.some((r) => r.kind === 'ciri' || r.kind === 'girl') ? 1 : 0, hunt = riders.filter(hostile).length;
-    return '1 human · 1 cat' + (guenHere() ? ' · 1 panther' : '') + (guests ? ' · ' + guests + ' visitor' : '') + (hunt ? ' · ' + hunt + ' UNINVITED' : '');
+    const terms = T.terminals ? T.terminals() : 1;
+    return '1 human · 1 cat' + (terms > 1 ? ' · ' + terms + ' terminals' : '') + (guenHere() ? ' · 1 panther' : '') + (dzHere() ? ' · 1 ranger' : '') + (guests ? ' · ' + guests + ' visitor' : '') + (hunt ? ' · ' + hunt + ' UNINVITED' : '');
   };
   // a draft beside the real thing: Camille as a sprite from the kit, or her traced outline
   const fileCat = T.COMMANDS.cat;
@@ -4979,6 +5850,7 @@ window.CATDATA = {
     P('  yam ................ human · at the keyboard, presumably');
     P('  camille ............ cat · ' + (C.onstage ? C.mode : 'elsewhere'));
     if (guenHere()) P('  guenhwyvar ......... panther · from the onyx figurine · ignoring the cat');
+    if (dzHere()) P('  drizzt ............. drow ranger · out of the dark · ' + (DZ.guen ? 'the panther at his feet' : 'watching the cat watch him'));
     P('  t3-m4 .............. utility droid · ' + (T.t3Busy ? 'at the CO2 monitor' : 'standing by'));
     if (T.hkSeen) P('  hk-47 .............. assassin droid · ' + (T.hkHere && T.hkHere() ? 'on the tracker · friendly (probably)' : 'somewhere aboard'));
     if (guests) P('  ciri ............... visitor · wrong world · armed');
@@ -5007,6 +5879,7 @@ window.CATDATA = {
     if (Date.now() - C.fedAt < 600000 / FAST) { P('Camille is full.'); return; }
     C.fed++; C.fedAt = Date.now(); C.energy = Math.min(99, C.energy + 25); C.annoy = Math.max(0, C.annoy - 1); C.awayUntil = 0; save();
     P('you put down a bowl. Camille is on her way.');
+    if (offsite === 'other' && T.catCall) { T.catCall(); return; }
     if (T.motion) take((function* () {
       T.openTerm(false); measure(); const l = ledges.find((k) => k.id === 'prompt'); if (!l) return;
       setMode('running to dinner');
@@ -5018,6 +5891,7 @@ window.CATDATA = {
   };
   T.COMMANDS.pspsps = function () {
     if (Math.random() < .3) { P('Camille heard you. Camille does not care.'); return; }
+    if (offsite === 'other' && T.catCall) { T.catCall(); P('... (she is in another terminal)'); return; }
     C.awayUntil = 0;
     P('...');
     if (T.motion) take((function* () {
@@ -5041,7 +5915,9 @@ window.CATDATA = {
     if (guenResting()) { P('the figurine is cold. Guenhwyvar is resting on the Astral Plane.', 'err'); return; }
     const K = window.GUEN();
     P('you set the onyx figurine down and say her name. grey mist, and a black panther.');
-    if (T.motion) { T.openTerm(false); take(guenhwyvar(K)); return; }
+    // Drizzt is here (FEATURES.drizzt): she goes to him, and his scene takes her in
+    if (DZ.busy && T.motion) { T.store.set('guen', Date.now()); DZ.want = 'guen'; return; }
+    if (T.motion) { T.openTerm(false); const run = guenhwyvar(K); run.guen = true; take(run); return; }
     // with motion off she is simply there, in the log, for as long as you like
     T.store.set('guen', Date.now());
     K.ready(() => {
@@ -5053,6 +5929,29 @@ window.CATDATA = {
       const log = $('#log'); log.appendChild(pic); P('Guenhwyvar sits by the prompt, the figurine at her feet, looking past the cat.');
     });
   };
+  // Drizzt. Not in help: his name turns up in cat scimitars.txt, as hers does in onyx.txt
+  if (T.FEATURES.drizzt) {
+    settleHooks.push(() => { $$('.dz-dark', layer).forEach((g) => g.remove()); Object.assign(DZ, { r: null, busy: false, guen: false, want: '', globe: null }); });
+    T.FILES['scimitars.txt'] = () => 'Two scimitars in a worn baldric, left by the airlock. Neither of them is ours.\nA name is scratched into one hilt: drizzt';
+    T.COMMANDS.drizzt = T.COMMANDS.drow = function () {
+      if (dzHere() || (DZ.busy && !DZ.gone)) { P('Drizzt is already here.'); return; }
+      if (DZ.busy || dzResting()) { P('the dark stays empty. the ranger is somewhere on the surface.', 'err'); return; }
+      const K = window.DRIZZT();
+      P('you say his name to the dark, and the dark answers.');
+      if (T.motion) { T.openTerm(false); dzCall(K); return; }
+      // with motion off he is simply there, in the log, for a while
+      T.store.set('drizzt', Date.now()); DZ.still = true;
+      K.ready(() => {
+        const pic = document.createElement('canvas'), k = 2 * Math.min(3, window.devicePixelRatio || 1);
+        pic.width = K.BW * k; pic.height = K.BH * k; pic.style.width = K.BW * .9 + 'px'; pic.style.maxWidth = '100%';
+        K.draw(pic.getContext('2d'), 'D_IDLE0', k, COL);
+        pic.setAttribute('aria-hidden', 'true'); pic.className = 'drizzt';
+        $('#log').appendChild(pic); P('Drizzt stands by the prompt, scimitars drawn, watching the cat watch him.');
+        DZ.still = pic; T.log('darkness', 'drizzt is aboard');
+        setTimeout(() => { if (DZ.still !== pic) return; pic.remove(); DZ.still = null; T.log('darkness', 'drizzt has gone'); }, 45000 / FAST);
+      });
+    };
+  }
   // HK-47 on the motion tracker. Not in help. On a screen too narrow for the tracker, or with motion off, the log reads him out
   T.COMMANDS.hk47 = T.COMMANDS['hk-47'] = T.COMMANDS.hk = function () {
     if (T.hkHere && T.hkHere()) { P('tracker: he is on it already.'); return; }
@@ -5142,6 +6041,343 @@ window.CATDATA = {
     P('Camille leaves, slowly, to make a point.');
     if (C.onstage && T.motion) take((function* () { yield* exit(1); C.awayUntil = now() + 60000 / FAST; })());
   };
+
+  // what the rest of the ship may ask about her: is she near this (a rect in the window's terms), is she climbing, and keep
+  // clear of the margin left of this x while something happens there
+  T.cat = {
+    near: (r) => { if (!C.onstage) return false; const b = canvas.getBoundingClientRect(); return b.right > r.left && b.left < r.right && b.bottom > r.top && b.top < r.bottom; },
+    climbing: () => el.classList.contains('up') || /helix/.test(C.mode),
+    keepOff: (x) => { keepOffX = +x || 0; queueMeasure(); },
+  };
+
+  // ------------------------------------------------------------ free to be called away
+  // settled somewhere and not in the middle of anything: no visitors through a portal, no cursor hunt, not asleep
+  const free = () => !!(enabled && T.motion && C.onstage && C.rest && !C.asleep && !C.blocking && !C.onPrompt && !C.boxed && !riders.length && !guenHere() && !T.cursorBusy());
+  // the middle of her, in the layer's terms
+  const middle = () => ({ x: C.x + W / 2, y: C.y + H * .6 });
+
+  // ------------------------------------------------------------ a bug in the system (FEATURES.bughunt)
+  // A small bug comes out at one corner of a screen and crawls along its top edge. If the cat is settled near enough she
+  // sees it, stalks it and pounces, and it is gone. If not, it walks off the far edge on its own. One line in the log either way
+  if (T.FEATURES.bughunt) (function () {
+    // two frames of legs, facing right: b body, h head, d legs and feelers. A pixel is two of the page's
+    const ART = { a: ['.....d.d', '..bbbbd.', '.bbbbbhh', 'bbbbbbhh', '.d.d.d..', 'd.d.d...'],
+      b: ['.....d.d', '..bbbbd.', '.bbbbbhh', 'bbbbbbhh', 'd.d.d...', '.d.d.d..'],
+      pop: ['d.....d.', '..d.d...', '...h....', '..d.d...', 'd.....d.', '........'] };
+    const PX = 2, BW = 8 * PX, BH = 6 * PX, LINGER = 40000;   // how long it will pace a screen waiting for the cat, ms
+    let bug = null, item = null;
+    function paintBug(b, frame) {
+      if (b.frame === frame) return;
+      b.frame = frame;
+      const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim(), ink = { b: v('--fg'), h: v('--hi'), d: v('--dim') };
+      const r = Math.min(3, window.devicePixelRatio || 1), g = b.cv.getContext('2d');
+      g.setTransform(r, 0, 0, r, 0, 0); g.clearRect(0, 0, BW, BH);
+      ART[frame].forEach((row, y) => Array.from(row).forEach((ch, x) => {
+        if (!ink[ch]) return;
+        g.fillStyle = ink[ch]; g.fillRect((b.dir > 0 ? x : 7 - x) * PX, y * PX, PX, PX);
+      }));
+    }
+    function placeBug(b) {
+      b.el.style.transform = 'translate(' + Math.round(b.x) + 'px,' + Math.round(b.y - BH + 1) + 'px)';
+      // past the edge of its screen it is cut off, the way the cat is at a portal
+      const over = b.dir > 0 ? b.x + BW - b.right : b.left - b.x;
+      b.el.style.clipPath = over > 0 ? (b.dir > 0 ? 'inset(0 ' + Math.min(BW, over) + 'px 0 0)' : 'inset(0 0 0 ' + Math.min(BW, over) + 'px)') : '';
+    }
+    function remove(b, why) {
+      if (b.gone) return;
+      b.gone = why || 'gone';
+      if (item) item.on = false;
+      const out = () => { b.el.remove(); if (bug === b) bug = null; };
+      if (why === 'caught') { paintBug(b, 'pop'); setTimeout(out, 260); } else out();
+      if (why === 'caught') T.log('cat', 'bug removed, screen ' + b.n);
+      else if (why === 'off') T.log('screen ' + b.n, 'a bug crossed it and left');
+      b.done();
+    }
+    // the bug's own clock: twelve steps a second, about thirty pixels a second, with stops
+    function step() {
+      const b = bug;
+      if (!b || b.gone) return;
+      const t = performance.now();
+      // something else took her off the hunt: the bug is nobody's again, and stays only a little longer
+      if (b.hunted && C.mode !== 'stalking a bug') { b.hunted = false; b.hold = false; b.force = false; b.t0 = Math.min(b.t0, t - LINGER + 8000); }
+      if (b.hold || t < b.pauseUntil) { paintBug(b, 'a'); return; }
+      if (Math.random() < 1 / 40) { b.pauseUntil = t + T.rand(400, 1100); return; }
+      // a cat is rarely free the moment a bug turns up: while there is one about who has not come yet, it paces the edge
+      // instead of leaving, and once she is after it, it stays until she has it
+      const about = !!(enabled && C.onstage && T.motion && !C.asleep);
+      if ((b.hunted || (about && t - b.t0 < LINGER)) && ((b.dir > 0 && b.x + BW >= b.right) || (b.dir < 0 && b.x <= b.left))) { b.dir = -b.dir; b.frame = ''; }
+      b.x += b.dir * 2.4; b.k++;
+      paintBug(b, b.k % 4 < 2 ? 'a' : 'b'); placeBug(b);
+      // she is asked every step, not once: wherever she is on the page, she comes as soon as she has nothing better to do
+      if (!b.hunted && t - b.t0 > b.notice && (b.force ? about : free())) { b.hunted = true; take(hunt(b)); }
+      if ((b.dir > 0 && b.x > b.right) || (b.dir < 0 && b.x + BW < b.left)) remove(b, 'off');
+    }
+    function* hunt(b) {
+      // what she is doing goes in the cat's state but not in the log: the bug's end is this event's one line
+      C.mode = 'stalking a bug'; C.rest = false;
+      const line = { key: 'line@bug', id: 'line', kind: 'line', x0: -1e5, x1: 1e5, y: b.y, label: 'a screen' };
+      const paw = () => (C.face > 0 ? W * .74 : W * .26);   // her front paws, from the left of her box
+      // she comes at a run, and the bug has moved on by the time she is there, so she closes in until she is beside it
+      for (let tries = 0; tries < 4 && !b.gone; tries++) {
+        const side = middle().x < b.x + BW / 2 ? -1 : 1, x = b.x + BW / 2 + side * 78 * unit - W / 2;
+        if (tries && Math.abs(x - C.x) < 40 * unit) break;
+        yield* goTo(line, x, tries ? 2 : 3);
+      }
+      if (b.gone) { paint('SIT_LOOK'); say('?', 1200); C.mode = 'sitting on a screen'; C.rest = true; yield* sitFor(sec(3)); return; }
+      C.face = b.x + BW / 2 > middle().x ? 1 : -1; place();
+      for (let i = 0; i < sec(1.3) && !b.gone; i++) { paint(Math.floor(i / 2) % 2 ? 'STALK_B' : 'STALK_A'); yield; }
+      if (b.gone) return;
+      // it stops dead, the way they do, and she goes
+      b.hold = true;
+      C.face = b.x + BW / 2 > middle().x ? 1 : -1;
+      yield* hopTo(line, b.x + BW / 2 - paw());
+      if (!b.gone) { remove(b, 'caught'); paint('SWAT_B'); say('mrrp.', 1400); yield* wait(sec(.6)); }
+      C.mode = 'sitting on a screen'; C.rest = true;
+      paint('SIT_LOOK'); yield* wait(sec(1.5));
+      yield* sitFor(sec(rand(3, 6)));
+    }
+    const SCREENS = () => $$('.card:not([hidden]), .panel, #term, #tracker');
+    function start(done, o) {
+      if (bug) return false;
+      const top = $('.bar') && window.innerWidth > 760 ? $('.bar').getBoundingClientRect().bottom + 10 : 10;
+      // a screen whose top edge is well in view (the bug only walks the top edge, and a card is taller than a phone), wide enough to cross, and not one the visitor has the pointer on
+      let opts = $$('.card:not([hidden]), .panel').filter((s) => {
+        if (!s.getClientRects().length || s.closest('#standby')) return false;
+        const r = s.getBoundingClientRect();
+        return r.width >= 180 && r.top >= top && r.top <= window.innerHeight - 140 && !(pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom);
+      });
+      if (!opts.length) return false;
+      const want = !!(enabled && C.onstage && T.motion);
+      if (want) {
+        // with the cat about, mostly a screen near her
+        const m = middle(), d = (s) => { const r = rel(s.getBoundingClientRect()); return Math.hypot(r.x + r.w / 2 - m.x, r.y - m.y); };
+        opts.sort((a, b) => d(a) - d(b));
+        if (o.hunt || Math.random() < .7) opts = opts.slice(0, 2);
+      }
+      const s = pick(opts), r = rel(s.getBoundingClientRect()), dir = Math.random() < .5 ? 1 : -1;
+      const el = document.createElement('div'), cv = document.createElement('canvas'), k = Math.min(3, window.devicePixelRatio || 1);
+      el.className = 'bug'; cv.width = BW * k; cv.height = BH * k; cv.style.width = BW + 'px'; cv.style.height = BH + 'px';
+      el.appendChild(cv); layer.appendChild(el);
+      bug = { el, cv, dir, screen: s, left: r.x + 2, right: r.r - 2, y: r.y, x: dir > 0 ? r.x + 6 : r.r - 6 - BW, k: 0, t0: performance.now(), pauseUntil: 0,
+        notice: (o.hunt ? 800 : T.rand(1400, 2600)), want, force: !!o.hunt, n: SCREENS().indexOf(s) + 1, done, frame: '' };
+      paintBug(bug, 'a'); placeBug(bug);
+      if (!item) item = T.Anim.add(null, step, 12);
+      item.on = true; T.Anim.wake();
+      const b = bug;
+      return () => remove(b, 'stopped');
+    }
+    T.events.add('bughunt', { every: 480, weight: 3, max: 100000, start,
+      // the cat is not needed: without her the bug walks off. Not with motion off, when there is nobody to see it walk
+      can: () => !bug && !(T.standby && T.standby.on) });
+    // the page changing shape under it (a section opening above, a window resized): it goes with its screen, and is only
+    // gone if the screen is. The cat drops what she is doing when the page moves, and comes for it again from where she lands
+    window.addEventListener('resize', () => {
+      if (!bug || bug.gone) return;
+      if (!bug.screen.getClientRects().length) { remove(bug, 'stopped'); return; }
+      const r = rel(bug.screen.getBoundingClientRect()), dx = r.x + 2 - bug.left;
+      if (Math.abs(r.y - bug.y) <= 1 && Math.abs(dx) <= 1 && Math.abs(r.r - 2 - bug.right) <= 1) return;
+      bug.left = r.x + 2; bug.right = r.r - 2; bug.y = r.y;
+      bug.x = Math.max(bug.left, Math.min(bug.right - BW, bug.x + dx));
+      placeBug(bug);
+    });
+    T.onTheme(() => { if (bug) { const f = bug.frame; bug.frame = ''; paintBug(bug, f); } });
+  })();
+
+  // ------------------------------------------------------------ two terminals (FEATURES.twotabs)
+  // Tabs of the page open in one browser hear each other on a BroadcastChannel: each says hello, answers the hellos it
+  // hears, says something every twenty seconds and goodbye when it closes. The log notes a terminal logging in and out, and
+  // the crew counts them. Only one tab has the cat. Now and then she walks off the edge of her window and into another,
+  // a tab on the screen rather than one put away; if it does not answer she comes back. When the tab she is in closes,
+  // the tab longest open (one on the screen first) takes her in. Should two ever both have her, the older one keeps her
+  if (offsite) (function () {
+    const ch = new BroadcastChannel('yamir-1138-terminals'), me = Math.random().toString(36).slice(2, 10);
+    let born = Date.now();
+    const peers = new Map();          // id: { born, seen, vis, cat }
+    const older = (a, b) => a.born < b.born || (a.born === b.born && a.id < b.id);
+    let shut = false;                 // after goodbye, nothing more is said until the page is shown again
+    const send = (type, o) => { if (shut) return; try { ch.postMessage(Object.assign({ type, id: me, born, vis: !document.hidden, cat: !offsite }, o)); } catch (e) {} };
+    T.terminals = () => peers.size + 1;
+    T.catAway = () => offsite === 'other';
+    function note(m) {
+      const known = peers.has(m.id);
+      peers.set(m.id, { id: m.id, born: m.born, seen: Date.now(), vis: !!m.vis, cat: !!m.cat });
+      if (!known) T.log('termlink', 'another terminal logged in · ' + T.terminals() + ' open');
+      // two cats: the younger tab lets hers go
+      if (m.cat && !offsite && older({ id: m.id, born: m.born }, { id: me, born })) { offsite = 'other'; settle(); hide(); cur = null; if (handing) { clearTimeout(handing.timer); handing = null; } }
+    }
+    function gone(id) {
+      const p = peers.get(id);
+      if (!p) return;
+      peers.delete(id);
+      T.log('termlink', 'a terminal logged out · ' + T.terminals() + ' open');
+      if (p.cat) adopt();
+    }
+    // nobody has her: of the tabs left, one on the screen takes her, the oldest of those; the others wait to hear
+    function adopt() {
+      if (!offsite || [...peers.values()].some((p) => p.cat)) return;
+      const all = [...peers.values()].concat([{ id: me, born, vis: !document.hidden }]);
+      const pool = all.some((p) => p.vis) ? all.filter((p) => p.vis) : all;
+      const first = pool.reduce((a, b) => (older(a, b) ? a : b));
+      if (first.id === me) arrive(Math.random() < .5 ? -1 : 1, null);
+    }
+    // she arrives in this tab, from the side she left the other by: out of its right edge, in at this one's left
+    function arrive(side, m) {
+      own();
+      if (m && typeof m.energy === 'number') { C.energy = clamp(m.energy, 0, 100); C.annoy = Math.max(0, +m.annoy || 0); }
+      C.awayUntil = 0; send('beat');
+      if (!T.motion) { park(); return; }
+      take((function* () {
+        measure();
+        const l = pick(perches()) || ledges.find((k) => k.id === 'footer' && vis(k));
+        if (!l) return;
+        C.mode = 'arriving'; C.rest = false;
+        yield* fromEdge(l, side);
+        if (m) T.log('cat', 'came in from another terminal');
+        C.mode = 'sitting ' + where(l); C.rest = true;
+        paint('SIT_LOOK'); yield* wait(sec(1.5)); yield* sitFor(sec(rand(4, 8)));
+      })());
+    }
+    // in at the very edge of the window, not the edge of the stage, and a trot if it is a long way in
+    function* fromEdge(l, side) {
+      appear(l, side); C.x = side < 0 ? -W - 4 : layerW + 4; place();
+      const x = restX(l);
+      yield* walkTo(x, Math.abs(x - C.x) > 480 ? 2 : 1);
+    }
+    // she goes: to the nearer edge of the window and off it, and the other tab is told to expect her
+    let handing = null;
+    function* crossOut(to, done) {
+      C.mode = 'heading for another terminal'; C.rest = false;
+      const side = middle().x < layerW / 2 ? -1 : 1, x = side < 0 ? -W - 6 : layerW + 6;
+      yield* walkTo(x, Math.abs(x - C.x) > 480 ? 2 : 1);
+      yield* vanish();
+      offsite = 'other';
+      const p = peers.get(to);
+      if (!p) { back(side, done, false); return; }
+      handing = { to, side, done, timer: setTimeout(() => back(side, done, true), 3000) };
+      send('give', { to, side, energy: Math.round(C.energy), annoy: C.annoy });
+    }
+    // nobody took her: she comes back the way she went
+    function back(side, done, said) {
+      handing = null;
+      if (said) T.log('cat', 'came back. the other terminal did not answer');
+      offsite = false; C.awayUntil = 0;
+      if (T.motion) take((function* () { measure(); const l = pick(perches()) || ledges.find((k) => k.id === 'footer'); C.mode = 'coming back'; C.rest = false; if (l) { yield* fromEdge(l, side); C.mode = 'sitting ' + where(l); C.rest = true; yield* sitFor(sec(4)); } })());
+      else park();
+      if (done) done();
+    }
+    ch.onmessage = (e) => {
+      const m = e.data;
+      if (!m || typeof m !== 'object' || m.id === me || typeof m.id !== 'string') return;
+      if (m.type === 'bye') { const p = peers.get(m.id); if (p) p.cat = !!m.cat; gone(m.id); return; }
+      note(m);
+      if (m.type === 'hello') send('here');
+      else if (m.type === 'give' && m.to === me) {
+        if (offsite === 'other') { send('took', { to: m.id }); arrive(-(+m.side || 1), m); }
+      } else if (m.type === 'took' && m.to === me && handing && handing.to === m.id) {
+        clearTimeout(handing.timer); const d = handing.done; handing = null;
+        T.log('cat', 'went to another terminal'); if (d) d();
+      } else if (m.type === 'call' && !offsite && !handing && T.events.crossing && !T.events.busy && enabled && T.motion && C.onstage && !riders.length && !guenHere()) T.events.crossing({ to: m.id });
+    };
+    T.catCall = () => send('call');
+    // the first word: who else is here, and does anyone have the cat
+    function hello() {
+      offsite = 'pending'; born = born || Date.now(); send('hello');
+      setTimeout(() => {
+        if (offsite !== 'pending') return;
+        if ([...peers.values()].some((p) => p.cat)) { offsite = 'other'; return; }
+        own(); send('beat');      // nobody has her: here she is
+      }, 700);
+    }
+    hello();
+    // a word every twenty seconds; a tab silent for over two minutes has gone without saying so
+    setInterval(() => {
+      send('beat');
+      const t = Date.now();
+      peers.forEach((p, id) => { if (t - p.seen > 130000) gone(id); });
+    }, 20000);
+    document.addEventListener('visibilitychange', () => send('beat'));
+    // closing, or going into the back-forward cache: goodbye, and she is left for the others to take in
+    window.addEventListener('pagehide', () => { send('bye'); shut = true; if (!offsite) { settle(); hide(); cur = null; } offsite = 'pending'; peers.clear(); });
+    window.addEventListener('pageshow', (e) => { if (e.persisted) { shut = false; born = Date.now(); hello(); } });
+    // the crossing is one of the events: rare, and only from a tab on the screen with the cat settled in it
+    const target = (o) => {
+      if (o && o.to) return peers.has(o.to) ? o.to : null;
+      const shown = [...peers.values()].filter((p) => p.vis);
+      if (shown.length) return pick(shown).id;
+      return peers.size && Math.random() < .2 ? pick([...peers.keys()]) : null;   // a tab put away, once in a while
+    };
+    T.events.add('crossing', { every: 360, weight: 2, max: 40000,
+      can: (o) => !offsite && !handing && peers.size > 0 && (o.force ? enabled && T.motion && C.onstage : free()),
+      // stopped on her way out (standby, the tab put away), she simply stays; once the other tab is asked, it plays out
+      start(done, o) { const to = target(o); if (!to) return false; take(crossOut(to, done)); return null; } });
+  })();
+
+  // ------------------------------------------------------------ the cat on the keyboard (FEATURES.catkeys)
+  // Rarely, with the terminal open, nobody at it and its prompt empty, she walks along the prompt line and what her paws
+  // press comes up in it: jjjkkk;; and the like. She looks round at it, and it is wiped. Nothing is ever entered. Any key
+  // from the visitor, a click on the prompt or a change of focus stops it at once and takes her letters away first
+  if (T.FEATURES.catkeys) (function () {
+    const input = $('#cmd'), term = $('#term'), ROWS = ['qwertyuiop', 'asdfghjkl;', 'zxcvbnm,./'];
+    let run = null;
+    // her letters go, and only hers: if the prompt holds anything else, it is the visitor's and stays
+    function clear() { if (run && input.value === run.typed) input.value = ''; }
+    function abort() {
+      if (!run) return;
+      const r = run; clear(); run = null;
+      listen(false);
+      if (r.done) r.done();
+    }
+    const real = (e) => { if (e.isTrusted) abort(); };
+    function listen(on) {
+      const f = on ? 'addEventListener' : 'removeEventListener';
+      ['keydown', 'focusin', 'focusout', 'paste'].forEach((k) => window[f](k, real, true));
+      input[f]('pointerdown', real, true); term[f]('toggle', abort);
+    }
+    settleHooks.push(abort);       // whatever takes her off the prompt takes her letters with it
+    const quiet = () => term.open && !input.value && document.activeElement !== input && idleSeconds() > 12;
+    function* keys(done) {
+      measure();
+      const l = ledges.find((k) => k.id === 'prompt');
+      if (!l || !quiet()) { if (done) done(); return; }
+      run = { typed: '', done }; listen(true);
+      const mine = run;
+      C.mode = 'crossing the keyboard'; C.rest = false;
+      yield* goTo(l, l.x0 - W * .2);
+      if (run !== mine || input.value !== run.typed) return;
+      // across, one step a tick; now and then a paw comes down, often more than once on the same key
+      let i = 0, key = '', left = 0;
+      const span = Math.max(1, l.x1 - (l.x0 - W * .2)), end = l.x0 + span * T.rand(.55, .8);
+      while (C.x < end && run === mine) {
+        C.face = 1; C.x += cw; paint('W' + (i++ % 8)); place(); setU();
+        if (left > 0) { run.typed += key; left--; }
+        else if (Math.random() < .3 && run.typed.length < 18) {
+          const at = clamp(Math.floor((C.x + W * .7 - l.x0) / span * 10), 0, 9), row = Math.random() < .7 ? 1 : Math.random() < .5 ? 0 : 2;
+          key = ROWS[row][at]; left = Math.floor(rand(1, 4)); run.typed += key;
+        }
+        if (input.value !== run.typed.slice(0, -1) && input.value !== run.typed) { abort(); return; }
+        input.value = run.typed;
+        yield;
+      }
+      if (run !== mine) return;
+      // she stops, looks back at what she has written, and it goes, a few letters a tick
+      paint('SIT_LOOK'); C.face = -1; place();
+      yield* wait(sec(1.4));
+      while (run === mine && run.typed) {
+        if (input.value !== run.typed) { abort(); return; }
+        run.typed = run.typed.slice(0, -2); input.value = run.typed;
+        yield;
+      }
+      if (run !== mine) return;
+      run = null; listen(false);
+      T.log('shell', 'cat on the keyboard. input discarded');
+      if (done) done();
+      C.mode = 'sitting by the prompt'; C.rest = true;
+      yield* sitFor(sec(rand(3, 6)));
+    }
+    T.events.add('catkeys', { every: 900, weight: 1, max: 45000,
+      can: (o) => !offsite && quiet() && (o.force ? enabled && T.motion : free() || (!C.onstage && enabled && T.motion && now() > C.awayUntil && !riders.length && !guenHere())),
+      start(done) { take(keys(done)); return abort; } });
+  })();
 
   // ------------------------------------------------------------ the tracker
   // A map of the page in the margin of a wide screen, decks A to G, with a contact where the cat is.
@@ -5304,7 +6540,7 @@ window.CATDATA = {
         json('https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json').then((d) => d.find((r) => r.proton_speed != null) || d[0]),
         json('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json').then((d) => d[d.length - 1]),
       ]).then(([wind, kp]) => ({ v: Math.round(wind.proton_speed), n: +wind.proton_density, kp: +(kp.Kp != null ? kp.Kp : kp[1]) })))
-        .then((d) => { if (!d || !d.v) return; w.textContent = 'WIND ' + d.v + ' km/s\nKp ' + d.kp.toFixed(0) + (d.kp >= 5 ? ' · STORM' : ''); w.classList.toggle('storm', d.kp >= 5); w.hidden = false; T.spaceWeather = d; })
+        .then((d) => { if (!d || !d.v) return; w.textContent = 'WIND ' + d.v + ' km/s\nKp ' + d.kp.toFixed(0) + (d.kp >= 5 ? ' · STORM' : ''); w.classList.toggle('storm', d.kp >= 5); w.hidden = false; T.spaceWeather = d; if (T.onSpaceWeather) T.onSpaceWeather(d); })
         .catch(() => {});
       T.onReady(weather); setInterval(weather, 20 * 60 * 1000);
     }
@@ -5352,10 +6588,18 @@ window.CATDATA = {
       C, hitAt, canvas, get ledges() { return ledges; }, measure, say, poke, paint, place, show, hide,
       rider: makeRider, paintRider,
       run(name, arg) {
+        // Drizzt: run('drizzt'), or run('drizzt', 'guen') to have the panther come to him as soon as he has drawn
+        if (name === 'drizzt') { if (!window.DRIZZT) return false; C.awayUntil = 0; dzCall(window.DRIZZT(), arg === 'guen'); return name; }
         const B = { watch: () => watch(true), intro, climb, portal, ciri: () => portal(true), guen: () => guenhwyvar(window.GUEN()), perch, patrol, block, box, catnap, meddle, startle, chase, zoomies, chargeNap, promptNap, leave, knock, rest, offPrompt };
+        // the events are run by their own director, with the cat's part asked for
+        const EVENTS = { hunt: () => T.events.bughunt && T.events.bughunt({ hunt: true }), cross: () => T.events.crossing && T.events.crossing(), keys: () => T.events.catkeys && T.events.catkeys(),
+          mitosis: () => T.events.mitosis && T.events.mitosis({ kind: 'divide' }), repair: () => T.events.mitosis && T.events.mitosis({ kind: 'repair' }) };
+        if (EVENTS[name]) return EVENTS[name](arg) ? name : false;
         C.awayUntil = 0; take(B[name](arg)); return name;
       },
       poses: A.names,
+      // while he is here: drizzt.guen() calls her to him, drizzt.leave() sends him off, drizzt.guenLeave() sends her off first
+      drizzt: { guen() { DZ.want = 'guen'; }, leave() { DZ.want = 'leave'; }, guenLeave() { DZ.want = 'guenLeave'; }, get state() { return { here: dzHere(), busy: DZ.busy, guen: DZ.guen, globe: !!DZ.globe, pose: DZ.r ? DZ.r.pose : '' }; } },
       put(id, frac) {
         const l = ledges.find((k) => k.id === id || k.key === id); if (!l) return null;
         C.ledge = l; C.x = l.x0 + (l.x1 - l.x0) * (frac == null ? .5 : frac); C.y = topOf(l); setU(); place(); show(); return l.key;
