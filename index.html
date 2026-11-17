@@ -29,7 +29,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Yam Amir · YAMIR-1138</title>
+<title>Yam Amir · geneticist, GPCRs and genomics · YAMIR-1138</title>
 <meta name="description" content="Yam Amir (YAMIR-1138). Geneticist and PhD student: how GPCRs switch on, how genes nest inside other genes, what rare variants do in the clinic. Pellaeon, GPCompaRe and other things built along the way.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Yam Amir · YAMIR-1138">
@@ -40,7 +40,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Yam Amir, callsign YAMIR-1138, in amber phosphor on a dark screen, with a cat sitting on the name.">
 <meta property="og:site_name" content="YAMIR-1138">
-<meta property="og:locale" content="en">
+<meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Yam Amir · YAMIR-1138">
 <meta name="twitter:description" content="Genetics · structural bioinformatics · genomics. PhD student, TGGR Lab.">
@@ -51,26 +51,158 @@
 <link rel="canonical" href="https://yamir-1138.github.io/YAMIR-1138/">
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "Yam Amir",
-  "alternateName": "YAMIR-1138",
-  "url": "https://yamir-1138.github.io/YAMIR-1138/",
-  "jobTitle": "PhD student",
-  "affiliation": [
-    { "@type": "Organization", "name": "TGGR Lab" },
-    { "@type": "Organization", "name": "Tel Aviv University" },
-    { "@type": "Organization", "name": "Tel Aviv Sourasky Medical Center" }
-  ],
-  "memberOf": { "@type": "Organization", "name": "TGGR Lab", "url": "https://github.com/tggr-lab" },
-  "knowsAbout": ["Genetics", "Clinical genomics", "Structural bioinformatics", "G protein-coupled receptors", "Nested genes"],
-  "sameAs": [
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebSite",
+   "@id": "https://yamir-1138.github.io/YAMIR-1138/#website",
+   "url": "https://yamir-1138.github.io/YAMIR-1138/",
+   "name": "YAMIR-1138",
+   "alternateName": "Yam Amir",
+   "inLanguage": "en",
+   "publisher": {
+    "@id": "https://yamir-1138.github.io/YAMIR-1138/#person"
+   }
+  },
+  {
+   "@type": "ProfilePage",
+   "@id": "https://yamir-1138.github.io/YAMIR-1138/#page",
+   "url": "https://yamir-1138.github.io/YAMIR-1138/",
+   "name": "Yam Amir · YAMIR-1138",
+   "inLanguage": "en",
+   "dateModified": "2026-11-17",
+   "isPartOf": {
+    "@id": "https://yamir-1138.github.io/YAMIR-1138/#website"
+   },
+   "mainEntity": {
+    "@id": "https://yamir-1138.github.io/YAMIR-1138/#person"
+   },
+   "primaryImageOfPage": "https://yamir-1138.github.io/YAMIR-1138/og.png",
+   "mentions": {
+    "@id": "https://yamir-1138.github.io/YAMIR-1138/#projects"
+   }
+  },
+  {
+   "@type": "Person",
+   "@id": "https://yamir-1138.github.io/YAMIR-1138/#person",
+   "name": "Yam Amir",
+   "alternateName": "YAMIR-1138",
+   "url": "https://yamir-1138.github.io/YAMIR-1138/",
+   "description": "Geneticist and PhD student working on how proteins and genomes are put together: how a receptor switches on, how one gene can sit inside another, and what rare variants do in the clinic.",
+   "jobTitle": "PhD student",
+   "affiliation": [
+    {
+     "@type": "Organization",
+     "name": "TGGR Lab"
+    },
+    {
+     "@type": "Organization",
+     "name": "Tel Aviv University"
+    },
+    {
+     "@type": "Organization",
+     "name": "Tel Aviv Sourasky Medical Center"
+    }
+   ],
+   "memberOf": {
+    "@type": "Organization",
+    "name": "TGGR Lab",
+    "url": "https://github.com/tggr-lab"
+   },
+   "knowsAbout": [
+    "Genetics",
+    "Clinical genomics",
+    "Structural bioinformatics",
+    "G protein-coupled receptors",
+    "Nested genes"
+   ],
+   "identifier": {
+    "@type": "PropertyValue",
+    "propertyID": "ORCID",
+    "value": "0000-0002-4900-6345"
+   },
+   "sameAs": [
     "https://github.com/YAMIR-1138",
     "https://orcid.org/0000-0002-4900-6345",
     "https://scholar.google.com/citations?user=P9F-wMgAAAAJ",
     "https://www.researchgate.net/profile/Yam-Amir",
     "https://il.linkedin.com/in/yam-amir-640823191"
-  ]
+   ]
+  },
+  {
+   "@type": "ItemList",
+   "@id": "https://yamir-1138.github.io/YAMIR-1138/#projects",
+   "name": "Projects",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "item": {
+      "@type": "CreativeWork",
+      "name": "Pellaeon",
+      "description": "Talk to UCSF ChimeraX in plain English. A chat panel inside ChimeraX that turns what you type into commands, and shows you every command it ran.",
+      "url": "https://tggr-lab.github.io/pellaeon/",
+      "sameAs": "https://github.com/tggr-lab/pellaeon"
+     }
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "item": {
+      "@type": "CreativeWork",
+      "name": "GPCompaRe",
+      "description": "A database of what changes when a receptor switches on. Residue contacts compared between active and inactive states, receptor by receptor.",
+      "url": "https://tggr-lab.github.io/GPCompaRe/",
+      "sameAs": "https://github.com/tggr-lab/GPCompaRe"
+     }
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "item": {
+      "@type": "CreativeWork",
+      "name": "ΣpinZero",
+      "description": "Balances centrifuge rotors with number theory and roots of unity.",
+      "url": "https://yamir-1138.github.io/SpinZero/",
+      "sameAs": "https://github.com/YAMIR-1138/SpinZero"
+     }
+    },
+    {
+     "@type": "ListItem",
+     "position": 4,
+     "item": {
+      "@type": "CreativeWork",
+      "name": "GeNest",
+      "description": "Finds nested genes: genes that live inside other genes, across whole genomes.",
+      "url": "https://yamir-1138.github.io/genest-website/",
+      "sameAs": "https://github.com/YAMIR-1138/genest-website"
+     }
+    },
+    {
+     "@type": "ListItem",
+     "position": 5,
+     "item": {
+      "@type": "CreativeWork",
+      "name": "CO₂ Monitor",
+      "description": "A DIY CO₂ and temperature monitor for cell culture incubators, built on an ESP32.",
+      "url": "https://tggr-lab.github.io/incubator-co2-monitor/",
+      "sameAs": "https://github.com/tggr-lab/incubator-co2-monitor"
+     }
+    },
+    {
+     "@type": "ListItem",
+     "position": 6,
+     "item": {
+      "@type": "CreativeWork",
+      "name": "DOUGH_FORMULATOR",
+      "description": "A retro sourdough calculator built on true baker's percentages.",
+      "url": "https://yamir-1138.github.io/dough_formulator/",
+      "sameAs": "https://github.com/YAMIR-1138/dough_formulator"
+     }
+    }
+   ]
+  }
+ ]
 }
 </script>
 <meta name="theme-color" content="#060402">
